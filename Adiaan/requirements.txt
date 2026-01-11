@@ -1,6 +1,7 @@
 streamlit
 pandas
-qrcode
-Pillow
-openpyxl
 requests
+qrcode
+fpdf
+openpyxl
+ethiopian-date
