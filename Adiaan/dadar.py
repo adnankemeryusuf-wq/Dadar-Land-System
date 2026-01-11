@@ -144,3 +144,21 @@ else:
             csv = df.to_csv(index=False).encode('utf-8')
             st.download_button("Download CSV", data=csv, file_name="gabaasa_dadar.csv", mime="text/csv")
         else: st.info("Gabaasni agarsiifamu hin jiru.")
+
+import streamlit as st
+import os
+
+# Bakka fakkii logo kee itti kuuste
+LOGO_PATH = "logo.png" 
+
+# Logo sidebar irratti agarsiisuuf
+if os.path.exists(LOGO_PATH):
+    st.sidebar.image(LOGO_PATH, use_container_width=True)
+    
+# Logo fuula duraa irratti agarsiisuuf
+col1, col2 = st.columns([1, 5])
+with col1:
+    if os.path.exists(LOGO_PATH):
+        st.image(LOGO_PATH, width=100)
+with col2:
+    st.title("Waajjira Bulchiinsa Lafaa Magaalaa Dadar")
