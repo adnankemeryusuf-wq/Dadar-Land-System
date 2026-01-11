@@ -5,3 +5,6 @@ fpdf
 openpyxl
 plotly
 ethiopian-date
+customtkinter
+sqlite3
+python-dotenv
