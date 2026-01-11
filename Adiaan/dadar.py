@@ -14,6 +14,10 @@ PASS_WORD = "1234"
 BOT_TOKEN = "8586015354:AAEliISf-RtoeJ8anbVLapY3NBm7hz8dZWI"
 CHAT_ID_MANAGER = "568248052"
 DATA_FILE = "dadar_final_report.txt"
+LOGO_PATH = "Adiaan/logo.png"
+
+# --- WEB UI CONFIG (Browser Tab Icon) ---
+st.set_page_config(page_title="Dadar Land System", page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢")
 
 # --- FUNKSHIINIIWWAN ERGAA ---
 def send_telegram(file_data, file_name, file_type="doc", caption=""):
@@ -26,15 +30,16 @@ def send_telegram(file_data, file_name, file_type="doc", caption=""):
     except:
         st.error("[!] Ergaan Telegram hin darbine. Internet kee mirkaneeffadhu.")
 
-# --- WEB UI ---
-st.set_page_config(page_title="Dadar Land System", page_icon="🏢")
-st.title("🏢 W/Bulchiinsa Lafaa Magaalaa Dadar")
-
-# --- LOGIN ---
+# --- LOGIN LOGIC ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
+    # Fuula Login irratti logo agarsiisuuf
+    if os.path.exists(LOGO_PATH):
+        st.image(LOGO_PATH, width=120)
+    
+    st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
     with st.form("Login"):
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
@@ -45,10 +50,23 @@ if not st.session_state.logged_in:
             else:
                 st.error("Login Dogoggora!")
 else:
-    # --- MAIN MENU ---
+    # --- SIDEBAR (Logo & Menu) ---
+    if os.path.exists(LOGO_PATH):
+        st.sidebar.image(LOGO_PATH, use_container_width=True)
+    
+    st.sidebar.title("Main Menu")
     menu = ["Galmee Haaraa", "Gabaasa Excel (Telegram)", "Barbaadi (Search)", "Logout"]
     choice = st.sidebar.selectbox("Filannoo", menu)
 
+    # --- MAIN HEADER (Logo & Title) ---
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=80)
+    with col2:
+        st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+
+    # --- PAGES ---
     if choice == "Galmee Haaraa":
         st.subheader("📝 Galmee Haaraa Galchi")
         with st.form("EntryForm"):
@@ -90,13 +108,11 @@ else:
     elif choice == "Gabaasa Excel (Telegram)":
         st.subheader("📊 Gabaasa Gara Telegram Ergi")
         f = st.radio("Yeroo Filadhu:", ["Guyyaa 1", "Torbee 1", "Ji'a 1"])
-        days = {"Guyyaa 1": 1, "Torbee 1": 7, "Ji'a 1": 30}[f]
         
         if st.button("Gabaasa Ergi"):
             if os.path.exists(DATA_FILE):
-                # Excel Logic Simplified for Streamlit
                 st.info("Gabaasni qophaa'aa jira...")
-                # (Asitti logic Excel kee itti fufuu dandeessa)
+                # Asitti logic Excel kee itti fufuu dandeessa
                 st.success("Gabaasni hoggantatti ergameera!")
             else:
                 st.warning("Ragaan kuufame hin jiru.")
