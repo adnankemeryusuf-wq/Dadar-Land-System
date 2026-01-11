@@ -1,0 +1,7 @@
+Faayila: requirements.txt
+streamlit
+requests
+qrcode
+openpyxl
+pandas
+Pillow
