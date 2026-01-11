@@ -61,14 +61,12 @@ def generate_certificate(name, rank, year):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Border Miidhagaa (Double Frame)
+    # Border
     pdf.set_draw_color(31, 78, 120)
     pdf.set_line_width(2)
     pdf.rect(10, 10, 277, 190)
-    pdf.set_line_width(0.5)
-    pdf.rect(12, 12, 273, 186)
 
-    # Logo (If exists)
+    # Logo
     if LOGO_PATH:
         pdf.image(LOGO_PATH, x=135, y=15, w=25)
     
@@ -79,6 +77,33 @@ def generate_certificate(name, rank, year):
     pdf.set_text_color(31, 78, 120)
     pdf.cell(0, 15, 'SARTIFIKETII BADHAASA WAGGAA', ln=True, align='C')
     
-    # Title - English
+    # Title - English (Sarara dogoggora qaba ture)
     pdf.set_font('Arial', 'B', 20)
-    pdf.set_text_color(100, 100, 100
+    pdf.set_text_color(100, 100, 100) # Sararri kun ammaa mallattoo ')' qaba
+    pdf.cell(0, 10, 'ANNUAL AWARD CERTIFICATE', ln=True, align='C')
+    
+    pdf.ln(10)
+    pdf.set_text_color(0, 0, 0)
+    
+    # Content
+    pdf.set_font('Arial', '', 16)
+    pdf.cell(0, 10, f"Badhaasni kun ogeessa kabajamaa:", ln=True, align='C')
+    pdf.set_font('Arial', 'B', 22)
+    pdf.cell(0, 15, name.upper(), ln=True, align='C')
+    
+    pdf.set_font('Arial', '', 14)
+    text_oromo = f"Waggaa {year} keessa tajaajila quubsaa fi gahumsa qabuun hojjechuun badhaasa {rank}ffaa ta'uu keessaniif qophaa'e."
+    pdf.multi_cell(0, 10, text_oromo, align='C')
+    
+    # Signatures
+    pdf.ln(20)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.set_xy(40, 160)
+    pdf.cell(100, 7, "Obbo Aqiil Abdujaliil", ln=True, align='L')
+    pdf.set_font('Arial', '', 10)
+    pdf.set_x(40)
+    pdf.cell(100, 5, "Itti Gaafatamaa Waajjiraa / Office Head", ln=True, align='L')
+
+    return pdf.output(dest='S').encode('latin-1')
+   pdf.set_text_color(100, 100, 100)
+
