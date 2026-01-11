@@ -18,9 +18,6 @@ PASS_WORD = "1234"
 # Telegram & SMS Config
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
-SMS_TOKEN = "7b96636f-e286-4aae-ba20-b7dd310897db"
-SMS_URL = "http://10.181.252.6:8082/send" # IP Gateway kee
-DEVICE_ID = "1" # Device ID kee yoo qabaatte asitti jijjiiri
 
 DATA_FILE = "dadar_final_report.txt"
 LOGO_PATH = "logo.png"
@@ -169,3 +166,4 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
