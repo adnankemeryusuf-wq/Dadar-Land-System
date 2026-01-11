@@ -16,7 +16,7 @@ SMS_TOKEN = "7b96636f-e286-4aae-ba20-b7dd310897db"
 SMS_URL = "http://10.181.252.6:8082/send" 
 DEVICE_ID = "1" 
 DATA_FILE = "dadar_final_report.txt"
-LOGO_PATH = "logo.png" # Fakkii logo kee asitti kaa'i
+LOGO_PATH = "logo.png" 
 
 # --- 3. HELPER FUNCTIONS ---
 def to_eth_date(dt):
@@ -72,13 +72,8 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    # --- HEADER WITH LOGO ---
-    col1, col2 = st.columns([1, 6])
-    with col1:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=80)
-    with col2:
-        st.markdown('<div class="header-box"><h1>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1></div>', unsafe_allow_html=True)
+    # --- MAIN HEADER ---
+    st.markdown('<div class="header-box"><h1>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1></div>', unsafe_allow_html=True)
 
     # Load Data
     if os.path.exists(DATA_FILE):
@@ -95,6 +90,7 @@ else:
             with c1: st.markdown(f'<div class="metric-card">👤 Galmee Waliigalaa<br><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
             with c2: st.markdown(f'<div class="metric-card">💰 Galii Waliigalaa<br><h2>{df["Waligala"].sum():,.2f} ETB</h2></div>', unsafe_allow_html=True)
             with c3: st.markdown(f'<div class="metric-card">🛠 Tajaajila Baay\'ee<br><h2>{df["Dhimma"].mode()[0]}</h2></div>', unsafe_allow_html=True)
+            
             
             fig = px.pie(df, names="Dhimma", values="Waligala", title="Raawwii Gosa Tajaajilaa (Galii)")
             st.plotly_chart(fig, use_container_width=True)
