@@ -1,7 +1,7 @@
 streamlit
-pandas
 requests
-qrcode
+pandas
 fpdf
 openpyxl
+plotly
 ethiopian-date
