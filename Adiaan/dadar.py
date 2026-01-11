@@ -178,3 +178,59 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+def uumi_excel_gabaasa():
+    if not os.path.exists(DB_FILE): 
+        print("[!] Data'n hin jiru.")
+        return
+        
+    wb = openpyxl.Workbook()
+    sheet = wb.active
+    sheet.title = "Gabaasa Galii"
+    
+    # Mata duree (Headers)
+    headers = ["ID", "Guyyaa", "Maqaa", "Bilbila", "Araddaa", "Wirtuu", "Dhimma", "Kartaa", "Lizi", "Beellama", "Ogeessa", "Status"]
+    sheet.append(headers)
+    
+    # Style mata duree (Header styling)
+    for cell in sheet[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+
+    total_kartaa = 0
+    total_lizi = 0
+    guyyaa_arraa = datetime.now().strftime("%Y-%m-%d")
+
+    with open(DB_FILE, "r") as f:
+        for line in f:
+            # Data hiraa (Parsing)
+            parts = [x.split(":")[1].strip() for x in line.split("|")]
+            
+            # Galmee guyyaa arraa qofa calaluu yoo barbaadde (Optional)
+            # if guyyaa_arraa not in parts[1]: continue
+
+            sheet.append(parts)
+            
+            # Herrega Iddaamaa (Calculation)
+            # parts[7] = Kartaa, parts[8] = Lizi
+            try:
+                total_kartaa += float(parts[7])
+                total_lizi += float(parts[8])
+            except:
+                pass # Yoo lakkoofsa hin taane irra darba
+
+    # Sarara Iddaama Waliigalaa (Total Row) dabaluu
+    sheet.append([]) # Sarara duwwaa tokko dhiisuuf
+    total_row = ["", "", "", "", "", "", "IDDAAMA WALIIGALAA:", total_kartaa, total_lizi, "", "", ""]
+    sheet.append(total_row)
+
+    # Style sarara iddaamaa (Make it bold)
+    last_row = sheet.max_row
+    for cell in sheet[last_row]:
+        cell.font = Font(bold=True)
+        if cell.column in [7, 8, 9]: # Iddaama qofa irratti halluu dibuuf
+            cell.fill = PatternFill(start_color="D9EAD3", end_color="D9EAD3", fill_type="solid")
+
+    file_name = f"gabaasa_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx"
+    wb.save(file_name)
+    send_telegram_report(file_name)
+    print(f"[✓] Gabaasni galii waliin qophaa'eera: {file_name}")
