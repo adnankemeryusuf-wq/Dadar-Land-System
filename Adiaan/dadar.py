@@ -7,6 +7,9 @@ from datetime import datetime
 from io import BytesIO
 from ethiopian_date import EthiopianDateConverter
 
+with col2:
+    st.title("Waajjira Lafaa Bulchiinsa Magaalaa Dadar")
+
 # --- 1. CONFIGURATION ---
 st.set_page_config(page_title="Dadar Land System V9", layout="wide", page_icon="🏢")
 
@@ -145,20 +148,4 @@ else:
             st.download_button("Download CSV", data=csv, file_name="gabaasa_dadar.csv", mime="text/csv")
         else: st.info("Gabaasni agarsiifamu hin jiru.")
 
-import streamlit as st
-import os
 
-# Bakka fakkii logo kee itti kuuste
-LOGO_PATH = "logo.png" 
-
-# Logo sidebar irratti agarsiisuuf
-if os.path.exists(LOGO_PATH):
-    st.sidebar.image(LOGO_PATH, use_container_width=True)
-    
-# Logo fuula duraa irratti agarsiisuuf
-col1, col2 = st.columns([1, 5])
-with col1:
-    if os.path.exists(LOGO_PATH):
-        st.image(LOGO_PATH, width=100)
-with col2:
-    st.title("Waajjira Bulchiinsa Lafaa Magaalaa Dadar")
