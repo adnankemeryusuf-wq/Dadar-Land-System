@@ -13,10 +13,13 @@ st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="üè
 
 USER_NAME = "admin"
 PASS_WORD = "1234"
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
+SMS_TOKEN = "7b96636f-e286-4aae-ba20-b7dd310897db"
+SMS_URL = "http://10.181.252.6:8082/send" 
+DEVICE_ID = "1" 
 DATA_FILE = "dadar_final_report.txt"
-# Logoon kee maqaa kanaan folder koodiin jiru keessa jiraachuu qaba
 LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
-
 # --- 2. CSS STYLE (UI BAREEDAA) ---
 st.markdown("""
     <style>
@@ -245,9 +248,9 @@ def generate_certificate(name, rank, year):
     pdf.set_line_width(1)
     pdf.rect(7, 7, 283, 196)
 
-    # Logo
+   # Logo
     if LOGO_PATH:
-        pdf.image(LOGO_PATH, x=130, y=12, w=35)
+        pdf.image(LOGO_PATH, x=130, y=12, w=35) 
     
     pdf.ln(40)
     
@@ -373,5 +376,6 @@ else:
     elif choice == "üö™ Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
