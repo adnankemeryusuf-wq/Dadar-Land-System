@@ -14,7 +14,8 @@ st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="�
 USER_NAME = "admin"
 PASS_WORD = "1234"
 DATA_FILE = "dadar_final_report.txt"
-LOGO_PATH = "logo.png"  # Maqaa faayila logo keetii mirkaneessi
+# Logoon kee maqaa kanaan folder koodiin jiru keessa jiraachuu qaba
+LOGO_PATH = "logo.png" 
 
 # --- 2. CSS STYLE (UI BAREEDAA) ---
 st.markdown("""
@@ -34,6 +35,7 @@ st.markdown("""
         max-width: 450px; margin: auto; padding: 40px; 
         background: white; border-radius: 20px; 
         box-shadow: 0 10px 30px rgba(0,0,0,0.15); 
+        text-align: center;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -50,14 +52,14 @@ def generate_certificate(name, rank, year):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Border (Double Line)
+    # Border (Double Frame)
     pdf.set_draw_color(31, 78, 120)
     pdf.set_line_width(2.5)
     pdf.rect(10, 10, 277, 190)
     pdf.set_line_width(0.5)
     pdf.rect(12, 12, 273, 186)
 
-    # --- LOGO SARTIFIKETII IRRATTII ---
+    # --- 🖼️ LOGO SARTIFIKETII IRRATTII ---
     if os.path.exists(LOGO_PATH):
         pdf.image(LOGO_PATH, x=135, y=15, w=28) # Gidduu gubbaatti
     
@@ -82,7 +84,7 @@ def generate_certificate(name, rank, year):
     
     pdf.ln(5)
     pdf.set_font('Arial', '', 14)
-    txt_or = f"Waggaa {year} keessa tajaajila quubsaa fi gahumsa qabuun hojjechuun badhaasa {rank} ta'uu keessaniif qophaa'e."
+    txt_or = f"Waggaa {year} keessa tajaajila quubsaa fi gahumsa qabuun hojjechuun badhaasa {rank}ffaa ta'uu keessaniif qophaa'e."
     pdf.multi_cell(0, 10, txt_or, align='C')
     
     # Signature: Obbo Aqiil Abdujaliil
@@ -102,16 +104,17 @@ def generate_certificate(name, rank, year):
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    # --- LOGIN PAGE WITH LOGO ---
+    # --- 🖼️ LOGIN PAGE WITH LOGO ---
+    st.markdown('<br><br>', unsafe_allow_html=True)
     _, col, _ = st.columns([1,1.5,1])
     with col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         if os.path.exists(LOGO_PATH): 
             st.image(LOGO_PATH, width=120)
-        st.subheader("Dadar Land System Login")
+        st.header("Dadar Land System")
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
-        if st.button("SEENI / LOGIN"):
+        if st.button("SEENI / LOGIN", use_container_width=True):
             if u == USER_NAME and p == PASS_WORD:
                 st.session_state.logged_in = True
                 st.rerun()
@@ -120,33 +123,36 @@ if not st.session_state.logged_in:
 else:
     # --- 5. MAIN INTERFACE ---
     
-    # --- SIDEBAR WITH LOGO ---
+    # --- 🖼️ SIDEBAR WITH LOGO ---
     with st.sidebar:
         if os.path.exists(LOGO_PATH): 
             st.image(LOGO_PATH, use_container_width=True)
+        st.markdown("<h2 style='text-align: center;'>Dadar Land</h2>", unsafe_allow_html=True)
         menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa & Sartifiketii", "🚪 Logout"]
         choice = st.selectbox("Funaansa", menu)
         st.divider()
         st.info(f"📅 {to_ethiopian(datetime.now())}")
 
-    # --- HEADER WITH LOGO ---
+    # --- 🖼️ HEADER WITH LOGO ---
     st.markdown('<div class="header-box">', unsafe_allow_html=True)
-    col_l, col_r = st.columns([1, 5])
+    col_l, col_r = st.columns([1, 6])
     with col_l:
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=90)
+        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=100)
     with col_r:
-        st.markdown("<h1>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1><p>Sistama Bulchiinsa Ragaa fi Galmee Ammayyaa</p>", unsafe_allow_html=True)
+        st.markdown("<h1 style='margin-bottom:0;'>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='font-size:1.2rem;'>Sistama Bulchiinsa Ragaa fi Galmee Ammayyaa</p>", unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
     # --- DASHBOARD ---
     if choice == "🏠 Dashboard":
-        st.subheader("Baga Nagaan Deebitan!")
         if os.path.exists(DATA_FILE):
             df = pd.read_csv(DATA_FILE, sep="|", header=None)
             c1, c2, c3 = st.columns(3)
             c1.metric("👥 Abbootii Dhimmaa", len(df))
             c2.metric("💰 Galii Waligalaa", f"{df.iloc[:, -1].astype(float).sum():,.2f} ETB")
-            c3.metric("📈 Status", "Hojirra Jira")
+            c3.metric("📈 Status", "Hojirra Jira ✅")
+            
+            st.write("### 🕒 Galmeewwan Dhiyoo")
             st.dataframe(df.tail(10), use_container_width=True)
         else:
             st.info("Ragaan galmaa'e hin jiru.")
