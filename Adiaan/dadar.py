@@ -121,8 +121,8 @@ if not st.session_state.logged_in:
     with col:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         if LOGO_PATH: st.image(LOGO_PATH, width=120)
-        st.markdown("<h2 style='color:#1e3a8a; margin-top:15px;'>Dadar Land Administration Customer Registration system</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='color:#64748b;'>Maaloo ragaa kee galchuun seeni</p>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color:#15803d; margin-top:15px;'>Dadar Land Administration Customer Registration system</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#15803d;'>Maaloo ragaa kee galchuun seeni</p>", unsafe_allow_html=True)
         u = st.text_input("Username", placeholder="Maqaa kee...")
         p = st.text_input("Password", type="password", placeholder="Fungulaa...")
         if st.button("SEENI / LOGIN"):
@@ -135,7 +135,7 @@ else:
     # --- 5. MAIN UI ---
     with st.sidebar:
         if LOGO_PATH: st.image(LOGO_PATH, use_container_width=True)
-        st.markdown("<h3 style='text-align:center; color:#d4af37;'>Dadar Land Administration Customer Registration system</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center; color:#15803d;'>Dadar Land Administration Customer Registration system</h3>", unsafe_allow_html=True)
         st.divider()
         menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa & Sartifiketii", "🚪 Logout"]
         choice = st.selectbox("Menu Filadhu", menu)
@@ -220,6 +220,7 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
