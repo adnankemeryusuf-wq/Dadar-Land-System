@@ -11,7 +11,7 @@ from ethiopian_date import EthiopianDateConverter
 # --- 1. QINDAA'INA (CONFIG) ---
 st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="🏢")
 
-USER_NAME = "Lafaa2026"
+USER_NAME = "Lafa2026"
 PASS_WORD = "Dadar"
 DATA_FILE = "dadar_final_report.txt"
 LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
@@ -220,6 +220,7 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
