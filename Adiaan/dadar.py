@@ -106,7 +106,7 @@ def uumi_gabaasa_target(filter_type, value, label):
             if sf: send_telegram_file(sf, f"📜 Badhaasa Ogeessa Waggaa: {top[0][0]}")
 
 def galmeessi():
-    print("\n--- GALMEE HAARAA ---")
+    print("\n" + "-"*10 + " GALMEE HAARAA " + "-"*10)
     ad = input("Maqaa Mamiilaa: "); ar = input("Araddaa: "); wi = input("Wirtuu: ")
     bad = input("Bilbila Mamiilaa: "); gs = input("Gosa Tajaajilaa: ")
     og = input("Maqaa Ogeessaa: "); bog = input("Bilbila Ogeessaa: ")
@@ -121,8 +121,63 @@ def galmeessi():
     # SMS & Notifications
     send_sms(bad, f"Kabajamaa {ad}, tajaajila {gs}af beellama {gb} qabattu. Ogeessa: {og}.")
     send_sms(bog, f"Ogeessa {og}, mamiila {ad} tajaajiluuf beellama {gb} qabdu.")
-    print("\n[✓] Galmeeffameera!")
+    print("\n[✓] Galmeeffameera! SMS fi Telegram notification ergameera.")
 
 def barbaadi():
-    print("\n--- BARBAADU (SEARCH) ---")
-    maqaa = input("Maqaa mamiilaa galchi: ").lower
+    print("\n" + "-"*10 + " BARBAADU (SEARCH) " + "-"*10)
+    maqaa = input("Maqaa mamiilaa galchi: ").lower()
+    found = False
+    
+    if not os.path.exists(DATA_FILE):
+        print("[!] Galmeen ragaa hin jiru.")
+        return
+
+    with open(DATA_FILE, "r") as f:
+        for line in f:
+            p = line.strip().split("|")
+            if maqaa in p[1].lower(): # Maqaa mamiilaa p[1] keessa jira
+                print(f"\n✅ Argameera:")
+                print(f"   Maqaa: {p[1]}\n   Guyyaa: {p[0]}\n   Tajaajila: {p[5]}\n   Ogeessa: {p[6]}\n   Beellama: {p[8]}")
+                found = True
+    
+    if not found:
+        print(f"[!] Mamiilli maqaa '{maqaa}' jedhu hin argamne.")
+
+# --- MAIN EXECUTION ---
+
+if __name__ == "__main__":
+    if not os.path.exists(DATA_FILE):
+        open(DATA_FILE, "w").close()
+
+    print("\n" + "="*40)
+    print("  SIRNA BULCHIINSA LAFAA MAGAALAA DADAR")
+    print("="*40)
+    
+    u = input("Username: ")
+    p = input("Password: ")
+
+    if u == USER_NAME and p == PASS_WORD:
+        while True:
+            print("\n1. Galmee Mamiilaa")
+            print("2. Gabaasa Guyyaa (Excel)")
+            print("3. Gabaasa Ji'aa (Excel)")
+            print("4. Mamiila Barbaadi (Search)")
+            print("5. Exit")
+            
+            filla = input("\nFilannoo kee: ")
+            
+            if filla == '1':
+                galmeessi()
+            elif filla == '2':
+                uumi_gabaasa_target("guyyaa", datetime.now().strftime("%A"), "Guyyaa_Hammaa")
+            elif filla == '3':
+                uumi_gabaasa_target("jia", datetime.now().month, "Ji'a_Ammaa")
+            elif filla == '4':
+                barbaadi()
+            elif filla == '5':
+                print("Hojii gaarii, nagaan turaa!")
+                break
+            else:
+                print("[!] Filannoo dogoggoraa!")
+    else:
+        print("[!] Login Error: Username ykn Password dogoggora.")
