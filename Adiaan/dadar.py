@@ -197,3 +197,60 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+import streamlit as st
+
+# --- 1. QINDAA'INA STYLE (CSS) ---
+st.markdown("""
+    <style>
+    .main {
+        background-color: #f0f2f6;
+    }
+    .stButton>button {
+        background-color: #007bff;
+        color: white;
+        border-radius: 10px;
+        width: 100%;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 2. SESSION STATE (LOGIN CHECK) ---
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# --- 3. LOGIN SCREEN ---
+if not st.session_state.logged_in:
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        st.header("Login - Dadar Land System")
+        u = st.text_input("Username", key="login_user_id")
+        p = st.text_input("Password", type="password", key="login_pass_id")
+        
+        if st.button("SEENI"):
+            if u == "admin" and p == "1234": # Icciitii kee asitti jijjiiri
+                st.session_state.logged_in = True
+                st.success("Milkiin seenteetta!")
+                st.rerun()
+            else:
+                st.error("Maqaa ykn Password dogoggora!")
+else:
+    # --- 4. MAIN APP (DASHBOARD) ---
+    st.sidebar.title("Menu")
+    choice = st.sidebar.radio("Filannoo", ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa"])
+    
+    if st.sidebar.button("Log Out"):
+        st.session_state.logged_in = False
+        st.rerun()
+
+    if choice == "🏠 Dashboard":
+        st.title("🏠 Dashboard Waliigalaa")
+        # Dashboard kee asitti itti fufi...
+
+    elif choice == "📝 Galmee Haaraa":
+        st.title("📝 Galmee Abbaa Dhimmaa")
+        with st.form(key='AbbaaDhimmaaGalmeeForm'):
+            maqaa = st.text_input("Maqaa Guutuu", key="reg_name")
+            bilbila = st.text_input("Lakk. Bilbilaa", key="reg_phone")
+            submit = st.form_submit_button("Galmeessi")
+            if submit:
+                st.write(f"{maqaa} galmeeffameera!")
