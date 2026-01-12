@@ -132,4 +132,71 @@ else:
         st.divider()
         st.info(f"📅 {to_ethiopian(datetime.now())}")
 
-    st.markdown('<div class="header-box
+    st.markdown('<div class="header-box"><h1>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1></div>', unsafe_allow_html=True)
+
+    df = load_data()
+
+    if choice == "🏠 Dashboard":
+        c1, c2, c3 = st.columns(3)
+        with c1: st.markdown(f'<div class="metric-card"><h3>👥 Galmee</h3><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
+        with c2: st.markdown(f'<div class="metric-card"><h3>💰 Galii</h3><h2>{df["Kafaltii"].sum():,.2f}</h2></div>', unsafe_allow_html=True)
+        with c3: st.markdown(f'<div class="metric-card"><h3>📅 Guyyaa</h3><h2>{to_ethiopian(datetime.now())[:5]}</h2></div>', unsafe_allow_html=True)
+        
+        if not df.empty:
+            st.write("### 📈 Raawwii Hojii")
+            st.bar_chart(df['Dhimma'].value_counts())
+        else:
+            st.info("Ragaan galmaa'e hin jiru.")
+
+    elif choice == "📝 Galmee Haaraa":
+        st.subheader("📝 Galmee Abbaa Dhimmaa Haaraa")
+        with st.form("galmee_form", clear_on_submit=True):
+            m_name = st.text_input("Maqaa Guutuu")
+            m_phone = st.text_input("Bilbila")
+            m_dhimma = st.selectbox("Gosa Tajaajilaa", ["Kartaa", "Jijjiirraa Maqaa", "Safara", "Lizi"])
+            m_price = st.number_input("Kafaltii (ETB)", min_value=0.0)
+            
+            if st.form_submit_button("Galmeessi"):
+                if m_name and m_phone:
+                    new_entry = pd.DataFrame([[datetime.now().strftime("%Y-%m-%d"), m_name, m_phone, m_dhimma, m_price]], 
+                                            columns=["Guyyaa", "Maqaa", "Bilbila", "Dhimma", "Kafaltii"])
+                    new_entry.to_csv(DATA_FILE, mode='a', header=False, index=False)
+                    st.success(f"{m_name} milkiin galmeeffameera!")
+                    st.balloons()
+                else:
+                    st.warning("Maaloo maqaa fi bilbila galchi.")
+
+    elif choice == "📊 Gabaasa & Sartifiketii":
+        tab1, tab2 = st.tabs(["📊 Gabaasa Mamiilaa", "🎓 Sartifiketii Ogeessaa"])
+        
+        with tab1:
+            st.subheader("Ragaa Mamiilaa Waliigalaa")
+            st.dataframe(df, use_container_width=True)
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button("Gabaasa Excel Buufadhu", csv, "gabaasa_dadar.csv", "text/csv")
+        
+        with tab2:
+            st.subheader("🎓 Sartifiketii Badhaasaa Qopheessi")
+            
+            # Certificate Layout Preview Illustration
+            
+            
+            c_name = st.text_input("Maqaa Ogeessaa (Full Name)")
+            c_rank = st.selectbox("Sadarkaa Badhaasaa", ["1ffaa", "2ffaa", "3ffaa", "Badhaasa Addaa"])
+            c_year = st.text_input("Waggaa Tajaajilaa (E.C)", "2017/18")
+            
+            if st.button("🎨 GENERATE PDF CERTIFICATE"):
+                if c_name:
+                    try:
+                        pdf_bytes = generate_certificate(c_name, c_rank, c_year)
+                        st.download_button(f"📥 Sartifiketii {c_name} Buufadhu", pdf_bytes, f"Award_{c_name}.pdf", "application/pdf")
+                        st.success("Sartifiketiin qophaa'eera!")
+                        st.balloons()
+                    except Exception as e:
+                        st.error(f"Dogoggora PDF uumuu irratti: {e}")
+                else:
+                    st.warning("Maaloo maqaa ogeessaa guuti.")
+
+    elif choice == "🚪 Logout":
+        st.session_state.logged_in = False
+        st.rerun()
