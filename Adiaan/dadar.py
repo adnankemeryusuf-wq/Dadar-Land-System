@@ -135,9 +135,12 @@ else:
             with col2:
                 dhimma = st.selectbox("Dhimma", ["Kartaa", "Itti Fayyadam", "Jijjiirraa Maqaa", "Safara", "Gibira" ,"Gibira"])
                 beellama = st.date_input("Guyyaa Beellamaa")
+                itti = st.number_input("Kafaltii Itti Fayyadam", value=0.0)
                 kartaa = st.number_input("Kafaltii Kartaa", value=0.0)
                 lizi = st.number_input("Kafaltii Jijjirraa Maqaa", value=0.0)
                 lizi = st.number_input("Kafaltii Lizi Duraa", value=0.0)
+                tot = st.number_input("Kafaltii TOT", value=0.0)
+                kan biro = st.number_input("Kafaltii Kan Biro", value=0.0)
             ogeessa = st.text_input("Maqaa Ogeessaa (Safaraaf yoo ta'e)")
             bilbila_o = st.text_input("Bilbila Ogeessaa")
 
@@ -193,4 +196,5 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
