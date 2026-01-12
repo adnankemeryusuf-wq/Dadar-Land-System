@@ -8,13 +8,12 @@ from fpdf import FPDF
 from ethiopian_date import EthiopianDateConverter
 
 # --- 1. QINDAA'INA (CONFIG) ---
-st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="🏢")
+st.set_page_config(page_title="Dadar Land System V9.5", layout="wide", page_icon="🏢")
 
-USER_NAME = "admin"
-PASS_WORD = "1234"
-DATA_FILE = "dadar_final_report.txt"
+# Credentials & Paths
+USER_NAME, PASS_WORD = "admin", "1234"
+SMS_TOKEN = "7b96636f-e286-4aae-ba20-b7dd310897db"
 
-# Logoon kee maqaa 'logo.png' jedhuun folder koodiin kun jiru keessa jiraachuu qaba
 LOGO_PATH = "logo.png" if os.path.exists("logo.png") else None
 # --- 2. CSS STYLE (UI AMMAYYAA) ---
 st.markdown("""
@@ -147,4 +146,5 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
