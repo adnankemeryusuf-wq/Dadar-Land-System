@@ -128,7 +128,7 @@ else:
     # --- 5. MAIN INTERFACE ---
     with st.sidebar:
         if LOGO_PATH: st.image(LOGO_PATH, use_container_width=True)
-        st.title("Dadar Land")
+        st.title("Dadar Land Administration Customer Registration System")
         menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa & Sartifiketii", "🚪 Logout"]
         choice = st.sidebar.selectbox("Funaansa", menu)
         st.divider()
@@ -213,6 +213,7 @@ st.markdown("""
 # --- 2. SESSION STATE (LOGIN CHECK) ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+
 
 
 
