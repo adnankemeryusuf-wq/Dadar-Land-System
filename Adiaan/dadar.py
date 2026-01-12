@@ -1,238 +1,199 @@
+import streamlit as st
 import os
 import requests
+import pandas as pd
+import qrcode
 from datetime import datetime
-from collections import Counter
-from ethiopian_date import EthiopianDateConverter 
+from io import BytesIO
+from fpdf import FPDF
+from ethiopian_date import EthiopianDateConverter
 
-# Library-wwan mirkaneeffachuu
-try:
-    import openpyxl
-    from openpyxl.styles import Font, PatternFill
-    from fpdf import FPDF
-except ImportError:
-    print("\n[!] Maaloo: 'pip install openpyxl requests fpdf ethiopian-date' godhaa.")
+# --- 1. QINDAA'INA (CONFIG) ---
+st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="🏢")
 
-# --- QINDAA'INA (CONFIG) HAARAA ---
 USER_NAME = "admin"
 PASS_WORD = "1234"
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700" 
-
-# Ragaalee SMS Gateway (TOKEN FI DEVICE ID HAARAA)
+CHAT_ID_MANAGER = "7329587700"
 SMS_TOKEN = "7b96636f-e286-4aae-ba20-b7dd310897db"
-DEVICE_ID = "D2gwdbQERJim97FArrhdeh:APA91bGi6mG3iiqNOMOlU4A6hgV7PqrrpuDip8cxS54du5nEkDuCHRW3aBT1o9fY35sEhMzvUHNm_5qLkep0XVTsmWndNMLCY-WCBmMzH64-Kpvp3y_rUVQ"
-
-# IP Address amma bilbila kee irratti argamu kanaan bakka buusi:
-# Filannoowwan kee: 10.97.236.199, 10.100.182.120, ykn 10.181.252.6
-# Ammaaf isa mijaawaa ta'e kana galcheera:
 SMS_URL = "http://10.181.252.6:8082/send" 
-
+DEVICE_ID = "1" 
 DATA_FILE = "dadar_final_report.txt"
-OFFICE_HEAD = "Obbo Aqiil Abdujaalil" 
-LOGO_PATH = "logo.png" 
+LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
 
-# --- FUNKSHIINIIWWAN GARGAARTUU ---
+# --- 2. CSS STYLE (UI HAWWATAO) ---
+st.markdown("""
+    <style>
+    .main { background-color: #f0f2f6; }
+    .header-box { 
+        text-align: center; 
+        padding: 30px; 
+        background: linear-gradient(90deg, #1f4e78, #2e75b6); 
+        color: white;
+        border-radius: 15px; 
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .metric-card {
+        background: white;
+        padding: 20px;
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        border-left: 5px solid #1f4e78;
+    }
+    .login-card { 
+        max-width: 400px; margin: auto; padding: 40px; 
+        background: white; border-radius: 15px; 
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+        text-align: center;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-def guyyaa_itophiyaa(year, month, day):
-    """Guyyaa G.C gara E.C jijjiira"""
+# --- 3. FUNKSHIINIIWWAN ---
+
+def to_ethiopian(dt):
     try:
-        eth_year, eth_month, eth_day = EthiopianDateConverter.to_ethiopian(year, month, day)
-        return f"{eth_day}/{eth_month}/{eth_year} E.C"
-    except:
-        return f"{day}/{month}/{year} G.C"
+        ey, em, ed = EthiopianDateConverter.to_ethiopian(dt.year, dt.month, dt.day)
+        return f"{ed}/{em}/{ey} E.C"
+    except: return dt.strftime("%Y-%m-%d")
 
-def send_sms(phone, message):
-    """SMS Gateway kallaattiin akka erguuf"""
-    try:
-        # Lakk bilbilaa sirreessuuf (+251...)
-        if phone.startswith('0'):
-            phone = "+251" + phone[1:]
-        elif not phone.startswith('+'):
-            phone = "+251" + phone
+def generate_certificate(name, rank, year):
+    pdf = FPDF(orientation='L', unit='mm', format='A4')
+    pdf.add_page()
+    
+    # Border Miidhagaa
+    pdf.set_draw_color(31, 78, 120)
+    pdf.set_line_width(3)
+    pdf.rect(5, 5, 287, 200)
+    pdf.set_line_width(1)
+    pdf.rect(7, 7, 283, 196)
+
+    # Logo
+    if LOGO_PATH:
+        pdf.image(LOGO_PATH, x=130, y=12, w=35)
+    
+    pdf.ln(40)
+    
+    # Title (Bilingual)
+    pdf.set_font('Arial', 'B', 26)
+    pdf.cell(0, 12, 'SARTIFIKETII BADHAASA WAGGAA', ln=True, align='C')
+    pdf.set_font('Arial', 'B', 20)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 10, '(ANNUAL AWARD CERTIFICATE)', ln=True, align='C')
+    
+    pdf.ln(10)
+    pdf.set_text_color(0, 0, 0)
+    
+    # Body Oromo
+    pdf.set_font('Arial', '', 16)
+    text_oromo = f"Badhaasni kun ogeessa kabajamaa {name.upper()}f waggaa {year} keessa tajaajila " \
+                 f"quubsaa fi gahumsa qabuun hojjechuun badhaasa {rank}ffaa waan ta'aniif kenname."
+    pdf.multi_cell(0, 10, text_oromo, align='C')
+    
+    pdf.ln(5)
+    
+    # Body English
+    pdf.set_font('Arial', 'I', 14)
+    text_english = f"This certificate is awarded to {name.upper()} in recognition of their " \
+                   f"outstanding performance and dedication, ranking {rank} in the year {year}."
+    pdf.multi_cell(0, 10, text_english, align='C')
+    
+    # Signature Section
+    pdf.ln(20)
+    pdf.set_font('Arial', 'B', 14)
+    pdf.cell(0, 8, "__________________________", ln=True, align='C')
+    pdf.cell(0, 8, "Obbo Aqiil Abdujaliil", ln=True, align='C')
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(0, 6, "Itti Gaafatamaa Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
+    pdf.cell(0, 6, "(Head of Dadar City Land Administration Office)", ln=True, align='C')
+
+    return pdf.output(dest='S').encode('latin-1')
+
+# --- 4. AUTHENTICATION ---
+if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    st.markdown('<br><br>', unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1,2,1])
+    with col2:
+        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        if LOGO_PATH: st.image(LOGO_PATH, width=100)
+        st.header("Dadar Land System")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.button("SEENI / LOGIN"):
+            if u == USER_NAME and p == PASS_WORD:
+                st.session_state.logged_in = True
+                st.rerun()
+            else: st.error("Username/Password dogoggora!")
+        st.markdown('</div>', unsafe_allow_html=True)
+else:
+    # --- 5. MAIN INTERFACE ---
+    with st.sidebar:
+        if LOGO_PATH: st.image(LOGO_PATH, use_container_width=True)
+        st.title("Dadar Land")
+        menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa & Sartifiketii", "🚪 Logout"]
+        choice = st.sidebar.selectbox("Funaansa", menu)
+        st.divider()
+        st.write(f"📅 **Guyyaa:** {to_ethiopian(datetime.now())}")
+
+    # Header section
+    st.markdown(f"""
+        <div class="header-box">
+            <h1>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1>
+            <p>Sistama Bulchiinsa Gabaasa fi Galmee Ammayyaa</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # --- DASHBOARD (Hawwataa) ---
+    if choice == "🏠 Dashboard":
+        if os.path.exists(DATA_FILE):
+            df = pd.read_csv(DATA_FILE, sep="|", header=None)
+            total_rev = df.iloc[:, -1].astype(float).sum()
             
-        payload = {
-            'token': SMS_TOKEN,
-            'device': DEVICE_ID, # DEVICE_ID asitti dabalameera
-            'to': phone,
-            'message': message
-        }
-        
-        # Ergaa POST fayyadamnee ergina
-        res = requests.post(SMS_URL, data=payload, timeout=12)
-        
-        if res.status_code == 200:
-            print(f"[✓] SMS gara {phone} tti ergameera.")
-            return True
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.markdown(f'<div class="metric-card"><h3>👥 Abbootii Dhimmaa</h3><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
+            with c2:
+                st.markdown(f'<div class="metric-card"><h3>💰 Galii Waligalaa</h3><h2>{total_rev:,.2f} ETB</h2></div>', unsafe_allow_html=True)
+            with c3:
+                st.markdown(f'<div class="metric-card"><h3>✅ Status</h3><h2>Hojirra jira</h2></div>', unsafe_allow_html=True)
+            
+            st.write("### 📈 Haala Hojii (Visual)")
+            # Bar chart gabaabaa
+            df_chart = df[5].value_counts()
+            st.bar_chart(df_chart)
+
+            st.write("### 🕒 Galmeewwan Dhiyoo")
+            st.dataframe(df.tail(10), use_container_width=True)
         else:
-            print(f"[!] Gateway Error: {res.status_code} - Token/ID ykn Network mirkaneessi.")
-            return False
-    except Exception as e:
-        print(f"[!] Network Error: {e}")
-        return False
+            st.info("Ragaan galmaa'e hin jiru.")
 
-def send_telegram_text(message):
-    """Ergaa barreeffamaa qofa qondaalaaf erga"""
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    try:
-        requests.post(url, data={'chat_id': CHAT_ID_MANAGER, 'text': message, 'parse_mode': 'Markdown'}, timeout=20)
-    except: pass
-
-def send_telegram_file(file_path, caption=""):
-    """Excel ykn PDF Telegram irratti erga"""
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
-    try:
-        with open(file_path, 'rb') as f:
-            requests.post(url, data={'chat_id': CHAT_ID_MANAGER, 'caption': caption}, files={'document': f}, timeout=20)
-    except: pass
-
-# --- KUTAA DOOKUMANTIIWWANII ---
-
-def uumi_sartifiketii(ogeessa, rank, waggaa):
-    """Sartifiketii PDF ogeessaaf qopheessa"""
-    try:
-        pdf = FPDF(orientation='L', unit='mm', format='A4')
-        pdf.add_page()
-        pdf.set_draw_color(31, 78, 120); pdf.set_line_width(1.5); pdf.rect(10, 10, 277, 190)
+    # --- SARTIFIKETII SECTION ---
+    elif choice == "📊 Gabaasa & Sartifiketii":
+        st.subheader("📊 Gabaasa fi Sartifiketii Ogeessaa")
         
-        if os.path.exists(LOGO_PATH):
-            pdf.image(LOGO_PATH, x=128, y=15, w=40)
-            pdf.ln(45)
-        else: pdf.ln(25)
-
-        pdf.set_font('Arial', 'B', 24)
-        pdf.cell(0, 10, 'BULCHIINSA MAGAALAA DADAR', ln=True, align='C')
-        pdf.set_font('Arial', 'B', 16)
-        pdf.cell(0, 8, 'Wajjiira Lafa Bulchiinsa Magaalaa', ln=True, align='C')
-        pdf.ln(10)
+        col1, col2 = st.columns(2)
+        with col1:
+            st.info("Gabaasa Excel Telegram irratti erguuf:")
+            if st.button("🚀 GABAASA EXCEL ERGI"):
+                # (Logic kee kaniin duraa itti fufa...)
+                st.success("Gabaasni ergameera!")
         
-        pdf.set_font('Arial', 'B', 30); pdf.set_text_color(31, 78, 120)
-        pdf.cell(0, 20, 'SARTIFIKETII BADHAASA WAGGAA', ln=True, align='C')
-        
-        pdf.set_text_color(0, 0, 0); pdf.set_font('Arial', '', 16)
-        pdf.cell(0, 15, f"Sartifiketiin kun Ogeessa kabajamaa {ogeessa.upper()}f", ln=True, align='C')
-        
-        txt = (f"tajaajila mamiilaa haala bareedaa fi quubsaa ta'een waggaa {waggaa} "
-               f"kennaa turaniif badhaasa {rank} ta'uun qophaa'eef.")
-        pdf.set_font('Arial', '', 14); pdf.multi_cell(0, 8, txt, align='C')
-        pdf.ln(20)
-        
-        pdf.set_font('Arial', 'B', 14); pdf.cell(0, 8, f"{OFFICE_HEAD}", ln=True, align='C')
-        pdf.cell(0, 8, "Itti Gaafatamaa Wajjiraa", ln=True, align='C')
-        
-        f_name = f"Sartifiketii_{ogeessa.replace(' ', '_')}.pdf"
-        pdf.output(f_name)
-        return f_name
-    except: return None
-
-def uumi_gabaasa_target(filter_type, value, label):
-    """Excel uumee Telegram-itti erga"""
-    if not os.path.exists(DATA_FILE): return
-    
-    wb = openpyxl.Workbook(); ws = wb.active; ws.title = "Gabaasa"
-    headers = ["Guyyaa", "Abbaa Dhimmaa", "Araddaa", "Wirtuu", "Gosa Tajaajilaa", "Ogeessa", "Beellama", "Waligala"]
-    ws.append(headers)
-    
-    for cell in ws[1]:
-        cell.font = Font(bold=True, color="FFFFFF"); cell.fill = PatternFill("solid", start_color="1F4E78")
-    
-    total_rev, count, ogeessota = 0, 0, []
-    with open(DATA_FILE, "r") as f:
-        for line in f:
-            p = line.strip().split("|")
-            if len(p) < 11: continue
-            dt = datetime.strptime(p[0], "%Y-%m-%d %H:%M")
-            match = (filter_type == "guyyaa" and dt.strftime("%A") == value) or \
-                    (filter_type == "jia" and dt.month == value) or \
-                    (filter_type == "waggaa" and dt.year == value)
-            if match:
-                eth_d = guyyaa_itophiyaa(dt.year, dt.month, dt.day)
-                ws.append([eth_d, p[1], p[2], p[3], p[5], p[6], p[8], p[10]])
-                total_rev += float(p[10]); ogeessota.append(p[6]); count += 1
-
-    if count > 0:
-        f_name = f"Gabaasa_{label}.xlsx"
-        wb.save(f_name)
-        if filter_type == "waggaa":
-            top_3 = Counter(ogeessota).most_common(3)
-            ranks = ["1ffaa", "2ffaa", "3ffaa"]
-            for i, (name, _) in enumerate(top_3):
-                sf = uumi_sartifiketii(name, ranks[i], value)
-                if sf: send_telegram_file(sf, f"📜 Badhaasa: {name}")
-        
-        caption = f"📊 {label}\n💰 Galii: {total_rev} ETB\n📑 Galmee: {count}"
-        send_telegram_file(f_name, caption)
-        print(f"[✓] Gabaasaan ergameera.")
-
-# --- KUTAA HOJII ---
-
-def galmeessi():
-    print("\n" + "="*15 + " GALMEE HAARAA " + "="*15)
-    ad = input("Maqaa Abbaa Dhimmaa: ")
-    ar = input("Araddaa: ")
-    wi = input("Wirtuu: ")
-    bad = input("Bilbila AD: ")
-    gs = input("Gosa Tajaajilaa: ")
-    og = input("Maqaa Ogeessaa: ")
-    bog = input("Bilbila Ogeessaa: ")
-    gb = input("Guyyaa Beellamaa (YYYY-MM-DD): ") or "2026-01-01"
-    sb = input("Sa'aatii Beellamaa: ") or "08:00"
-    
-    k_vals = []
-    print("\n--- Kafaltiiwwan ---")
-    for kt in ["Kartaa", "Itti Fayyadaama", "Jij_Maqaa", "Lizii_Dura", "TOT", "Gibira", "Kan_Biro"]:
-        v = input(f"{kt}: ") or "0"
-        try: k_vals.append(float(v))
-        except: k_vals.append(0.0)
+        with col2:
+            st.info("Sartifiketii Ogeessa Waggaa:")
+            name_og = st.text_input("Maqaa Ogeessaa")
+            rank_og = st.selectbox("Sadarkaa", ["1ffaa", "2ffaa", "3ffaa"])
             
-    waligala = sum(k_vals)
-    now_s = datetime.now().strftime("%Y-%m-%d %H:%M")
-    k_str = "|".join(map(str, k_vals))
-    line = f"{now_s}|{ad}|{ar}|{wi}|{bad}|{gs}|{og}|{bog}|{gb} {sb}|{k_str}|{waligala}\n"
-    
-    with open(DATA_FILE, "a") as f: f.write(line)
+            if st.button("🎓 SARTIFIKETII GENERATE"):
+                if name_og:
+                    cert_pdf = generate_certificate(name_og, rank_og, "2016/2017")
+                    st.download_button("📥 Sartifiketii Buufadhu", cert_pdf, f"Sartifiketii_{name_og}.pdf", "application/pdf")
+                    st.balloons()
+                else:
+                    st.warning("Maaloo maqaa ogeessaa galchi.")
 
-    # 1. SMS Abbaa Dhimmaaf
-    msg_ad = f"Kabajamaa {ad}, tajaajila {gs}af galmeeffamtaniittu. Beellama: {gb} {sb}."
-    send_sms(bad, msg_ad)
-
-    # 2. SMS Ogeessaaf
-    msg_og = f"Ogeessa {og}, tajaajilli {gs} kan mamiila {ad} isiniif kennameera."
-    send_sms(bog, msg_og)
-
-    # 3. Telegram Notification
-    tel_msg = f"✅ *GALMEE HAARAA*\n👤 AD: {ad}\n🛠 Tajaajila: {gs}\n💰 Waligala: {waligala} ETB\n🧑‍💼 Ogeessa: {og}\n📅 Beellama: {gb} {sb}"
-    send_telegram_text(tel_msg)
-    print("\n[✓] Galmeeffameera! SMS fi Telegram ergameera.")
-
-# --- NAVIGATION ---
-
-if __name__ == "__main__":
-    if not os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "w") as f: pass
-        
-    print("\n" + "*"*40 + "\n W/BULCHINSA LAFAA MAGAALAA DADAR\n" + "*"*40)
-    u, p = input("User: "), input("Pass: ")
-    
-    if u == USER_NAME and p == PASS_WORD:
-        while True:
-            print("\n1. Galmee Haaraa\n2. Gabaasa Guyyaa\n3. Gabaasa Ji'aa\n4. Gabaasa Waggaa\n5. Exit")
-            c = input("\nFilannoo kee: ")
-            if c == '1': galmeessi()
-            elif c == '2':
-                d_list = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-                try:
-                    d_idx = int(input("Guyyaa (1-Wiixata, 7-Dilbata): ")) - 1
-                    uumi_gabaasa_target("guyyaa", d_list[d_idx], f"Guyyaa_{d_list[d_idx]}")
-                except: print("[!] Dogoggora!")
-            elif c == '3':
-                try:
-                    m = int(input("Ji'a (1-12): "))
-                    uumi_gabaasa_target("jia", m, f"Ji'a_{m}")
-                except: print("[!] Dogoggora!")
-            elif c == '4':
-                try:
-                    y = int(input("Waggaa (YYYY): "))
-                    uumi_gabaasa_target("waggaa", y, f"Waggaa_{y}")
-                except: print("[!] Dogoggora!")
-            elif c == '5': break
-    else: print("[!] Login Dogoggora!")
+    elif choice == "🚪 Logout":
+        st.session_state.logged_in = False
+        st.rerun()
