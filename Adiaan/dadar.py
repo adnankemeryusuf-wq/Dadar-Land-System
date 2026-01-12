@@ -8,7 +8,7 @@ from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageOps
 
 # --- 1. QINDAYYII BU'URAA ---
-st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
+st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon=")
 
 USER_NAME = "Lafa"
 PASS_WORD = "1234"
@@ -227,3 +227,4 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
