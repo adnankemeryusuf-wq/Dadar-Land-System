@@ -12,7 +12,7 @@ from ethiopian_date import EthiopianDateConverter
 st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="🏢")
 
 USER_NAME = "Lafa2026"
-PASS_WORD = "Dadar"
+PASS_WORD = "Dadar@2026"
 DATA_FILE = "dadar_final_report.txt"
 LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
 
@@ -220,6 +220,7 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
