@@ -155,8 +155,7 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
-
-import streamlit as st
+        import streamlit as st
 import os
 import requests
 import pandas as pd
@@ -308,7 +307,4 @@ else:
             csv = df.to_csv(index=False).encode('utf-8')
             st.download_button("Gabaasa CSV Download godhuuf", data=csv, file_name="gabaasa_dadar.csv", mime="text/csv")
         else: st.info("Gabaasni agarsiifamu hin jiru.")
-
-
-
 
