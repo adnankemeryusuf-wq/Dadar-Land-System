@@ -34,13 +34,13 @@ st.markdown("""
     .metric-card {
         background: white; padding: 30px; border-radius: 20px;
         box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        border-top: 5px solid #d4af37; /* Halluu Guldii (Gold) */
+        border-top: 5px solid ##15803d; /* Halluu Guldii (Gold) */
         text-align: center;
         transition: transform 0.3s ease;
     }
     .metric-card:hover { transform: translateY(-8px); }
-    .metric-card h4 { color: #64748b; margin-bottom: 10px; font-size: 1.1rem; }
-    .metric-card h2 { color: #15803d; font-size: 2.2rem; font-weight: 800; }
+    .metric-card h4 { color: #15803d; margin-bottom: 10px; font-size: 1.1rem; }
+    .metric-card h2 { color: ##15803d; font-size: 2.2rem; font-weight: 800; }
 
     /* Login Card */
     .login-card { 
@@ -220,6 +220,7 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
