@@ -8,21 +8,6 @@ from io import BytesIO
 from fpdf import FPDF
 from ethiopian_date import EthiopianDateConverter
 
-# --- 3. LOGIN SCREEN ---
-if not st.session_state.logged_in:
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        st.header("Login - Dadar Land System")
-        u = st.text_input("Username", key="login_user_id")
-        p = st.text_input("Password", type="password", key="login_pass_id")
-        
-        if st.button("SEENI"):
-            if u == "admin" and p == "1234": # Icciitii kee asitti jijjiiri
-                st.session_state.logged_in = True
-                st.success("Milkiin seenteetta!")
-                st.rerun()
-            else:
-                st.error("Maqaa ykn Password dogoggora!")
 
 USER_NAME = "admin"
 PASS_WORD = "1234"
@@ -230,6 +215,7 @@ st.markdown("""
 # --- 2. SESSION STATE (LOGIN CHECK) ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+
 
 
 
