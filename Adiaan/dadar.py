@@ -1,157 +1,203 @@
-# DADAR LAND ADMIN PRO - FULL STREAMLIT APP (SQLite, Dashboard, Telegram, Multilingual)
-
 import streamlit as st
-import pandas as pd
 import os
-import hashlib
-import sqlite3
+import pandas as pd
+import requests
+import io
 from datetime import datetime
 from fpdf import FPDF
-from PIL import Image, ImageDraw
-import plotly.express as px
-import requests
+from PIL import Image  # Sirreeffama Logootiif barbaachisaa dha
 
-# ================= CONFIG =================
+# --- 1. QINDAYYII BU'URAA ---
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
-DATA_DB = "dadar_land.db"
+USER_NAME = "Lafa"
+PASS_WORD = "1234"
+DATA_FILE = "dadar_final_report.txt"
+
+# Logoo barbaaduu (Bakka hundaatti LOGO_PATH fayyadamna)
 LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
-TELEGRAM_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
-TELEGRAM_CHAT_ID = "YOUR_CHAT_ID"
 
-# ================= SESSION INIT =================
-for key in ['logged_in', 'user', 'role', 'lang']:
-    if key not in st.session_state:
-        st.session_state[key] = False if key=='logged_in' else ("Oromo" if key=='lang' else "")
+COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj', 'Kafaltii_Wal', 'C1', 'C2', 'C3']
 
-# ================= SECURITY =================
-def hash_password(pwd):
-    return hashlib.sha256(pwd.encode()).hexdigest()
+TELEGRAM_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+TELEGRAM_CHAT_ID = "7329587700"
 
-# ================= DATABASE =================
-def get_connection():
-    conn = sqlite3.connect(DATA_DB, check_same_thread=False)
-    return conn
-
-def init_db():
-    conn = get_connection()
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS users (username TEXT PRIMARY KEY, password TEXT, role TEXT)''')
-    c.execute('''CREATE TABLE IF NOT EXISTS records (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT,
-        maqaa TEXT,
-        araddaa TEXT,
-        qaxana TEXT,
-        gosa TEXT,
-        ogeessa TEXT,
-        kafaltii_taj REAL,
-        kafaltii_wal REAL,
-        c1 TEXT,
-        c2 TEXT,
-        c3 TEXT
-    )''')
-    conn.commit()
-    c.execute('SELECT * FROM users WHERE username=?', ('admin',))
-    if not c.fetchone():
-        c.execute('INSERT INTO users VALUES (?, ?, ?)', ('admin', hash_password('admin123'), 'admin'))
-        conn.commit()
-    conn.close()
-
-init_db()
-
-# ================= TELEGRAM =================
-def send_telegram(msg):
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage?chat_id={TELEGRAM_CHAT_ID}&text={msg}"
+# --- 2. FUNKSHINOOTA ---
+def load_data():
+    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+        return pd.DataFrame(columns=COL_NAMES)
     try:
-        requests.get(url)
+        df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, on_bad_lines='skip', encoding='utf-8')
+        return df
     except:
-        pass
+        return pd.DataFrame(columns=COL_NAMES)
 
-# ================= DASHBOARD =================
-def show_dashboard():
-    conn = get_connection()
-    df = pd.read_sql('SELECT * FROM records', conn)
-    conn.close()
+def save_data(df):
+    df.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-    if df.empty:
-        st.warning("No records yet.")
-        return
+def create_excel(df):
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Gabaasa_Dadar')
+    return output.getvalue()
 
-    st.subheader("Gosa Tajaajilaa Bar Chart")
-    fig1 = px.bar(df, x='gosa', y='kafaltii_wal', title='Kafaltii waliigalaa gosa tajaajilaa')
-    st.plotly_chart(fig1, use_container_width=True)
+def create_pdf_report(df):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "GABAASA WAAJJIRA LAFAA MAGAALAA DADAR", ln=True, align='C')
+    pdf.ln(5)
+    
+    pdf.set_fill_color(30, 58, 138) # Navy Blue
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("Arial", 'B', 9)
+    h = ["Maqaa", "Araddaa", "Gosa", "K.Taj", "K.Wal"]
+    for col in h:
+        pdf.cell(38, 8, col, 1, 0, 'C', True)
+    pdf.ln()
 
-    st.subheader("Ogeessa Pie Chart")
-    fig2 = px.pie(df, names='ogeessa', title='Hojjettoota hirmaatan')
-    st.plotly_chart(fig2, use_container_width=True)
+    pdf.set_text_color(0, 0, 0)
+    pdf.set_font("Arial", '', 8)
+    for _, row in df.iterrows():
+        pdf.cell(38, 7, str(row['Maqaa'])[:18], 1)
+        pdf.cell(38, 7, str(row['Araddaa']), 1)
+        pdf.cell(38, 7, str(row['Gosa']), 1)
+        pdf.cell(38, 7, str(row['Kafaltii_Taj']), 1)
+        pdf.cell(38, 7, str(row['Kafaltii_Wal']), 1, 1)
+    
+    return pdf.output(dest='S').encode('latin-1')
 
-# ================= LOGIN =================
-def login_page():
-    st.title("🔐 Seensa Sirna")
-    u = st.text_input("Username")
-    p = st.text_input("Password", type="password")
-    if st.button("Seeni"):
-        conn = get_connection()
-        c = conn.cursor()
-        c.execute('SELECT * FROM users WHERE username=? AND password=?', (u, hash_password(p)))
-        row = c.fetchone()
-        conn.close()
-        if row:
-            st.session_state.logged_in = True
-            st.session_state.user = row[0]
-            st.session_state.role = row[2]
-            st.rerun()
-        else:
-            st.error("Username ykn Password dogoggora")
+# --- 3. SARTIIFIKETA (Professional & Secure) ---
+def generate_certificate(expert_name, total_served):
+    pdf = FPDF(orientation='L', unit='mm', format='A4')
+    pdf.add_page()
+    
+    # Border Navy & Gold
+    pdf.set_line_width(2); pdf.set_draw_color(184, 134, 11)
+    pdf.rect(5, 5, 287, 200) 
+    
+    # Logoo Sartifiketaa (NameError malee)
+    if LOGO_PATH and os.path.exists(LOGO_PATH):
+        try:
+            img = Image.open(LOGO_PATH).convert("RGB")
+            pdf.image(img, x=131, y=10, w=35)
+        except: pass
+
+    pdf.ln(35)
+    pdf.set_font('Times', 'B', 40); pdf.set_text_color(30, 58, 138) # Navy Blue
+    pdf.cell(0, 20, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
+    
+    pdf.ln(5); pdf.set_font('Arial', 'I', 16); pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
+    
+    pdf.ln(10); pdf.set_font('Arial', '', 20)
+    pdf.cell(0, 10, "Gootummaa Hojii Waggaa kan kennameef:", ln=True, align='C')
+    
+    pdf.ln(5); pdf.set_font('Times', 'B', 32); pdf.set_text_color(21, 128, 61)
+    pdf.cell(0, 15, f"Obbo/Adde: {expert_name.upper()}", ln=True, align='C')
+    
+    pdf.ln(10); pdf.set_font('Arial', '', 14); pdf.set_text_color(60, 60, 60)
+    msg = (f"Waggaa kanatti tajaajila saffisaa, iftoomina qabuu fi amannamaa ta'een Abbootii Dhimmaa {total_served} "
+            "tajaajiluun bu'aa qabeessa ta'anii waan argamaniif beekamtii kanaan badhaafamaniiru.")
+    pdf.multi_cell(0, 10, msg, align='C')
+    
+    pdf.set_y(172)
+    pdf.set_font('Arial', 'B', 12); pdf.set_text_color(0, 0, 0)
+    pdf.cell(100, 8, "__________________________", ln=0, align='C')
+    pdf.cell(87, 8, "", ln=0)
+    pdf.cell(100, 8, "__________________________", ln=1, align='C')
+    pdf.cell(100, 5, "Aqiil Abdujaaliil", ln=0, align='C')
+    pdf.cell(87, 5, "", ln=0)
+    pdf.cell(100, 5, datetime.now().strftime("%d/%m/%Y"), ln=1, align='C')
+    
+    return pdf.output(dest='S').encode('latin-1')
+
+# --- 4. MAIN APP UI ---
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    login_page()
-    st.stop()
+    _, col_mid, _ = st.columns([1, 1.2, 1])
+    with col_mid:
+        st.markdown("<h2 style='text-align:center;'>🏢 Dadar Land Login</h2>", unsafe_allow_html=True)
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.button("SEENI", use_container_width=True):
+            if u == USER_NAME and p == PASS_WORD:
+                st.session_state.logged_in = True
+                st.rerun()
+            else: st.error("Maqaa ykn Password dogoggora!")
+else:
+    # --- SIDEBAR LOGO FIX ---
+    with st.sidebar:
+        if LOGO_PATH:
+            st.image(LOGO_PATH, width=150)
+        else:
+            st.image("https://cdn-icons-png.flaticon.com/512/609/609803.png", width=100)
+            
+        st.title("Admin Menu")
+        menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaaduu & Sirreessu", "📊 Gabaasa Telegr_Pro", "🏆 Sartiifiketa", "🚪 Logout"]
+        choice = st.selectbox("Filannoowwan", menu)
 
-# ================= MAIN APP =================
-with st.sidebar:
-    if LOGO_PATH: st.image(LOGO_PATH, width=120)
-    st.success(f"👤 {st.session_state.user} ({st.session_state.role})")
-    st.session_state.lang = st.selectbox("Afaan", ["Oromo", "English"], index=0)
-    menu = st.radio("Menu", ["📝 Galmee", "📊 Dashboard", "🏆 Sartiifiketa", "🧑‍💼 Users", "🚪 Ba'i"])
+    df = load_data()
 
-conn = get_connection()
-c = conn.cursor()
+    if choice == "🏠 Dashboard":
+        st.header("Dashboard - Gabaasa Gabaabaa")
+        if not df.empty:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Waligala Galmee", len(df))
+            df['Kafaltii_Wal'] = pd.to_numeric(df['Kafaltii_Wal'], errors='coerce').fillna(0)
+            c2.metric("Galii Waliigalaa", f"{df['Kafaltii_Wal'].sum():,.2f} ETB")
+            c3.metric("Tajaajila Hardhaa", len(df[pd.to_datetime(df['Yeroo'], errors='coerce').dt.date == datetime.now().date()]))
+            st.divider()
+            st.table(df.tail(5)[['Yeroo', 'Maqaa', 'Gosa', 'Kafaltii_Wal']])
 
-# ================= MENU PAGES =================
-if menu == "📝 Galmee":
-    st.header("📝 Galmee Haaraa")
-    maqaa = st.text_input("Maqaa")
-    araddaa = st.text_input("Araddaa")
-    gosa = st.text_input("Gosa")
-    ogeessa = st.text_input("Ogeessa")
-    k_taj = st.number_input("Kafaltii Taj", min_value=0.0)
-    k_wal = st.number_input("Kafaltii Wal", min_value=0.0)
-    if st.button("💾 Galmeessi"):
-        c.execute('INSERT INTO records (date, maqaa, araddaa, qaxana, gosa, ogeessa, kafaltii_taj, kafaltii_wal) VALUES (?,?,?,?,?,?,?,?)',
-                  (datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, '', gosa, ogeessa, k_taj, k_wal))
-        conn.commit()
-        st.success("Galmeeffame")
-        send_telegram(f"New record added: {maqaa}")
+    elif choice == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Haaraa")
+        with st.form("reg_form"):
+            ad = st.text_input("Maqaa Abbaa Dhimmaa")
+            ar = st.text_input("Araddaa")
+            gs = st.selectbox("Gosa", ["Ittii Fayyaddam", "Kartaa", "Jijjirra Maqaa", "Dangaa", "Mana Murttii", "Liqii Bankii"])
+            og = st.text_input("Maqaa Ogeessaa")
+            kf_t = st.number_input("Kafaltii (ETB)", min_value=0.0)
+            if st.form_submit_button("✅ GALMEESSI"):
+                if ad and og:
+                    line = f"{datetime.now().strftime('%Y-%m-%d %H:%M')}|{ad}|{ar}|-|{gs}|{og}|{kf_t}|{kf_t}|0|0|0\n"
+                    with open(DATA_FILE, "a", encoding="utf-8") as f: f.write(line)
+                    st.success("Galmeeffameera!")
+                    st.rerun()
 
-elif menu == "📊 Dashboard":
-    st.header("📊 Dashboard")
-    show_dashboard()
+    elif choice == "🔍 Barbaaduu & Sirreessu":
+        st.header("🔍 Barbaadi & Sirreessi")
+        query = st.text_input("Maqaa barreessi...")
+        if not df.empty:
+            results = df[df['Maqaa'].str.contains(query, case=False, na=False)]
+            st.dataframe(results)
 
-elif menu == "🏆 Sartiifiketa":
-    st.header("🏆 Sartifiketii")
-    # Implement PDF certificate here (reuse previous function)
+    elif choice == "📊 Gabaasa Telegr_Pro":
+        st.header("📊 Gabaasa & Ergaa")
+        if not df.empty:
+            st.dataframe(df)
+            c1, c2, c3 = st.columns(3)
+            c1.download_button("📥 Excel", create_excel(df), "Gabaasa.xlsx")
+            c2.download_button("📥 PDF", create_pdf_report(df), "Gabaasa.pdf")
+            if c3.button("🚀 Telegram"):
+                total_galii = pd.to_numeric(df['Kafaltii_Wal'], errors='coerce').sum()
+                msg = f"📊 *GABAASA DADAR*\n👤 Namoota: {len(df)}\n💰 Galii: {total_galii:,.2f} ETB"
+                requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage", data={"chat_id": TELEGRAM_CHAT_ID, "text": msg, "parse_mode": "Markdown"})
+                st.success("Ergameera!")
 
-elif menu == "🧑‍💼 Users" and st.session_state.role == "admin":
-    st.header("Users")
-    df_users = pd.read_sql('SELECT username, role FROM users', conn)
-    st.table(df_users)
+    elif choice == "🏆 Sartiifiketa":
+        st.header("🏆 Beekamtii Ogeessaa")
+        if not df.empty:
+            best_og = df['Ogeessa'].value_counts().idxmax()
+            count = df['Ogeessa'].value_counts().max()
+            st.info(f"Ogeessa Gahumsa Qabu: **{best_og}**")
+            if st.button("📜 SARTIIFIKETA QOPHEESSI"):
+                cert = generate_certificate(best_og, count)
+                st.download_button("📥 PDF Buufadhu", cert, f"Certificate_{best_og}.pdf")
 
-elif menu == "🚪 Ba'i":
-    st.session_state.logged_in = False
-    st.session_state.user = ""
-    st.session_state.role = ""
-    st.rerun()
-
-conn.close()
+    elif choice == "🚪 Logout":
+        st.session_state.logged_in = False
+        st.rerun()
+st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
