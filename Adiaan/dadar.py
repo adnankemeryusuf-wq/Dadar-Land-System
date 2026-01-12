@@ -135,7 +135,7 @@ else:
     # --- 5. MAIN UI ---
     with st.sidebar:
         if LOGO_PATH: st.image(LOGO_PATH, use_container_width=True)
-        st.markdown("<h3 style='text-align:center; color:#1e3a8a;'>Dadar Land Administration Customer Registration System</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center; color:#22c55e;'>Dadar Land Administration Customer Registration System</h3>", unsafe_allow_html=True)
         st.divider()
         menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa & Sartifiketii", "🚪 Logout"]
         choice = st.selectbox("Menu Filadhu", menu)
@@ -220,6 +220,7 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
