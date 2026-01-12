@@ -40,7 +40,7 @@ st.markdown("""
     }
     .metric-card:hover { transform: translateY(-8px); }
     .metric-card h4 { color: #64748b; margin-bottom: 10px; font-size: 1.1rem; }
-    .metric-card h2 { color: #1e3a8a; font-size: 2.2rem; font-weight: 800; }
+    .metric-card h2 { color: #15803d; font-size: 2.2rem; font-weight: 800; }
 
     /* Login Card */
     .login-card { 
@@ -220,5 +220,6 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
