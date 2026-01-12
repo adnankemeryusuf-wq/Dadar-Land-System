@@ -12,9 +12,6 @@ st.set_page_config(page_title="Dadar Land System ", layout="wide", page_icon="ðŸ
 USER_NAME, PASS_WORD = "admin", "1234"
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
-TRACCAR_URL = "http://localhost:8082/" 
-SMS_TOKEN = "08a96817-22ab-4660-b866-b7647dbcbf82"
-DB_FILE = "galmee_abbaa_dhimmaa.txt"
 LOGO_PATH = "logo.png"
 
 # --- 2. HELPER FUNCTIONS ---
@@ -196,3 +193,4 @@ else:
     elif menu == "ðŸšª Logout":
         st.session_state.logged_in = False
         st.rerun()
+
