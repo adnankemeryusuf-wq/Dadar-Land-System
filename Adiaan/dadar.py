@@ -1,121 +1,156 @@
+# DADAR LAND ADMIN PRO - FULL STREAMLIT APP
+
 import streamlit as st
-import os
 import pandas as pd
-import requests
-import io
+import os
+import hashlib
 from datetime import datetime
 from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageOps
 
-# --- 1. QINDAYYII BU'URAA ---
+# ================= CONFIG =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
-USER_NAME = "Lafa"
-PASS_WORD = "1234"
 DATA_FILE = "dadar_final_report.txt"
-# Mallattoo barbaaduu
+USERS_FILE = "users.csv"
 LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
 
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj', 'Kafaltii_Wal', 'C1', 'C2', 'C3']
-TELEGRAM_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-TELEGRAM_CHAT_ID = "7329587700"
 
-# --- 2. FUNKSHINOOTA DATA ---
+# ================= SECURITY =================
+def hash_password(pwd):
+    return hashlib.sha256(pwd.encode()).hexdigest()
+
+# ================= USERS =================
+def load_users():
+    if not os.path.exists(USERS_FILE):
+        df = pd.DataFrame([["admin", hash_password("admin123"), "admin"]], columns=["username", "password", "role"])
+        df.to_csv(USERS_FILE, index=False)
+    return pd.read_csv(USERS_FILE)
+
+def save_users(df):
+    df.to_csv(USERS_FILE, index=False)
+
+# ================= DATA =================
 def load_data():
-    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+    if not os.path.exists(DATA_FILE):
         return pd.DataFrame(columns=COL_NAMES)
-    try:
-        return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, on_bad_lines='skip', encoding='utf-8')
-    except:
-        return pd.DataFrame(columns=COL_NAMES)
+    return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES)
 
 def save_data(df):
-    df.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+    df.to_csv(DATA_FILE, sep="|", index=False, header=False)
 
-# --- 3. REPORT GENERATOR (PDF Gabaasaa) ---
+# ================= PDF REPORT =================
 def create_pdf_report(df):
     pdf = FPDF()
     pdf.add_page()
-    
-    # Logoo Gabaasa Irratti (Gubbaa Bitaa)
-    if LOGO_PATH and os.path.exists(LOGO_PATH):
-        pdf.image(LOGO_PATH, x=10, y=8, w=20)
-    
-    pdf.set_font("Arial", 'B', 14)
-    pdf.cell(0, 10, "GABAASA WAAJJIRA LAFAA MAGAALAA DADAR", ln=True, align='C')
-    pdf.ln(10)
-    
-    pdf.set_fill_color(30, 58, 138) 
+
+    if LOGO_PATH:
+        pdf.image(LOGO_PATH, 10, 8, 18)
+
+    pdf.set_font("Arial", "B", 14)
+    pdf.cell(0, 10, "WAAJJIRA LAFEE MAGAALAA DADAR", ln=True, align="C")
+    pdf.ln(5)
+
+    pdf.set_font("Arial", "B", 9)
+    headers = ["Maqaa", "Araddaa", "Gosa", "Kaf. Taj", "Kaf. Wal"]
+    widths = [45, 35, 35, 35, 35]
+
+    pdf.set_fill_color(30, 58, 138)
     pdf.set_text_color(255, 255, 255)
-    pdf.set_font("Arial", 'B', 9)
-    h = ["Maqaa", "Araddaa", "Gosa", "K.Taj", "K.Wal"]
-    for col in h:
-        pdf.cell(38, 8, col, 1, 0, 'C', True)
+    for h, w in zip(headers, widths):
+        pdf.cell(w, 8, h, 1, 0, 'C', True)
     pdf.ln()
 
     pdf.set_text_color(0, 0, 0)
-    pdf.set_font("Arial", '', 8)
-    for _, row in df.iterrows():
-        pdf.cell(38, 7, str(row['Maqaa'])[:18], 1)
-        pdf.cell(38, 7, str(row['Araddaa']), 1)
-        pdf.cell(38, 7, str(row['Gosa']), 1)
-        pdf.cell(38, 7, str(row['Kafaltii_Taj']), 1)
-        pdf.cell(38, 7, str(row['Kafaltii_Wal']), 1, 1)
-    
+    pdf.set_font("Arial", "", 9)
+    fill = False
+    for _, r in df.iterrows():
+        pdf.set_fill_color(245, 247, 250) if fill else pdf.set_fill_color(255, 255, 255)
+        pdf.cell(widths[0], 7, str(r['Maqaa']), 1, fill=fill)
+        pdf.cell(widths[1], 7, str(r['Araddaa']), 1, fill=fill)
+        pdf.cell(widths[2], 7, str(r['Gosa']), 1, fill=fill)
+        pdf.cell(widths[3], 7, str(r['Kafaltii_Taj']), 1, fill=fill)
+        pdf.cell(widths[4], 7, str(r['Kafaltii_Wal']), 1, ln=1, fill=fill)
+        fill = not fill
+
     return pdf.output(dest='S').encode('latin-1')
 
-# --- 4. SARTIIFIKETA (Circular Logo & Jidduu) ---
-def generate_certificate(expert_name):
-    pdf = FPDF(orientation='L', unit='mm', format='A4')
-    pdf.add_page()
-    
-    # Border Navy & Gold
-    pdf.set_line_width(2); pdf.set_draw_color(184, 134, 11)
-    pdf.rect(5, 5, 287, 200) 
-    
-    # Logoo Chaachoo (Circle) Jidduutti
-    if LOGO_PATH and os.path.exists(LOGO_PATH):
-        try:
-            img = Image.open(LOGO_PATH).convert("RGBA")
-            size = (400, 400)
-            img = img.resize(size, Image.LANCZOS)
-            mask = Image.new('L', size, 0)
-            draw = ImageDraw.Draw(mask)
-            draw.ellipse((0, 0) + size, fill=255)
-            img.putalpha(mask)
-            
-            final_logo = Image.new("RGB", size, (255, 255, 255))
-            final_logo.paste(img, mask=img.split()[3])
-            
-            # X=131 (Gubbaa jidduu), w=35
-            pdf.image(final_logo, x=131, y=10, w=35)
-        except: pass
+# ================= LOGIN =================
+def login_page():
+    st.title("🔐 Seensa Sirna")
+    u = st.text_input("Username")
+    p = st.text_input("Password", type="password")
 
-    pdf.ln(35)
-    pdf.set_font('Times', 'B', 40); pdf.set_text_color(30, 58, 138)
-    pdf.cell(0, 20, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
-    
-    pdf.ln(5); pdf.set_font('Arial', 'I', 16); pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
-    
-    pdf.ln(10); pdf.set_font('Arial', '', 20)
-    pdf.cell(0, 10, "Gootummaa Hojii Waggaa kan kennameef:", ln=True, align='C')
-    
-    pdf.ln(5); pdf.set_font('Times', 'B', 32); pdf.set_text_color(21, 128, 61)
-    pdf.cell(0, 15, f"Obbo/Adde: {expert_name.upper()}", ln=True, align='C')
-    
-    pdf.ln(10); pdf.set_font('Arial', '', 14); pdf.set_text_color(60, 60, 60)
-    msg = ("Waggaa kanatti tajaajila saffisaa, iftoomina qabuu fi amannamaa ta'een "
-            "hojii gaarii hojjettanii waan argamtaniif beekamtii kanaan badhaafamaniiru.")
-    pdf.multi_cell(0, 10, msg, align='C')
-    
-    pdf.set_y(172)
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(100, 8, "__________________________", ln=0, align='C')
-    pdf.cell(87, 8, "", ln=0)
-    pdf.cell(100, 8, "__________________________", ln=1, align='C')
-    pdf.cell(100, 5, "Aqiil Abdujaaliil", ln=0, align='C')
-    pdf.cell(87, 5, "", ln=0)
-    pdf.cell(100, 5, datetime.now().strftime("%d/%m/%Y"), ln=1, align='C')
-    
-    return pdf.output(dest='S').encode('latin-1')
+    if st.button("Seeni"):
+        users = load_users()
+        h = hash_password(p)
+        user = users[(users.username == u) & (users.password == h)]
+
+        if not user.empty:
+            st.session_state.logged_in = True
+            st.session_state.user = u
+            st.session_state.role = user.iloc[0]['role']
+            st.rerun()
+        else:
+            st.error("Seensa hin milkaa'in")
+
+# ================= SESSION =================
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    login_page()
+    st.stop()
+
+# ================= SIDEBAR =================
+st.sidebar.success(f"👤 {st.session_state.user}")
+st.sidebar.info(f"Role: {st.session_state.role}")
+if st.sidebar.button("🚪 Ba'i"):
+    st.session_state.clear()
+    st.rerun()
+
+menu = st.sidebar.radio("Menu", ["Galmee", "Data", "PDF", "Users"])
+
+# ================= PAGES =================
+if menu == "Galmee":
+    st.header("📝 Galmee Tajaajilaa")
+    with st.form("entry"):
+        maqaa = st.text_input("Maqaa")
+        araddaa = st.text_input("Araddaa")
+        gosa = st.text_input("Gosa")
+        ogeessa = st.text_input("Ogeessa")
+        k_taj = st.number_input("Kafaltii Taj")
+        k_wal = st.number_input("Kafaltii Wal")
+        if st.form_submit_button("💾 Galmeessi"):
+            df = load_data()
+            new = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, '', gosa, ogeessa, k_taj, k_wal, '', '', '']
+            df.loc[len(df)] = new
+            save_data(df)
+            st.success("Galmeeffame")
+
+elif menu == "Data":
+    st.header("📊 Odeeffannoo")
+    df = load_data()
+    st.dataframe(df, use_container_width=True)
+
+elif menu == "PDF":
+    st.header("📄 Gabaasa PDF")
+    df = load_data()
+    if st.button("PDF Uumi"):
+        pdf = create_pdf_report(df)
+        st.download_button("Buusi PDF", pdf, "Gabaasa_Dadar.pdf", "application/pdf")
+
+elif menu == "Users" and st.session_state.role == "admin":
+    st.header("🧑‍💼 Bulchiinsa Users")
+    users = load_users()
+    st.dataframe(users[["username", "role"]])
+
+    with st.form("add_user"):
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        r = st.selectbox("Role", ["admin", "user"])
+        if st.form_submit_button("➕ Dabaluu"):
+            users.loc[len(users)] = [u, hash_password(p), r]
+            save_users(users)
+            st.success("User dabalame")
