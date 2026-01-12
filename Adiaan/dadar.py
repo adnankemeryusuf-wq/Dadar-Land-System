@@ -1,3 +1,4 @@
+
 import streamlit as st
 import os
 import requests
@@ -20,7 +21,7 @@ LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p
 st.markdown("""
     <style>
     /* Background guutuu */
-    .stApp { background-color: #f8fafc; }
+    .stApp { background-color: #f3f4f6; }
     
     /* Header Box - Gradient Miidhagaa */
     .header-box { 
@@ -220,6 +221,7 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
