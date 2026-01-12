@@ -31,22 +31,22 @@ def generate_certificate(name, rank, year):
         pdf.image(LOGO_PATH, x=133, y=15, w=30)
     
     pdf.ln(40)
-    pdf.set_font('Arial', 'B', 26)
+    pdf.set_font('Times New Roman', 'B', 26)
     pdf.set_text_color(31, 78, 120)
     pdf.cell(0, 15, 'SARTIFIKETII BADHAASA WAGGAA', ln=True, align='C')
-    pdf.set_font('Arial', 'B', 18)
+    pdf.set_font('Times New Roman', 'B', 18)
     pdf.set_text_color(100, 100, 100)
     pdf.cell(0, 10, 'ANNUAL AWARD CERTIFICATE', ln=True, align='C')
     
     pdf.ln(10)
     pdf.set_text_color(0, 0, 0)
-    pdf.set_font('Arial', '', 16)
+    pdf.set_font('Times New Romanl', '', 16)
     pdf.cell(0, 10, f"Badhaasni kun ogeessa kabajamaa:", ln=True, align='C')
     pdf.set_font('Arial', 'B', 22)
     pdf.cell(0, 15, name.upper(), ln=True, align='C')
     
     pdf.set_font('Arial', '', 14)
-    pdf.multi_cell(0, 10, f"Waggaa {year} keessa tajaajila quubsaa fi gahumsa qabuun hojjechuun badhaasa {rank}ffaa ta'uu keessaniif qophaa'e.", align='C')
+    pdf.multi_cell(0, 10, f"Waggaa {year} keessa tajaajila quubsaa fi gahumsa qabuun hojjechuun badhaasa {rank} ta'uu keessaniif qophaa'e.", align='C')
     
     pdf.ln(20)
     pdf.set_font('Arial', 'B', 13)
@@ -155,3 +155,4 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
