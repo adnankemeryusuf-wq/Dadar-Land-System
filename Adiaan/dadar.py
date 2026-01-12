@@ -15,8 +15,7 @@ PASS_WORD = "1234"
 DATA_FILE = "dadar_final_report.txt"
 
 # Logoon kee maqaa 'logo.png' jedhuun folder koodiin kun jiru keessa jiraachuu qaba
-LOGO_PATH = "logo.png" 
-
+LOGO_PATH = "logo.png" if os.path.exists("logo.png") else None
 # --- 2. CSS STYLE (UI AMMAYYAA) ---
 st.markdown("""
     <style>
@@ -148,3 +147,4 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
