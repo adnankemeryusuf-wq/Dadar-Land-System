@@ -86,7 +86,7 @@ else:
     df = load_data()
 
     if menu == "🏠 Dashboard":
-        st.markdown('<div class="main-header"><h1>Waajjira Lafaa Magaalaa Dadar</h1></div>', unsafe_allow_html=True)
+        st.markdown('<div class="main-header"><h1>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1></div>', unsafe_allow_html=True)
         
         # Search Bar
         search_query = st.text_input("🔍 Barbaadi (Maqaa ykn ID galchi)", "")
@@ -133,11 +133,11 @@ else:
                 araddaa = st.text_input("Araddaa")
                 wirtuu = st.text_input("Wirtuu")
             with col2:
-                dhimma = st.selectbox("Dhimma", ["Kartaa", "Lizi", "Jijjiirraa Maqaa", "Safara", "Gibira"])
+                dhimma = st.selectbox("Dhimma", ["Kartaa", "Itti Fayyadam", "Jijjiirraa Maqaa", "Safara", "Gibira" ,"Gibira"])
                 beellama = st.date_input("Guyyaa Beellamaa")
                 kartaa = st.number_input("Kafaltii Kartaa", value=0.0)
-                lizi = st.number_input("Kafaltii Lizi", value=0.0)
-            
+                lizi = st.number_input("Kafaltii Jijjirraa Maqaa", value=0.0)
+                lizi = st.number_input("Kafaltii Lizi Duraa", value=0.0)
             ogeessa = st.text_input("Maqaa Ogeessaa (Safaraaf yoo ta'e)")
             bilbila_o = st.text_input("Bilbila Ogeessaa")
 
@@ -193,3 +193,4 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
