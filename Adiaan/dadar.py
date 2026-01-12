@@ -14,8 +14,8 @@ PASS_WORD = "Dadar@2026"
 DATA_FILE = "dadar_final_report.txt"
 
 # --- TELEGRAM CONFIG (Bakka kana jijjiiri) ---
-TELEGRAM_TOKEN = "TOKEN_KEESSAN" 
-TELEGRAM_CHAT_ID = "CHAT_ID_KEESSAN"
+TELEGRAM_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI" 
+TELEGRAM_CHAT_ID = "7329587700"
 
 def send_telegram_msg(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
@@ -120,3 +120,4 @@ else:
                 
                 send_telegram_msg(msg)
                 st.success("Gabaasni gara Telegram-itti ergameera!")
+
