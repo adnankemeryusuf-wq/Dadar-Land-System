@@ -15,7 +15,7 @@ USER_NAME = "admin"
 PASS_WORD = "1234"
 DATA_FILE = "dadar_final_report.txt"
 # Logoon kee maqaa kanaan folder koodiin jiru keessa jiraachuu qaba
-LOGO_PATH = "logo.png" 
+LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
 
 # --- 2. CSS STYLE (UI BAREEDAA) ---
 st.markdown("""
@@ -373,4 +373,5 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
