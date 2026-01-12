@@ -133,7 +133,7 @@ else:
                 araddaa = st.text_input("Araddaa")
                 wirtuu = st.text_input("Wirtuu")
             with col2:
-                dhimma = st.selectbox("Dhimma", ["Kartaa", "Itti Fayyadam", "Jijjiirraa Maqaa", "Safara", "Gibira" ,"Gibira"])
+                dhimma = st.selectbox("Dhimma", ["Itti Fayyadam", "Kartaa",  "Jijjiirraa Maqaa", "Walitti Bu'iinsa Dangaa", "Dhimmaa Mana Murtii"])
                 beellama = st.date_input("Guyyaa Beellamaa")
                 itti = st.number_input("Kafaltii Itti Fayyadam", value=0.0)
                 kartaa = st.number_input("Kafaltii Kartaa", value=0.0)
@@ -196,6 +196,7 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
