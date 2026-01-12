@@ -10,8 +10,8 @@ import io
 # --- 1. QINDAA'INA BU'URAA ---
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
-USER_NAME = "Lafa2026"
-PASS_WORD = "Dadar@2026"
+USER_NAME = "Lafa"
+PASS_WORD = "1234"
 DATA_FILE = "dadar_final_report.txt"
 LOGO_FILE = "logo.png" 
 
@@ -202,3 +202,4 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
