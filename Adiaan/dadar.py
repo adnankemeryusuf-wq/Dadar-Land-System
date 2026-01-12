@@ -7,8 +7,6 @@ from datetime import datetime
 from io import BytesIO
 from fpdf import FPDF
 from ethiopian_date import EthiopianDateConverter
-
-
 USER_NAME = "admin"
 PASS_WORD = "1234"
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
@@ -215,6 +213,7 @@ st.markdown("""
 # --- 2. SESSION STATE (LOGIN CHECK) ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+
 
 
 
