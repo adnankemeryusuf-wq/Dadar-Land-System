@@ -1,70 +1,19 @@
 import streamlit as st
 import os
-import requests
 import pandas as pd
-import qrcode
 from datetime import datetime
-from io import BytesIO
 from fpdf import FPDF
 from ethiopian_date import EthiopianDateConverter
 
-# --- 1. QINDAA'INA (CONFIG) ---
-st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="🏢")
+# --- 1. CONFIGURATION ---
+st.set_page_config(page_title="Dadar Land System V9.9", layout="wide", page_icon="🏢")
 
-USER_NAME = "admin"
-PASS_WORD = "1234"
-DATA_FILE = "dadar_final_report.txt"
-LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
+USER_NAME, PASS_WORD = "admin", "1234"
+DATA_FILE = "dadar_data.csv"
+# Mirkaneessi: Logo-n kee maqaa 'logo.png' jedhuun folder koodii kana bira jiru keessa jiraachuu qaba.
+LOGO_PATH = "logo.png" if os.path.exists("logo.png") else None
 
-# --- 2. CSS CUSTOM STYLE (HALLUU FI MIIDHAGSITUU) ---
-st.markdown("""
-    <style>
-    /* Background guutuu */
-    .stApp { background-color: #f8fafc; }
-    
-    /* Header Box - Gradient Miidhagaa */
-    .header-box { 
-        text-align: center; padding: 50px; 
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); 
-        color: white; border-radius: 25px; margin-bottom: 40px;
-        box-shadow: 0 15px 30px rgba(30, 58, 138, 0.2);
-    }
-    
-    /* Metric Cards - Bifa Professional */
-    .metric-card {
-        background: white; padding: 30px; border-radius: 20px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        border-top: 5px solid #d4af37; /* Halluu Guldii (Gold) */
-        text-align: center;
-        transition: transform 0.3s ease;
-    }
-    .metric-card:hover { transform: translateY(-8px); }
-    .metric-card h4 { color: #64748b; margin-bottom: 10px; font-size: 1.1rem; }
-    .metric-card h2 { color: #1e3a8a; font-size: 2.2rem; font-weight: 800; }
-
-    /* Login Card */
-    .login-card { 
-        max-width: 450px; margin: auto; padding: 60px; 
-        background: white; border-radius: 30px; 
-        box-shadow: 0 25px 50px -12px rgba(0,0,0,0.15); 
-        text-align: center; border: 1px solid #e2e8f0;
-    }
-    
-    /* Buttons - Custom Style */
-    .stButton>button {
-        width: 100%; border-radius: 12px; height: 3.5em;
-        background: linear-gradient(90deg, #1e3a8a, #2563eb);
-        color: white; font-weight: bold; border: none;
-        transition: 0.3s;
-    }
-    .stButton>button:hover { background: #1e40af; box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4); }
-    
-    /* Sidebar styling */
-    [data-testid="stSidebar"] { background-color: #ffffff; border-right: 1px solid #f1f5f9; }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- 3. FUNKSHIINIIWWAN (HELPERS) ---
+# --- 2. HELPER FUNCTIONS ---
 
 def to_ethiopian(dt):
     try:
@@ -73,368 +22,180 @@ def to_ethiopian(dt):
     except: return dt.strftime("%Y-%m-%d")
 
 def generate_certificate(name, rank, year):
+    # FPDF Landscape format
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    # Border Miidhagaa (Navy & Gold)
-    pdf.set_draw_color(30, 58, 138) 
-    pdf.set_line_width(4)
+    
+    # Border (Salphaa fi bareedaa)
+    pdf.set_draw_color(31, 78, 120)
+    pdf.set_line_width(2.5)
     pdf.rect(10, 10, 277, 190)
-    pdf.set_draw_color(212, 175, 55) # Gold
-    pdf.set_line_width(1.5)
-    pdf.rect(13, 13, 271, 184)
+    
+    # Border keessaa (Double line effect)
+    pdf.set_line_width(0.5)
+    pdf.rect(12, 12, 273, 186)
 
-    if LOGO_PATH: pdf.image(LOGO_PATH, x=133, y=18, w=30)
+    # Logo
+    if LOGO_PATH:
+        pdf.image(LOGO_PATH, x=133, y=15, w=30)
     
-    pdf.ln(45)
-    pdf.set_font('Arial', 'B', 36)
-    pdf.set_text_color(30, 58, 138)
-    pdf.cell(0, 15, 'SARTIFIKETII KABAJAA', ln=True, align='C')
+    pdf.ln(40)
     
-    pdf.ln(15)
-    pdf.set_font('Arial', '', 20)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, 'Badhaasni kun ogeessa gahumsa qabuuf kenname:', ln=True, align='C')
+    # Title - Afaan Oromoo
+    pdf.set_font('Times', 'B', 28)
+    pdf.set_text_color(31, 78, 120)
+    pdf.cell(0, 15, 'SARTIFIKETII BADHAASA WAGGAA', ln=True, align='C')
     
-    pdf.ln(8)
-    pdf.set_font('Arial', 'B', 32)
-    pdf.set_text_color(184, 134, 11) # Gold text
-    pdf.cell(0, 20, name.upper(), ln=True, align='C')
+    # Title - English
+    pdf.set_font('Times', 'B', 18)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 10, 'ANNUAL AWARD CERTIFICATE', ln=True, align='C')
     
     pdf.ln(10)
-    pdf.set_font('Arial', '', 16)
-    content = f"Waggaa {year} keessa tajaajila gaarii fi gahumsa qabuun hojjechuun badhaasa sadarkaa {rank}ffaa waan ta'aniif qophaa'e."
-    pdf.multi_cell(0, 10, content, align='C')
+    pdf.set_text_color(0, 0, 0)
     
-    pdf.set_xy(180, 170)
-    pdf.set_font('Arial', 'B', 14)
-    pdf.cell(80, 7, "_______________________", ln=True, align='C')
-    pdf.set_x(180)
-    pdf.cell(80, 7, "Obbo Aqiil Abdujaliil", ln=True, align='C')
+    # Body Text
+    pdf.set_font('Times', '', 16)
+    pdf.cell(0, 10, f"Badhaasni kun ogeessa kabajamaa:", ln=True, align='C')
+    
+    pdf.ln(5)
+    pdf.set_font('Arial', 'B', 24)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 15, name.upper(), ln=True, align='C')
+    
+    pdf.ln(5)
+    pdf.set_font('Times', '', 15)
+    pdf.multi_cell(0, 10, f"Waggaa {year} keessa tajaajila quubsaa fi gahumsa qabuun hojjechuun badhaasa {rank} ta'uu keessaniif qophaa'e.", align='C')
+    
+    # Digital Seal / Badge Placeholder (Optional visual)
+    # pdf.set_draw_color(184, 134, 11) # Gold color
+    # pdf.ellipse(240, 150, 30, 30, 'D')
+
+    # Signature Section
+    pdf.set_font('Times', 'B', 14)
+    pdf.set_xy(30, 160)
+    pdf.cell(100, 7, "__________________________", ln=True, align='L')
+    pdf.set_x(30)
+    pdf.cell(100, 7, "Obbo Aqiil Abdujaliil", ln=True, align='L')
+    pdf.set_font('Times', '', 11)
+    pdf.set_x(30)
+    pdf.cell(100, 5, "Itti Gaafatamaa Waajjiraa / Office Head", ln=True, align='L')
+    
+    # Date in Certificate
+    pdf.set_xy(200, 167)
+    pdf.set_font('Times', '', 12)
+    pdf.cell(60, 7, f"Guyyaa: {to_ethiopian(datetime.now())}", ln=True, align='R')
+
     return pdf.output(dest='S').encode('latin-1')
 
-# --- 4. SEENSA (AUTHENTICATION) ---
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+# --- 3. UI STYLE ---
+st.markdown("""
+    <style>
+    .main { background-color: #f8f9fa; }
+    .header-box { text-align: center; padding: 25px; background: linear-gradient(135deg, #1f4e78, #3b71a3); color: white; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .metric-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 5px solid #1f4e78; text-align: center; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# --- 4. DATA HANDLING ---
+if not os.path.exists(DATA_FILE):
+    df = pd.DataFrame(columns=["Guyyaa", "Maqaa", "Bilbila", "Dhimma", "Kafaltii"])
+    df.to_csv(DATA_FILE, index=False)
+
+def load_data():
+    return pd.read_csv(DATA_FILE)
+
+# --- 5. MAIN INTERFACE ---
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    st.markdown('<br><br><br>', unsafe_allow_html=True)
-    _, col, _ = st.columns([1, 1.8, 1])
+    _, col, _ = st.columns([1, 1.5, 1])
     with col:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        st.markdown('<div style="background:white; padding:30px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1)">', unsafe_allow_html=True)
         if LOGO_PATH: st.image(LOGO_PATH, width=120)
-        st.markdown("<h2 style='color:#1e3a8a; margin-top:15px;'>Dadar Land System</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='color:#64748b;'>Maaloo ragaa kee galchuun seeni</p>", unsafe_allow_html=True)
-        u = st.text_input("Username", placeholder="Maqaa kee...")
-        p = st.text_input("Password", type="password", placeholder="Fungulaa...")
-        if st.button("SEENI / LOGIN"):
+        st.header("Dadar Land Login")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.button("SEENI", use_container_width=True):
             if u == USER_NAME and p == PASS_WORD:
                 st.session_state.logged_in = True
                 st.rerun()
-            else: st.error("Username ykn Password dogoggora!")
+            else:
+                st.error("Username ykn Password dogoggora!")
         st.markdown('</div>', unsafe_allow_html=True)
 else:
-    # --- 5. MAIN UI ---
     with st.sidebar:
         if LOGO_PATH: st.image(LOGO_PATH, use_container_width=True)
-        st.markdown("<h3 style='text-align:center; color:#1e3a8a;'>Dadar Administration</h3>", unsafe_allow_html=True)
-        st.divider()
         menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa & Sartifiketii", "🚪 Logout"]
-        choice = st.selectbox("Menu Filadhu", menu)
-        st.info(f"📅 Hardha: {to_ethiopian(datetime.now())}")
+        choice = st.selectbox("Menu", menu)
+        st.divider()
+        st.info(f"📅 {to_ethiopian(datetime.now())}")
 
-    # Header section
-    st.markdown(f"""
-        <div class="header-box">
-            <h1 style='margin:0; font-weight:800; font-size:2.8rem;'>Bulchiinsa Lafaa Magaalaa Dadar</h1>
-            <p style='font-size:1.4rem; opacity:0.9; font-weight:300;'>Sistama Bulchiinsa Ragaa fi Galmee Ammayyaa</p>
-        </div>
-        """, unsafe_allow_html=True)
+    st.markdown('<div class="header-box"><h1>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1></div>', unsafe_allow_html=True)
+
+    df = load_data()
 
     if choice == "🏠 Dashboard":
-        if os.path.exists(DATA_FILE):
-            df = pd.read_csv(DATA_FILE, sep="|", header=None)
-            
-            # Metric Cards Miidhagaa
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                st.markdown(f'<div class="metric-card"><h4>👥 Abbootii Dhimmaa</h4><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
-            with c2:
-                rev = df.iloc[:, -1].astype(float).sum()
-                st.markdown(f'<div class="metric-card"><h4>💰 Galii Waligalaa</h4><h2>{rev:,.0f} <small style="font-size:1rem;">ETB</small></h2></div>', unsafe_allow_html=True)
-            with c3:
-                st.markdown(f'<div class="metric-card"><h4>✅ Status</h4><h2>Active</h2></div>', unsafe_allow_html=True)
-            
-            st.markdown("<br><br>", unsafe_allow_html=True)
-            col_l, col_r = st.columns([2, 1])
-            with col_l:
-                st.subheader("🕒 Galmeewwan Dhiyoo")
-                st.dataframe(df.tail(10), use_container_width=True)
-            with col_r:
-                st.subheader("📊 Gosa Tajaajilaa")
-                st.bar_chart(df[5].value_counts(), color="#1e3a8a")
+        c1, c2, c3 = st.columns(3)
+        with c1: st.markdown(f'<div class="metric-card"><h3>👥 Galmee</h3><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
+        with c2: st.markdown(f'<div class="metric-card"><h3>💰 Galii</h3><h2>{df["Kafaltii"].sum():,.2f}</h2></div>', unsafe_allow_html=True)
+        with c3: st.markdown(f'<div class="metric-card"><h3>📅 Guyyaa</h3><h2>{to_ethiopian(datetime.now())[:5]}</h2></div>', unsafe_allow_html=True)
+        
+        if not df.empty:
+            st.write("### 📈 Raawwii Hojii")
+            st.bar_chart(df['Dhimma'].value_counts())
         else:
             st.info("Ragaan galmaa'e hin jiru.")
 
     elif choice == "📝 Galmee Haaraa":
-        st.markdown("<div style='background:white; padding:40px; border-radius:25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);'>", unsafe_allow_html=True)
-        st.subheader("📝 Ragaa Abbaa Dhimmaa Galmeessi")
-        with st.form("MyForm", clear_on_submit=True):
-            cl1, cl2 = st.columns(2)
-            with cl1:
-                ad = st.text_input("👤 Maqaa Abbaa Dhimmaa")
-                ar = st.text_input("📍 Araddaa")
-                wi = st.text_input("🏢 Wirtuu")
-            with cl2:
-                gs = st.selectbox("🛠️ Gosa Tajaajilaa", ["Kartaa", "Jij_Maqaa", "Lizi", "TOT", "Gibira"])
-                og = st.text_input("👨‍💼 Maqaa Ogeessaa")
-                k_wal = st.number_input("💵 Kafaltii Waligalaa", 0.0)
+        st.subheader("📝 Galmee Abbaa Dhimmaa Haaraa")
+        with st.form("galmee_form", clear_on_submit=True):
+            m_name = st.text_input("Maqaa Guutuu")
+            m_phone = st.text_input("Bilbila")
+            m_dhimma = st.selectbox("Gosa Tajaajilaa", ["Kartaa", "Jijjiirraa Maqaa", "Safara", "Lizi"])
+            m_price = st.number_input("Kafaltii (ETB)", min_value=0.0)
             
-            if st.form_submit_button("✅ GALMEE MIRKANEEESSI"):
-                now = datetime.now().strftime("%Y-%m-%d %H:%M")
-                line = f"{now}|{ad}|{ar}|{wi}|-|{gs}|{og}|-|Hardha|0|0|0|{k_wal}\n"
-                with open(DATA_FILE, "a", encoding="utf-8") as f: f.write(line)
-                st.success(f"Ragaan '{ad}' milkiin galmaa'eera!")
-                st.balloons()
-        st.markdown("</div>", unsafe_allow_html=True)
+            if st.form_submit_button("Galmeessi"):
+                if m_name and m_phone:
+                    new_entry = pd.DataFrame([[datetime.now().strftime("%Y-%m-%d"), m_name, m_phone, m_dhimma, m_price]], 
+                                            columns=["Guyyaa", "Maqaa", "Bilbila", "Dhimma", "Kafaltii"])
+                    new_entry.to_csv(DATA_FILE, mode='a', header=False, index=False)
+                    st.success(f"{m_name} milkiin galmeeffameera!")
+                    st.balloons()
+                else:
+                    st.warning("Maaloo maqaa fi bilbila galchi.")
 
     elif choice == "📊 Gabaasa & Sartifiketii":
-        tab1, tab2 = st.tabs(["📄 Gabaasa Gurguddaa", "🎓 Sartifiketii Badhaasaa"])
+        tab1, tab2 = st.tabs(["📊 Gabaasa Mamiilaa", "🎓 Sartifiketii Ogeessaa"])
         
         with tab1:
-            st.subheader("Gabaasa Excel Buufadhu")
-            if os.path.exists(DATA_FILE):
-                df_view = pd.read_csv(DATA_FILE, sep="|", header=None)
-                st.dataframe(df_view)
-                st.button("🚀 GABAASA TELEGRAM-ITTI ERGI")
+            st.subheader("Ragaa Mamiilaa Waliigalaa")
+            st.dataframe(df, use_container_width=True)
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button("Gabaasa Excel Buufadhu", csv, "gabaasa_dadar.csv", "text/csv")
         
         with tab2:
-            st.subheader("Sartifiketii Miidhagaa Uumi")
-            c_name = st.text_input("Maqaa Ogeessaa")
-            c_rank = st.selectbox("Sadarkaa Argatan", ["1ffaa", "2ffaa", "3ffaa"])
-            c_year = st.text_input("Waggaa (E.C)", "2017")
-            if st.button("🎨 SARTIFIKETII GENERATE"):
-                if c_name:
-                    pdf_out = generate_certificate(c_name, c_rank, c_year)
-                    st.download_button("📥 Buufadhu (PDF)", pdf_out, f"{c_name}_Award.pdf")
-                    st.balloons()
-
-    elif choice == "🚪 Logout":
-        st.session_state.logged_in = False
-        st.rerun()
-import streamlit as st
-import os
-import requests
-import pandas as pd
-import qrcode
-from datetime import datetime
-from io import BytesIO
-from fpdf import FPDF
-from ethiopian_date import EthiopianDateConverter
-
-# --- 1. QINDAA'INA (CONFIG) ---
-st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="🏢")
-
-USER_NAME = "admin"
-PASS_WORD = "1234"
-DATA_FILE = "dadar_final_report.txt"
-LOGO_PATH = "logo.png" 
-
-# --- 2. CSS CUSTOM STYLE (MIIDHAGSITUU) ---
-st.markdown("""
-    <style>
-    /* Bakka duubaa (Background) */
-    .stApp { background-color: #f0f4f7; }
-    
-    /* Header Box */
-    .header-box { 
-        text-align: center; padding: 40px; 
-        background: linear-gradient(135deg, #1f4e78, #2e75b6); 
-        color: white; border-radius: 20px; margin-bottom: 30px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-    
-    /* Metric Cards */
-    [data-testid="stMetricValue"] { font-size: 28px; color: #1f4e78; }
-    .metric-card {
-        background: white; padding: 25px; border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-        border-bottom: 6px solid #1f4e78;
-        transition: transform 0.3s;
-    }
-    .metric-card:hover { transform: translateY(-5px); }
-
-    /* Login Card */
-    .login-card { 
-        max-width: 450px; margin: auto; padding: 50px; 
-        background: white; border-radius: 25px; 
-        box-shadow: 0 15px 40px rgba(0,0,0,0.12); 
-        text-align: center; border: 1px solid #ddd;
-    }
-    
-    /* Buttons */
-    .stButton>button {
-        width: 100%; border-radius: 10px; height: 3em;
-        background-color: #1f4e78; color: white; font-weight: bold;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# --- 3. FUNKSHIINIIWWAN ---
-
-def to_ethiopian(dt):
-    try:
-        ey, em, ed = EthiopianDateConverter.to_ethiopian(dt.year, dt.month, dt.day)
-        return f"{ed}/{em}/{ey} E.C"
-    except: return dt.strftime("%Y-%m-%d")
-
-def generate_certificate(name, rank, year):
-    pdf = FPDF(orientation='L', unit='mm', format='A4')
-    pdf.add_page()
-    
-    # Border Miidhagaa (Double Frame)
-    pdf.set_draw_color(31, 78, 120) # Blue
-    pdf.set_line_width(3)
-    pdf.rect(10, 10, 277, 190)
-    pdf.set_draw_color(218, 165, 32) # Gold
-    pdf.set_line_width(1)
-    pdf.rect(13, 13, 271, 184)
-
-    if os.path.exists(LOGO_PATH):
-        pdf.image(LOGO_PATH, x=133, y=18, w=30)
-    
-    pdf.ln(45)
-    pdf.set_font('Arial', 'B', 32)
-    pdf.set_text_color(31, 78, 120)
-    pdf.cell(0, 15, 'SARTIFIKETII BADHAASA OGEESSAA', ln=True, align='C')
-    
-    pdf.ln(10)
-    pdf.set_font('Arial', '', 18)
-    pdf.set_text_color(0, 0, 0)
-    pdf.cell(0, 10, 'Badhaasni kun kabajaaf kan kenname ogeessa:', ln=True, align='C')
-    
-    pdf.ln(5)
-    pdf.set_font('Arial', 'B', 28)
-    pdf.set_text_color(184, 134, 11) # Dark Gold
-    pdf.cell(0, 20, name.upper(), ln=True, align='C')
-    
-    pdf.ln(5)
-    pdf.set_font('Arial', '', 16)
-    pdf.set_text_color(0, 0, 0)
-    content = f"Waggaa {year} keessa tajaajila gaarii fi gahumsa qabuun hojjechuun badhaasa sadarkaa {rank}ffaa waan ta'aniif qophaa'e."
-    pdf.multi_cell(0, 10, content, align='C')
-    
-    # Signature: Obbo Aqiil Abdujaliil
-    pdf.set_xy(180, 165)
-    pdf.set_font('Arial', 'B', 14)
-    pdf.cell(80, 7, "_______________________", ln=True, align='C')
-    pdf.set_x(180)
-    pdf.cell(80, 7, "Obbo Aqiil Abdujaliil", ln=True, align='C')
-    pdf.set_font('Arial', '', 11)
-    pdf.set_x(180)
-    pdf.cell(80, 5, "Itti Gaafatamaa Waajjiraa", ln=True, align='C')
-
-    return pdf.output(dest='S').encode('latin-1')
-
-# --- 4. SEENSA (AUTHENTICATION) ---
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    st.markdown('<br><br><br>', unsafe_allow_html=True)
-    _, col, _ = st.columns([1, 1.8, 1])
-    with col:
-        st.markdown('<div class="login-card">', unsafe_allow_html=True)
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=130)
-        st.markdown("<h2 style='color:#1f4e78;'>Dadar Land Login</h2>", unsafe_allow_html=True)
-        u = st.text_input("Username", placeholder="Maqaa kee...")
-        p = st.text_input("Password", type="password", placeholder="Fungulaa...")
-        if st.button("SEENI / LOGIN"):
-            if u == USER_NAME and p == PASS_WORD:
-                st.session_state.logged_in = True
-                st.rerun()
-            else: st.error("Maaloo ragaa sirrii galchi!")
-        st.markdown('</div>', unsafe_allow_html=True)
-else:
-    # --- 5. MAIN UI ---
-    with st.sidebar:
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, use_container_width=True)
-        st.markdown("<h3 style='text-align:center;'>Dadar Administration</h3>", unsafe_allow_html=True)
-        st.divider()
-        menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa & Sartifiketii", "🚪 Logout"]
-        choice = st.selectbox("Menu Filadhu", menu)
-        st.info(f"📅 Hardha: {to_ethiopian(datetime.now())}")
-
-    # Header section
-    st.markdown(f"""
-        <div class="header-box">
-            <h1 style='margin:0;'>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1>
-            <p style='font-size:1.3rem; opacity:0.9;'>Sistama Bulchiinsa Ragaa fi Galmee Ammayyaa</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    if choice == "🏠 Dashboard":
-        if os.path.exists(DATA_FILE):
-            df = pd.read_csv(DATA_FILE, sep="|", header=None)
+            st.subheader("🎓 Sartifiketii Badhaasaa Qopheessi")
             
-            # Metric Cards
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                st.markdown(f'<div class="metric-card"><h4>👥 Abbootii Dhimmaa</h4><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
-            with c2:
-                rev = df.iloc[:, -1].astype(float).sum()
-                st.markdown(f'<div class="metric-card"><h4>💰 Galii Waligalaa</h4><h2>{rev:,.2f} ETB</h2></div>', unsafe_allow_html=True)
-            with c3:
-                st.markdown(f'<div class="metric-card"><h4>✅ Status</h4><h2>Hojirra Jira</h2></div>', unsafe_allow_html=True)
+            # Certificate Layout Preview Illustration
             
-            st.write("---")
-            col_l, col_r = st.columns([2, 1])
-            with col_l:
-                st.subheader("🕒 Galmeewwan Dhiyoo")
-                st.dataframe(df.tail(8), use_container_width=True)
-            with col_r:
-                st.subheader("📊 Gosa Tajaajilaa")
-                st.bar_chart(df[5].value_counts())
-        else:
-            st.info("Ragaan galmaa'e hin jiru. Maaloo 'Galmee Haaraa' irra deemi.")
-
-    elif choice == "📝 Galmee Haaraa":
-        with st.container():
-            st.markdown("<div style='background:white; padding:30px; border-radius:15px;'>", unsafe_allow_html=True)
-            st.subheader("📝 Ragaa Haaraa Galmeessi")
-            with st.form("MyForm", clear_on_submit=True):
-                cl1, cl2 = st.columns(2)
-                with cl1:
-                    ad = st.text_input("Maqaa Abbaa Dhimmaa")
-                    ar = st.text_input("Araddaa")
-                    wi = st.text_input("Wirtuu")
-                with cl2:
-                    gs = st.selectbox("Gosa Tajaajilaa", ["Kartaa", "Jij_Maqaa", "Lizi", "TOT", "Gibira"])
-                    og = st.text_input("Maqaa Ogeessaa")
-                    k_wal = st.number_input("Kafaltii Waligalaa", 0.0)
-                
-                if st.form_submit_button("✅ GALMEESSI"):
-                    now = datetime.now().strftime("%Y-%m-%d %H:%M")
-                    line = f"{now}|{ad}|{ar}|{wi}|-|{gs}|{og}|-|Hardha|0|0|0|{k_wal}\n"
-                    with open(DATA_FILE, "a", encoding="utf-8") as f: f.write(line)
-                    st.success(f"Ragaan {ad} milkiin galmaa'eera!")
-            st.markdown("</div>", unsafe_allow_html=True)
-
-    elif choice == "📊 Gabaasa & Sartifiketii":
-        tab1, tab2 = st.tabs(["📄 Gabaasa Excel", "🎓 Sartifiketii Badhaasaa"])
-        
-        with tab1:
-            st.subheader("Gabaasa Toora Telegram")
-            if st.button("🚀 GABAASA TELEGRAM-ITTI ERGI"):
-                st.toast("Gabaasni ergameera!", icon="✅")
-        
-        with tab2:
-            st.subheader("Sartifiketii Miidhagaa Uumi")
-            c_name = st.text_input("Maqaa Ogeessaa")
-            c_rank = st.selectbox("Sadarkaa", ["1ffaa", "2ffaa", "3ffaa"])
-            c_year = st.text_input("Waggaa (E.C)", "2017")
-            if st.button("🎨 SARTIFIKETII GENERATE"):
+            
+            c_name = st.text_input("Maqaa Ogeessaa (Full Name)")
+            c_rank = st.selectbox("Sadarkaa Badhaasaa", ["1ffaa", "2ffaa", "3ffaa", "Badhaasa Addaa"])
+            c_year = st.text_input("Waggaa Tajaajilaa (E.C)", "2017/18")
+            
+            if st.button("🎨 GENERATE PDF CERTIFICATE"):
                 if c_name:
-                    pdf_out = generate_certificate(c_name, c_rank, c_year)
-                    st.download_button("📥 Buufadhu (PDF)", pdf_out, f"{c_name}_Award.pdf")
-                    st.balloons()
+                    try:
+                        pdf_bytes = generate_certificate(c_name, c_rank, c_year)
+                        st.download_button(f"📥 Sartifiketii {c_name} Buufadhu", pdf_bytes, f"Award_{c_name}.pdf", "application/pdf")
+                        st.success("Sartifiketiin qophaa'eera!")
+                        st.balloons()
+                    except Exception as e:
+                        st.error(f"Dogoggora PDF uumuu irratti: {e}")
+                else:
+                    st.warning("Maaloo maqaa ogeessaa guuti.")
 
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
