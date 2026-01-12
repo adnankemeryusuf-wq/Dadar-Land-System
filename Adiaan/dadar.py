@@ -7,7 +7,7 @@ import openpyxl
 import plotly.express as px
 
 # --- 1. QINDAA'INA ---
-st.set_page_config(page_title="Dadar Land System V8.1", layout="wide", page_icon="🏢")
+st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="")
 
 USER_NAME, PASS_WORD = "admin", "1234"
 DB_FILE = "galmee_abbaa_dhimmaa.txt"
@@ -105,3 +105,4 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
