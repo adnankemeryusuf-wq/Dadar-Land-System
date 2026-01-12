@@ -9,7 +9,7 @@ from fpdf import FPDF
 from ethiopian_date import EthiopianDateConverter
 
 # --- 1. QINDAA'INA (CONFIG) ---
-st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="🏢")
+st.set_page_config(page_title="Dadar Land Customer Registration Systemm", layout="wide", page_icon="🏢")
 
 USER_NAME = "admin"
 PASS_WORD = "1234"
@@ -220,3 +220,4 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
