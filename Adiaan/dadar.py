@@ -1,5 +1,3 @@
-# DADAR LAND ADMIN PRO - FULL STREAMLIT APP
-
 import streamlit as st
 import pandas as pd
 import os
@@ -154,3 +152,4 @@ elif menu == "Users" and st.session_state.role == "admin":
             users.loc[len(users)] = [u, hash_password(p), r]
             save_users(users)
             st.success("User dabalame")
+
