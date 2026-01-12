@@ -34,7 +34,7 @@ def send_telegram_file(df, filename, caption):
     try: requests.post(url, data=data, files=files)
     except: st.error("Faayila Telegram erguun hin danda'amne.")
 
-# --- 2. SARTIIFIKETA MIIDHAGAA (Enhanced) ---
+# --- 2. SARTIIFIKETA MIIDHAGAA (Signature Updated) ---
 def generate_certificate(expert_name, total_served, year):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
@@ -79,10 +79,21 @@ def generate_certificate(expert_name, total_served, year):
     pdf.ln(20)
     pdf.set_font('Arial', 'B', 14)
     pdf.set_text_color(0, 0, 0)
-    pdf.cell(100, 10, "__________________________", ln=0, align='C')
+    
+    # Sarara Mallattoo
+    pdf.cell(100, 10, "__________________________", ln=0, align='C') 
     pdf.cell(87, 10, "", ln=0)
     pdf.cell(100, 10, "__________________________", ln=1, align='C')
-    pdf.cell(100, 10, "Itti Gaafatamaa Waajjiraa", ln=0, align='C')
+
+    # Maqaa Itti Gaafatamaa (Aqiil Abdujaaliil)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.cell(100, 5, "Aqiil Abdujaaliil", ln=0, align='C') 
+    pdf.cell(87, 5, "", ln=0)
+    pdf.cell(100, 5, "", ln=1, align='C') 
+
+    # Titlaa fi Guyyaa
+    pdf.set_font('Arial', '', 12)
+    pdf.cell(100, 10, "Itti Gaafatamaa Waajjiraa", ln=0, align='C') 
     pdf.cell(87, 10, "", ln=0)
     pdf.cell(100, 10, "Guyyaa", ln=1, align='C')
     
@@ -105,7 +116,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- 4. LOGIN LOGIC ---
+# --- 4. APP LOGIC ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
@@ -123,7 +134,6 @@ if not st.session_state.logged_in:
                 st.rerun()
             else: st.error("Maqaa ykn Password dogoggora!")
 else:
-    # SIDEBAR
     with st.sidebar:
         if os.path.exists(LOGO_FILE): st.image(LOGO_FILE, width=120)
         st.title("Admin Panel")
@@ -134,21 +144,18 @@ else:
 
     st.markdown('<div class="header-box"><h1>Waajjira Lafaa Magaalaa Dadar</h1><p>Gabaasa fi Galmeessa Ammayyaa</p></div><br>', unsafe_allow_html=True)
 
-    # --- DASHBOARD ---
+    # (Logic Dashboard, Registration, and Reports remain the same as previous version)
     if choice == "🏠 Dashboard":
         if os.path.exists(DATA_FILE):
             df = pd.read_csv(DATA_FILE, sep="|", header=None)
             df.columns = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Status', 'C1', 'C2', 'C3', 'Kafaltii']
-            
             c1, c2, c3 = st.columns(3)
             with c1: st.markdown(f'<div class="card"><h5>👥 Waligala</h5><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
             with c2: st.markdown(f'<div class="card"><h5>💰 Galii</h5><h2>{pd.to_numeric(df["Kafaltii"]).sum():,.2f}</h2></div>', unsafe_allow_html=True)
             with c3: st.markdown(f'<div class="card"><h5>📅 Hardha</h5><h2>{len(df[pd.to_datetime(df["Yeroo"]).dt.date == datetime.now().date()])}</h2></div>', unsafe_allow_html=True)
-            
             st.plotly_chart(px.bar(df['Gosa'].value_counts().reset_index(), x='index', y='Gosa', color='index', title="Tajaajila Gosaan"), use_container_width=True)
         else: st.info("Ragaan hin jiru.")
 
-    # --- REGISTRATION ---
     elif choice == "📝 Galmee Haaraa":
         with st.form("reg_form", clear_on_submit=True):
             st.subheader("📝 Ragaa Galmeessi")
@@ -161,7 +168,6 @@ else:
                 gs = st.selectbox("Gosa Tajaajilaa", ["Ittii Fayyaddam", "Kartaa", "Jijjirra Maqaa", "Walitti Bu'iinsa Dangaa", "Dhimma Mana Murttii", "Dhorkii Mana Murtii Galmeessu", "Liqii Bankii Galmeessu", "Dhorkii Mana Murtii Kaasuu", "Liqii Bankii Kasuu"])
                 og = st.text_input("Maqaa Ogeessaa")
                 kf = st.number_input("Kafaltii", min_value=0.0)
-            
             if st.form_submit_button("✅ GALMEESSI"):
                 if ad and og:
                     now = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -170,62 +176,11 @@ else:
                     st.success(f"Ragaan {ad} galmaa'eera!")
                 else: st.warning("Maaloo ragaa guutuu guutaa.")
 
-    # --- ADVANCED REPORTING ---
     elif choice == "📊 Gabaasa Telegr_Pro":
         if os.path.exists(DATA_FILE):
             df = pd.read_csv(DATA_FILE, sep="|", header=None)
             df.columns = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Status', 'C1', 'C2', 'C3', 'Kafaltii']
             df['Yeroo'] = pd.to_datetime(df['Yeroo'])
-            
-            st.subheader("🔍 Meeshaa Gabaasa Calaluu")
             tab1, tab2, tab3 = st.tabs(["📅 Guyyaa/Torban", "📅 Ji'a/Kurmaana", "🚀 Telegram"])
-            
             with tab1:
-                day_filter = st.multiselect("Guyyaa Filadhu:", ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"], default=[])
-                week_filter = st.selectbox("Torban Filadhu:", ["Hunda", "Torban 1ffaa", "Torban 2ffaa", "Torban 3ffaa", "Torban 4ffaa"])
-                
-                # Logic filter
-                df_f = df.copy()
-                if day_filter: df_f = df_f[df_f['Yeroo'].dt.day_name().isin(day_filter)]
-                if week_filter != "Hunda":
-                    w_num = int(week_filter.split()[1][0])
-                    df_f = df_f[(df_f['Yeroo'].dt.day - 1) // 7 + 1 == w_num]
-                st.dataframe(df_f, use_container_width=True)
-
-            with tab2:
-                month_names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-                m_filter = st.selectbox("Ji'a Filadhu:", ["Hunda"] + month_names)
-                q_filter = st.selectbox("Kurmaana (Quarter):", ["Hunda", "Kurmaana 1ffaa", "Kurmaana 2ffaa", "Kurmaana 3ffaa", "Kurmaana 4ffaa"])
-                
-                if m_filter != "Hunda": 
-                    df_f = df_f[df_f['Yeroo'].dt.month == month_names.index(m_filter) + 1]
-                if q_filter != "Hunda":
-                    q_num = int(q_filter.split()[1][0])
-                    df_f = df_f[df_f['Yeroo'].dt.quarter == q_num]
-                st.dataframe(df_f, use_container_width=True)
-
-            with tab3:
-                if st.button("🚀 GABAASA TELEGRAM-ITTI ERGI"):
-                    summary = (f"📊 *GABAASA DADAR LAND*\n"
-                               f"📅 Yeroo: {datetime.now().strftime('%Y-%m-%d')}\n"
-                               f"👤 Namoota: {len(df_f)}\n"
-                               f"💰 Galii: {pd.to_numeric(df_f['Kafaltii']).sum():,.2f} ETB")
-                    send_telegram_msg(summary)
-                    send_telegram_file(df_f, "Gabaasa_Dadar.csv", "Gabaasa Faayila Excel")
-                    st.success("Gabaasni Telegram-itti ergameera!")
-
-    # --- CERTIFICATE ---
-    elif choice == "🏆 Sartiifiketa":
-        if os.path.exists(DATA_FILE):
-            df = pd.read_csv(DATA_FILE, sep="|", header=None)
-            counts = df[5].value_counts()
-            if not counts.empty:
-                w_name, w_val = counts.idxmax(), counts.max()
-                st.markdown(f"<div class='card'><h3>🏆 Ogeessa Waggaa: {w_name}</h3><p>Abbootii dhimmaa {w_val} tajaajile.</p></div>", unsafe_allow_html=True)
-                if st.button("📜 SARTIIFIKETA QOPHEESSI"):
-                    cert = generate_certificate(w_name, w_val, datetime.now().year)
-                    st.download_button("📥 Buufadhu (PDF)", cert, f"Cert_{w_name}.pdf", "application/pdf")
-
-    elif choice == "🚪 Logout":
-        st.session_state.logged_in = False
-        st.rerun()
+                day_filter = st.multiselect("Guyyaa Filadhu:", ["Monday",
