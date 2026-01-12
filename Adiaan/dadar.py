@@ -233,26 +233,7 @@ if not st.session_state.logged_in:
                 st.rerun()
             else:
                 st.error("Maqaa ykn Password dogoggora!")
-else:
-    # --- 4. MAIN APP (DASHBOARD) ---
-    st.sidebar.title("Menu")
-    choice = st.sidebar.radio("Filannoo", ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa"])
-    
-    if st.sidebar.button("Log Out"):
-        st.session_state.logged_in = False
-        st.rerun()
 
-    if choice == "🏠 Dashboard":
-        st.title("🏠 Dashboard Waliigalaa")
-        # Dashboard kee asitti itti fufi...
 
-    elif choice == "📝 Galmee Haaraa":
-        st.title("📝 Galmee Abbaa Dhimmaa")
-        with st.form(key='AbbaaDhimmaaGalmeeForm'):
-            maqaa = st.text_input("Maqaa Guutuu", key="reg_name")
-            bilbila = st.text_input("Lakk. Bilbilaa", key="reg_phone")
-            submit = st.form_submit_button("Galmeessi")
-            if submit:
-                st.write(f"{maqaa} galmeeffameera!")
 
 
