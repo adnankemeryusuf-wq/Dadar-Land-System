@@ -115,7 +115,7 @@ if not st.session_state.logged_in:
     with col2:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         if LOGO_PATH: st.image(LOGO_PATH, width=100)
-        st.header("Dadar Land System")
+        st.header("Dadar Land Administration Customer Registration System")
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         if st.button("SEENI / LOGIN"):
@@ -213,6 +213,7 @@ st.markdown("""
 # --- 2. SESSION STATE (LOGIN CHECK) ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
+
 
 
 
