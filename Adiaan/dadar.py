@@ -183,7 +183,7 @@ else:
                 ar = st.text_input("📍 Araddaa")
                 wi = st.text_input("🏢 Wirtuu")
             with f2:
-                gs = st.selectbox("🛠️ Gosa Tajaajilaa", ["Kartaa", "Jij_Maqaa", "Lizi", "TOT", "Gibira", "Hacuufama"])
+                gs = st.selectbox("🛠️ Gosa Tajaajilaa", ["Ittii Fayyadam", "Kartaa", "Jijjiiraa Maqaa","Walitti Bu'iinsa Dangaa", "Dhimmma Mana Murti", "Gibira", "Kan Biro"])
                 og = st.text_input("👨‍💼 Maqaa Ogeessaa")
                 k_wal = st.number_input("💵 Kafaltii Waligalaa (ETB)", min_value=0.0)
             
@@ -221,3 +221,4 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
