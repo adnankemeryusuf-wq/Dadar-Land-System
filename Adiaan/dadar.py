@@ -57,7 +57,7 @@ st.markdown("""
         color: white; font-weight: bold; border: none;
         transition: 0.3s;
     }
-    .stButton>button:hover { background: #1e40af; box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4); }
+    .stButton>button:hover { background: #22c55e; box-shadow: 0 5px 15px rgba(37, 99, 235, 0.4); }
     
     /* Sidebar styling */
     [data-testid="stSidebar"] { background-color: #ffffff; border-right: 1px solid #f1f5f9; }
@@ -122,7 +122,7 @@ if not st.session_state.logged_in:
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         if LOGO_PATH: st.image(LOGO_PATH, width=120)
         st.markdown("<h2 style='color:#22c55e; margin-top:15px;'>Dadar Land Administration Customer Registration System</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='color:#64748b;'>Maaloo ragaa kee galchuun seeni</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color:#22c55e;'>Maaloo ragaa kee galchuun seeni</p>", unsafe_allow_html=True)
         u = st.text_input("Username", placeholder="Maqaa kee...")
         p = st.text_input("Password", type="password", placeholder="Fungulaa...")
         if st.button("SEENI / LOGIN"):
@@ -220,6 +220,7 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
