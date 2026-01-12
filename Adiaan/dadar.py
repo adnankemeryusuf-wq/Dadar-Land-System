@@ -140,7 +140,7 @@ else:
                 lizi = st.number_input("Kafaltii Jijjirraa Maqaa", value=0.0)
                 lizi = st.number_input("Kafaltii Lizi Duraa", value=0.0)
                 tot = st.number_input("Kafaltii TOT", value=0.0)
-                kan = st.number_input("Kafaltii Kan Biro", value=0.0)
+                kan = st.number_input("Kafaltii Biro", value=0.0)
             ogeessa = st.text_input("Maqaa Ogeessaa (Safaraaf yoo ta'e)")
             bilbila_o = st.text_input("Bilbila Ogeessaa")
 
@@ -196,6 +196,7 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
