@@ -7,7 +7,6 @@ from datetime import datetime
 from io import BytesIO
 from fpdf import FPDF
 from ethiopian_date import EthiopianDateConverter
-
 # --- 1. QINDAA'INA (CONFIG) ---
 st.set_page_config(page_title="Dadar Land System", layout="wide", page_icon="🏢")
 
@@ -226,5 +225,6 @@ from datetime import datetime
 from io import BytesIO
 from fpdf import FPDF
 from ethiopian_date import EthiopianDateConverter
+
 
 
