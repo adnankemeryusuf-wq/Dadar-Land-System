@@ -37,7 +37,6 @@ MONTHS_OR = {
     "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
-# Jijjirra Maqaa dhuunfaatti haqameera (Dabarsa Lafa jala qofa jira)
 GATII_DICT = {
     "Ittii Fayyaddam": 50.0, 
     "Kaartaa mana": 150.0, 
@@ -49,9 +48,9 @@ GATII_DICT = {
     "Uguraa Mana Murtii Kasuu": 50.0, 
     "Dorkka Liqii Bankii": 100.0, 
     "Dorkkaa Liqii Bankii Kasuu": 100.0,
-    "Kaadaastara": {"Baaxii": 300.0, "Gooroo": 250.0},
     "Gibira Lafa Qonnaa": 100.0,
-    "Dabarsa Lafa": {"Liizii waggaa": 400.0, "Jijjirraa Maqaa": 200.0, "Lizii Duraa": 500.0, "TOT": 100.0}
+    "Gibira Kaadaastara": {"Baaxii": 300.0, "Gooroo": 250.0},
+    "Bittaa Mana": {"Liizii waggaa": 400.0, "Jijjirraa Maqaa": 200.0, "Lizii Duraa": 500.0, "TOT": 100.0}
 }
 
 # ================= 3. FUNCTIONS =================
@@ -85,31 +84,38 @@ else:
     if menu == "📝 Galmee Haaraa":
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         
-        # Options keessaa Jijjirraa Maqaa haqameera
-        main_options = ["Dabarsa Lafa", "Gibira Lafa Qonnaa", "Kaadaastara"] + list(GATII_DICT.keys())[:10] + ["Kan Biroo"]
+        main_options = ["Bittaa Mana", "Gibira Lafa Qonnaa", "Gibira Kaadaastara Baaxii Gooroo"] + list(GATII_DICT.keys())[:10] + ["Kan Biroo"]
         gosa_main = st.selectbox("Gosa Tajaajilaa Filadhu", main_options)
         
         base_fee = 0.0
         gosa_galmeeffamu = gosa_main
 
-        if gosa_main == "Dabarsa Lafa":
-            sub_gosa = st.radio("Dabarsa Lafa Keessaa Filadhu:", list(GATII_DICT["Dabarsa Lafa"].keys()))
-            base_fee = GATII_DICT["Dabarsa Lafa"][sub_gosa]
-            gosa_galmeeffamu = f"Dabarsa Lafa ({sub_gosa})"
+        # --- Bittaa Mana (Dabarsa Lafa) ---
+        if gosa_main == "Bittaa Mana":
+            sub_gosa = st.radio("Bittaa Mana Keessaa Filadhu:", list(GATII_DICT["Bittaa Mana"].keys()))
+            base_fee = GATII_DICT["Bittaa Mana"][sub_gosa]
+            gosa_galmeeffamu = f"Bittaa Mana ({sub_gosa})"
 
-        elif gosa_main == "Gibira Lafa Qonnaa" or gosa_main == "Gibira":
+        # --- Gibira Lafa Qonnaa ---
+        elif gosa_main == "Gibira Lafa Qonnaa":
             c1, c2, c3 = st.columns(3)
-            guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)])
-            ji_lakk = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x} - {MONTHS_OR[x]}")
-            bara = c3.selectbox("Waggaa", [str(y) for y in range(2000, 2027)])
+            guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key="q_guy")
+            ji_lakk = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x} - {MONTHS_OR[x]}", key="q_ji")
+            bara = c3.selectbox("Waggaa", [str(y) for y in range(2000, 2027)], key="q_bar")
             yeroo_gibiraa = f"{guyyaa}/{ji_lakk}/{bara}"
-            base_fee = GATII_DICT.get("Gibira Lafa Qonnaa", 100.0)
-            gosa_galmeeffamu = f"{gosa_main} ({yeroo_gibiraa})"
+            base_fee = GATII_DICT["Gibira Lafa Qonnaa"]
+            gosa_galmeeffamu = f"Gibira Lafa Qonnaa ({yeroo_gibiraa})"
 
-        elif gosa_main == "Kaadaastara":
+        # --- Gibira Kaadaastara (Baaxii fi Gooroo) ---
+        elif gosa_main == "Gibira Kaadaastara Baaxii Gooroo":
             sub_kaad = st.radio("Filannoo Kaadaastaraa:", ["Baaxii", "Gooroo"])
-            base_fee = GATII_DICT["Kaadaastara"][sub_kaad]
-            gosa_galmeeffamu = f"Kaadaastara ({sub_kaad})"
+            c1, c2, c3 = st.columns(3)
+            guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key="k_guy")
+            ji_lakk = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x} - {MONTHS_OR[x]}", key="k_ji")
+            bara = c3.selectbox("Waggaa", [str(y) for y in range(2000, 2027)], key="k_bar")
+            yeroo_kaad = f"{guyyaa}/{ji_lakk}/{bara}"
+            base_fee = GATII_DICT["Gibira Kaadaastara"][sub_kaad]
+            gosa_galmeeffamu = f"Gibira Kaadaastara {sub_kaad} ({yeroo_kaad})"
 
         elif gosa_main == "Kan Biroo":
             sababa_biroo = st.text_input("Sababa tajaajilaa barreessi")
