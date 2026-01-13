@@ -173,7 +173,6 @@ else:
                     e_qaxana = st.text_input("Qaxana", value=df.at[idx, 'Qaxana'])
                      e_ogeessa = st.text_input("Ogeessa", value=df.at[idx, 'Ogeessa'])
                     e_k_wal = st.number_input("Kafaltii", value=float(df.at[idx, 'Kafaltii_Wal']))
-                    
                     c1, c2 = st.columns(2)
                     if c1.form_submit_button("💾 SAVE CHANGES"):
                         df.at[idx, 'Maqaa'] = e_maqaa
@@ -231,6 +230,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.clear()
         st.rerun()
+
 
 
 
