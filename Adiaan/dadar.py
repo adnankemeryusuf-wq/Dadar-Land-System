@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import os
 from datetime import datetime
-from fpdf import FPDF
 
 # ================= 1. CONFIG & STYLING =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
@@ -14,42 +13,33 @@ st.markdown("""
     .stApp { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
     [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
-    div.stForm, div[data-testid="metric-container"] {
+    div.stForm {
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(10px);
         border-radius: 15px;
         padding: 25px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
-    }
-    .stButton>button {
-        background: linear-gradient(90deg, #4caf50, #2e7d32);
-        color: white; border-radius: 8px; font-weight: bold; height: 3.5em;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATA & GATII =================
+# ================= 2. DATA & SETTINGS =================
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
-# GATII FI FILANNOO
-GATII_DICT = {
-    "Dabarsa Lafa": {
-        "Jijjirraa Maqaa": 200.0,
-        "Lizii Duraa": 500.0,
-        "TOT": 100.0
-    },
-    "Ittii Fayyaddam": 50.0,
-    "Kartaa": 150.0,
-    "Dhimma Dangaa": 100.0,
-    "Ugura Mana Murtii": 50.0,
-    "Dorkka Liqii Bankii": 100.0
+# Maqaa Ji'ootaa Afaan Oromoo
+MONTHS_OR = {
+    "01": "Fulbaana", "02": "Onkololeessa", "03": "Sadaasa", "04": "Muddee",
+    "05": "Amajjii", "06": "Guraandhala", "07": "Bitootessa", "08": "Eebila",
+    "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
-# Waggaa, Ji'a fi Guyyaa E.C
-YEARS = [str(y) for y in range(2000, 2025)]
-MONTHS = ["Meskerem", "Tikimt", "Hidar", "Tahsas", "Tir", "Yakatit", "Magabit", "Miazia", "Gunbot", "Sene", "Hamle", "Nehasse", "Pagume"]
-DAYS = [str(d) for d in range(1, 31)]
+# Gatiiwwan
+GATII_DICT = {
+    "Dabarsa Lafa": {"Jijjirraa Maqaa": 200.0, "Lizii Duraa": 500.0, "TOT": 100.0},
+    "Ittii Fayyaddam": 50.0,
+    "Kartaa": 150.0,
+    "Gibira": 100.0
+}
 
 # ================= 3. FUNCTIONS =================
 def load_data():
@@ -67,10 +57,8 @@ if 'logged_in' not in st.session_state:
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
-        st.markdown("<div style='height: 80px;'></div>", unsafe_allow_html=True)
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=150)
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
+        u, p = st.text_input("Username"), st.text_input("Password", type="password")
         if st.button("Seeni"):
             if u == "admin" and p == "123":
                 st.session_state.logged_in = True; st.rerun()
@@ -81,41 +69,35 @@ else:
 
     df = load_data()
 
-    if menu == "📊 Dashboard":
-        st.markdown("<h2 style='color: #2e7d32;'>📊 Dashboard</h2>", unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        c1.metric("Baay'ina Tajaajilaa", len(df))
-        total_money = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum() if not df.empty else 0
-        c2.metric("Waliigala Galii", f"{total_money} ETB")
-        st.dataframe(df, use_container_width=True)
-
-    elif menu == "📝 Galmee Haaraa":
+    if menu == "📝 Galmee Haaraa":
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         
-        gosa = st.selectbox("Gosa Tajaajilaa", ["Dabarsa Lafa", "Gibira", "Ittii Fayyaddam", "Kartaa", "Dhimma Dangaa"])
+        gosa_main = st.selectbox("Gosa Tajaajilaa Filadhu", ["Dabarsa Lafa", "Gibira", "Ittii Fayyaddam", "Kartaa"])
         
         base_fee = 0.0
-        details = ""
+        gosa_galmeeffamu = gosa_main
 
-        # 1. Dabarsa Lafa Logic
-        if gosa == "Dabarsa Lafa":
-            d = GATII_DICT["Dabarsa Lafa"]
-            base_fee = d["Jijjirraa Maqaa"] + d["Lizii Duraa"] + d["TOT"]
-            details = f"(Jijjirraa: {d['Jijjirraa Maqaa']} + Lizii: {d['Lizii Duraa']} + TOT: {d['TOT']})"
-            st.warning(details)
+        # --- LOGIC DABARSA LAFA ---
+        if gosa_main == "Dabarsa Lafa":
+            sub_gosa = st.radio("Dabarsa Lafa Keessaa Filadhu:", ["Jijjirraa Maqaa", "Lizii Duraa", "TOT"])
+            base_fee = GATII_DICT["Dabarsa Lafa"][sub_gosa]
+            gosa_galmeeffamu = f"Dabarsa Lafa ({sub_gosa})"
 
-        # 2. Gibira Logic (Guyyaa, Ji'a, Waggaa)
-        elif gosa == "Gibira":
+        # --- LOGIC GIBIRA ---
+        elif gosa_main == "Gibira":
             st.markdown("##### Bara Kalandara (E.C)")
             c1, c2, c3 = st.columns(3)
-            guyyaa = c1.selectbox("Guyyaa", DAYS)
-            jia = c2.selectbox("Ji'a", MONTHS)
-            bara = c3.selectbox("Waggaa", YEARS)
-            base_fee = 100.0 # Gatii gibiraa waggaa tokkoo
-            st.info(f"Gibira Bara {bara} ({guyyaa}/{jia})")
+            guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)])
+            ji_lakk = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x} - {MONTHS_OR[x]}")
+            bara = c3.selectbox("Waggaa", [str(y) for y in range(2000, 2025)])
+            
+            yeroo_gibiraa = f"{guyyaa}/{ji_lakk}/{bara}"
+            st.success(f"Yeroo Filatame: {yeroo_gibiraa} ({MONTHS_OR[ji_lakk]})")
+            base_fee = GATII_DICT["Gibira"]
+            gosa_galmeeffamu = f"Gibira ({yeroo_gibiraa})"
 
         else:
-            base_fee = GATII_DICT.get(gosa, 0.0)
+            base_fee = GATII_DICT.get(gosa_main, 0.0)
 
         with st.form("entry_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
@@ -131,12 +113,15 @@ else:
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and ogeessa:
                     yeroo_ammaa = datetime.now().strftime('%d/%m/%Y')
-                    new_row = [yeroo_ammaa, maqaa, araddaa, qaxana, gosa, ogeessa, total_fee]
+                    new_row = [yeroo_ammaa, maqaa, araddaa, qaxana, gosa_galmeeffamu, ogeessa, total_fee]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.success(f"✅ Tajaajilli {maqaa} galmeeffameera!")
-                else:
-                    st.error("Maqaa fi Ogeessa guuti!")
+                    st.success(f"✅ Galmeeffameera!")
+                else: st.error("Maqaa fi Ogeessa guuti!")
+
+    elif menu == "📊 Dashboard":
+        st.header("📊 Dashboard")
+        st.dataframe(df, use_container_width=True)
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
