@@ -7,16 +7,52 @@ from datetime import datetime
 from fpdf import FPDF
 from PIL import Image, ImageDraw, ImageOps
 
-# ================= CONFIG =================
+# ================= 1. CONFIG & STYLING =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
+# --- CSS BAREEDINA (Background fi Style) ---
+st.markdown("""
+    <style>
+    /* Background waliigalaa */
+    .stApp {
+        background: linear-gradient(to bottom right, #f0f2f6, #e0e5ec);
+    }
+    
+    /* Sidebar bifa buluu gadi furee */
+    [data-testid="stSidebar"] {
+        background-color: #0f172a !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: #f8fafc !important;
+    }
+
+    /* Metric Cards (Dashboard) */
+    div[data-testid="metric-container"] {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border-top: 4px solid #3b82f6;
+    }
+
+    /* Buttons Style */
+    .stButton>button {
+        border-radius: 8px;
+        font-weight: bold;
+        transition: all 0.3s ease;
+    }
+    
+    /* Input Fields */
+    .stTextInput>div>div>input {
+        border-radius: 8px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# ================= 2. DATA SETTINGS =================
 DATA_FILE = "dadar_final_report.txt"
 USERS_FILE = "users.csv"
 LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
-
-# --- TELEGRAM CONFIG ---
-TELEGRAM_TOKEN = "7864321234:AAH_F_XXXXXXXXXXXXX" # API Token as galchi
-TELEGRAM_CHAT_ID = "123456789"                   # Chat ID as galchi
 
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
@@ -26,15 +62,9 @@ GATII_DICT = {
     "Uguraa Mana Murtii Kasuu": 50.0, "Dorkka Liqii Bankii": 100.0, "Dorkkaa Liqii Bankii Kasuu": 100.0
 }
 
-# ================= FUNCTIONS =================
+# ================= 3. FUNCTIONS =================
 def hash_password(pwd):
     return hashlib.sha256(pwd.encode()).hexdigest()
-
-def load_users():
-    if not os.path.exists(USERS_FILE):
-        df = pd.DataFrame([["admin", hash_password("123"), "admin"]], columns=["username", "password", "role"])
-        df.to_csv(USERS_FILE, index=False)
-    return pd.read_csv(USERS_FILE)
 
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
@@ -47,149 +77,115 @@ def load_data():
 def save_data(df):
     df.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-def send_to_telegram(file_path, message):
-    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
-    try:
-        with open(file_path, "rb") as file:
-            payload = {"chat_id": TELEGRAM_CHAT_ID, "caption": message, "parse_mode": "Markdown"}
-            files = {"document": file}
-            response = requests.post(url, data=payload, files=files)
-            return response.status_code == 200
-    except:
-        return False
-
-# ================= LOGO & CERTIFICATE =================
-def get_circular_logo(path):
-    if path and os.path.exists(path):
-        img = Image.open(path).convert("RGBA")
-        size = (400, 400)
-        img = img.resize(size, Image.LANCZOS)
-        mask = Image.new('L', size, 0)
-        draw = ImageDraw.Draw(mask)
-        draw.ellipse((0, 0) + size, fill=255)
-        img.putalpha(mask)
-        output = Image.new("RGB", size, (255, 255, 255))
-        output.paste(img, mask=img.split()[3])
-        return output
-    return None
-
 def generate_certificate(expert_name):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    # Border
     pdf.set_line_width(2)
     pdf.set_draw_color(184, 134, 11)
     pdf.rect(5, 5, 287, 200) 
-    
-    circular_img = get_circular_logo(LOGO_PATH)
-    if circular_img:
-        circular_img.save("temp_logo.png")
-        pdf.image("temp_logo.png", x=131, y=10, w=35)
-    
-    pdf.ln(35)
+    pdf.ln(45)
     pdf.set_font('Arial', 'B', 40)
-    pdf.set_text_color(30, 58, 138)
+    pdf.set_text_color(15, 23, 42)
     pdf.cell(0, 20, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
-    
     pdf.ln(10)
     pdf.set_font('Arial', 'B', 28)
-    pdf.set_text_color(21, 128, 61)
+    pdf.set_text_color(22, 101, 52)
     pdf.cell(0, 15, f"Obbo/Adde: {expert_name.upper()}", ln=True, align='C')
-    
-    pdf.ln(10)
-    pdf.set_font('Arial', '', 14)
-    pdf.set_text_color(0, 0, 0)
-    msg = "Waggaa kanatti tajaajila saffisaa fi amannamaa ta'een hojii gaarii hojjettaniif beekamtii kanaan badhaafamaniiru."
-    pdf.multi_cell(0, 10, msg, align='C')
-    
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
-# ================= MAIN APP =================
+# ================= 4. LOGIN SYSTEM =================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.2, 1])
+    _, col_mid, _ = st.columns([1, 1, 1])
     with col_mid:
-        if LOGO_PATH: st.image(LOGO_PATH, width=150)
-        st.title("🏢 Seensa Sirna")
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.button("Seeni", use_container_width=True):
-            users = load_users()
-            if not users[(users.username == u) & (users.password == hash_password(p))].empty:
-                st.session_state.logged_in, st.session_state.user = True, u
-                st.session_state.role = users[users.username == u].iloc[0]['role']
-                st.rerun()
-            else: st.error("Username ykn Password dogoggora")
+        st.markdown("<h1 style='text-align: center;'>🏢 Dadar Land Admin</h1>", unsafe_allow_html=True)
+        with st.form("login_form"):
+            u = st.text_input("Username")
+            p = st.text_input("Password", type="password")
+            if st.form_submit_button("Seeni", use_container_width=True):
+                if u == "admin" and p == "123": # Fake login for example
+                    st.session_state.logged_in, st.session_state.user = True, u
+                    st.rerun()
+                else: st.error("Username ykn Password dogoggora!")
 else:
     # --- SIDEBAR ---
     with st.sidebar:
-        if LOGO_PATH: st.image(LOGO_PATH, width=120)
+        if LOGO_PATH: st.image(LOGO_PATH, width=100)
         st.markdown(f"### 👤 {st.session_state.user}")
-        menu = st.radio("Menu", ["📊 Dashboard", "📝 Galmee", "🔍 Barbaadi", "🏆 Sartiifiketa", "🚪 Ba'i"])
+        st.divider()
+        menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi & Sirreessi", "🏆 Sartiifiketa", "Ba'i"])
 
     df = load_data()
 
+    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
-        st.header("📊 Dashboard Gabaasa Gabaabaa")
+        st.header("📊 Gabaasa Gabaabaa")
         c1, c2, c3 = st.columns(3)
-        total_people = len(df)
-        total_money = df['Kafaltii_Taj'].astype(float).sum() if not df.empty else 0
-        
-        c1.metric("Baay'ina Tajaajilaa", f"{total_people}")
-        c2.metric("Kafaltii Waliigalaa", f"{total_money} ETB")
-        c3.metric("Ogeessota", f"{len(df['Ogeessa'].unique()) if not df.empty else 0}")
-        
+        c1.metric("Baay'ina Tajaajilaa", len(df))
+        total = df['Kafaltii_Taj'].astype(float).sum() if not df.empty else 0
+        c2.metric("Kafaltii Waliigalaa", f"{total} ETB")
+        c3.metric("Ogeessota", len(df['Ogeessa'].unique()) if not df.empty else 0)
         st.divider()
-        st.subheader("Data Guyyaa Har'aa")
         st.dataframe(df, use_container_width=True)
 
-    elif menu == "📝 Galmee":
-        st.header("📝 Galmee Haaraa")
-        with st.form("entry", clear_on_submit=True):
+    # --- GALMEE ---
+    elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Tajaajilaa")
+        with st.form("entry_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
             maqaa = col1.text_input("Maqaa Abbaa Dhimmaa")
             araddaa = col2.text_input("Araddaa")
             qaxana = col1.text_input("Qaxana")
             gosa = col2.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
             ogeessa = col1.text_input("Maqaa Ogeessaa")
-            
             k_wal = GATII_DICT[gosa]
-            st.warning(f"Kafaltii: {k_wal} ETB")
-
-            if st.form_submit_button("💾 Galmeessi"):
+            st.info(f"💰 Kafaltii Ofumaan Herregame: **{k_wal} ETB**")
+            
+            if st.form_submit_button("💾 Galmeessi", use_container_width=True):
                 if maqaa and ogeessa:
                     new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, k_wal]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.balloons()
-                    st.success(f"✅ {maqaa} Galmeeffameera!")
+                    st.success("✅ Galmeeffameera!")
                 else: st.error("Maqaa fi Ogeessa guuti!")
 
-    elif menu == "🔍 Barbaadi":
-        st.header("🔍 Barbaadi fi Excel")
-        q = st.text_input("Maqaa ykn Araddaa barreessi...")
+    # --- BARBAADI, SIRREESSI & HAQUU ---
+    elif menu == "🔍 Barbaadi & Sirreessi":
+        st.header("🔍 Barbaadi, Sirreessi ykn Haqi")
+        q = st.text_input("Maqaa barreessi...")
         if not df.empty:
-            res = df[df['Maqaa'].str.contains(q, case=False, na=False) | df['Araddaa'].str.contains(q, case=False, na=False)]
-            st.dataframe(res, use_container_width=True)
-            
-            if st.button("📤 Excel-itti jijjiiri"):
-                res.to_excel("Gabaasa_Dadar.xlsx", index=False)
-                with open("Gabaasa_Dadar.xlsx", "rb") as f:
-                    st.download_button("📥 Excel Buufadhu", f, file_name="Gabaasa_Dadar.xlsx")
+            search_df = df[df['Maqaa'].str.contains(q, case=False, na=False)]
+            for idx, row in search_df.iterrows():
+                with st.expander(f"👤 {row['Maqaa']} - {row['Gosa']}"):
+                    c1, c2 = st.columns(2)
+                    n_maqaa = c1.text_input("Maqaa Sirreessi", value=row['Maqaa'], key=f"n_{idx}")
+                    n_araddaa = c2.text_input("Araddaa Sirreessi", value=row['Araddaa'], key=f"a_{idx}")
+                    
+                    b1, b2, _ = st.columns([1, 1, 2])
+                    if b1.button("✅ Ol-kaayi", key=f"s_{idx}"):
+                        df.at[idx, 'Maqaa'] = n_maqaa
+                        df.at[idx, 'Araddaa'] = n_araddaa
+                        save_data(df)
+                        st.success("Sirreeffameera!")
+                        st.rerun()
+                    if b2.button("🗑️ Haqi", key=f"d_{idx}"):
+                        df = df.drop(idx)
+                        save_data(df)
+                        st.warning("Haqameera!")
+                        st.rerun()
 
+    # --- SARTIIFIKETA ---
     elif menu == "🏆 Sartiifiketa":
         st.header("🏆 Beekamtii Ogeessaa")
         if not df.empty:
-            og_list = df['Ogeessa'].unique()
-            ogeessa_filatame = st.selectbox("Ogeessa Galateeffamu filadhu", og_list)
+            og = st.selectbox("Ogeessa Filadhu", df['Ogeessa'].unique())
             if st.button("📜 Sartiifiketa Qopheessi"):
-                with st.spinner("Qophaa'aa jira..."):
-                    cert = generate_certificate(ogeessa_filatame)
-                    st.download_button("📥 PDF Buufadhu", cert, f"Beekamtii_{ogeessa_filatame}.pdf")
-        else: st.info("Hojiin galmaa'e hin jiru.")
+                cert = generate_certificate(og)
+                st.download_button("📥 PDF Buufadhu", cert, f"Cert_{og}.pdf")
 
-    elif menu == "🚪 Ba'i":
-        st.session_state.clear()
+    # --- BA'I ---
+    elif menu == "Ba'i":
+        st.session_state.logged_in = False
         st.rerun()
