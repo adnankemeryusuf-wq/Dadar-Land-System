@@ -94,12 +94,11 @@ else:
                 
                 if gosa == "Ittii Fayyaddam":
                     sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
-                    # "Meeqa?" haqamee "Baay'ina" qofatti jijjiirameera
                     qty = st.number_input(f"Baay'ina {sub}:", min_value=1, value=1, key=f"qty_{gosa}")
                     sub_total = GATII_DICT[gosa][sub] * qty
                     total_base_fee += sub_total
                     details_list.append(f"{sub} (x{qty})")
-                    st.info(f"Kafaltii {sub}: **{sub_total} ETB**")
+                    # Kaffaltiin dhuunfaa asii haqameera
 
                 elif gosa == "Liizii":
                     sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
@@ -130,16 +129,16 @@ else:
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             
-            extra = st.number_input("Kafaltii Biroo (Yoo jiraate)", min_value=0.0)
+            # Kaffaltii galchuuf qofa iddoo siif dhiiseera
+            final_payment = st.number_input("Kafaltii (ETB)", min_value=0.0)
             
-            final_total = total_base_fee + extra
-            st.markdown(f"<div style='background-color: #f1f8e9; padding: 15px; border-radius: 10px; border: 1px solid #4caf50; text-align: center;'><h2 style='color: #2e7d32; margin:0;'>💰 Kafaltii Walii-galaa: {final_total} ETB</h2></div>", unsafe_allow_html=True)
+            # Dubbifni "Kafaltii Walii-galaa" fi lakkoofsi herregaa asii haqameera
             
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and ogeessa and details_list:
                     yeroo_now = datetime.now().strftime('%d/%m/%Y')
                     service_str = ", ".join(details_list)
-                    new_row = [yeroo_now, maqaa, araddaa, qaxana, service_str, ogeessa, final_total]
+                    new_row = [yeroo_now, maqaa, araddaa, qaxana, service_str, ogeessa, final_payment]
                     df.loc[len(df)] = new_row
                     save_data(df)
                     st.success(f"✅ Galmeeffameera: {maqaa}")
