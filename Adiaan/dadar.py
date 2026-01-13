@@ -20,10 +20,17 @@ TELEGRAM_CHAT_ID = "123456789"                   # Chat ID Manager-aa galchi
 
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
+# Gatii Tajaajilaa (Asitti jijjiiruu dandeessa)
 GATII_DICT = {
-    "Ittii Fayyaddam": 50.0, "Kartaa": 150.0, "Jijjirra Maqaa": 200.0,
-    "Dhimma Dangaa": 100.0, "Dhimma Mana Murtii": 0.0, "Ugura Mana Murtii": 50.0,
-    "Uguraa Mana Murtii Kasuu": 50.0, "Dorkka Liqii Bankii": 100.0, "Dorkkaa Liqii Bankii Kasuu": 100.0
+    "Ittii Fayyaddam": 50.0, 
+    "Kartaa": 150.0, 
+    "Jijjirra Maqaa": 200.0,
+    "Dhimma Dangaa": 100.0, 
+    "Dhimma Mana Murtii": 0.0, 
+    "Ugura Mana Murtii": 50.0,
+    "Uguraa Mana Murtii Kasuu": 50.0, 
+    "Dorkka Liqii Bankii": 100.0, 
+    "Dorkkaa Liqii Bankii Kasuu": 100.0
 }
 
 # ================= FUNCTIONS =================
@@ -89,114 +96,4 @@ def generate_certificate(expert_name):
     pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
     pdf.ln(10); pdf.set_font('Arial', '', 20)
     pdf.cell(0, 10, "Gootummaa Hojii Waggaa kan kennameef:", ln=True, align='C')
-    pdf.ln(5); pdf.set_font('Helvetica', 'B', 32); pdf.set_text_color(21, 128, 61)
-    pdf.cell(0, 15, f"Obbo/Adde: {expert_name.upper()}", ln=True, align='C')
-    pdf.ln(10); pdf.set_font('Arial', '', 14); pdf.set_text_color(60, 60, 60)
-    msg = ("Waggaa kanatti tajaajila saffisaa, iftoomina qabuu fi amannamaa ta'een "
-            "hojii gaarii hojjettanii waan argamtaniif beekamtii kanaan badhaafamaniiru.")
-    pdf.multi_cell(0, 10, msg, align='C')
-    pdf.set_y(172)
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(100, 8, "__________________________", ln=0, align='C')
-    pdf.cell(87, 8, "", ln=0)
-    pdf.cell(100, 8, "__________________________", ln=1, align='C')
-    pdf.cell(100, 5, "Aqiil Abdujaaliil", ln=0, align='C')
-    pdf.cell(87, 5, "", ln=0)
-    pdf.cell(100, 5, datetime.now().strftime("%d/%m/%Y"), ln=1, align='C')
-    return pdf.output(dest='S').encode('latin-1', 'replace')
-
-# ================= MAIN APP =================
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    # --- LOGIN PAGE ---
-    _, col_mid, _ = st.columns([1, 1.2, 1])
-    with col_mid:
-        if LOGO_PATH: st.image(LOGO_PATH, width=150)
-        st.title("🏢 Seensa Sirna")
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.button("Seeni", use_container_width=True):
-            users = load_users()
-            if not users[(users.username == u) & (users.password == hash_password(p))].empty:
-                st.session_state.logged_in, st.session_state.user = True, u
-                st.session_state.role = users[users.username == u].iloc[0]['role']
-                st.rerun()
-            else: st.error("Username ykn Password dogoggora")
-else:
-    # --- SIDEBAR ---
-    with st.sidebar:
-        if LOGO_PATH: st.image(LOGO_PATH, width=120)
-        st.success(f"👤 {st.session_state.user} ({st.session_state.role})")
-        menu = st.radio("Menu", ["📝 Galmee", "🔍 Barbaadi & Sirreessi", "📊 Odeeffannoo", "🏆 Sartiifiketa", "🚪 Ba'i"])
-
-    df = load_data()
-
-    if menu == "📝 Galmee":
-        st.header("📝 Galmee Tajaajilaa Haaraa")
-        with st.form("entry"):
-            c1, c2 = st.columns(2)
-            maqaa = c1.text_input("Maqaa Abbaa Dhimmaa")
-            araddaa = c2.text_input("Araddaa")
-            qaxana = c1.text_input("Qaxana")
-            gosa = c2.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
-            ogeessa = c1.text_input("Maqaa Ogeessaa")
-            k_taj_base = GATII_DICT[gosa]
-            k = c2.number_input("Kafaltii", min_value=0.0, value=0.0)
-            k_wal = k_taj_base + k
-            st.info(f"💰 Kafaltii Waliigalaa: {k_wal} ETB")
-            if st.form_submit_button("💾 Galmeessi"):
-                if maqaa:
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, k_wal]
-                    df.loc[len(df)] = new_row
-                    save_data(df)
-                    st.success("Galmeeffameera!")
-                    st.rerun()
-                else: st.error("Maqaa galchuun dirqama!")
-
-    elif menu == "🔍 Barbaadi & Sirreessi":
-        st.header("🔍 Barbaadi fi Sirreessi")
-        q = st.text_input("Maqaa barbaadi...")
-        if not df.empty:
-            results = df[df['Maqaa'].str.contains(q, case=False, na=False)]
-            st.dataframe(results, use_container_width=True)
-
-    elif menu == "📊 Odeeffannoo":
-        st.header("📊 Gabaasa fi Ergaa Telegram")
-        st.dataframe(df, use_container_width=True)
-        col_ex, col_te = st.columns(2)
-        with col_ex:
-            if not df.empty:
-                excel_file = "Gabaasa_Dadar_Lafaa.xlsx"
-                df.to_excel(excel_file, index=False)
-                with open(excel_file, "rb") as f:
-                    st.download_button("📥 Excel Download", f, file_name=excel_file)
-        with col_te:
-            if st.button("📤 Manager-itti Ergi"):
-                temp_path = "Gabaasa_Manager.xlsx"
-                df.to_excel(temp_path, index=False)
-                total_sum = df['Kafaltii_Taj'].astype(float).sum()
-                msg = f"🏢 *Gabaasa Dadar*\n📅 Guyyaa: {datetime.now().strftime('%d/%m/%Y')}\n💰 Kaffaltii Waliigalaa: *{total_sum} ETB*"
-                if send_to_telegram(temp_path, msg): st.success("✅ Ergameera!")
-                else: st.error("❌ Erguun hin danda'amne!")
-
-    elif menu == "🏆 Sartiifiketa":
-        st.header("🏆 Beekamtii Ogeessaa")
-        if not df.empty:
-            # Ogeessa tajaajila baay'ee kenne filachuu
-            og_counts = df['Ogeessa'].value_counts()
-            if not og_counts.empty:
-                best_og = og_counts.idxmax()
-                st.success(f"Ogeessa Hojii Gaarii Hojjete: **{best_og}** ({og_counts[best_og]} tajaajila kenne)")
-                if st.button("📜 SARTIIFIKETA QOPHEESSI"):
-                    cert_pdf = generate_certificate(best_og)
-                    st.download_button("📥 PDF Buufadhu", cert_pdf, f"Sartiifiketa_{best_og}.pdf")
-        else:
-            st.warning("Data'n waan hin jirreef sartiifiketa qopheessun hin danda'amu.")
-
-    elif menu == "🚪 Ba'i":
-        st.session_state.clear()
-        st.rerun()
-
-
+    pdf.
