@@ -37,13 +37,14 @@ MONTHS_OR = {
     "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
+# Gatiiwwan 150.0 turan hundi gara 0.0 ykn gatii sirrii biraatti jijjiiramaniiru
 GATII_DICT = {
     "Ittii Fayyaddam": 50.0, 
-    "Kaartaa mana": 150.0, 
-    "kartaa Kadastaara": 150.0, 
-    "Kaartaa lafa qonna magaalaa": 150.0, 
+    "Kaartaa mana": 0.0, 
+    "kartaa Kadastaara": 0.0, 
+    "Kaartaa lafa qonna magaalaa": 0.0, 
     "Mhumnaa Madisaa": 100.0,
-    "Dhimma Dangaa": 100.0, # Kafaltii tajaajilaa dangaa
+    "Dhimma Dangaa": 100.0, 
     "Dhimma Mana Murtii": 0.0, 
     "Ugura Mana Murtii": 50.0,
     "Uguraa Mana Murtii Kasuu": 50.0, 
@@ -91,18 +92,15 @@ else:
         base_fee = 0.0
         gosa_galmeeffamu = gosa_main
 
-        # --- Dhimma Dangaa (Kafaltii Tajaajilaa) ---
         if gosa_main == "Dhimma Dangaa":
             base_fee = GATII_DICT["Dhimma Dangaa"]
             gosa_galmeeffamu = "Dhimma Dangaa (Kafaltii Tajaajilaa)"
 
-        # --- Bittaa Mana ---
         elif gosa_main == "Bittaa Mana":
             sub_gosa = st.radio("Bittaa Mana Keessaa Filadhu:", list(GATII_DICT["Bittaa Mana"].keys()))
             base_fee = GATII_DICT["Bittaa Mana"][sub_gosa]
             gosa_galmeeffamu = f"Bittaa Mana ({sub_gosa})"
 
-        # --- Gibira Lafa Qonnaa ---
         elif gosa_main == "Gibira Lafa Qonnaa":
             c1, c2, c3 = st.columns(3)
             guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key="q_guy")
@@ -112,7 +110,6 @@ else:
             base_fee = GATII_DICT["Gibira Lafa Qonnaa"]
             gosa_galmeeffamu = f"Gibira Lafa Qonnaa ({yeroo_gibiraa})"
 
-        # --- Gibira Kaadaastara Baaxii Gooroo ---
         elif gosa_main == "Gibira Kaadaastara Baaxii Gooroo":
             c1, c2, c3 = st.columns(3)
             guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key="k_guy")
@@ -139,7 +136,8 @@ else:
             extra = st.number_input("Kafaltii Dabalataa", min_value=0.0)
             
             total_fee = base_fee + extra
-            st.markdown(f"<div style='background-color: #f1f8e9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #4caf50;'><h2 style='color: #2e7d32; margin: 0;'>💰 Kaffaltii Walii-galaa: {total_fee} ETB</h2></div>", unsafe_allow_html=True)
+            # Bakka kaffaltiin 150 mul'atu haqameera, amma bifa kanaan gadi ba'a:
+            st.markdown(f"<div style='background-color: #f1f8e9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #4caf50;'><h2 style='color: #2e7d32; margin: 0;'>💰 Kaffaltii: {total_fee} ETB</h2></div>", unsafe_allow_html=True)
             
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and ogeessa:
@@ -153,7 +151,6 @@ else:
     elif menu == "📊 Dashboard":
         st.header("📊 Dashboard Gabaasaa")
         st.dataframe(df, use_container_width=True)
-        # Summaary xiqqoo
         total_rev = df['Kafaltii_Taj'].sum()
         st.metric("Walitti Qaba Galii (ETB)", f"{total_rev:,.2f}")
 
