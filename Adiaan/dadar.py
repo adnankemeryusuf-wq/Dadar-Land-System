@@ -17,31 +17,24 @@ st.markdown("""
     .stApp { background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%); }
     [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
-    div[data-baseweb="multiselect"] { border: 2px solid #2e7d32 !important; background-color: #ffffff !important; border-radius: 8px !important; }
-    span[data-baseweb="tag"] { background-color: #2e7d32 !important; color: white !important; }
-    div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
-    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; }
-    
-    /* Custom CSS for Dashboard Cards */
-    .metric-container {
-        display: flex;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 25px;
+    .login-box {
+        background-color: white; padding: 40px; border-radius: 15px;
+        border: 2px solid #2e7d32; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        max-width: 450px; margin: auto;
     }
-    .card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        text-align: center;
-        flex: 1;
-        border-top: 5px solid #2e7d32;
+    .metric-card {
+        background: white; padding: 20px; border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center;
+        border-top: 5px solid #2e7d32; margin-bottom: 10px;
+    }
+    .stButton>button { 
+        background: linear-gradient(90deg, #4caf50, #2e7d32); 
+        color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; 
     }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATA & SETTINGS =================
+# ================= 2. DATA MANAGEMENT =================
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
@@ -57,7 +50,6 @@ GATII_DICT = {
 
 MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
 MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
-WEEKDAY_MAP = {0: "Wixata", 1: "Filatama", 2: "Roobii", 3: "Kamisa", 4: "Jimmata", 5: "Sanbata", 6: "Dilbata"}
 
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
@@ -67,166 +59,150 @@ def load_data():
     df['Waggaa'] = df['Date_Obj'].dt.year
     df['Ji\'a'] = df['Date_Obj'].dt.month.map(MONTH_MAP)
     df['Torbee'] = (df['Date_Obj'].dt.day - 1) // 7 + 1
-    df['Guyyaa_Torbee'] = df['Date_Obj'].dt.dayofweek.map(WEEKDAY_MAP)
+    # Kurmaana Itoophiyaa (Ful-Mud = Q1, Amj-Bit = Q2, Eeb-Wax = Q3, Ado-Hag = Q4)
     df['Kurmaana'] = df['Date_Obj'].dt.month.apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
     return df
 
 def save_data(df_to_save):
     df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-def send_to_telegram(file_data, file_name, caption):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
-    files = {'document': (file_name, file_data)}
-    data = {'chat_id': CHAT_ID_MANAGER, 'caption': caption}
-    try: return requests.post(url, files=files, data=data).status_code == 200
-    except: return False
-
 # ================= 3. APP LOGIC =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.2, 1])
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
-        st.markdown("<h2 style='text-align:center; color:#1b5e20;'>🏢 Admin Login</h2>", unsafe_allow_html=True)
-        u, p = st.text_input("Username"), st.text_input("Password", type="password")
-        if st.button("Seeni"):
-            if u == "admin" and p == "123":
-                st.session_state.logged_in = True; st.rerun()
-            else: st.error("Dogoggora!")
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #1b5e20;'>🏢 Dadar Land Login</h2>", unsafe_allow_html=True)
+        u_input = st.text_input("Username")
+        p_input = st.text_input("Password", type="password")
+        if st.button("SEENI"):
+            if u_input == "admin" and p_input == "123":
+                st.session_state.logged_in = True
+                st.rerun()
+            else: st.error("Maaloo odeeffannoo sirrii galchi!")
+        st.markdown('</div>', unsafe_allow_html=True)
 else:
     with st.sidebar:
-        st.markdown("### 🏢 DADAR LAND SYSTEM")
-        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi/Edit", "Ba'i"])
+        st.markdown("### 🏢 DADAR LAND")
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi/Edit", "🚪 Ba'i"])
 
     df = load_data()
 
-    # --- 1. DASHBOARD BAREEDAA ---
+    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
         st.markdown("<h1 style='text-align: center; color: #1b5e20;'>📊 Dashboard Waliigalaa</h1>", unsafe_allow_html=True)
-        
         if not df.empty:
             t_income = df['Kafaltii_Taj'].sum()
             t_clients = len(df)
-            avg_inc = t_income / t_clients if t_clients > 0 else 0
+            c1, c2, c3 = st.columns(3)
+            with c1: st.markdown(f'<div class="metric-card"><small>WALIIGALA GALII</small><h2>{t_income:,.2f} ETB</h2></div>', unsafe_allow_html=True)
+            with c2: st.markdown(f'<div class="metric-card"><small>TAJAAJILAMTOOTA</small><h2>{t_clients}</h2></div>', unsafe_allow_html=True)
+            with c3: st.markdown(f'<div class="metric-card"><small>GIDDU-GALEESSA</small><h2>{(t_income/t_clients if t_clients > 0 else 0):,.2f}</h2></div>', unsafe_allow_html=True)
+            
+            chart_data = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
+            st.area_chart(chart_data, color="#2e7d32")
+        else: st.info("Data'n galmeeffame hin jiru.")
 
-            # Metric Cards using Custom CSS
-            st.markdown(f"""
-                <div class="metric-container">
-                    <div class="card">
-                        <p style="color: #666; font-weight: bold;">💰 WALIIGALA GALII</p>
-                        <h2 style="color: #2e7d32;">{t_income:,.2f} ETB</h2>
-                    </div>
-                    <div class="card">
-                        <p style="color: #666; font-weight: bold;">👥 TAJAAJILAMTOOTA</p>
-                        <h2 style="color: #2e7d32;">{t_clients}</h2>
-                    </div>
-                    <div class="card">
-                        <p style="color: #666; font-weight: bold;">📈 GIDDU-GALEESSA</p>
-                        <h2 style="color: #2e7d32;">{avg_inc:,.2f} ETB</h2>
-                    </div>
-                </div>
-            """, unsafe_allow_html=True)
-
-            st.divider()
-
-            col_l, col_r = st.columns([2, 1])
-            with col_l:
-                st.markdown("### 📈 Hiikkaa Galii Ji'aan")
-                chart_data = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
-                st.area_chart(chart_data, color="#2e7d32")
+    # --- GABAASA (CALALII) ---
+    elif menu == "📈 Gabaasa Bal'aa":
+        st.markdown("<h2 style='color: #1b5e20;'>📈 Gabaasa Bal'aa fi Calalii</h2>", unsafe_allow_html=True)
+        
+        if not df.empty:
+            # Bakka Calalii (Filtering Section)
+            st.markdown("#### 🔍 Akkaataa Barbaaddeen Calali")
+            col_f1, col_f2, col_f3 = st.columns(3)
+            
+            with col_f1:
+                filter_type = st.selectbox("Gosa Calalii", ["Waliigala", "Waggaa", "Kurmaana", "Ji'a", "Torbee", "Guyyaa Addaa"])
+            
+            filtered_df = df.copy()
+            
+            if filter_type == "Waggaa":
+                y = st.selectbox("Waggaa Filadhu", sorted(df['Waggaa'].unique(), reverse=True))
+                filtered_df = df[df['Waggaa'] == y]
                 
+            elif filter_type == "Kurmaana":
+                y = st.selectbox("Waggaa", sorted(df['Waggaa'].unique(), reverse=True))
+                q = st.radio("Kurmaana (Q)", [1, 2, 3, 4], horizontal=True)
+                filtered_df = df[(df['Waggaa'] == y) & (df['Kurmaana'] == q)]
+                
+            elif filter_type == "Ji'a":
+                y = st.selectbox("Waggaa", sorted(df['Waggaa'].unique(), reverse=True))
+                m = st.selectbox("Ji'a Filadhu", MONTH_ORDER)
+                filtered_df = df[(df['Waggaa'] == y) & (df['Ji\'a'] == m)]
+                
+            elif filter_type == "Torbee":
+                y = st.selectbox("Waggaa", sorted(df['Waggaa'].unique(), reverse=True))
+                m = st.selectbox("Ji'a", MONTH_ORDER)
+                w = st.slider("Torbee (1-4)", 1, 4)
+                filtered_df = df[(df['Waggaa'] == y) & (df['Ji\'a'] == m) & (df['Torbee'] == w)]
+                
+            elif filter_type == "Guyyaa Addaa":
+                d = st.date_input("Guyyaa Filadhu")
+                d_str = d.strftime('%d/%m/%Y')
+                filtered_df = df[df['Guyyaa'] == d_str]
 
-            with col_r:
-                st.markdown("### 🔝 Gosa Tajaajilaa (Top 5)")
-                top_services = df['Gosa_Tajajjilaa'].str.split(',').explode().str.strip().value_counts().head(5)
-                st.bar_chart(top_services, color="#1b5e20")
-
+            # Agarsiisa Data Calalamee
             st.divider()
-            st.markdown("### 📋 Galmee dhiyoo kana gale")
-            st.table(df[['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Kafaltii_Taj']].tail(5))
+            st.markdown(f"**Gabaasa {filter_type}**")
+            st.dataframe(filtered_df[COL_NAMES], use_container_width=True)
+            
+            # Gabaasa Gabaabaa
+            total_f = filtered_df['Kafaltii_Taj'].sum()
+            count_f = len(filtered_df)
+            
+            c_res1, c_res2 = st.columns(2)
+            c_res1.success(f"💰 Waliigala Galii: **{total_f:,.2f} ETB**")
+            c_res2.info(f"👥 Baay'ina Tajaajilamtootaa: **{count_f}**")
+            
+            # Download Button
+            buf = io.BytesIO()
+            with pd.ExcelWriter(buf, engine='xlsxwriter') as writer:
+                filtered_df[COL_NAMES].to_excel(writer, index=False, sheet_name='Gabaasa')
+            
+            st.download_button(
+                label="📥 Gabaasa kana Excel-iin Download godhu",
+                data=buf.getvalue(),
+                file_name=f"Gabaasa_Dadar_{filter_type}.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
         else:
-            st.info("Odeeffannoon Dashboard irratti mul'atu hin jiru.")
+            st.warning("Data'n calalamu hin jiru.")
 
-    # --- 2. GALMEE HAARAA ---
+    # --- SECTIONS KAN BIROO ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
-        details, d_fees, is_tot = [], {}, False
-        
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa", list(GATII_DICT.keys()))
+        details, d_fees = [], {}
         if selected_main:
             for g in selected_main:
                 subs = st.multiselect(f"Filannoo {g}:", GATII_DICT[g], key=f"m_{g}")
                 for s in subs:
                     details.append(f"{g}({s})")
                     d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s}", min_value=0.0, key=f"f_{g}_{s}")
-                    if s == "TOT": is_tot = True
         
         with st.form("entry", clear_on_submit=True):
-            if is_tot:
-                c1, c2 = st.columns(2)
-                maqaa_f = f"G: {c1.text_input('Maqaa Gurguraa')} / B: {c2.text_input('Maqaa Bitataa')}"
-                ara_f = f"G: {c1.text_input('Araddaa (G)')} / B: {c2.text_input('Araddaa (B)')}"
-                qax_f = f"G: {c1.text_input('Qaxana (G)')} / B: {c2.text_input('Qaxana (B)')}"
-            else:
-                c1, c2 = st.columns(2)
-                maqaa_f, ara_f, qax_f = c1.text_input("Maqaa Abbaa Dhimmaa"), c2.text_input("Araddaa"), c1.text_input("Qaxana")
-            
-            ogeessa = st.text_input("Maqaa Ogeessaa")
-            if st.form_submit_button("💾 Galmeessi"):
+            c1, c2 = st.columns(2)
+            maqaa_f, ara_f = c1.text_input("Maqaa"), c2.text_input("Araddaa")
+            qax_f, ogeessa = c1.text_input("Qaxana"), c2.text_input("Ogeessa")
+            if st.form_submit_button("💾 GALMEESSI"):
                 if maqaa_f and details:
                     new = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values())]
                     df = pd.concat([df, pd.DataFrame([new], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("Galmeeffameera!")
-                else: st.error("Maaloo odeeffannoo guuti!")
+                    save_data(df); st.success("✅ Galmeeffameera!")
+                else: st.error("Odeeffannoo guutuu barreessi!")
 
-    # --- 3. GABAASA BAL'AA ---
-    elif menu == "📈 Gabaasa Bal'aa":
-        st.header("📈 Gabaasa")
-        if not df.empty:
-            f_type = st.sidebar.radio("Calali:", ["Waggaa", "Kurmaana", "Ji'a", "Torbee", "Guyyaa"])
-            sel_y = st.sidebar.selectbox("Waggaa", sorted(df['Waggaa'].dropna().unique(), reverse=True))
-            filtered = df[df['Waggaa'] == sel_y]
-            
-            if f_type == "Kurmaana": filtered = filtered[filtered['Kurmaana'] == st.sidebar.selectbox("Q", [1,2,3,4])]
-            elif f_type == "Ji'a": filtered = filtered[filtered['Ji\'a'] == st.sidebar.selectbox("Ji'a", MONTH_ORDER)]
-            elif f_type == "Torbee": 
-                sel_m = st.sidebar.selectbox("Ji'a", MONTH_ORDER)
-                sel_w = st.sidebar.selectbox("Torbee", [1,2,3,4])
-                filtered = filtered[(filtered['Ji\'a'] == sel_m) & (filtered['Torbee'] == sel_w)]
-            elif f_type == "Guyyaa": filtered = filtered[filtered['Guyyaa_Torbee'] == st.sidebar.selectbox("Guyyaa", list(WEEKDAY_MAP.values()))]
-            
-            st.dataframe(filtered[COL_NAMES], use_container_width=True)
-            t_f = filtered['Kafaltii_Taj'].sum()
-            st.metric("Galii Filtarii", f"{t_f:,.2f} ETB")
-            
-            buf = io.BytesIO()
-            with pd.ExcelWriter(buf, engine='xlsxwriter') as wr: filtered[COL_NAMES].to_excel(wr, index=False)
-            
-            c1, c2 = st.columns(2)
-            c1.download_button("📥 Excel Download", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
-            if c2.button("✈️ Telegram-itti Ergi"):
-                if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", f"📊 Gabaasa {f_type}: {t_f:,.2f} ETB"): st.success("Ergameera!")
-        else: st.info("Data'n hin jiru.")
-
-    # --- 4. BARBAADI / EDIT / DELETE ---
     elif menu == "🔍 Barbaadi/Edit":
-        st.header("🔍 Barbaadi ykn Fooyyessi")
-        q = st.text_input("Maqaa barreessi...")
+        q = st.text_input("Maqaa Barbaadi...")
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             for idx, row in res.iterrows():
-                with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} ({row['Guyyaa']})"):
-                    ce1, ce2 = st.columns(2)
-                    up_name = ce1.text_input("Maqaa Fooyyessi", row['Maqaa_Abbaa_Dhimmaa'], key=f"n_{idx}")
-                    up_ara = ce2.text_input("Araddaa", row['Araddaa'], key=f"a_{idx}")
-                    up_fee = ce1.number_input("Kafaltii", float(row['Kafaltii_Taj']), key=f"f_{idx}")
-                    
-                    b1, b2 = st.columns(2)
-                    if b1.button("💾 Save Changes", key=f"s_{idx}"):
-                        df.at[idx, 'Maqaa_Abbaa_Dhimmaa'], df.at[idx, 'Araddaa'], df.at[idx, 'Kafaltii_Taj'] = up_name, up_ara, up_fee
-                        save_data(df); st.success("Fooyyeffameera!"); st.rerun()
-                    if b2.button("🗑️ Galmee Kana Haqi", key=f"d_{idx}"):
-                        df = df.drop(idx); save_data(df); st.error("Haqameera!"); st.rerun()
+                with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']}"):
+                    if st.button("🗑️ Haqi", key=f"d_{idx}"):
+                        df = df.drop(idx); save_data(df); st.rerun()
 
-    elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
-
+    elif menu == "🚪 Ba'i":
+        st.session_state.logged_in = False
+        st.rerun()
