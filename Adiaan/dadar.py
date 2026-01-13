@@ -35,13 +35,9 @@ MONTHS_OR = {
     "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
-# Dhimma Dangaa jalatti "Kafaltii Humna Mandisaa" dabalameera
+# Dhimma Dangaa jalatti "Kafaltii Humna Mandisaa" qofatu hafe
 GATII_DICT = {
-    "Dhimma Dangaa": {
-        "Kafaltii Humna Mandisaa": 100.0, 
-        "Kafaltii Itti Fayyadamaa": 100.0, 
-        "Kafaltii Biroo": 0.0
-    },
+    "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
     "Dhimma Mana Murtii": {"Kafaltii Itti Fayyadamaa": 50.0, "Kafaltii Biroo": 0.0}, 
     "Dorkka Liqii Bankii": 100.0, 
     "Dorkkaa Liqii Bankii Kasuu": 100.0,
@@ -105,7 +101,12 @@ else:
                     sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
                     details_list.append(f"Liizii({sub})")
 
-                elif gosa in ["Dhimma Dangaa", "Dhimma Mana Murtii"]:
+                elif gosa == "Dhimma Dangaa":
+                    # Amma filannoo "Kafaltii Humna Mandisaa" qofa siif fida
+                    sub = st.selectbox(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"sub_{gosa}")
+                    details_list.append(f"{gosa}({sub})")
+
+                elif gosa == "Dhimma Mana Murtii":
                     sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
                     details_list.append(f"{gosa}({sub})")
 
@@ -126,7 +127,6 @@ else:
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             
-            # Kaffaltii qofa iddoo siif dhiiseera, lakkoofsi herregaa hin mul'atu
             final_payment = st.number_input("Kafaltii (ETB)", min_value=0.0)
             
             if st.form_submit_button("💾 Galmeessi"):
