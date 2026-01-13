@@ -29,11 +29,11 @@ st.markdown("""
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
-# Gosa Tajaajilaa tarreeffama haaraa keetiin qindaa'e
+# Gosa Tajaajilaa sirreeffama haaraa keetiin
 GATII_DICT = {
+    "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
     "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
     "Kaartaa": ["Kaartaa mana", "Kartaa Kadastaara", "Kaartaa lafa qonna magaalaa"],
-    "Jijjirra Maqaa": ["TOT"],
     "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
     "Dhimma Mana Murtii": ["Dhimma Mana Murtii", "Ugura Mana Murtii", "Uguraa Mana Murtii Kasuu"],
     "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kasuu"],
@@ -81,7 +81,6 @@ else:
                 subs = st.multiselect(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"multi_{gosa}")
                 for s in subs:
                     details_list.append(f"{gosa}({s})")
-                    # Iddoo kaffaltii dhuunfaa tajaajila filatame hundaaf
                     dynamic_fees[f"{gosa}_{s}"] = st.number_input(f"Kafaltii {s} (ETB):", min_value=0.0, key=f"fee_{gosa}_{s}")
                     if s == "TOT":
                         is_tot_selected = True
