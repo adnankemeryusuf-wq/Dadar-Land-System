@@ -29,15 +29,15 @@ st.markdown("""
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
-# Gosa Tajaajilaa sirreeffama haaraa keetiin
+# Gosa Tajaajilaa: Kaadaastara gara Gibiraatti jijjiirameera
 GATII_DICT = {
+    "Gibira": ["Kaadaastara Baaxii Gooroo", "Gibira Lafa Qonnaa"],
     "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
     "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
     "Kaartaa": ["Kaartaa mana", "Kartaa Kadastaara", "Kaartaa lafa qonna magaalaa"],
     "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
     "Dhimma Mana Murtii": ["Dhimma Mana Murtii", "Ugura Mana Murtii", "Uguraa Mana Murtii Kasuu"],
-    "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kasuu"],
-    "Kaadaastara": ["Kaadaastara Baaxii Gooroo", "Gibira Lafa Qonnaa"]
+    "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kasuu"]
 }
 
 def load_data():
@@ -81,6 +81,7 @@ else:
                 subs = st.multiselect(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"multi_{gosa}")
                 for s in subs:
                     details_list.append(f"{gosa}({s})")
+                    # Iddoo kaffaltii dhuunfaa tajaajila filatame hundaaf
                     dynamic_fees[f"{gosa}_{s}"] = st.number_input(f"Kafaltii {s} (ETB):", min_value=0.0, key=f"fee_{gosa}_{s}")
                     if s == "TOT":
                         is_tot_selected = True
