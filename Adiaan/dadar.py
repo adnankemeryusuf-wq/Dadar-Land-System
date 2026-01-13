@@ -1,190 +1,167 @@
 import streamlit as st
 import pandas as pd
-import sqlite3
+import os
 import hashlib
-import io
-import plotly.express as px
+import requests
 from datetime import datetime
 from fpdf import FPDF
+from PIL import Image
 
 # ================= 1. CONFIG & STYLING =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
-# Akka koodiin keenya bifa bareedaa qabaatuuf
 st.markdown("""
     <style>
-    .stApp { background: linear-gradient(to bottom right, #f8fafc, #e2e8f0); }
+    .stApp { background: linear-gradient(to bottom right, #f0f2f6, #e0e5ec); }
     [data-testid="stSidebar"] { background-color: #0f172a !important; }
+    [data-testid="stSidebar"] * { color: #f8fafc !important; }
     div[data-testid="metric-container"] {
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        border-top: 5px solid #3b82f6;
+        background-color: #ffffff; border-radius: 12px; padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); border-top: 4px solid #3b82f6;
     }
+    .stButton>button { border-radius: 8px; font-weight: bold; width: 100%; }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATABASE & SECURITY =================
-def hash_password(pwd):
-    return hashlib.sha256(pwd.encode()).hexdigest()
+# ================= 2. DATA SETTINGS =================
+DATA_FILE = "dadar_final_report.txt"
+TELEGRAM_TOKEN = "7864321234:AAH_F_XXXXXXXXXXXXX" 
+TELEGRAM_CHAT_ID = "123456789"
 
-def init_db():
-    conn = sqlite3.connect("dadar_land.db")
-    c = conn.cursor()
-    # Teebulii ragaa tajaajilaa
-    c.execute('''CREATE TABLE IF NOT EXISTS records 
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, yeroo TEXT, maqaa TEXT, 
-                  araddaa TEXT, qaxana TEXT, gosa TEXT, ogeessa TEXT, kafaltii REAL)''')
-    # Teebulii fayyadamtootaa
-    c.execute('''CREATE TABLE IF NOT EXISTS users 
-                 (username TEXT PRIMARY KEY, password TEXT, role TEXT)''')
-    
-    # Admin durumaan jiru (Password: admin123)
-    admin_pwd = hash_password("admin123")
-    c.execute("INSERT OR IGNORE INTO users VALUES (?, ?, ?)", ("admin", admin_pwd, "Admin"))
-    conn.commit()
-    conn.close()
+COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
-# Database jalqabsiisuu
-init_db()
+# Gosa Tajaajilaa fi Gatii (Structure haaraa)
+GATII_DICT = {
+    "Gibira Bara Kanaa": 100.0,
+    "Ittii Fayyaddam": 50.0,
+    "Kartaa": 150.0,
+    "Jijjirra Maqaa": {
+        "Jijjirraa": 200.0,
+        "Lizii Duraa": 500.0,
+        "TOT": 100.0
+    },
+    "Dhimma Dangaa": 100.0,
+    "Dhimma Mana Murtii": 0.0,
+    "Ugura Mana Murtii": 50.0,
+    "Uguraa Mana Murtii Kasuu": 50.0,
+    "Dorkka Liqii Bankii": 100.0,
+    "Dorkkaa Liqii Bankii Kasuu": 100.0
+}
 
-def load_data_sql(role, user):
-    conn = sqlite3.connect("dadar_land.db")
-    if role == "Admin":
-        df = pd.read_sql_query("SELECT * FROM records", conn)
-    else:
-        df = pd.read_sql_query("SELECT * FROM records WHERE ogeessa = ?", conn, params=(user,))
-    conn.close()
-    return df
+# ================= 3. FUNCTIONS =================
+def load_data():
+    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+        return pd.DataFrame(columns=COL_NAMES)
+    return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
 
-# ================= 3. PDF GENERATOR (NAGAHEE) =================
-def generate_receipt(data):
-    pdf = FPDF(orientation='P', unit='mm', format=(100, 150))
+def save_data(df):
+    df.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+
+def send_to_telegram(file_path, caption):
+    url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
+    try:
+        with open(file_path, "rb") as file:
+            requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "caption": caption}, files={"document": file})
+            return True
+    except: return False
+
+def generate_certificate_pro(expert_name):
+    pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    pdf.set_font('Arial', 'B', 12)
-    pdf.cell(0, 8, "BULCHIINSA LAFAA DADAR", ln=True, align='C')
-    pdf.set_font('Arial', '', 10)
-    pdf.cell(0, 5, "NAGAHEE KAFALTII", ln=True, align='C')
-    pdf.line(10, 25, 90, 25)
-    pdf.ln(10)
-    pdf.set_font('Arial', '', 9)
-    pdf.cell(0, 7, f"Guyyaa: {data['Guyyaa']}", ln=True)
-    pdf.cell(0, 7, f"Maqaa: {data['Maqaa']}", ln=True)
-    pdf.cell(0, 7, f"Gosa: {data['Gosa']}", ln=True)
-    pdf.cell(0, 7, f"Kafaltii: {data['Kafaltii']} ETB", ln=True)
-    pdf.ln(5)
-    pdf.cell(0, 7, f"Ogeessa: {data['Ogeessa']}", ln=True)
+    pdf.set_line_width(3); pdf.set_draw_color(184, 134, 11); pdf.rect(10, 10, 277, 190) 
+    pdf.ln(30); pdf.set_font('Arial', 'B', 45); pdf.set_text_color(20, 50, 100)
+    pdf.cell(0, 20, "SARTIIFIKEETA BEEKAMTII", ln=True, align='C')
+    pdf.ln(15); pdf.set_font('Arial', 'B', 35); pdf.set_text_color(150, 0, 0)
+    pdf.cell(0, 20, f"Obbo/Adde: {expert_name.upper()}", ln=True, align='C')
+    pdf.ln(10); pdf.set_font('Arial', '', 18); pdf.set_text_color(0, 0, 0)
+    pdf.multi_cell(0, 10, "Tajaajila qulqulluu fi saffisaa tajaajilamtootaaf kennaa turaniif beekamtii kana kennineefirra.", align='C')
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
-# ================= 4. AUTHENTICATION LOGIC =================
+# ================= 4. MAIN APP =================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-# --- LOGOUT FUNC ---
-def logout():
-    st.session_state.logged_in = False
-    st.session_state.user = None
-    st.session_state.role = None
-    st.rerun()
-
-# ================= 5. MAIN APP =================
-
 if not st.session_state.logged_in:
-    # --- FUULA LOGIN ---
-    _, col_mid, _ = st.columns([1, 1.5, 1])
-    with col_mid:
-        st.markdown("<h1 style='text-align: center;'>🏢 Dadar Land Admin</h1>", unsafe_allow_html=True)
-        with st.container(border=True):
-            u = st.text_input("Username")
-            p = st.text_input("Password", type="password")
-            if st.button("Seeni", use_container_width=True):
-                conn = sqlite3.connect("dadar_land.db")
-                c = conn.cursor()
-                c.execute("SELECT role FROM users WHERE username=? AND password=?", (u, hash_password(p)))
-                res = c.fetchone()
-                conn.close()
-                if res:
-                    st.session_state.logged_in = True
-                    st.session_state.user = u
-                    st.session_state.role = res[0]
-                    st.rerun()
-                else:
-                    st.error("Username ykn Password dogoggora!")
+    _, col, _ = st.columns([1, 1.2, 1])
+    with col:
+        st.markdown("<h1 style='text-align: center;'>🏢 Dadar Land</h1>", unsafe_allow_html=True)
+        u, p = st.text_input("Username"), st.text_input("Password", type="password")
+        if st.button("Seeni"):
+            if u == "admin" and p == "123":
+                st.session_state.logged_in = True
+                st.rerun()
 else:
-    # --- SIDEBAR NAV ---
     with st.sidebar:
-        st.markdown(f"### 👤 {st.session_state.user} ({st.session_state.role})")
-        menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "⚙️ Bulchiinsa"])
-        st.divider()
-        if st.button("🚪 Ba'i (Logout)", use_container_width=True):
-            logout()
-        
-        # Excel Backup (Option A)
-        st.divider()
-        if st.button("📥 Excel Backup Buufadhu"):
-            df_full = load_data_sql("Admin", "")
-            output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                df_full.to_excel(writer, index=False)
-            st.download_button("Download Excel Now", output.getvalue(), f"Backup_Dadar_{datetime.now().strftime('%Y%m%d')}.xlsx")
+        st.header(f"👤 {st.session_state.get('user', 'Admin')}")
+        menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi & Sirreessi", "📤 Gabaasa Ergi", "🏆 Sartiifiketa", "Ba'i"])
 
-    # Data fe'uu
-    df = load_data_sql(st.session_state.role, st.session_state.user)
+    df = load_data()
 
-    # --- MODULES ---
     if menu == "📊 Dashboard":
-        st.header("📊 Gabaasa Gabaabaa")
-        if not df.empty:
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Baay'ina Tajaajilaa", len(df))
-            c2.metric("Kafaltii Waliigalaa", f"{df['kafaltii'].sum():,.2f} ETB")
-            c3.metric("Ogeessota", len(df['ogeessa'].unique()))
-            
-            # Chart Galii
-            st.subheader("📈 Akkaataa Galii Ji'aa")
-            df['yeroo_dt'] = pd.to_datetime(df['yeroo'], dayfirst=True)
-            chart_data = df.resample('M', on='yeroo_dt').sum().reset_index()
-            fig = px.line(chart_data, x='yeroo_dt', y='kafaltii', markers=True)
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("Ragaan galmeeffame hin jiru.")
+        st.header("📊 Dashboard")
+        c1, c2, c3 = st.columns(3)
+        c1.metric("Baay'ina", len(df))
+        total = df['Kafaltii_Taj'].astype(float).sum() if not df.empty else 0
+        c2.metric("Kafaltii (ETB)", f"{total}")
+        st.divider()
+        st.dataframe(df, use_container_width=True)
 
     elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa Haaraa")
-        GATII_DICT = {"Kartaa": 150.0, "Jijjirra Maqaa": 200.0, "Dhimma Dangaa": 100.0, "Mana Murtii": 0.0}
-        with st.form("reg_form", clear_on_submit=True):
-            c1, c2 = st.columns(2)
-            maqaa = c1.text_input("Maqaa Abbaa Dhimmaa")
-            araddaa = c2.text_input("Araddaa")
-            qaxana = c1.text_input("Qaxana")
-            gosa = c2.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
+        st.header("📝 Galmee Tajaajilaa")
+        with st.form("entry_form", clear_on_submit=True):
+            col1, col2 = st.columns(2)
+            maqaa = col1.text_input("Maqaa Abbaa Dhimmaa")
+            araddaa = col2.text_input("Araddaa")
+            qaxana = col1.text_input("Qaxana")
+            ogeessa = col1.text_input("Maqaa Ogeessaa")
+            gosa = col2.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
+            
+            # Herrega Kafaltii
+            if gosa == "Jijjirra Maqaa":
+                d = GATII_DICT["Jijjirra Maqaa"]
+                base_fee = d["Jijjirraa"] + d["Lizii Duraa"] + d["TOT"]
+                st.warning(f"💡 Breakdown: Jijjirraa({d['Jijjirraa']}) + Lizii({d['Lizii Duraa']}) + TOT({d['TOT']})")
+            else:
+                base_fee = GATII_DICT[gosa]
+
+            total_fee = base_fee + st.number_input("Kafaltii Dabalataa", min_value=0.0)
+            st.info(f"💰 Kafaltii Waliigalaa: {total_fee} ETB")
             
             if st.form_submit_button("💾 Galmeessi"):
-                if maqaa:
-                    guyyaa = datetime.now().strftime('%d/%m/%Y')
-                    gatii = GATII_DICT[gosa]
-                    val = (guyyaa, maqaa, araddaa, qaxana, gosa, st.session_state.user, gatii)
-                    
-                    conn = sqlite3.connect("dadar_land.db")
-                    conn.cursor().execute("INSERT INTO records (yeroo, maqaa, araddaa, qaxana, gosa, ogeessa, kafaltii) VALUES (?,?,?,?,?,?,?)", val)
-                    conn.commit()
-                    conn.close()
-                    st.success(f"Galmeeffameera! Kafaltii: {gatii} ETB")
-                    
-                    # Nagahee Qopheessu
-                    r_data = {'Guyyaa': guyyaa, 'Maqaa': maqaa, 'Gosa': gosa, 'Kafaltii': gatii, 'Ogeessa': st.session_state.user}
-                    receipt_pdf = generate_receipt(r_data)
-                    st.download_button("📄 Nagahee PDF Buufadhu", receipt_pdf, f"Nagahee_{maqaa}.pdf")
-                else:
-                    st.error("Maqaa guutuu qabda!")
+                new = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, total_fee]
+                df.loc[len(df)] = new
+                save_data(df); st.success("Galmeeffameera!")
 
-    elif menu == "🔍 Barbaadi":
-        st.header("🔍 Barbaadi fi Sirreessi")
-        q = st.text_input("Maqaa Abbaa Dhimmaa barreessi...")
+    elif menu == "🔍 Barbaadi & Sirreessi":
+        st.header("🔍 Barbaadi & Sirreessi")
+        q = st.text_input("Maqaa barbaadi...")
         if not df.empty:
-            res = df[df['maqaa'].str.contains(q, case=False, na=False)]
-            st.dataframe(res, use_container_width=True)
+            search = df[df['Maqaa'].str.contains(q, case=False, na=False)]
+            for idx, row in search.iterrows():
+                with st.expander(f"👤 {row['Maqaa']}"):
+                    n_maqaa = st.text_input("Maqaa", row['Maqaa'], key=f"n_{idx}")
+                    if st.button("Save", key=f"s_{idx}"):
+                        df.at[idx, 'Maqaa'] = n_maqaa
+                        save_data(df); st.rerun()
+                    if st.button("Delete", key=f"d_{idx}"):
+                        df = df.drop(idx); save_data(df); st.rerun()
+
+    elif menu == "📤 Gabaasa Ergi":
+        st.header("📤 Telegram-itti Ergi")
+        if st.button("📤 Excel Ergi"):
+            df.to_excel("Gabaasa.xlsx", index=False)
+            send_to_telegram("Gabaasa.xlsx", "Gabaasa Dadar"); st.success("Ergameera!")
+
+    elif menu == "🏆 Sartiifiketa":
+        st.header("🏆 Sartiifiketa Beekamtii")
+        if not df.empty:
+            og = st.selectbox("Ogeessa Filadhu", df['Ogeessa'].unique())
+            if st.button("📜 PDF Qopheessi"):
+                pdf = generate_certificate_pro(og)
+                st.download_button("📥 Buufadhu", pdf, f"Sartii_{og}.pdf")
+
+    elif menu == "Ba'i":
+        st.session_state.logged_in = False; st.rerun()            st.dataframe(res, use_container_width=True)
             
             if st.session_state.role == "Admin" and not res.empty:
                 st.divider()
@@ -223,3 +200,4 @@ else:
             conn.close()
         else:
             st.error("Kutaa kana arguuf mirga Admin qabaachuu qabda!")
+
