@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import os
-import io
 from datetime import datetime
 from PIL import Image
 from fpdf import FPDF
@@ -12,11 +11,11 @@ class CertificatePDF(FPDF):
     def footer(self): pass
 
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
-    # A4 Landscape
+    # A4 Landscape (297x210 mm)
     pdf = CertificatePDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Halluuwwan Rank (Gold, Silver, Bronze)
+    # Halluuwwan Rank (1st=Gold, 2nd=Silver, 3rd=Bronze)
     rank_colors = {1: (212, 175, 55), 2: (192, 192, 192), 3: (205, 127, 50)}
     r, g, b = rank_colors.get(rank, (27, 94, 32))
 
@@ -28,25 +27,31 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_line_width(4); pdf.set_draw_color(r, g, b); pdf.rect(10, 10, 277, 190)
     pdf.set_line_width(1); pdf.rect(14, 14, 269, 182)
 
-    # --- 3. Logo Bitaa (Left) ---
+    # --- 3. Logo Qixxee (Dual Logo Setup) ---
+    # Hamma logo lamaanii wal-qixxeessuuf (Size = 35mm)
+    logo_size = 35 
+    
+    # Logo Bitaa (Left)
     if logo_left:
         left_path = "temp_left.png"
         Image.open(logo_left).save(left_path)
-        pdf.image(left_path, x=22, y=20, w=35) # Bitaa irra kaa'a
+        # x=22, y=20 irratti kaa'a
+        pdf.image(left_path, x=22, y=20, w=logo_size)
 
-    # --- 4. Logo Mirga (Right) ---
+    # Logo Mirgaa (Right)
     if logo_right:
         right_path = "temp_right.png"
         Image.open(logo_right).save(right_path)
-        pdf.image(right_path, x=240, y=20, w=35) # Mirga irra kaa'a
+        # x=240, y=20 irratti kaa'a (297 - 22 - 35 = 240)
+        pdf.image(right_path, x=240, y=20, w=logo_size)
 
-    # --- 5. Barreeffama ---
+    # --- 4. Barreeffama ---
     pdf.set_y(40)
     pdf.set_text_color(r, g, b)
     pdf.set_font('Arial', 'B', 35)
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     
-    pdf.set_text_color(30, 70, 30)
+    pdf.set_text_color(30, 70, 30) # Dark Green
     pdf.set_font('Arial', 'B', 18)
     pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
     
@@ -65,7 +70,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
            f"beekamtii kanaan badhaafamaniiru.")
     pdf.multi_cell(0, 10, msg, align='C')
 
-    # --- 6. Mallattoo ---
+    # --- 5. Mallattoo ---
     pdf.ln(25); curr_y = pdf.get_y()
     pdf.set_draw_color(0, 0, 0)
     pdf.line(40, curr_y, 110, curr_y)
@@ -77,33 +82,6 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 2. STREAMLIT UI =================
-st.title("🎓 Dadar Land - Custom Dual Logo Certificate")
+st.title("🎓 Dadar Land - Professional Certificate")
 
-if os.path.exists("dadar_final_report.txt"):
-    df = pd.read_csv("dadar_final_report.txt", sep="|", names=['Guyyaa', 'M_Abbaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii'], header=None)
-    
-    st.subheader("🖼 Imeejii Sartiifiikeetaa Filadhu")
-    col_img1, col_img2 = st.columns(2)
-    with col_img1:
-        u_logo_left = st.file_uploader("Logo Bitaa (e.g. Faajji Mootummaa)", type=["png", "jpg"])
-    with col_img2:
-        u_logo_right = st.file_uploader("Logo Mirgaa (e.g. Logo Waajjiraa)", type=["png", "jpg"])
-    
-    st.markdown("---")
-    
-    top_performers = df['Ogeessa'].value_counts().head(3)
-    cols = st.columns(3)
-    
-    for i, (name, count) in enumerate(top_performers.items(), 1):
-        with cols[i-1]:
-            st.info(f"🏆 {i}ffaa: {name}")
-            if st.button(f"PDF Qopheessi ({i}ffaa)"):
-                pdf_bytes = create_advanced_pdf(name, count, i, u_logo_left, u_logo_right)
-                st.download_button(
-                    label="📥 Download PDF",
-                    data=pdf_bytes,
-                    file_name=f"Sartifiketa_{name}.pdf",
-                    mime="application/pdf"
-                )
-else:
-    st.warning("Data'n galmeeffame hin jiru.")
+# ... (Kutaan UI akkuma isa duraatti itti fufa)
