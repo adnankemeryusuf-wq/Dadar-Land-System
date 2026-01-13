@@ -94,7 +94,8 @@ else:
                 
                 if gosa == "Ittii Fayyaddam":
                     sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
-                    qty = st.number_input(f"Baay'ina {sub} (Meeqa?):", min_value=1, value=1, key=f"qty_{gosa}")
+                    # "Meeqa?" haqamee "Baay'ina" qofatti jijjiirameera
+                    qty = st.number_input(f"Baay'ina {sub}:", min_value=1, value=1, key=f"qty_{gosa}")
                     sub_total = GATII_DICT[gosa][sub] * qty
                     total_base_fee += sub_total
                     details_list.append(f"{sub} (x{qty})")
@@ -129,7 +130,6 @@ else:
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             
-            # Jechi "Dabalataa" haqameera, "Kafaltii" qofa
             extra = st.number_input("Kafaltii Biroo (Yoo jiraate)", min_value=0.0)
             
             final_total = total_base_fee + extra
@@ -142,7 +142,7 @@ else:
                     new_row = [yeroo_now, maqaa, araddaa, qaxana, service_str, ogeessa, final_total]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.success(f"✅ Galmeeffameera: {maqaa} | Tajaajila: {service_str}")
+                    st.success(f"✅ Galmeeffameera: {maqaa}")
                 else: st.error("Maaloo odeeffannoo guutuu barreessi!")
 
     elif menu == "📊 Dashboard":
