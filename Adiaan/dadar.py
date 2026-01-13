@@ -80,21 +80,29 @@ else:
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         
         main_options = sorted(list(GATII_DICT.keys()))
-        selected_services = st.multiselect("Gosa Tajaajilaa Filadhu", main_options)
+        selected_main = st.multiselect("Gosa Tajaajilaa Filadhu", main_options)
         
         details_list = []
+        dynamic_fees = {} # Kaffaltiiwwan adda addaa asitti kuusna
 
-        if selected_services:
-            for gosa in selected_services:
+        if selected_main:
+            for gosa in selected_main:
                 st.markdown(f"#### 🛠️ Qindaa'ina: {gosa}")
                 
-                # Filannoowwan Listii qaban
-                if isinstance(GATII_DICT.get(gosa), list):
+                # --- Ittii Fayyaddam (Multiselect dabalataa) ---
+                if gosa == "Ittii Fayyaddam":
+                    sub_ittii = st.multiselect("Filannoo Ittii Fayyaddam:", GATII_DICT[gosa], key="multi_ittii")
+                    for s in sub_ittii:
+                        details_list.append(s)
+                        # Iddoo kaffaltii adda addaa uuma
+                        dynamic_fees[s] = st.number_input(f"Kafaltii {s} (ETB):", min_value=0.0, key=f"fee_{s}")
+
+                # --- Filannoowwan Listii qaban kaan ---
+                elif isinstance(GATII_DICT.get(gosa), list):
                     sub = st.selectbox(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"sub_{gosa}")
-                    # Jechi "Baay'ina" jedhu asii haqameera
                     details_list.append(f"{gosa}({sub})")
 
-                # Gibira
+                # --- Gibira ---
                 elif gosa in ["Gibira Lafa Qonnaa", "Gibira Kaadaastara Baaxii Gooroo"]:
                     c1, c2, c3 = st.columns(3)
                     g = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key=f"d_{gosa}")
@@ -102,7 +110,6 @@ else:
                     b = c3.selectbox("Waggaa", [str(y) for y in range(2020, 2030)], key=f"y_{gosa}")
                     details_list.append(f"{gosa}({g}/{j}/{b})")
 
-                # Kanneen biroo
                 else:
                     details_list.append(gosa)
 
@@ -113,17 +120,21 @@ else:
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             
-            # Kafaltii qofa iddoo siif dhiiseera
-            final_payment = st.number_input("Kafaltii (ETB)", min_value=0.0)
+            # Kaffaltii waliigalaa (Idilee)
+            final_payment = st.number_input("Kafaltii Tajaajiloota Biroo (ETB)", min_value=0.0)
             
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and ogeessa and details_list:
                     yeroo_now = datetime.now().strftime('%d/%m/%Y')
                     service_str = ", ".join(details_list)
-                    new_row = [yeroo_now, maqaa, araddaa, qaxana, service_str, ogeessa, final_payment]
+                    
+                    # Kaffaltiiwwan Ittii Fayyaddam dabalatee walitti qabaa
+                    total_sum = final_payment + sum(dynamic_fees.values())
+                    
+                    new_row = [yeroo_now, maqaa, araddaa, qaxana, service_str, ogeessa, total_sum]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.success(f"✅ Galmeeffameera: {maqaa}")
+                    st.success(f"✅ Galmeeffameera: {maqaa} (Total: {total_sum} ETB)")
                 else: st.error("Maaloo odeeffannoo guutuu barreessi!")
 
     elif menu == "📊 Dashboard":
