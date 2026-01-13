@@ -29,12 +29,16 @@ st.markdown("""
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
+# Gosa Tajaajilaa hunda kanaan duraa
 GATII_DICT = {
     "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
     "Dhimma Mana Murtii": ["Kafaltii Itti Fayyadamaa"], 
     "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"], 
     "Liizii": ["Liizii Waggaa", "Jijjirraa Maqaa", "Lizii Duraa", "TOT"],
-    "Kanneen Biroo": ["Dorkka Liqii Bankii", "Gibira Lafa Qonnaa", "Kaartaa", "Ugura"]
+    "Dorkka Liqii Bankii": ["Dorkka Liqii Bankii Kasuu", "Dorkka Liqii Bankii"],
+    "Gibira": ["Gibira Lafa Qonnaa Magaalaa", "Gibira Kaadaastara Baaxii Gooroo"],
+    "Kaartaa": ["Kaartaa Lafa Qonna Magaalaa", "Kaartaa Mana", "Kartaa Kadastaara"],
+    "Ugura": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kasuu"]
 }
 
 def load_data():
@@ -78,12 +82,12 @@ else:
                 subs = st.multiselect(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"multi_{gosa}")
                 for s in subs:
                     details_list.append(f"{gosa}({s})")
+                    # Iddoo kaffaltii dhuunfaa
                     dynamic_fees[f"{gosa}_{s}"] = st.number_input(f"Kafaltii {s} (ETB):", min_value=0.0, key=f"fee_{gosa}_{s}")
                     if s == "TOT":
                         is_tot_selected = True
 
         with st.form("entry_form", clear_on_submit=True):
-            # --- Form Content ---
             if is_tot_selected:
                 st.subheader("📋 Odeeffannoo TOT (Jijjiirraa Maqaa)")
                 col1, col2 = st.columns(2)
@@ -98,7 +102,6 @@ else:
                     araddaa_b = st.text_input("Araddaa (Bitataa)")
                     qaxana_b = st.text_input("Qaxana (Bitataa)")
                 
-                # Walitti makuu gabaasaaf
                 maqaa_final = f"G: {maqaa_g} / B: {maqaa_b}"
                 araddaa_final = f"G: {araddaa_g} / B: {araddaa_b}"
                 qaxana_final = f"G: {qaxana_g} / B: {qaxana_b}"
@@ -119,7 +122,7 @@ else:
                     new_row = [yeroo_now, maqaa_final, araddaa_final, qaxana_final, service_str, ogeessa, total_sum]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.success(f"✅ Galmeeffameera! Galiin: {total_sum} ETB")
+                    st.success(f"✅ Galmeeffameera! Galiin Walitti Qabaa: {total_sum} ETB")
                 else: st.error("Maaloo odeeffannoo guutuu barreessi!")
 
     elif menu == "📊 Dashboard":
