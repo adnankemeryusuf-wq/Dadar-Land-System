@@ -35,8 +35,13 @@ MONTHS_OR = {
     "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
+# Dhimma Dangaa jalatti "Kafaltii Humna Mandisaa" dabalameera
 GATII_DICT = {
-    "Dhimma Dangaa": {"Kafaltii Itti Fayyadamaa": 100.0, "Kafaltii Biroo": 0.0},
+    "Dhimma Dangaa": {
+        "Kafaltii Humna Mandisaa": 100.0, 
+        "Kafaltii Itti Fayyadamaa": 100.0, 
+        "Kafaltii Biroo": 0.0
+    },
     "Dhimma Mana Murtii": {"Kafaltii Itti Fayyadamaa": 50.0, "Kafaltii Biroo": 0.0}, 
     "Dorkka Liqii Bankii": 100.0, 
     "Dorkkaa Liqii Bankii Kasuu": 100.0,
@@ -85,7 +90,6 @@ else:
         main_options = sorted(list(GATII_DICT.keys()))
         selected_services = st.multiselect("Gosa Tajaajilaa Filadhu", main_options)
         
-        total_base_fee = 0.0
         details_list = []
 
         if selected_services:
@@ -95,19 +99,14 @@ else:
                 if gosa == "Ittii Fayyaddam":
                     sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
                     qty = st.number_input(f"Baay'ina {sub}:", min_value=1, value=1, key=f"qty_{gosa}")
-                    sub_total = GATII_DICT[gosa][sub] * qty
-                    total_base_fee += sub_total
                     details_list.append(f"{sub} (x{qty})")
-                    # Kaffaltiin dhuunfaa asii haqameera
 
                 elif gosa == "Liizii":
                     sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
-                    total_base_fee += GATII_DICT[gosa][sub]
                     details_list.append(f"Liizii({sub})")
 
                 elif gosa in ["Dhimma Dangaa", "Dhimma Mana Murtii"]:
                     sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
-                    total_base_fee += GATII_DICT[gosa][sub]
                     details_list.append(f"{gosa}({sub})")
 
                 elif gosa in ["Gibira Lafa Qonnaa", "Gibira Kaadaastara Baaxii Gooroo"]:
@@ -115,11 +114,9 @@ else:
                     g = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key=f"d_{gosa}")
                     j = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x}-{MONTHS_OR[x]}", key=f"m_{gosa}")
                     b = c3.selectbox("Waggaa", [str(y) for y in range(2020, 2030)], key=f"y_{gosa}")
-                    total_base_fee += GATII_DICT[gosa]
                     details_list.append(f"{gosa}({g}/{j}/{b})")
 
                 else:
-                    total_base_fee += GATII_DICT[gosa]
                     details_list.append(gosa)
 
         with st.form("entry_form", clear_on_submit=True):
@@ -129,10 +126,8 @@ else:
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             
-            # Kaffaltii galchuuf qofa iddoo siif dhiiseera
+            # Kaffaltii qofa iddoo siif dhiiseera, lakkoofsi herregaa hin mul'atu
             final_payment = st.number_input("Kafaltii (ETB)", min_value=0.0)
-            
-            # Dubbifni "Kafaltii Walii-galaa" fi lakkoofsi herregaa asii haqameera
             
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and ogeessa and details_list:
