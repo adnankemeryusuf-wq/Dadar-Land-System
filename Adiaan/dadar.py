@@ -83,24 +83,24 @@ else:
         selected_main = st.multiselect("Gosa Tajaajilaa Filadhu", main_options)
         
         details_list = []
-        dynamic_fees = {} # Kaffaltiiwwan adda addaa asitti kuusna
+        dynamic_fees = {} 
 
         if selected_main:
             for gosa in selected_main:
                 st.markdown(f"#### 🛠️ Qindaa'ina: {gosa}")
                 
-                # --- Ittii Fayyaddam (Multiselect dabalataa) ---
-                if gosa == "Ittii Fayyaddam":
-                    sub_ittii = st.multiselect("Filannoo Ittii Fayyaddam:", GATII_DICT[gosa], key="multi_ittii")
-                    for s in sub_ittii:
-                        details_list.append(s)
-                        # Iddoo kaffaltii adda addaa uuma
-                        dynamic_fees[s] = st.number_input(f"Kafaltii {s} (ETB):", min_value=0.0, key=f"fee_{s}")
+                # --- Ittii Fayyaddam & Liizii (Multiselect dhuunfaa) ---
+                if gosa in ["Ittii Fayyaddam", "Liizii"]:
+                    subs = st.multiselect(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"multi_{gosa}")
+                    for s in subs:
+                        details_list.append(f"{gosa}({s})")
+                        dynamic_fees[f"{gosa}_{s}"] = st.number_input(f"Kafaltii {s} (ETB):", min_value=0.0, key=f"fee_{gosa}_{s}")
 
-                # --- Filannoowwan Listii qaban kaan ---
-                elif isinstance(GATII_DICT.get(gosa), list):
+                # --- Dhimma Dangaa & Mana Murtii (Filannoo tokko qofa garuu kaffaltii dhuunfaa) ---
+                elif gosa in ["Dhimma Dangaa", "Dhimma Mana Murtii"]:
                     sub = st.selectbox(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"sub_{gosa}")
                     details_list.append(f"{gosa}({sub})")
+                    dynamic_fees[f"{gosa}_{sub}"] = st.number_input(f"Kafaltii {sub} (ETB):", min_value=0.0, key=f"fee_{gosa}_{sub}")
 
                 # --- Gibira ---
                 elif gosa in ["Gibira Lafa Qonnaa", "Gibira Kaadaastara Baaxii Gooroo"]:
@@ -109,9 +109,11 @@ else:
                     j = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x}-{MONTHS_OR[x]}", key=f"m_{gosa}")
                     b = c3.selectbox("Waggaa", [str(y) for y in range(2020, 2030)], key=f"y_{gosa}")
                     details_list.append(f"{gosa}({g}/{j}/{b})")
+                    dynamic_fees[f"{gosa}"] = st.number_input(f"Kafaltii {gosa} (ETB):", min_value=0.0, key=f"fee_{gosa}")
 
                 else:
                     details_list.append(gosa)
+                    dynamic_fees[gosa] = st.number_input(f"Kafaltii {gosa} (ETB):", min_value=0.0, key=f"fee_{gosa}")
 
         with st.form("entry_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
@@ -120,21 +122,17 @@ else:
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             
-            # Kaffaltii waliigalaa (Idilee)
-            final_payment = st.number_input("Kafaltii Tajaajiloota Biroo (ETB)", min_value=0.0)
-            
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and ogeessa and details_list:
                     yeroo_now = datetime.now().strftime('%d/%m/%Y')
                     service_str = ", ".join(details_list)
                     
-                    # Kaffaltiiwwan Ittii Fayyaddam dabalatee walitti qabaa
-                    total_sum = final_payment + sum(dynamic_fees.values())
+                    total_sum = sum(dynamic_fees.values())
                     
                     new_row = [yeroo_now, maqaa, araddaa, qaxana, service_str, ogeessa, total_sum]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.success(f"✅ Galmeeffameera: {maqaa} (Total: {total_sum} ETB)")
+                    st.success(f"✅ Galmeeffameera: {maqaa} | Total: {total_sum} ETB")
                 else: st.error("Maaloo odeeffannoo guutuu barreessi!")
 
     elif menu == "📊 Dashboard":
