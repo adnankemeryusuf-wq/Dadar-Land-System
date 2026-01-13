@@ -23,20 +23,11 @@ st.markdown("""
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
-GATII_DICT = {
-    "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Gibira Manaa"],
-    "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
-    "Kaartaa": ["Kaartaa Manaa", "Kaartaa Kadastaara", "Kaartaa Haaromsuu"],
-    "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"]
-}
-
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
     df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
     df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
-    df['Ji\'a'] = df['Date_Obj'].dt.month
-    df['Waggaa'] = df['Date_Obj'].dt.year
     return df
 
 def save_data(df_to_save):
@@ -137,7 +128,7 @@ elif menu == "📈 Gabaasa Bal'aa":
     st.header("📈 Gabaasa Waliigalaa")
     st.dataframe(df[COL_NAMES], use_container_width=True)
     csv = df.to_csv(index=False).encode('utf-8')
-    st.download_button("📥 Excel/CSV Download", csv, "gabaasa.csv", "text/csv")
+    st.download_button("📥 Excel Download", csv, "gabaasa.csv", "text/csv")
 
 elif menu == "🏆 Badhaasa Ogeeyyii":
     st.header("🏆 Badhaasa Ogeessa Cimaa (PDF)")
