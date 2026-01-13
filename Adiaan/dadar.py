@@ -6,8 +6,6 @@ from datetime import datetime
 # ================= 1. CONFIG & STYLING =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
-LOGO_PATH = "logo.png" 
-
 st.markdown("""
     <style>
     .stApp { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
@@ -37,7 +35,7 @@ MONTHS_OR = {
     "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
-# GATII_DICT: Filannoowwan haaraa dabalatee
+# GATII_DICT: Sub-options hundi asitti qindaa'aniiru
 GATII_DICT = {
     "Dhimma Dangaa": {"Kafaltii Itti Fayyadamaa": 100.0, "Kafaltii Biroo": 0.0},
     "Dhimma Mana Murtii": {"Kafaltii Itti Fayyadamaa": 50.0, "Kafaltii Biroo": 0.0}, 
@@ -45,7 +43,10 @@ GATII_DICT = {
     "Dorkkaa Liqii Bankii Kasuu": 100.0,
     "Gibira Kaadaastara Baaxii Gooroo": 300.0,
     "Gibira Lafa Qonnaa": 100.0,
-    "Ittii Fayyaddam": 50.0, 
+    "Ittii Fayyaddam": {
+        "Hayyama Itti Fayyadama Lafaa": 150.0, 
+        "Humna Mahandiisaa": 100.0
+    }, 
     "Kaartaa Lafa Qonna Magaalaa": 0.0, 
     "Kaartaa Mana": 0.0, 
     "Kartaa Kadastaara": 0.0, 
@@ -70,72 +71,60 @@ if 'logged_in' not in st.session_state:
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=150)
         u, p = st.text_input("Username"), st.text_input("Password", type="password")
         if st.button("Seeni"):
             if u == "admin" and p == "123":
                 st.session_state.logged_in = True; st.rerun()
 else:
     with st.sidebar:
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "Ba'i"])
 
     df = load_data()
 
     if menu == "📝 Galmee Haaraa":
-        st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa Haaraa</h2>", unsafe_allow_html=True)
         
-        main_options = sorted(list(GATII_DICT.keys())) + ["Kan Biroo"]
-        gosa_main = st.selectbox("Gosa Tajaajilaa Filadhu", main_options)
+        # Abbaa dhimmaa tokkoof tajaajila hedduu filachuuf (Multiselect)
+        main_options = sorted(list(GATII_DICT.keys()))
+        selected_services = st.multiselect("Gosa Tajaajilaa (Hedduu filachuu ni dandeessa)", main_options)
         
-        base_fee = 0.0
-        gosa_galmeeffamu = gosa_main
+        total_base_fee = 0.0
+        final_service_names = []
 
-        # --- Dhimma Dangaa (Sub-menu) ---
-        if gosa_main == "Dhimma Dangaa":
-            sub_dangaa = st.radio("Dhimma Dangaa Keessaa Filadhu:", sorted(list(GATII_DICT["Dhimma Dangaa"].keys())))
-            base_fee = GATII_DICT["Dhimma Dangaa"][sub_dangaa]
-            gosa_galmeeffamu = f"Dhimma Dangaa ({sub_dangaa})"
+        if selected_services:
+            for gosa in selected_services:
+                # 1. Liizii
+                if gosa == "Liizii":
+                    sub = st.selectbox(f"Gosa {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
+                    total_base_fee += GATII_DICT[gosa][sub]
+                    final_service_names.append(f"{gosa}({sub})")
+                
+                # 2. Ittii Fayyaddam (Hayyama & Humna Mahandiisaa)
+                elif gosa == "Ittii Fayyaddam":
+                    sub = st.selectbox(f"Gosa {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
+                    total_base_fee += GATII_DICT[gosa][sub]
+                    final_service_names.append(sub) # Kallattiin maqaa Hayyama ykn Humna fida
 
-        # --- Dhimma Mana Murtii (Sub-menu) ---
-        elif gosa_main == "Dhimma Mana Murtii":
-            sub_murtii = st.radio("Dhimma Mana Murtii Keessaa Filadhu:", sorted(list(GATII_DICT["Dhimma Mana Murtii"].keys())))
-            base_fee = GATII_DICT["Dhimma Mana Murtii"][sub_murtii]
-            gosa_galmeeffamu = f"Dhimma Mana Murtii ({sub_murtii})"
+                # 3. Dhimma Dangaa & Mana Murtii
+                elif gosa in ["Dhimma Dangaa", "Dhimma Mana Murtii"]:
+                    sub = st.selectbox(f"Gosa {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
+                    total_base_fee += GATII_DICT[gosa][sub]
+                    final_service_names.append(f"{gosa}({sub})")
 
-        # --- Liizii ---
-        elif gosa_main == "Liizii":
-            sub_gosa = st.radio("Liizii Keessaa Filadhu:", sorted(list(GATII_DICT["Liizii"].keys())))
-            base_fee = GATII_DICT["Liizii"][sub_gosa]
-            gosa_galmeeffamu = f"Liizii ({sub_gosa})"
+                # 4. Gibira (Kalandara fida)
+                elif gosa in ["Gibira Lafa Qonnaa", "Gibira Kaadaastara Baaxii Gooroo"]:
+                    st.write(f"--- Yeroo {gosa} Filadhu ---")
+                    c1, c2, c3 = st.columns(3)
+                    g = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key=f"d_{gosa}")
+                    j = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x}-{MONTHS_OR[x]}", key=f"m_{gosa}")
+                    b = c3.selectbox("Waggaa", [str(y) for y in range(2020, 2031)], key=f"y_{gosa}")
+                    total_base_fee += GATII_DICT[gosa]
+                    final_service_names.append(f"{gosa}({g}/{j}/{b})")
 
-        # --- Gibira Lafa Qonnaa ---
-        elif gosa_main == "Gibira Lafa Qonnaa":
-            c1, c2, c3 = st.columns(3)
-            guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key="q_guy")
-            ji_lakk = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x} - {MONTHS_OR[x]}", key="q_ji")
-            bara = c3.selectbox("Waggaa", [str(y) for y in range(2000, 2027)], key="q_bar")
-            yeroo_gibiraa = f"{guyyaa}/{ji_lakk}/{bara}"
-            base_fee = GATII_DICT["Gibira Lafa Qonnaa"]
-            gosa_galmeeffamu = f"Gibira Lafa Qonnaa ({yeroo_gibiraa})"
-
-        # --- Gibira Kaadaastara Baaxii Gooroo ---
-        elif gosa_main == "Gibira Kaadaastara Baaxii Gooroo":
-            c1, c2, c3 = st.columns(3)
-            guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key="k_guy")
-            ji_lakk = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x} - {MONTHS_OR[x]}", key="k_ji")
-            bara = c3.selectbox("Waggaa", [str(y) for y in range(2000, 2027)], key="k_bar")
-            yeroo_kaad = f"{guyyaa}/{ji_lakk}/{bara}"
-            base_fee = GATII_DICT["Gibira Kaadaastara Baaxii Gooroo"]
-            gosa_galmeeffamu = f"Gibira Kaadaastara ({yeroo_kaad})"
-
-        elif gosa_main == "Kan Biroo":
-            sababa_biroo = st.text_input("Sababa tajaajilaa barreessi")
-            base_fee = st.number_input("Kafaltii (ETB)", min_value=0.0)
-            gosa_galmeeffamu = f"Biroo: {sababa_biroo}"
-
-        else:
-            base_fee = GATII_DICT.get(gosa_main, 0.0)
+                # 5. Kanneen biro idilee
+                else:
+                    total_base_fee += GATII_DICT[gosa]
+                    final_service_names.append(gosa)
 
         with st.form("entry_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
@@ -143,25 +132,25 @@ else:
             araddaa = col2.text_input("Araddaa")
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
-            extra = st.number_input("Kafaltii Dabalataa", min_value=0.0)
+            extra = st.number_input("Kafaltii Dabalataa (Yoo jiraate)", min_value=0.0)
             
-            total_fee = base_fee + extra
-            st.markdown(f"<div style='background-color: #f1f8e9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #4caf50;'><h2 style='color: #2e7d32; margin: 0;'>💰 Kaffaltii: {total_fee} ETB</h2></div>", unsafe_allow_html=True)
+            final_total = total_base_fee + extra
+            st.markdown(f"<div style='background-color: #f1f8e9; padding: 10px; border-radius: 10px; border: 1px solid #4caf50;'><h3 style='color: #2e7d32; text-align: center;'>💰 Kaffaltii Walii-galaa: {final_total} ETB</h3></div>", unsafe_allow_html=True)
             
             if st.form_submit_button("💾 Galmeessi"):
-                if maqaa and ogeessa:
+                if maqaa and ogeessa and final_service_names:
                     yeroo_now = datetime.now().strftime('%d/%m/%Y')
-                    new_row = [yeroo_now, maqaa, araddaa, qaxana, gosa_galmeeffamu, ogeessa, total_fee]
+                    service_str = ", ".join(final_service_names)
+                    new_row = [yeroo_now, maqaa, araddaa, qaxana, service_str, ogeessa, final_total]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.success(f"✅ Galmeeffameera: {maqaa}")
-                else: st.error("Maaloo odeeffannoo hunda guuti!")
+                    st.success(f"✅ {maqaa} - Tajaajila [{service_str}] galmeeffameera!")
+                else: st.error("Maaloo odeeffannoo fi tajaajila guuti!")
 
     elif menu == "📊 Dashboard":
         st.header("📊 Dashboard Gabaasaa")
         st.dataframe(df, use_container_width=True)
-        total_rev = df['Kafaltii_Taj'].sum()
-        st.metric("Walitti Qaba Galii (ETB)", f"{total_rev:,.2f}")
+        st.metric("Walitti Qaba Galii (ETB)", f"{df['Kafaltii_Taj'].sum():,.2f}")
 
     elif menu == "🔍 Barbaadi":
         st.header("🔍 Barbaadi")
