@@ -4,48 +4,47 @@ import os
 from datetime import datetime
 from fpdf import FPDF
 
-# ================= 1. CONFIG & STYLING (BAREEDINA) =================
+# ================= 1. CONFIG & STYLING (HALLUU MAGARIISAA) =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
 LOGO_PATH = "logo.png" 
 
-# Background Baredaa fi Glassmorphism Effect
 st.markdown("""
     <style>
-    /* Background waliigalaa */
+    /* Background Magariisa Lallaafaa (Soft Green Gradient) */
     .stApp {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
     }
     
-    /* Sidebar bareedina isaa */
+    /* Sidebar bifa magariisa dukkanaawaa */
     [data-testid="stSidebar"] {
-        background-color: #1e293b !important;
-        border-right: 1px solid #334155;
+        background-color: #1b5e20 !important;
+        border-right: 1px solid #2e7d32;
     }
-    
-    /* Sanduuqa (Container) Dashboard fi Forms */
+    [data-testid="stSidebar"] * { color: #ffffff !important; }
+
+    /* Sanduuqa (Glassmorphism Effect) */
     div.stForm, div[data-testid="metric-container"] {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(10px);
         border-radius: 15px;
-        padding: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        padding: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    /* Button miidhagaa */
+    /* Button magariisa ifaa */
     .stButton>button {
-        background: linear-gradient(90deg, #2563eb, #1d4ed8);
+        background: linear-gradient(90deg, #4caf50, #2e7d32);
         color: white;
-        border-radius: 10px;
+        border-radius: 8px;
         border: none;
-        transition: 0.3s;
         font-weight: bold;
-        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        height: 3.5em;
     }
     .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+        background: linear-gradient(90deg, #2e7d32, #1b5e20);
+        color: white;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -80,13 +79,12 @@ def save_data(df):
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-# --- LOGIN PAGE ---
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
         st.markdown("<div style='height: 100px;'></div>", unsafe_allow_html=True)
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=150)
-        st.markdown("<h2 style='text-align: center; color: #1e3a8a;'>Dadar Land Admin</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #2e7d32;'>Dadar Land Admin</h2>", unsafe_allow_html=True)
         with st.form("login_form"):
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
@@ -95,30 +93,26 @@ if not st.session_state.logged_in:
                     st.session_state.logged_in = True
                     st.session_state.user = u
                     st.rerun()
-                else: st.error("Dilaalli Sirrii Miti!")
+                else: st.error("Dogoggora!")
 else:
-    # --- APP CONTENT ---
     with st.sidebar:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
         st.markdown(f"### 👤 {st.session_state.user}")
         st.divider()
-        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "🏆 Sartiifiketa", "Ba'i"])
+        menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "🏆 Sartiifiketa", "Ba'i"])
 
     df = load_data()
 
     if menu == "📊 Dashboard":
-        st.markdown("<h2 style='color: #1e3a8a;'>📊 Dashboard Gabaasaa</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: #2e7d32;'>📊 Dashboard</h2>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
-        with c1: st.metric("Baay'ina Tajaajilaa", len(df))
-        with c2: 
-            total = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum() if not df.empty else 0
-            st.metric("Waliigala Galii (ETB)", f"{total} ETB")
-        st.divider()
+        c1.metric("Baay'ina", len(df))
+        total = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum() if not df.empty else 0
+        c2.metric("Waliigala (ETB)", f"{total} ETB")
         st.dataframe(df, use_container_width=True)
 
     elif menu == "📝 Galmee Haaraa":
-        st.markdown("<h2 style='color: #1e3a8a;'>📝 Galmee Haaraa Galmeessi</h2>", unsafe_allow_html=True)
-        
+        st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Haaraa</h2>", unsafe_allow_html=True)
         gosa = st.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
         
         base_fee = 0.0
@@ -133,23 +127,18 @@ else:
 
         with st.form("entry_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
-            maqaa = col1.text_input("Maqaa Abbaa Dhimmaa")
+            maqaa = col1.text_input("Maqaa Abbaa Dhimmaa Fullatti")
             araddaa = col2.text_input("Araddaa")
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
-            
             extra = st.number_input("Kafaltii Dabalataa", min_value=0.0)
-            total_fee = base_fee + extra
             
-            st.markdown(f"<h3 style='color: #2563eb;'>💰 Kafaltii: {total_fee} ETB</h3>", unsafe_allow_html=True)
-            
+            st.info(f"💰 Kafaltii Waliigalaa: {base_fee + extra} ETB")
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and ogeessa:
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, total_fee]
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, base_fee + extra]
                     df.loc[len(df)] = new_row
-                    save_data(df)
-                    st.success("✅ Milkaa'inaan Galmeeffameera!")
-                else: st.error("Maqaa fi Ogeessa guuti!")
+                    save_data(df); st.success("✅ Galmeeffameera!")
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False
