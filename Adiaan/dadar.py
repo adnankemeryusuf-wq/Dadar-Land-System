@@ -150,7 +150,7 @@ else:
             k_taj = col1.number_input("Kafaltii Tajaajilaa", min_value=0.0)
             k_wal = col2.number_input("Kafaltii Waliigalaa", min_value=0.0)
             if st.form_submit_button("💾 Galmeessi"):
-                new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, '', gosa, ogeessa, k_taj, k_wal, '', '', '']
+                new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa,'', gosa, ogeessa, k_taj, k_wal, '', '', '']
                 df.loc[len(df)] = new_row
                 save_data(df)
                 st.success("Milkaa'inaan galmeeffame!")
@@ -170,7 +170,8 @@ else:
                     st.subheader(f"Sirreessu: {selected_name}")
                     e_maqaa = st.text_input("Maqaa", value=df.at[idx, 'Maqaa'])
                     e_araddaa = st.text_input("Araddaa", value=df.at[idx, 'Araddaa'])
-                    e_ogeessa = st.text_input("Ogeessa", value=df.at[idx, 'Ogeessa'])
+                    e_qaxana = st.text_input("Ogeessa", value=df.at[idx, 'Qaxana'])
+                     e_ogeessa = st.text_input("Ogeessa", value=df.at[idx, 'Ogeessa'])
                     e_k_wal = st.number_input("Kafaltii", value=float(df.at[idx, 'Kafaltii_Wal']))
                     
                     c1, c2 = st.columns(2)
@@ -230,4 +231,5 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.clear()
         st.rerun()
+
 
