@@ -35,7 +35,6 @@ MONTHS_OR = {
     "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
-# GATII_DICT: Sub-options hundi asitti qindaa'aniiru
 GATII_DICT = {
     "Dhimma Dangaa": {"Kafaltii Itti Fayyadamaa": 100.0, "Kafaltii Biroo": 0.0},
     "Dhimma Mana Murtii": {"Kafaltii Itti Fayyadamaa": 50.0, "Kafaltii Biroo": 0.0}, 
@@ -55,7 +54,6 @@ GATII_DICT = {
     "Uguraa Mana Murtii Kasuu": 50.0
 }
 
-# ================= 3. FUNCTIONS =================
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
@@ -82,49 +80,47 @@ else:
     df = load_data()
 
     if menu == "📝 Galmee Haaraa":
-        st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa Haaraa</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         
-        # Abbaa dhimmaa tokkoof tajaajila hedduu filachuuf (Multiselect)
         main_options = sorted(list(GATII_DICT.keys()))
-        selected_services = st.multiselect("Gosa Tajaajilaa (Hedduu filachuu ni dandeessa)", main_options)
+        selected_services = st.multiselect("Gosa Tajaajilaa Filadhu", main_options)
         
         total_base_fee = 0.0
-        final_service_names = []
+        details_list = []
 
         if selected_services:
             for gosa in selected_services:
-                # 1. Liizii
-                if gosa == "Liizii":
-                    sub = st.selectbox(f"Gosa {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
-                    total_base_fee += GATII_DICT[gosa][sub]
-                    final_service_names.append(f"{gosa}({sub})")
+                st.markdown(f"#### 🛠️ Qindaa'ina: {gosa}")
                 
-                # 2. Ittii Fayyaddam (Hayyama & Humna Mahandiisaa)
-                elif gosa == "Ittii Fayyaddam":
-                    sub = st.selectbox(f"Gosa {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
-                    total_base_fee += GATII_DICT[gosa][sub]
-                    final_service_names.append(sub) # Kallattiin maqaa Hayyama ykn Humna fida
+                if gosa == "Ittii Fayyaddam":
+                    sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
+                    qty = st.number_input(f"Baay'ina {sub} (Meeqa?):", min_value=1, value=1, key=f"qty_{gosa}")
+                    sub_total = GATII_DICT[gosa][sub] * qty
+                    total_base_fee += sub_total
+                    details_list.append(f"{sub} (x{qty})")
+                    st.info(f"Kafaltii {sub}: **{sub_total} ETB**")
 
-                # 3. Dhimma Dangaa & Mana Murtii
+                elif gosa == "Liizii":
+                    sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
+                    total_base_fee += GATII_DICT[gosa][sub]
+                    details_list.append(f"Liizii({sub})")
+
                 elif gosa in ["Dhimma Dangaa", "Dhimma Mana Murtii"]:
-                    sub = st.selectbox(f"Gosa {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
+                    sub = st.selectbox(f"Filannoo {gosa}:", sorted(list(GATII_DICT[gosa].keys())), key=f"sub_{gosa}")
                     total_base_fee += GATII_DICT[gosa][sub]
-                    final_service_names.append(f"{gosa}({sub})")
+                    details_list.append(f"{gosa}({sub})")
 
-                # 4. Gibira (Kalandara fida)
                 elif gosa in ["Gibira Lafa Qonnaa", "Gibira Kaadaastara Baaxii Gooroo"]:
-                    st.write(f"--- Yeroo {gosa} Filadhu ---")
                     c1, c2, c3 = st.columns(3)
                     g = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key=f"d_{gosa}")
                     j = c2.selectbox("Ji'a", list(MONTHS_OR.keys()), format_func=lambda x: f"{x}-{MONTHS_OR[x]}", key=f"m_{gosa}")
-                    b = c3.selectbox("Waggaa", [str(y) for y in range(2020, 2031)], key=f"y_{gosa}")
+                    b = c3.selectbox("Waggaa", [str(y) for y in range(2020, 2030)], key=f"y_{gosa}")
                     total_base_fee += GATII_DICT[gosa]
-                    final_service_names.append(f"{gosa}({g}/{j}/{b})")
+                    details_list.append(f"{gosa}({g}/{j}/{b})")
 
-                # 5. Kanneen biro idilee
                 else:
                     total_base_fee += GATII_DICT[gosa]
-                    final_service_names.append(gosa)
+                    details_list.append(gosa)
 
         with st.form("entry_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
@@ -132,29 +128,31 @@ else:
             araddaa = col2.text_input("Araddaa")
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
-            extra = st.number_input("Kafaltii Dabalataa (Yoo jiraate)", min_value=0.0)
+            
+            # Jechi "Dabalataa" haqameera, "Kafaltii" qofa
+            extra = st.number_input("Kafaltii Biroo (Yoo jiraate)", min_value=0.0)
             
             final_total = total_base_fee + extra
-            st.markdown(f"<div style='background-color: #f1f8e9; padding: 10px; border-radius: 10px; border: 1px solid #4caf50;'><h3 style='color: #2e7d32; text-align: center;'>💰 Kaffaltii Walii-galaa: {final_total} ETB</h3></div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='background-color: #f1f8e9; padding: 15px; border-radius: 10px; border: 1px solid #4caf50; text-align: center;'><h2 style='color: #2e7d32; margin:0;'>💰 Kafaltii Walii-galaa: {final_total} ETB</h2></div>", unsafe_allow_html=True)
             
             if st.form_submit_button("💾 Galmeessi"):
-                if maqaa and ogeessa and final_service_names:
+                if maqaa and ogeessa and details_list:
                     yeroo_now = datetime.now().strftime('%d/%m/%Y')
-                    service_str = ", ".join(final_service_names)
+                    service_str = ", ".join(details_list)
                     new_row = [yeroo_now, maqaa, araddaa, qaxana, service_str, ogeessa, final_total]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.success(f"✅ {maqaa} - Tajaajila [{service_str}] galmeeffameera!")
-                else: st.error("Maaloo odeeffannoo fi tajaajila guuti!")
+                    st.success(f"✅ Galmeeffameera: {maqaa} | Tajaajila: {service_str}")
+                else: st.error("Maaloo odeeffannoo guutuu barreessi!")
 
     elif menu == "📊 Dashboard":
-        st.header("📊 Dashboard Gabaasaa")
+        st.header("📊 Dashboard")
         st.dataframe(df, use_container_width=True)
-        st.metric("Walitti Qaba Galii (ETB)", f"{df['Kafaltii_Taj'].sum():,.2f}")
+        st.metric("Walitti Qaba Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
 
     elif menu == "🔍 Barbaadi":
         st.header("🔍 Barbaadi")
-        q = st.text_input("Maqaa Abbaa Dhimmaa barreessi...")
+        q = st.text_input("Maqaa barreessi...")
         if q:
             res = df[df['Maqaa'].str.contains(q, case=False, na=False)]
             st.dataframe(res, use_container_width=True)
