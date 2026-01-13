@@ -14,7 +14,7 @@ USERS_FILE = "users.csv"
 # Logoo barbaaduu
 LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
 
-COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj', 'Kafaltii_Wal', 'C1', 'C2', 'C3']
+COL_NAMES = ['Yeroo', 'Maqaa Abbaa Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Taj', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 # ================= SECURITY =================
 def hash_password(pwd):
@@ -23,7 +23,7 @@ def hash_password(pwd):
 # ================= USERS =================
 def load_users():
     if not os.path.exists(USERS_FILE):
-        df = pd.DataFrame([["admin", hash_password("admin123"), "admin"]], columns=["username", "password", "role"])
+        df = pd.DataFrame([["admin", hash_password("123"), "admin"]], columns=["username", "password", "role"])
         df.to_csv(USERS_FILE, index=False)
     return pd.read_csv(USERS_FILE)
 
@@ -145,7 +145,7 @@ else:
             col1, col2 = st.columns(2)
             maqaa = col1.text_input("Maqaa Abbaa Dhimmaa")
             araddaa = col2.text_input("Araddaa")
-            gosa = col1.selectbox("Gosa Tajaajilaa", ["Ittii Fayyaddam", "Kartaa", "Jijjirra Maqaa", "Dangaa", "Mana Murttii", "Liqii Bankii"])
+            gosa = col1.selectbox("Gosa Tajaajilaa", ["Ittii Fayyaddam", "Kartaa", "Jijjirra Maqaa", "Dhimma Dangaa","Dhimma Mana Murtii","Ugura Mana Murtii " "Uguraa Mana Murtii Kasuu", "Dorkka Liqii Bankii","Dorkkaa Liqii Bankii Kasuu"])
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             k_taj = col1.number_input("Kafaltii Tajaajilaa", min_value=0.0)
             k_wal = col2.number_input("Kafaltii Waliigalaa", min_value=0.0)
@@ -230,3 +230,4 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.clear()
         st.rerun()
+
