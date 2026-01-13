@@ -30,7 +30,7 @@ COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii
 
 # GATII_DICT (Gibira bara 2000-2018)
 GATII_DICT = {
-    "Gibira": {str(year): 100.0 for year in range(2000, 2019)}, 
+    "Gibira": {str(year): 100.0 for year in range(2000, 2999)}, 
     "Ittii Fayyaddam": 50.0,
     "Kartaa": 150.0,
     "Jijjirra Maqaa": {"Jijjirraa": 200.0, "Lizii Duraa": 500.0, "TOT": 100.0},
@@ -141,7 +141,7 @@ else:
             qaxana = col1.text_input("Qaxana")
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             
-            extra = st.number_input("Kafaltii Dabalataa", min_value=0.0)
+            extra = st.number_input("Kafaltii", min_value=0.0)
             total_fee = base_fee + extra
             
             st.info(f"💰 Kafaltii Waliigalaa: **{total_fee} ETB**")
@@ -177,3 +177,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
