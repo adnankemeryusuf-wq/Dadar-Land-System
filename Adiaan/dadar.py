@@ -18,10 +18,17 @@ st.markdown("""
     .stApp { background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%); }
     [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; }
-    .rank-1 { background: #fffdf0; border: 2px solid #d4af37; border-radius: 10px; padding: 10px; }
-    .rank-2 { background: #f8f8f8; border: 2px solid #aaa; border-radius: 10px; padding: 10px; }
-    .rank-3 { background: #fff5f0; border: 2px solid #cd7f32; border-radius: 10px; padding: 10px; }
+    
+    /* Medal Style Cards */
+    .award-card {
+        background: white; padding: 25px; border-radius: 20px;
+        text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        border-bottom: 8px solid #2e7d32; transition: 0.3s;
+    }
+    .award-card:hover { transform: translateY(-10px); }
+    .gold { border-color: #D4AF37; }
+    .silver { border-color: #C0C0C0; }
+    .bronze { border-color: #CD7F32; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -29,96 +36,125 @@ st.markdown("""
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
-MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
-
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
     df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
-    df['Waggaa'] = df['Date_Obj'].dt.year
-    df['Ji\'a'] = df['Date_Obj'].dt.month.map(MONTH_MAP)
-    df['Kurmaana'] = df['Date_Obj'].dt.month.apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
     return df
 
-# ================= 3. CERTIFICATE GENERATOR =================
-def create_staff_cert(name, count, rank, logo_file=None):
+def save_data(df_to_save):
+    df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+
+# ================= 3. ORIGINAL CERTIFICATE GENERATOR =================
+def create_original_cert(name, count, rank, logo_file=None):
+    # A4 Landscape (1123 x 794)
     width, height = 1123, 794
     img = Image.new('RGB', (width, height), (255, 255, 255))
     draw = ImageDraw.Draw(img)
 
-    # Halluu akka tartiibaatiin (1st=Gold, 2nd=Silver, 3rd=Bronze)
-    colors = {1: "#d4af37", 2: "#aaa9ad", 3: "#cd7f32"}
-    rank_text = {1: "1FFAA", 2: "2FFAA", 3: "3FFAA"}
-    theme_color = colors.get(rank, "#1b5e20")
+    # Halluuwwan Badhaasaa
+    rank_colors = {1: "#D4AF37", 2: "#95a5a6", 3: "#d35400"}
+    rank_titles = {1: "1ffaa (Gold)", 2: "2ffaa (Silver)", 3: "3ffaa (Bronze)"}
+    main_color = rank_colors.get(rank, "#1b5e20")
 
-    draw.rectangle([20, 20, width-20, height-20], outline=theme_color, width=15)
+    # 1. Border Orjinala (Double Frame)
+    draw.rectangle([20, 20, width-20, height-20], outline=main_color, width=15)
+    draw.rectangle([40, 40, width-40, height-40], outline="#ecf0f1", width=2)
     
+    # 2. Logo / Medal Icon Place
     if logo_file:
-        logo = Image.open(logo_file).convert("RGBA").resize((120, 120))
-        img.paste(logo, (width//2 - 60, 50), logo)
+        logo = Image.open(logo_file).convert("RGBA").resize((130, 130))
+        img.paste(logo, (width//2 - 65, 60), logo)
 
+    # 3. Fonts (Loading System Fonts)
     try:
-        f_big = ImageFont.truetype("arial.ttf", 60)
-        f_med = ImageFont.truetype("arial.ttf", 35)
+        f_title = ImageFont.truetype("arial.ttf", 70)
+        f_sub = ImageFont.truetype("arial.ttf", 35)
+        f_name = ImageFont.truetype("arial.ttf", 55)
     except:
-        f_big = ImageFont.load_default()
-        f_med = ImageFont.load_default()
+        f_title = ImageFont.load_default()
+        f_sub = ImageFont.load_default()
+        f_name = ImageFont.load_default()
 
-    draw.text((width//2, 220), "BADHAASA OGEESSA CIMAA", fill=theme_color, font=f_big, anchor="mm")
-    draw.text((width//2, 290), f"TARTEE {rank_text[rank]}", fill=theme_color, font=f_med, anchor="mm")
-    draw.text((width//2, 400), name.upper(), fill="#333", font=f_big, anchor="mm")
+    # 4. Barreeffama Saratifiketaa
+    draw.text((width//2, 230), "WARAQAA RAGAA BADHAASAA", fill=main_color, font=f_title, anchor="mm")
+    draw.text((width//2, 300), f"Ogeessa Cimaa Tartiiba {rank_titles[rank]}", fill="#7f8c8d", font=f_sub, anchor="mm")
     
-    msg = f"Waggaa kana keessatti tajaajilamtoota {count} tajaajiluun\nogeessa cimaa ta'uu keessaniif ragaan kun kennameera."
-    draw.text((width//2, 520), msg, fill="#555", font=f_med, anchor="mm", align="center")
+    draw.text((width//2, 380), "Ragaan kun kabajaa fi nishaanidhaan kan kennameef:", fill="#34495e", font=f_sub, anchor="mm")
+    draw.text((width//2, 460), name.upper(), fill="#2c3e50", font=f_name, anchor="mm")
     
+    msg = f"Waggaa tajaajilaa 2026 keessatti tajaajilamtoota {count} tajaajiluun\nbu'aa olaanaa galmeessisuu keessaniif ragaan kun kennameera."
+    draw.text((width//2, 560), msg, fill="#5d6d7e", font=f_sub, anchor="mm", align="center")
+
+    # 5. Bottom Signatures
+    draw.line([150, 700, 400, 700], fill="black", width=2)
+    draw.text((275, 715), "Guyyaa", font=f_sub, fill="black", anchor="mm")
+    
+    draw.line([723, 700, 973, 700], fill="black", width=2)
+    draw.text((848, 715), "Mallattoo Hoogganaa", font=f_sub, fill="black", anchor="mm")
+
     return img
 
-# ================= 4. APP INTERFACE =================
+# ================= 4. MAIN APP =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    # Login Simplified
-    u = st.text_input("Username")
-    p = st.text_input("Password", type="password")
-    if st.button("Seeni"):
-        if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
+    _, col_log, _ = st.columns([1, 1, 1])
+    with col_log:
+        st.title("🔐 Login")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.button("SEENI"):
+            if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
 else:
     df = load_data()
-    menu = st.sidebar.radio("MENU", ["📊 Dashboard", "📈 Ogeeyyii Cimaa", "🚪 Ba'i"])
+    with st.sidebar:
+        st.title("🏢 DADAR LAND")
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "🚪 Ba'i"])
 
     if menu == "📊 Dashboard":
-        st.title("🏢 Dadar Land Dashboard")
-        st.write(f"Waliigala Galii: **{df['Kafaltii_Taj'].sum():,.2f} ETB**")
-        st.dataframe(df.tail(10), use_container_width=True)
+        st.header("📊 Dashboard")
+        c1, c2 = st.columns(2)
+        c1.metric("Waliigala Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+        c2.metric("Tajaajilamtoota", len(df))
+        st.area_chart(df.groupby('Maqaa_Ogeessa')['Kafaltii_Taj'].sum())
 
-    elif menu == "📈 Ogeeyyii Cimaa":
-        st.header("🏆 Badhaasa Ogeeyyii Cimaa Waggaa")
-        
+    elif menu == "🏆 Badhaasa Ogeeyyii":
+        st.header("🏆 Badhaasa Ogeessa Cimaa Waggaa")
         if not df.empty:
-            # Logo upload
-            user_logo = st.file_uploader("Logo Mana Hojii Galchi", type=["png", "jpg"])
+            st.info("Logo mana hojii ykn Nishaan (Medal) filadhu")
+            u_logo = st.file_uploader("Logo Galchi", type=["png", "jpg"])
             
-            # Tartiba Ogeeyyii
-            ranking = df['Maqaa_Ogeessa'].value_counts().head(3)
+            # Ranking Logic
+            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
             
             cols = st.columns(3)
-            for i, (name, count) in enumerate(ranking.items(), 1):
-                with cols[i-1]:
-                    st.markdown(f"<div class='rank-{i}'>", unsafe_allow_html=True)
-                    st.markdown(f"### 🥇 {i}. {name}")
-                    st.write(f"Tajaajilamtoota: **{count}**")
+            ranks = ["gold", "silver", "bronze"]
+            medals = ["🥇", "🥈", "🥉"]
+
+            for i, (name, count) in enumerate(top_3.items()):
+                with cols[i]:
+                    st.markdown(f"""
+                        <div class="award-card {ranks[i]}">
+                            <h1 style='font-size: 50px;'>{medals[i]}</h1>
+                            <h3>{name}</h3>
+                            <p>Abbaa Dhimmaa: <b>{count}</b></p>
+                        </div>
+                    """, unsafe_allow_html=True)
                     
-                    if st.button(f"Saratifikeeta {i}ffaa", key=f"btn_{i}"):
-                        cert = create_staff_cert(name, count, i, user_logo)
-                        st.image(cert, use_container_width=True)
+                    if st.button(f"Hojjedhu ({i+1}ffaa)", key=f"btn_{i}"):
+                        cert_img = create_original_cert(name, count, i+1, u_logo)
+                        st.image(cert_img, use_container_width=True)
                         
                         buf = io.BytesIO()
-                        cert.save(buf, format="PNG")
-                        st.download_button(f"📥 Download {i}ffaa", buf.getvalue(), f"Rank_{i}_{name}.png", "image/png")
-                    st.markdown("</div>", unsafe_allow_html=True)
+                        cert_img.save(buf, format="PNG")
+                        st.download_button(f"📥 Download Cert {i+1}", buf.getvalue(), f"Award_{name}.png", "image/png")
         else:
             st.warning("Data'n hin jiru.")
+
+    elif menu == "📝 Galmee Haaraa":
+        # ... (Kutaa galmee isa duraa hunda asitti ni dabalama)
+        st.write("Galmee haaraa asitti guuti...")
 
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
