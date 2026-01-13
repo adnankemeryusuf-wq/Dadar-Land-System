@@ -14,45 +14,27 @@ st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="
 
 st.markdown("""
     <style>
-    /* Background waliigalaa */
     .stApp { background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%); }
     [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
     
-    /* Login Box Design */
+    /* Login Box Styling */
     .login-box {
         background-color: white;
         padding: 40px;
         border-radius: 15px;
         border: 2px solid #2e7d32;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        max-width: 450px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        max-width: 400px;
         margin: auto;
     }
 
-    /* Dashboard Metric Cards */
-    .metric-card {
-        background: white;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        text-align: center;
-        border-top: 5px solid #2e7d32;
-        margin-bottom: 10px;
-    }
-
     div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; }
-    
-    /* Buttons */
-    .stButton>button { 
-        background: linear-gradient(90deg, #4caf50, #2e7d32); 
-        color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; 
-        border: none;
-    }
+    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATA MANAGEMENT =================
+# ================= 2. DATA LOAD/SAVE =================
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
@@ -92,39 +74,47 @@ def send_to_telegram(file_data, file_name, caption):
     try: return requests.post(url, files=files, data=data).status_code == 200
     except: return False
 
-# ================= 3. LOGIN INTERFACE =================
+# ================= 3. LOGIN & MAIN APP =================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
+# --- Bakka Username fi Password itti galu ---
 if not st.session_state.logged_in:
-    st.markdown("<br><br><br>", unsafe_allow_html=True)
+    st.markdown("<br><br>", unsafe_allow_html=True)
     _, col_mid, _ = st.columns([1, 1.5, 1])
     
     with col_mid:
-        st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align: center; color: #1b5e20;'>🏢 Dadar Land System</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: #666;'>Gara sirnaatti seenuuf login godhaa</p>", unsafe_allow_html=True)
-        u_input = st.text_input("Username", placeholder="Maqaa kee galchi")
-        p_input = st.text_input("Password", type="password", placeholder="Password kee galchi")
+        st.markdown("""
+            <div style="text-align: center;">
+                <h1 style="color: #1b5e20;">🏢 Dadar Land System</h1>
+                <p style="color: #666;">Maaloo seenuuf odeeffannoo kee galchi</p>
+            </div>
+        """, unsafe_allow_html=True)
         
-        if st.button("SEENI"):
-            if u_input == "admin" and p_input == "123":
-                st.session_state.logged_in = True
-                st.rerun()
-            else:
-                st.error("Username ykn Password dogoggora!")
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container():
+            st.markdown('<div class="login-box">', unsafe_allow_html=True)
+            username = st.text_input("👤 Username", placeholder="Maqaa kee asitti galchi")
+            password = st.text_input("🔑 Password", type="password", placeholder="Password asitti galchi")
+            
+            if st.button("SEENI (LOGIN)"):
+                if username == "admin" and password == "123":
+                    st.session_state.logged_in = True
+                    st.success("✅ Gara sirnaatti nagaala seenaniiru!")
+                    st.rerun()
+                else:
+                    st.error("❌ Username ykn Password dogoggora!")
+            st.markdown('</div>', unsafe_allow_html=True)
 
-# ================= 4. MAIN APPLICATION =================
+# --- APP KEESSA (Yoo Login Ta'e) ---
 else:
     with st.sidebar:
-        st.markdown("### 🏢 DADAR LAND")
-        st.write(f"User: **admin**")
-        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi/Edit", "🚪 Ba'i"])
+        st.markdown("### 🏢 DADAR LAND SYSTEM")
+        st.write(f"Logged in as: **admin**")
+        menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi/Edit", "🚪 Ba'i"])
 
     df = load_data()
 
-    # --- 1. DASHBOARD BAREEDAA ---
+    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
         st.markdown("<h1 style='text-align: center; color: #1b5e20;'>📊 Dashboard Waliigalaa</h1>", unsafe_allow_html=True)
         if not df.empty:
@@ -132,32 +122,29 @@ else:
             t_clients = len(df)
             avg_inc = t_income / t_clients if t_clients > 0 else 0
 
-            # Metric Cards
+            # Cards
             c1, c2, c3 = st.columns(3)
-            with c1: st.markdown(f'<div class="metric-card"><p style="color:#666;margin:0;">WALIIGALA GALII</p><h2 style="color:#2e7d32;margin:0;">{t_income:,.2f} ETB</h2></div>', unsafe_allow_html=True)
-            with c2: st.markdown(f'<div class="metric-card"><p style="color:#666;margin:0;">TAJAAJILAMTOOTA</p><h2 style="color:#2e7d32;margin:0;">{t_clients}</h2></div>', unsafe_allow_html=True)
-            with c3: st.markdown(f'<div class="metric-card"><p style="color:#666;margin:0;">GIDDU-GALEESSA</p><h2 style="color:#2e7d32;margin:0;">{avg_inc:,.2f} ETB</h2></div>', unsafe_allow_html=True)
+            c1.metric("💰 WALIIGALA GALII", f"{t_income:,.2f} ETB")
+            c2.metric("👥 TAJAAJILAMTOOTA", f"{t_clients}")
+            c3.metric("📈 GIDDU-GALEESSA", f"{avg_inc:,.2f} ETB")
 
             st.divider()
-            
             col_l, col_r = st.columns([2, 1])
             with col_l:
                 st.markdown("### 📈 Hiikkaa Galii Ji'aan")
                 chart_data = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
                 st.area_chart(chart_data, color="#2e7d32")
-                
-
             with col_r:
                 st.markdown("### 🔝 Gosa Tajaajilaa")
-                top_s = df['Gosa_Tajajjilaa'].str.split(',').explode().str.strip().value_counts().head(5)
-                st.bar_chart(top_s)
+                top_services = df['Gosa_Tajajjilaa'].str.split(',').explode().str.strip().value_counts().head(5)
+                st.bar_chart(top_services)
         else:
-            st.info("Odeeffannoon Dashboard irratti mul'atu hin jiru. Maaloo dura galmeessaa.")
+            st.info("Data'n Dashboard irratti mul'atu hin jiru.")
 
-    # --- 2. GALMEE HAARAA ---
+    # --- GALMEE HAARAA ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa", list(GATII_DICT.keys()))
         details, d_fees, is_tot = [], {}, False
         
         if selected_main:
@@ -170,23 +157,23 @@ else:
         
         with st.form("entry", clear_on_submit=True):
             if is_tot:
-                col1, col2 = st.columns(2)
-                maqaa_f = f"G: {col1.text_input('Maqaa Gurguraa')} / B: {col2.text_input('Maqaa Bitataa')}"
-                ara_f = f"G: {col1.text_input('Araddaa (G)')} / B: {col2.text_input('Araddaa (B)')}"
-                qax_f = f"G: {col1.text_input('Qaxana (G)')} / B: {col2.text_input('Qaxana (B)')}"
+                c1, c2 = st.columns(2)
+                maqaa_f = f"G: {c1.text_input('Maqaa Gurguraa')} / B: {c2.text_input('Maqaa Bitataa')}"
+                ara_f = f"G: {c1.text_input('Araddaa (G)')} / B: {c2.text_input('Araddaa (B)')}"
+                qax_f = f"G: {c1.text_input('Qaxana (G)')} / B: {c2.text_input('Qaxana (B)')}"
             else:
                 c1, c2 = st.columns(2)
                 maqaa_f, ara_f, qax_f = c1.text_input("Maqaa Abbaa Dhimmaa"), c2.text_input("Araddaa"), c1.text_input("Qaxana")
             
             ogeessa = st.text_input("Maqaa Ogeessaa")
-            if st.form_submit_button("💾 GALMEESSI"):
+            if st.form_submit_button("💾 Galmeessi"):
                 if maqaa_f and details:
                     new = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values())]
                     df = pd.concat([df, pd.DataFrame([new], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("✅ Galmeeffameera!")
-                else: st.error("Maaloo odeeffannoo guuti!")
+                    save_data(df); st.success("Galmeeffameera!")
+                else: st.error("Maaloo guuti!")
 
-    # --- 3. GABAASA BAL'AA ---
+    # --- GABAASA ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa Calalame")
         if not df.empty:
@@ -203,31 +190,27 @@ else:
             
             buf = io.BytesIO()
             with pd.ExcelWriter(buf, engine='xlsxwriter') as wr: filtered[COL_NAMES].to_excel(wr, index=False)
-            
-            c1, c2 = st.columns(2)
-            c1.download_button("📥 Excel Download", buf.getvalue(), f"Gabaasa_{datetime.now().date()}.xlsx")
-            if c2.button("✈️ Telegram-itti Ergi"):
-                if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", f"💰 Gabaasa Galii: {t_f} ETB"): st.success("✅ Ergameera!")
+            if st.button("✈️ Telegram-itti Ergi"):
+                if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", f"Gabaasa: {t_f} ETB"): st.success("Ergameera!")
         else: st.info("Data'n hin jiru.")
 
-    # --- 4. SEARCH / EDIT / DELETE ---
+    # --- EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
-        st.header("🔍 Barbaadi ykn Fooyyessi")
         q = st.text_input("Maqaa Barbaadi...")
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             for idx, row in res.iterrows():
-                with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} ({row['Guyyaa']})"):
+                with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']}"):
                     ce1, ce2 = st.columns(2)
                     up_name = ce1.text_input("Maqaa", row['Maqaa_Abbaa_Dhimmaa'], key=f"n_{idx}")
                     up_fee = ce2.number_input("Kafaltii", float(row['Kafaltii_Taj']), key=f"f_{idx}")
-                    if st.button("💾 Save Changes", key=f"s_{idx}"):
+                    if st.button("💾 Save", key=f"s_{idx}"):
                         df.at[idx, 'Maqaa_Abbaa_Dhimmaa'], df.at[idx, 'Kafaltii_Taj'] = up_name, up_fee
-                        save_data(df); st.success("✅ Fooyyeffameera!"); st.rerun()
-                    if st.button("🗑️ Galmee Kana Haqi", key=f"d_{idx}"):
+                        save_data(df); st.success("Fooyyeffameera!"); st.rerun()
+                    if st.button("🗑️ Haqi", key=f"d_{idx}"):
                         df = df.drop(idx); save_data(df); st.rerun()
 
-    # --- 5. LOGOUT ---
+    # --- EXIT ---
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
