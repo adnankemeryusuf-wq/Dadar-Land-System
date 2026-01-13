@@ -170,7 +170,7 @@ else:
                     st.subheader(f"Sirreessu: {selected_name}")
                     e_maqaa = st.text_input("Maqaa", value=df.at[idx, 'Maqaa'])
                     e_araddaa = st.text_input("Araddaa", value=df.at[idx, 'Araddaa'])
-                    e_qaxana = st.text_input("Ogeessa", value=df.at[idx, 'Qaxana'])
+                    e_qaxana = st.text_input("Qaxana", value=df.at[idx, 'Qaxana'])
                      e_ogeessa = st.text_input("Ogeessa", value=df.at[idx, 'Ogeessa'])
                     e_k_wal = st.number_input("Kafaltii", value=float(df.at[idx, 'Kafaltii_Wal']))
                     
@@ -231,5 +231,6 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.clear()
         st.rerun()
+
 
 
