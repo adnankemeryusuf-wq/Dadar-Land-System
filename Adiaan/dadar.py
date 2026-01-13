@@ -7,8 +7,16 @@ from datetime import datetime
 from fpdf import FPDF
 
 # --- 1. QINDAYYII BU'URAA ---
-st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
+# Fuula Login irratti
+if not st.session_state.logged_in:
+    if LOGO_PATH: st.image(LOGO_PATH, width=150) # Logo Gubbaa Login
+    st.title("Dadar Land Admin")
+    # ... form login ...
 
+# Sidebar irratti
+with st.sidebar:
+    if LOGO_PATH: st.image(LOGO_PATH, width=120) # Logo Gubbaa Menu
+    st.title("Admin Menu")
 USER_NAME = "Lafa"
 PASS_WORD = "1234"
 DATA_FILE = "dadar_final_report.txt"
@@ -244,4 +252,5 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
