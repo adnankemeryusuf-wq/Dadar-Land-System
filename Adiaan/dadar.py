@@ -46,7 +46,43 @@ GATII_DICT = {
     "Dorkka Liqii Bankii": 100.0,
     "Dorkkaa Liqii Bankii Kasuu": 100.0
 }
+elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Tajaajilaa")
+        with st.form("entry_form", clear_on_submit=True):
+            col1, col2 = st.columns(2)
+            maqaa = col1.text_input("Maqaa Abbaa Dhimmaa")
+            araddaa = col2.text_input("Araddaa")
+            qaxana = col1.text_input("Qaxana")
+            ogeessa = col1.text_input("Maqaa Ogeessaa")
+            
+            # Gosa Tajaajilaa Filachuu
+            gosa = col2.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
+            
+            # Kaffaltii ofumaan herregu
+            if gosa == "Jijjirra Maqaa":
+                # Kaffaltii sadii walitti ida'a
+                k_jijjirra = GATII_DICT["Jijjirra Maqaa"]["Kafaltii Jijjirraa Maqaa"]
+                k_lizii = GATII_DICT["Jijjirra Maqaa"]["Kafaltii Lizii Duraa"]
+                k_tot = GATII_DICT["Jijjirra Maqaa"]["Kafaltii TOT"]
+                base_fee = k_jijjirra + k_lizii + k_tot
+                st.warning(f"Jijjirra Maqaa: Jijjirra({k_jijjirra}) + Lizii({k_lizii}) + TOT({k_tot})")
+            else:
+                base_fee = GATII_DICT[gosa]
 
+            # Kaffaltii dabalataa yoo jiraate
+            add_fee = st.number_input("Kafaltii Dabalataa (Penalty/Other)", min_value=0.0, value=0.0)
+            
+            total_fee = base_fee + add_fee
+            st.info(f"💰 Kafaltii Waliigalaa: **{total_fee} ETB**")
+            
+            if st.form_submit_button("💾 Galmeessi", use_container_width=True):
+                if maqaa and ogeessa:
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, total_fee]
+                    df.loc[len(df)] = new_row
+                    save_data(df)
+                    st.success("✅ Galmeeffameera!")
+                else:
+                    st.error("Maqaa fi Ogeessa guuti!")
 # ================= 3. FUNCTIONS =================
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
@@ -206,3 +242,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
