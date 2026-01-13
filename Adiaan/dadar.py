@@ -37,10 +37,10 @@ MONTHS_OR = {
     "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
-# "Mhumnaa Madisaa" haqameera.
+# GATII_DICT: Filannoowwan haaraa dabalatee
 GATII_DICT = {
-    "Dhimma Dangaa": 100.0,
-    "Dhimma Mana Murtii": 0.0, 
+    "Dhimma Dangaa": {"Kafaltii Itti Fayyadamaa": 100.0, "Kafaltii Biroo": 0.0},
+    "Dhimma Mana Murtii": {"Kafaltii Itti Fayyadamaa": 50.0, "Kafaltii Biroo": 0.0}, 
     "Dorkka Liqii Bankii": 100.0, 
     "Dorkkaa Liqii Bankii Kasuu": 100.0,
     "Gibira Kaadaastara Baaxii Gooroo": 300.0,
@@ -85,22 +85,31 @@ else:
     if menu == "📝 Galmee Haaraa":
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         
-        # Tartiiba Qubee (A-Z)
         main_options = sorted(list(GATII_DICT.keys())) + ["Kan Biroo"]
         gosa_main = st.selectbox("Gosa Tajaajilaa Filadhu", main_options)
         
         base_fee = 0.0
         gosa_galmeeffamu = gosa_main
 
+        # --- Dhimma Dangaa (Sub-menu) ---
         if gosa_main == "Dhimma Dangaa":
-            base_fee = GATII_DICT["Dhimma Dangaa"]
-            gosa_galmeeffamu = "Dhimma Dangaa (Kafaltii Tajaajilaa)"
+            sub_dangaa = st.radio("Dhimma Dangaa Keessaa Filadhu:", sorted(list(GATII_DICT["Dhimma Dangaa"].keys())))
+            base_fee = GATII_DICT["Dhimma Dangaa"][sub_dangaa]
+            gosa_galmeeffamu = f"Dhimma Dangaa ({sub_dangaa})"
 
+        # --- Dhimma Mana Murtii (Sub-menu) ---
+        elif gosa_main == "Dhimma Mana Murtii":
+            sub_murtii = st.radio("Dhimma Mana Murtii Keessaa Filadhu:", sorted(list(GATII_DICT["Dhimma Mana Murtii"].keys())))
+            base_fee = GATII_DICT["Dhimma Mana Murtii"][sub_murtii]
+            gosa_galmeeffamu = f"Dhimma Mana Murtii ({sub_murtii})"
+
+        # --- Liizii ---
         elif gosa_main == "Liizii":
             sub_gosa = st.radio("Liizii Keessaa Filadhu:", sorted(list(GATII_DICT["Liizii"].keys())))
             base_fee = GATII_DICT["Liizii"][sub_gosa]
             gosa_galmeeffamu = f"Liizii ({sub_gosa})"
 
+        # --- Gibira Lafa Qonnaa ---
         elif gosa_main == "Gibira Lafa Qonnaa":
             c1, c2, c3 = st.columns(3)
             guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key="q_guy")
@@ -110,6 +119,7 @@ else:
             base_fee = GATII_DICT["Gibira Lafa Qonnaa"]
             gosa_galmeeffamu = f"Gibira Lafa Qonnaa ({yeroo_gibiraa})"
 
+        # --- Gibira Kaadaastara Baaxii Gooroo ---
         elif gosa_main == "Gibira Kaadaastara Baaxii Gooroo":
             c1, c2, c3 = st.columns(3)
             guyyaa = c1.selectbox("Guyyaa", [f"{i:02d}" for i in range(1, 31)], key="k_guy")
