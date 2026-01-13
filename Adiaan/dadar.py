@@ -23,7 +23,6 @@ st.markdown("""
     .stButton>button { border-radius: 8px; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
-
 # ================= 2. DATA SETTINGS =================
 DATA_FILE = "dadar_final_report.txt"
 # Telegram API Credentials (Asitti galchi)
@@ -167,4 +166,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
