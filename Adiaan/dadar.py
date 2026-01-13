@@ -4,10 +4,14 @@ import os
 import requests
 from datetime import datetime
 from fpdf import FPDF
+from PIL import Image
 import io
 
 # ================= 1. CONFIG & STYLING =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
+
+# Logo Path
+LOGO_PATH = "logo.png"
 
 st.markdown("""
     <style>
@@ -24,22 +28,16 @@ st.markdown("""
 
 # ================= 2. DATA SETTINGS =================
 DATA_FILE = "dadar_final_report.txt"
-# Telegram Credentials - TOKEN fi ID kee asitti galchi
 TELEGRAM_TOKEN = "7864321234:AAH_F_XXXXXXXXXXXXX" 
 TELEGRAM_CHAT_ID = "123456789"
 
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
-# Gosa Tajaajilaa fi Herrega Kaffaltii
 GATII_DICT = {
     "Gibira Bara Kanaa": 100.0,
     "Ittii Fayyaddam": 50.0,
     "Kartaa": 150.0,
-    "Jijjirra Maqaa": {
-        "Jijjirraa": 200.0,
-        "Lizii Duraa": 500.0,
-        "TOT": 100.0
-    },
+    "Jijjirra Maqaa": {"Jijjirraa": 200.0, "Lizii Duraa": 500.0, "TOT": 100.0},
     "Dhimma Dangaa": 100.0,
     "Dhimma Mana Murtii": 0.0,
     "Ugura Mana Murtii": 50.0,
@@ -52,10 +50,7 @@ GATII_DICT = {
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
-    try:
-        return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    except:
-        return pd.DataFrame(columns=COL_NAMES)
+    return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
 
 def save_data(df):
     df.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
@@ -66,14 +61,20 @@ def send_to_telegram(file_path, caption):
         with open(file_path, "rb") as file:
             requests.post(url, data={"chat_id": TELEGRAM_CHAT_ID, "caption": caption}, files={"document": file})
             return True
-    except:
-        return False
+    except: return False
 
 def generate_certificate(expert_name):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
+    # Border
     pdf.set_line_width(3); pdf.set_draw_color(184, 134, 11); pdf.rect(10, 10, 277, 190) 
-    pdf.ln(30); pdf.set_font('Arial', 'B', 40); pdf.set_text_color(30, 64, 175)
+    
+    # Logo on Certificate
+    if os.path.exists(LOGO_PATH):
+        pdf.image(LOGO_PATH, x=135, y=15, w=30)
+    
+    pdf.ln(40)
+    pdf.set_font('Arial', 'B', 40); pdf.set_text_color(30, 64, 175)
     pdf.cell(0, 20, "SARTIIFIKEETA BEEKAMTII", ln=True, align='C')
     pdf.ln(10); pdf.set_font('Arial', 'B', 30); pdf.set_text_color(185, 28, 28)
     pdf.cell(0, 20, f"Obbo/Adde: {expert_name.upper()}", ln=True, align='C')
@@ -86,9 +87,11 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.2, 1])
+    _, col_mid, _ = st.columns([1, 1, 1])
     with col_mid:
-        st.markdown("<h1 style='text-align: center; color: #1e3a8a;'>🏢 Dadar Land Admin</h1>", unsafe_allow_html=True)
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=150)
+        st.markdown("<h2 style='text-align: center;'>Dadar Land Admin</h2>", unsafe_allow_html=True)
         with st.form("login_form"):
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
@@ -97,33 +100,29 @@ if not st.session_state.logged_in:
                     st.session_state.logged_in = True
                     st.session_state.user = u
                     st.rerun()
-                else:
-                    st.error("Dogoggora!")
+                else: st.error("Dogoggora!")
 else:
+    # --- SIDEBAR WITH LOGO ---
     with st.sidebar:
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=100)
         st.markdown(f"### 👤 {st.session_state.user}")
         st.divider()
         menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi & Sirreessi", "📤 Gabaasa Ergi", "🏆 Sartiifiketa", "Ba'i"])
 
     df = load_data()
 
-    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
-        st.header("📊 Gabaasa Dashboard")
+        st.header("📊 Dashboard")
         c1, c2, c3 = st.columns(3)
-        c1.metric("Baay'ina Tajaajilaa", len(df))
-        if not df.empty:
-            total_money = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum()
-        else:
-            total_money = 0
-        c2.metric("Kafaltii Waliigalaa", f"{total_money} ETB")
-        c3.metric("Ogeessota", len(df['Ogeessa'].unique()) if not df.empty else 0)
+        c1.metric("Baay'ina", len(df))
+        total = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum() if not df.empty else 0
+        c2.metric("Waliigala (ETB)", f"{total}")
         st.divider()
         st.dataframe(df, use_container_width=True)
 
-    # --- GALMEE HAARAA ---
     elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa Haaraa")
+        st.header("📝 Galmee Tajaajilaa")
         
         with st.form("entry_form", clear_on_submit=True):
             col1, col2 = st.columns(2)
@@ -133,64 +132,47 @@ else:
             ogeessa = col1.text_input("Maqaa Ogeessaa")
             gosa = col2.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
             
-            # Herrega Jijjirraa Maqaa (Breakdown)
             if gosa == "Jijjirra Maqaa":
                 d = GATII_DICT["Jijjirra Maqaa"]
                 base_fee = d["Jijjirraa"] + d["Lizii Duraa"] + d["TOT"]
-                st.warning(f"Breakdown: Jijjirraa({d['Jijjirraa']}) + Lizii({d['Lizii Duraa']}) + TOT({d['TOT']}) = {base_fee} ETB")
+                st.warning(f"💡 Breakdown: Jijjirraa({d['Jijjirraa']}) + Lizii({d['Lizii Duraa']}) + TOT({d['TOT']}) = {base_fee}")
             else:
                 base_fee = GATII_DICT[gosa]
 
-            extra = st.number_input("Kafaltii Dabalataa (yoo jiraate)", min_value=0.0)
-            total_fee = base_fee + extra
-            st.info(f"💰 Kafaltii Waliigalaa: **{total_fee} ETB**")
+            total_fee = base_fee + st.number_input("Kafaltii Dabalataa", min_value=0.0)
+            st.info(f"💰 Waliigala: {total_fee} ETB")
             
             if st.form_submit_button("💾 Galmeessi"):
-                if maqaa and ogeessa:
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, total_fee]
-                    df.loc[len(df)] = new_row
-                    save_data(df)
-                    st.success("Galmeeffameera!")
-                else:
-                    st.error("Maqaa fi Ogeessa guuti!")
+                new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, total_fee]
+                df.loc[len(df)] = new_row
+                save_data(df); st.success("✅ Galmeeffameera!")
 
-    # --- BARBAADI & SIRREESSI ---
     elif menu == "🔍 Barbaadi & Sirreessi":
-        st.header("🔍 Barbaadi ykn Sirreessi")
-        q = st.text_input("Maqaa barreessi...")
+        st.header("🔍 Barbaadi & Sirreessi")
+        q = st.text_input("Maqaa...")
         if not df.empty:
             search = df[df['Maqaa'].str.contains(q, case=False, na=False)]
             for idx, row in search.iterrows():
-                with st.expander(f"👤 {row['Maqaa']} - {row['Gosa']}"):
+                with st.expander(f"👤 {row['Maqaa']}"):
                     n_maqaa = st.text_input("Maqaa", row['Maqaa'], key=f"n_{idx}")
-                    if st.button("💾 Save", key=f"s_{idx}"):
+                    if st.button("Save", key=f"s_{idx}"):
                         df.at[idx, 'Maqaa'] = n_maqaa
                         save_data(df); st.rerun()
-                    if st.button("🗑 Delete", key=f"d_{idx}"):
-                        df = df.drop(idx); save_data(df); st.rerun()
 
-    # --- GABAASA ERGI ---
     elif menu == "📤 Gabaasa Ergi":
-        st.header("📤 Gabaasa Telegram-itti Ergi")
-        if not df.empty:
-            if st.button("📤 Excel Gara Telegram Ergi"):
-                file_name = "Gabaasa_Dadar.xlsx"
-                df.to_excel(file_name, index=False)
-                if send_to_telegram(file_name, f"Gabaasa Guyyaa: {datetime.now().strftime('%d/%m/%Y')}"):
-                    st.success("Excel Telegram-itti ergameera!")
-        else:
-            st.warning("Data'n hin jiru.")
+        st.header("📤 Telegram-itti Ergi")
+        if st.button("📤 Excel Ergi"):
+            file_name = "Gabaasa_Dadar.xlsx"
+            df.to_excel(file_name, index=False)
+            send_to_telegram(file_name, "Gabaasa Dadar"); st.success("Ergameera!")
 
-    # --- SARTIIFIKETA ---
     elif menu == "🏆 Sartiifiketa":
-        st.header("🏆 Sartiifiketa Beekamtii")
+        st.header("🏆 Sartiifiketa")
         if not df.empty:
-            og = st.selectbox("Ogeessa Filadhu", df['Ogeessa'].unique())
+            og = st.selectbox("Ogeessa", df['Ogeessa'].unique())
             if st.button("📜 PDF Qopheessi"):
-                pdf_bytes = generate_certificate(og)
-                st.download_button("📥 Buufadhu (PDF)", pdf_bytes, f"Sartii_{og}.pdf", "application/pdf")
+                pdf = generate_certificate(og)
+                st.download_button("📥 Buufadhu", pdf, f"Sartii_{og}.pdf")
 
-    # --- BA'I ---
     elif menu == "Ba'i":
-        st.session_state.logged_in = False
-        st.rerun()
+        st.session_state.logged_in = False; st.rerun()
