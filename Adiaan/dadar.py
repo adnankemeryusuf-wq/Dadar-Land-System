@@ -4,14 +4,14 @@ import os
 from datetime import datetime
 from fpdf import FPDF
 
-# ================= 1. CONFIG & STYLING (HALLUU MAGARIISAA) =================
+# ================= 1. CONFIG & STYLING =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
 LOGO_PATH = "logo.png" 
 
 st.markdown("""
     <style>
-    /* Background Magariisa Lallaafaa (Soft Green Gradient) */
+    /* Background Magariisa Lallaafaa */
     .stApp {
         background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
     }
@@ -19,32 +19,25 @@ st.markdown("""
     /* Sidebar bifa magariisa dukkanaawaa */
     [data-testid="stSidebar"] {
         background-color: #1b5e20 !important;
-        border-right: 1px solid #2e7d32;
     }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
 
-    /* Sanduuqa (Glassmorphism Effect) */
+    /* Sanduuqa Glassmorphism */
     div.stForm, div[data-testid="metric-container"] {
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(10px);
         border-radius: 15px;
         padding: 25px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    /* Button magariisa ifaa */
+    /* Button magariisa */
     .stButton>button {
         background: linear-gradient(90deg, #4caf50, #2e7d32);
         color: white;
         border-radius: 8px;
-        border: none;
         font-weight: bold;
         height: 3.5em;
-    }
-    .stButton>button:hover {
-        background: linear-gradient(90deg, #2e7d32, #1b5e20);
-        color: white;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -99,7 +92,7 @@ else:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
         st.markdown(f"### 👤 {st.session_state.user}")
         st.divider()
-        menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "🏆 Sartiifiketa", "Ba'i"])
+        menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "Ba'i"])
 
     df = load_data()
 
@@ -107,12 +100,15 @@ else:
         st.markdown("<h2 style='color: #2e7d32;'>📊 Dashboard</h2>", unsafe_allow_html=True)
         c1, c2 = st.columns(2)
         c1.metric("Baay'ina", len(df))
-        total = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum() if not df.empty else 0
-        c2.metric("Waliigala (ETB)", f"{total} ETB")
+        total_money = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum() if not df.empty else 0
+        # Jechi "Kafaltii Waliigalaa" jedhu metric irraas haqameera
+        c2.metric("Waliigala Galii", f"{total_money} ETB")
+        st.divider()
         st.dataframe(df, use_container_width=True)
 
     elif menu == "📝 Galmee Haaraa":
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Haaraa</h2>", unsafe_allow_html=True)
+        
         gosa = st.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
         
         base_fee = 0.0
@@ -133,7 +129,9 @@ else:
             ogeessa = col2.text_input("Maqaa Ogeessaa")
             extra = st.number_input("Kafaltii Dabalataa", min_value=0.0)
             
-            st.info(f"💰 Kafaltii Waliigalaa: {base_fee + extra} ETB")
+            # Asirratti jechi "Kafaltii Waliigalaa" jedhu haqamee herrega qofatu mul'ata
+            st.markdown(f"<h3 style='color: #2e7d32; text-align: center;'>💰 {base_fee + extra} ETB</h3>", unsafe_allow_html=True)
+            
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and ogeessa:
                     new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, base_fee + extra]
