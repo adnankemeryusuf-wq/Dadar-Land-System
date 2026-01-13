@@ -11,6 +11,14 @@ st.markdown("""
     .stApp { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
     [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
+    
+    /* Gosa Tajaajilaa Filadhu Styling (Magariisa) */
+    div[data-baseweb="multiselect"] {
+        border: 2px solid #2e7d32 !important;
+        border-radius: 10px !important;
+        background-color: #f1f8e9 !important;
+    }
+    
     div.stForm {
         background: rgba(255, 255, 255, 0.85);
         backdrop-filter: blur(10px);
@@ -18,6 +26,7 @@ st.markdown("""
         padding: 25px;
         border: 1px solid rgba(255, 255, 255, 0.5);
     }
+    
     .stButton>button {
         background: linear-gradient(90deg, #4caf50, #2e7d32);
         color: white; border-radius: 8px; font-weight: bold; height: 3.5em;
@@ -29,7 +38,6 @@ st.markdown("""
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
-# GATII_DICT: Dhimma Mana Murtii irraa "Dhimma Mana Murtii" haqameera
 GATII_DICT = {
     "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
     "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
@@ -68,8 +76,9 @@ else:
     if menu == "📝 Galmee Haaraa":
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         
+        # Amma asitti bifti isaa magariisa dha
         main_options = sorted(list(GATII_DICT.keys()))
-        selected_main = st.multiselect("Gosa Tajaajilaa Filadhu", main_options)
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", main_options)
         
         details_list = []
         dynamic_fees = {} 
@@ -81,7 +90,6 @@ else:
                 subs = st.multiselect(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"multi_{gosa}")
                 for s in subs:
                     details_list.append(f"{gosa}({s})")
-                    # Iddoo kaffaltii dhuunfaa
                     dynamic_fees[f"{gosa}_{s}"] = st.number_input(f"Kafaltii {s} (ETB):", min_value=0.0, key=f"fee_{gosa}_{s}")
                     if s == "TOT":
                         is_tot_selected = True
@@ -121,7 +129,7 @@ else:
                     new_row = [yeroo_now, maqaa_final, araddaa_final, qaxana_final, service_str, ogeessa, total_sum]
                     df.loc[len(df)] = new_row
                     save_data(df)
-                    st.success(f"✅ Galmeeffameera! Galiin Walitti Qabaa: {total_sum} ETB")
+                    st.success(f"✅ Galmeeffameera! Total: {total_sum} ETB")
                 else: st.error("Maaloo odeeffannoo guutuu barreessi!")
 
     elif menu == "📊 Dashboard":
