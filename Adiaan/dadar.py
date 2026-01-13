@@ -8,28 +8,47 @@ st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="
 
 st.markdown("""
     <style>
+    /* 1. Background guutuu */
     .stApp { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
     [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
-    
-    /* Gosa Tajaajilaa Filadhu Styling (Magariisa) */
+
+    /* 2. Gosa Tajaajilaa Filadhu (The main box) */
     div[data-baseweb="multiselect"] {
         border: 2px solid #2e7d32 !important;
-        border-radius: 10px !important;
-        background-color: #f1f8e9 !important;
+        background-color: #ffffff !important;
+        border-radius: 8px !important;
     }
-    
+
+    /* 3. Filannoowwan keessaa (Selected chips/tags) */
+    span[data-baseweb="tag"] {
+        background-color: #2e7d32 !important;
+        color: white !important;
+        border-radius: 5px !important;
+    }
+
+    /* 4. Dropdown list items (Yeroo filattu kan gadi ba'u) */
+    div[role="listbox"] ul li {
+        background-color: #f1f8e9 !important;
+        color: #1b5e20 !important;
+    }
+    div[role="listbox"] ul li:hover {
+        background-color: #2e7d32 !important;
+        color: white !important;
+    }
+
+    /* 5. Form styling */
     div.stForm {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.9);
         border-radius: 15px;
         padding: 25px;
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        border: 2px solid #2e7d32;
     }
-    
+
+    /* 6. Button styling */
     .stButton>button {
         background: linear-gradient(90deg, #4caf50, #2e7d32);
-        color: white; border-radius: 8px; font-weight: bold; height: 3.5em;
+        color: white; border-radius: 8px; font-weight: bold; width: 100%;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -56,19 +75,21 @@ def load_data():
 def save_data(df):
     df.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-# ================= 4. MAIN APP =================
+# ================= 3. MAIN APP =================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
+        st.markdown("<h2 style='text-align:center; color:#2e7d32;'>Admin Login</h2>", unsafe_allow_html=True)
         u, p = st.text_input("Username"), st.text_input("Password", type="password")
         if st.button("Seeni"):
             if u == "admin" and p == "123":
                 st.session_state.logged_in = True; st.rerun()
 else:
     with st.sidebar:
+        st.markdown("### 🏢 DADAR LAND ADMIN")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "Ba'i"])
 
     df = load_data()
@@ -76,8 +97,8 @@ else:
     if menu == "📝 Galmee Haaraa":
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         
-        # Amma asitti bifti isaa magariisa dha
         main_options = sorted(list(GATII_DICT.keys()))
+        # Amma asitti bifti isaa guutummaatti magariisa
         selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", main_options)
         
         details_list = []
@@ -87,6 +108,7 @@ else:
         if selected_main:
             for gosa in selected_main:
                 st.markdown(f"#### 🛠️ Qindaa'ina: {gosa}")
+                # Filannoowwan gadii (Sub-options)
                 subs = st.multiselect(f"Filannoo {gosa}:", GATII_DICT[gosa], key=f"multi_{gosa}")
                 for s in subs:
                     details_list.append(f"{gosa}({s})")
