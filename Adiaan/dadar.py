@@ -35,7 +35,9 @@ MONTHS_OR = {
 # Gatiiwwan Ati Kennite
 GATII_DICT = {
     "Ittii Fayyaddam": 50.0, 
-    "Kartaa": 150.0, 
+    "Kaartaa mana": 150.0, 
+    "kartaa Kadastaara": 150.0, 
+    "Kaartaa lafa qonna magaalaa": 150.0, 
     "Jijjirra Maqaa": 200.0,
     "Dhimma Dangaa": 100.0, 
     "Dhimma Mana Murtii": 0.0, 
@@ -78,14 +80,14 @@ else:
         
         # Dabarsa Lafa fi Gibira dabalatee listii filannoo
         options = ["Dabarsa Lafa", "Gibira"] + list(GATII_DICT.keys()) + ["Kan Biroo"]
-        gosa_main = st.selectbox("Gosa Tajaajilaa Filadhu", options)
+        gosa_main = st.selectbox("Gosa Tajaajilaa Filadhu fi Mata Duree Galii ", options)
         
         base_fee = 0.0
         gosa_galmeeffamu = gosa_main
 
         # --- LOGIC DABARSA LAFA ---
         if gosa_main == "Dabarsa Lafa":
-            sub_gosa = st.radio("Dabarsa Lafa Keessaa:", ["Jijjirraa Maqaa", "Lizii Duraa", "TOT"])
+            sub_gosa = st.radio("Dabarsa Lafa Keessaa:", ["Liizii waggaa", "Jijjirraa Maqaa", "Lizii Duraa", "TOT"])
             base_fee = 200.0 if sub_gosa == "Jijjirraa Maqaa" else (500.0 if sub_gosa == "Lizii Duraa" else 100.0)
             gosa_galmeeffamu = f"Dabarsa Lafa ({sub_gosa})"
 
@@ -134,3 +136,4 @@ else:
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
