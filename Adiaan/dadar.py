@@ -37,7 +37,6 @@ MONTHS_OR = {
     "09": "Caamsaa", "10": "Waxabajjii", "11": "Adooleessa", "12": "Hagayya", "13": "Qaammee"
 }
 
-# Gatiiwwan 150.0 turan hundi gara 0.0 ykn gatii sirrii biraatti jijjiiramaniiru
 GATII_DICT = {
     "Ittii Fayyaddam": 50.0, 
     "Kaartaa mana": 0.0, 
@@ -52,7 +51,7 @@ GATII_DICT = {
     "Dorkkaa Liqii Bankii Kasuu": 100.0,
     "Gibira Lafa Qonnaa": 100.0,
     "Gibira Kaadaastara Baaxii Gooroo": 300.0,
-    "Bittaa Mana": {"Liizii waggaa": 400.0, "Jijjirraa Maqaa": 200.0, "Lizii Duraa": 500.0, "TOT": 100.0}
+    "Liizii": {"Liizii waggaa": 400.0, "Jijjirraa Maqaa": 200.0, "Lizii Duraa": 500.0, "TOT": 100.0}
 }
 
 # ================= 3. FUNCTIONS =================
@@ -86,20 +85,22 @@ else:
     if menu == "📝 Galmee Haaraa":
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         
-        main_options = ["Bittaa Mana", "Gibira Lafa Qonnaa", "Gibira Kaadaastara Baaxii Gooroo"] + list(GATII_DICT.keys())[:11] + ["Kan Biroo"]
+        # Amma "Liizii" filannoo jalqabaa ta'eera
+        main_options = ["Liizii", "Gibira Lafa Qonnaa", "Gibira Kaadaastara Baaxii Gooroo"] + list(GATII_DICT.keys())[:11] + ["Kan Biroo"]
         gosa_main = st.selectbox("Gosa Tajaajilaa Filadhu", main_options)
         
         base_fee = 0.0
         gosa_galmeeffamu = gosa_main
 
-        if gosa_main == "Dhimma Dangaa":
+        # --- Liizii Section ---
+        if gosa_main == "Liizii":
+            sub_gosa = st.radio("Liizii Keessaa Filadhu:", list(GATII_DICT["Liizii"].keys()))
+            base_fee = GATII_DICT["Liizii"][sub_gosa]
+            gosa_galmeeffamu = f"Liizii ({sub_gosa})"
+
+        elif gosa_main == "Dhimma Dangaa":
             base_fee = GATII_DICT["Dhimma Dangaa"]
             gosa_galmeeffamu = "Dhimma Dangaa (Kafaltii Tajaajilaa)"
-
-        elif gosa_main == "Bittaa Mana":
-            sub_gosa = st.radio("Bittaa Mana Keessaa Filadhu:", list(GATII_DICT["Bittaa Mana"].keys()))
-            base_fee = GATII_DICT["Bittaa Mana"][sub_gosa]
-            gosa_galmeeffamu = f"Bittaa Mana ({sub_gosa})"
 
         elif gosa_main == "Gibira Lafa Qonnaa":
             c1, c2, c3 = st.columns(3)
@@ -136,7 +137,6 @@ else:
             extra = st.number_input("Kafaltii Dabalataa", min_value=0.0)
             
             total_fee = base_fee + extra
-            # Bakka kaffaltiin 150 mul'atu haqameera, amma bifa kanaan gadi ba'a:
             st.markdown(f"<div style='background-color: #f1f8e9; padding: 15px; border-radius: 10px; text-align: center; border: 1px solid #4caf50;'><h2 style='color: #2e7d32; margin: 0;'>💰 Kaffaltii: {total_fee} ETB</h2></div>", unsafe_allow_html=True)
             
             if st.form_submit_button("💾 Galmeessi"):
