@@ -12,8 +12,7 @@ st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="
 USER_NAME = "Lafa"
 PASS_WORD = "1234"
 DATA_FILE = "dadar_final_report.txt"
-LOGO_FILE = "logo.png"
-
+LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
 # Tarree ragaa (11 Columns) - Kan sirreeffame
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj', 'Kafaltii_Wal', 'C1', 'C2', 'C3']
 
@@ -245,3 +244,4 @@ else:
     elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
