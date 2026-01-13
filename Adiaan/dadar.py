@@ -29,14 +29,14 @@ st.markdown("""
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj']
 
-# Gosa Tajaajilaa: Gibira Baaxii Gooroo sirreeffameera
+# GATII_DICT: Dhimma Mana Murtii irraa "Dhimma Mana Murtii" haqameera
 GATII_DICT = {
     "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
     "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
     "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
     "Kaartaa": ["Kaartaa mana", "Kartaa Kadastaara", "Kaartaa lafa qonna magaalaa"],
     "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
-    "Dhimma Mana Murtii": ["Dhimma Mana Murtii", "Ugura Mana Murtii", "Uguraa Mana Murtii Kasuu"],
+    "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kasuu"],
     "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kasuu"]
 }
 
