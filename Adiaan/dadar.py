@@ -17,8 +17,10 @@ st.markdown("""
     .stApp { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
     [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
-    div[data-baseweb="multiselect"] { border: 2px solid #2e7d32 !important; background-color: #ffffff !important; }
-    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; }
+    div[data-baseweb="multiselect"] { border: 2px solid #2e7d32 !important; background-color: #ffffff !important; border-radius: 8px !important; }
+    span[data-baseweb="tag"] { background-color: #2e7d32 !important; color: white !important; }
+    div.stForm { background: rgba(255, 255, 255, 0.9); border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; }
+    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -33,14 +35,13 @@ def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
     df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    # Guyyaa gara format datetime tti jijjiiruuf
     df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y')
     df['Waggaa'] = df['Date_Obj'].dt.year
     df['Ji\'a_Lakk'] = df['Date_Obj'].dt.month
     df['Ji\'a'] = df['Ji\'a_Lakk'].map(MONTH_MAP)
     df['Torbee'] = (df['Date_Obj'].dt.day - 1) // 7 + 1
     df['Guyyaa_Torbee'] = df['Date_Obj'].dt.dayofweek.map(WEEKDAY_MAP)
-    # Kurmaana (Ethiopian Fiscal Year context: Q1 start Sept)
+    # Kurmaana (Q1: Ful-Mud, Q2: Amj-Bit, Q3: Eeb-Wax, Q4: Ado-Hag)
     df['Kurmaana'] = df['Ji\'a_Lakk'].apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
     return df
 
@@ -66,6 +67,7 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in = True; st.rerun()
 else:
     with st.sidebar:
+        st.markdown("### 🏢 DADAR LAND ADMIN")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi", "Ba'i"])
 
     df = load_data()
@@ -74,20 +76,20 @@ else:
         st.header("📈 Gabaasa Calalame")
         if not df.empty:
             st.sidebar.markdown("### 🔍 Calaltuu Filadhu")
-            f_type = st.sidebar.radio("Gosa Gabaasaa:", ["Waggaa", "Kurmaana", "Ji'a", "Torbee", "Guyyaa"])
+            f_type = st.sidebar.radio("Akkaataa Gabaasaa:", ["Waggaa", "Kurmaana", "Ji'a", "Torbee", "Guyyaa"])
             
             sel_year = st.sidebar.selectbox("Waggaa", sorted(df['Waggaa'].unique(), reverse=True))
             filtered_df = df[df['Waggaa'] == sel_year]
 
             if f_type == "Kurmaana":
-                sel_q = st.sidebar.selectbox("Kurmaana (Q)", [1, 2, 3, 4])
+                sel_q = st.sidebar.selectbox("Kurmaana (Q1-Q4)", [1, 2, 3, 4])
                 filtered_df = filtered_df[filtered_df['Kurmaana'] == sel_q]
             elif f_type == "Ji'a":
-                sel_m = st.sidebar.selectbox("Ji'a", list(MONTH_MAP.values()))
+                sel_m = st.sidebar.selectbox("Ji'a Filadhu", list(MONTH_MAP.values()))
                 filtered_df = filtered_df[filtered_df['Ji\'a'] == sel_m]
             elif f_type == "Torbee":
                 sel_m = st.sidebar.selectbox("Ji'a", list(MONTH_MAP.values()))
-                sel_w = st.sidebar.selectbox("Torbee", [1, 2, 3, 4])
+                sel_w = st.sidebar.selectbox("Torbee (1-4)", [1, 2, 3, 4])
                 filtered_df = filtered_df[(filtered_df['Ji\'a'] == sel_m) & (filtered_df['Torbee'] == sel_w)]
             elif f_type == "Guyyaa":
                 sel_d = st.sidebar.selectbox("Guyyaa Torbee", ["Wixata", "Filatama", "Roobii", "Kamisa", "Jimmata"])
@@ -95,26 +97,34 @@ else:
 
             st.dataframe(filtered_df[COL_NAMES], use_container_width=True)
             total_income = filtered_df['Kafaltii_Taj'].sum()
-            st.metric(f"Waliigala Galii ({f_type})", f"{total_income:,.2f} ETB")
+            st.metric(f"Waliigala Galii", f"{total_income:,.2f} ETB")
 
-            # EXCEL
+            # Excel buffer
             buffer = io.BytesIO()
             with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
-                filtered_df[COL_NAMES].to_excel(writer, index=False, sheet_name='Report')
+                filtered_df[COL_NAMES].to_excel(writer, index=False, sheet_name='Gabaasa')
             
-            file_name = f"Gabaasa_{f_type}_{datetime.now().strftime('%Y%m%d')}.xlsx"
-            
+            file_name = f"Gabaasa_Dadar_{f_type}_{datetime.now().strftime('%Y%m%d')}.xlsx"
+
             st.divider()
             c1, c2 = st.columns(2)
-            with c1: st.download_button("📥 Excel Buufadhu", buffer.getvalue(), file_name=file_name)
+            with c1:
+                st.download_button("📥 Excel Buufadhu", buffer.getvalue(), file_name=file_name)
             with c2:
                 if st.button("✈️ Telegram-itti Ergi"):
-                    caption = f"📊 Gabaasa {f_type}\n💰 Galii: {total_income:,.2f} ETB\n📅 Guyyaa: {datetime.now().strftime('%d/%m/%Y')}"
-                    if send_to_telegram(buffer.getvalue(), file_name, caption): st.success("Ergameera!")
-                    else: st.error("Hin ergamne!")
-        else: st.info("Data'n hin jiru.")
+                    caption = f"📊 Gabaasa Galii ({f_type})\n💰 Waliigala: {total_income:,.2f} ETB\n📅 Guyyaa: {datetime.now().strftime('%d/%m/%Y')}"
+                    if send_to_telegram(buffer.getvalue(), file_name, caption):
+                        st.success("✅ Gabaasni hoggansatti ergameera!")
+                    else: st.error("❌ Erguun hin danda'amne!")
+        else:
+            st.info("Data'n hin jiru.")
 
-    # (Menu-wwan biroo akkuma kanaan duraatti itti fufu...)
-    elif menu == "📝 Galmee Haaraa":
-        st.subheader("📝 Galmee Haaraa Galmeessi")
-        # (Koodiin galmee haaraa asitti itti fufa...)
+    elif menu == "📊 Dashboard":
+        st.header("📊 Dashboard Waliigalaa")
+        st.dataframe(df[COL_NAMES], use_container_width=True)
+        st.metric("Waliigala Galii Hunda", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+
+    elif menu == "Ba'i":
+        st.session_state.logged_in = False; st.rerun()
+
+    # (Note: Galmee Haaraa fi Barbaadi koodii kee duraa keessatti itti fufa)
