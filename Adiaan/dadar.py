@@ -25,12 +25,25 @@ st.markdown("""
         border-radius: 15px;
         border: 2px solid #2e7d32;
         box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        max-width: 400px;
+        max-width: 450px;
         margin: auto;
     }
 
+    /* Metric Cards */
+    .metric-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        border-top: 5px solid #2e7d32;
+    }
+
     div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; }
-    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; }
+    .stButton>button { 
+        background: linear-gradient(90deg, #4caf50, #2e7d32); 
+        color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; 
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -74,43 +87,33 @@ def send_to_telegram(file_data, file_name, caption):
     try: return requests.post(url, files=files, data=data).status_code == 200
     except: return False
 
-# ================= 3. LOGIN & MAIN APP =================
+# ================= 3. LOGIN LOGIC =================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-# --- Bakka Username fi Password itti galu ---
 if not st.session_state.logged_in:
     st.markdown("<br><br>", unsafe_allow_html=True)
     _, col_mid, _ = st.columns([1, 1.5, 1])
     
     with col_mid:
-        st.markdown("""
-            <div style="text-align: center;">
-                <h1 style="color: #1b5e20;">🏢 Dadar Land System</h1>
-                <p style="color: #666;">Maaloo seenuuf odeeffannoo kee galchi</p>
-            </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="login-box">', unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; color: #1b5e20;'>🏢 Dadar Land Login</h2>", unsafe_allow_html=True)
+        u_input = st.text_input("Username", placeholder="Maqaa kee galchi")
+        p_input = st.text_input("Password", type="password", placeholder="Password kee galchi")
         
-        with st.container():
-            st.markdown('<div class="login-box">', unsafe_allow_html=True)
-            username = st.text_input("👤 Username", placeholder="Maqaa kee asitti galchi")
-            password = st.text_input("🔑 Password", type="password", placeholder="Password asitti galchi")
-            
-            if st.button("SEENI (LOGIN)"):
-                if username == "admin" and password == "123":
-                    st.session_state.logged_in = True
-                    st.success("✅ Gara sirnaatti nagaala seenaniiru!")
-                    st.rerun()
-                else:
-                    st.error("❌ Username ykn Password dogoggora!")
-            st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("SEENI"):
+            if u_input == "admin" and p_input == "123":
+                st.session_state.logged_in = True
+                st.rerun()
+            else:
+                st.error("Username ykn Password dogoggora!")
+        st.markdown('</div>', unsafe_allow_html=True)
 
-# --- APP KEESSA (Yoo Login Ta'e) ---
+# ================= 4. MAIN APP =================
 else:
     with st.sidebar:
-        st.markdown("### 🏢 DADAR LAND SYSTEM")
-        st.write(f"Logged in as: **admin**")
-        menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi/Edit", "🚪 Ba'i"])
+        st.markdown("### 🏢 DADAR LAND")
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi/Edit", "🚪 Ba'i"])
 
     df = load_data()
 
@@ -124,9 +127,9 @@ else:
 
             # Cards
             c1, c2, c3 = st.columns(3)
-            c1.metric("💰 WALIIGALA GALII", f"{t_income:,.2f} ETB")
-            c2.metric("👥 TAJAAJILAMTOOTA", f"{t_clients}")
-            c3.metric("📈 GIDDU-GALEESSA", f"{avg_inc:,.2f} ETB")
+            with c1: st.markdown(f'<div class="metric-card">💰<br><small>WALIIGALA GALII</small><h2>{t_income:,.2f}</h2></div>', unsafe_allow_html=True)
+            with c2: st.markdown(f'<div class="metric-card">👥<br><small>TAJAAJILAMTOOTA</small><h2>{t_clients}</h2></div>', unsafe_allow_html=True)
+            with c3: st.markdown(f'<div class="metric-card">📈<br><small>GIDDU-GALEESSA</small><h2>{avg_inc:,.2f}</h2></div>', unsafe_allow_html=True)
 
             st.divider()
             col_l, col_r = st.columns([2, 1])
@@ -136,15 +139,15 @@ else:
                 st.area_chart(chart_data, color="#2e7d32")
             with col_r:
                 st.markdown("### 🔝 Gosa Tajaajilaa")
-                top_services = df['Gosa_Tajajjilaa'].str.split(',').explode().str.strip().value_counts().head(5)
-                st.bar_chart(top_services)
+                top_s = df['Gosa_Tajajjilaa'].str.split(',').explode().str.strip().value_counts().head(5)
+                st.bar_chart(top_s)
         else:
-            st.info("Data'n Dashboard irratti mul'atu hin jiru.")
+            st.info("Data'n galmeeffame hin jiru.")
 
     # --- GALMEE HAARAA ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa", list(GATII_DICT.keys()))
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
         details, d_fees, is_tot = [], {}, False
         
         if selected_main:
@@ -157,10 +160,10 @@ else:
         
         with st.form("entry", clear_on_submit=True):
             if is_tot:
-                c1, c2 = st.columns(2)
-                maqaa_f = f"G: {c1.text_input('Maqaa Gurguraa')} / B: {c2.text_input('Maqaa Bitataa')}"
-                ara_f = f"G: {c1.text_input('Araddaa (G)')} / B: {c2.text_input('Araddaa (B)')}"
-                qax_f = f"G: {c1.text_input('Qaxana (G)')} / B: {c2.text_input('Qaxana (B)')}"
+                col1, col2 = st.columns(2)
+                maqaa_f = f"G: {col1.text_input('Maqaa Gurguraa')} / B: {col2.text_input('Maqaa Bitataa')}"
+                ara_f = f"G: {col1.text_input('Araddaa (G)')} / B: {col2.text_input('Araddaa (B)')}"
+                qax_f = f"G: {col1.text_input('Qaxana (G)')} / B: {col2.text_input('Qaxana (B)')}"
             else:
                 c1, c2 = st.columns(2)
                 maqaa_f, ara_f, qax_f = c1.text_input("Maqaa Abbaa Dhimmaa"), c2.text_input("Araddaa"), c1.text_input("Qaxana")
@@ -170,8 +173,8 @@ else:
                 if maqaa_f and details:
                     new = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values())]
                     df = pd.concat([df, pd.DataFrame([new], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("Galmeeffameera!")
-                else: st.error("Maaloo guuti!")
+                    save_data(df); st.success("✅ Galmeeffameera!")
+                else: st.error("Maaloo odeeffannoo guuti!")
 
     # --- GABAASA ---
     elif menu == "📈 Gabaasa Bal'aa":
@@ -191,10 +194,10 @@ else:
             buf = io.BytesIO()
             with pd.ExcelWriter(buf, engine='xlsxwriter') as wr: filtered[COL_NAMES].to_excel(wr, index=False)
             if st.button("✈️ Telegram-itti Ergi"):
-                if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", f"Gabaasa: {t_f} ETB"): st.success("Ergameera!")
+                if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", f"💰 Galii: {t_f} ETB"): st.success("Ergameera!")
         else: st.info("Data'n hin jiru.")
 
-    # --- EDIT ---
+    # --- BARBAADI / EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
         q = st.text_input("Maqaa Barbaadi...")
         if q:
