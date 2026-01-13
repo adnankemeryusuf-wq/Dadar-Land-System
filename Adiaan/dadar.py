@@ -143,8 +143,8 @@ else:
             gosa = c2.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
             ogeessa = c1.text_input("Maqaa Ogeessaa")
             k_taj_base = GATII_DICT[gosa]
-            k_dab = c2.number_input("Kafaltii Dabalataa", min_value=0.0, value=0.0)
-            k_wal = k_taj_base + k_dab
+            k_dab = c2.number_input("Kafaltii", min_value=0.0, value=0.0)
+            k_wal = k_taj_base + k
             st.info(f"💰 Kafaltii Waliigalaa: {k_wal} ETB")
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa:
@@ -198,3 +198,4 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.clear()
         st.rerun()
+
