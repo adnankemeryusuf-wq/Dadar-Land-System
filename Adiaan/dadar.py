@@ -100,3 +100,126 @@ if not st.session_state.logged_in:
             p = st.text_input("Password", type="password")
             if st.button("Seeni", use_container_width=True):
                 conn = sqlite3.connect("dadar_land.db")
+                c = conn.cursor()
+                c.execute("SELECT role FROM users WHERE username=? AND password=?", (u, hash_password(p)))
+                res = c.fetchone()
+                conn.close()
+                if res:
+                    st.session_state.logged_in = True
+                    st.session_state.user = u
+                    st.session_state.role = res[0]
+                    st.rerun()
+                else:
+                    st.error("Username ykn Password dogoggora!")
+else:
+    # --- SIDEBAR NAV ---
+    with st.sidebar:
+        st.markdown(f"### 👤 {st.session_state.user} ({st.session_state.role})")
+        menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "⚙️ Bulchiinsa"])
+        st.divider()
+        if st.button("🚪 Ba'i (Logout)", use_container_width=True):
+            logout()
+        
+        # Excel Backup (Option A)
+        st.divider()
+        if st.button("📥 Excel Backup Buufadhu"):
+            df_full = load_data_sql("Admin", "")
+            output = io.BytesIO()
+            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+                df_full.to_excel(writer, index=False)
+            st.download_button("Download Excel Now", output.getvalue(), f"Backup_Dadar_{datetime.now().strftime('%Y%m%d')}.xlsx")
+
+    # Data fe'uu
+    df = load_data_sql(st.session_state.role, st.session_state.user)
+
+    # --- MODULES ---
+    if menu == "📊 Dashboard":
+        st.header("📊 Gabaasa Gabaabaa")
+        if not df.empty:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Baay'ina Tajaajilaa", len(df))
+            c2.metric("Kafaltii Waliigalaa", f"{df['kafaltii'].sum():,.2f} ETB")
+            c3.metric("Ogeessota", len(df['ogeessa'].unique()))
+            
+            # Chart Galii
+            st.subheader("📈 Akkaataa Galii Ji'aa")
+            df['yeroo_dt'] = pd.to_datetime(df['yeroo'], dayfirst=True)
+            chart_data = df.resample('M', on='yeroo_dt').sum().reset_index()
+            fig = px.line(chart_data, x='yeroo_dt', y='kafaltii', markers=True)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("Ragaan galmeeffame hin jiru.")
+
+    elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Tajaajilaa Haaraa")
+        GATII_DICT = {"Kartaa": 150.0, "Jijjirra Maqaa": 200.0, "Dhimma Dangaa": 100.0, "Mana Murtii": 0.0}
+        with st.form("reg_form", clear_on_submit=True):
+            c1, c2 = st.columns(2)
+            maqaa = c1.text_input("Maqaa Abbaa Dhimmaa")
+            araddaa = c2.text_input("Araddaa")
+            qaxana = c1.text_input("Qaxana")
+            gosa = c2.selectbox("Gosa Tajaajilaa", list(GATII_DICT.keys()))
+            
+            if st.form_submit_button("💾 Galmeessi"):
+                if maqaa:
+                    guyyaa = datetime.now().strftime('%d/%m/%Y')
+                    gatii = GATII_DICT[gosa]
+                    val = (guyyaa, maqaa, araddaa, qaxana, gosa, st.session_state.user, gatii)
+                    
+                    conn = sqlite3.connect("dadar_land.db")
+                    conn.cursor().execute("INSERT INTO records (yeroo, maqaa, araddaa, qaxana, gosa, ogeessa, kafaltii) VALUES (?,?,?,?,?,?,?)", val)
+                    conn.commit()
+                    conn.close()
+                    st.success(f"Galmeeffameera! Kafaltii: {gatii} ETB")
+                    
+                    # Nagahee Qopheessu
+                    r_data = {'Guyyaa': guyyaa, 'Maqaa': maqaa, 'Gosa': gosa, 'Kafaltii': gatii, 'Ogeessa': st.session_state.user}
+                    receipt_pdf = generate_receipt(r_data)
+                    st.download_button("📄 Nagahee PDF Buufadhu", receipt_pdf, f"Nagahee_{maqaa}.pdf")
+                else:
+                    st.error("Maqaa guutuu qabda!")
+
+    elif menu == "🔍 Barbaadi":
+        st.header("🔍 Barbaadi fi Sirreessi")
+        q = st.text_input("Maqaa Abbaa Dhimmaa barreessi...")
+        if not df.empty:
+            res = df[df['maqaa'].str.contains(q, case=False, na=False)]
+            st.dataframe(res, use_container_width=True)
+            
+            if st.session_state.role == "Admin" and not res.empty:
+                st.divider()
+                st.subheader("🗑 Galmee Haquu (Admin Only)")
+                idx_to_del = st.number_input("ID Galmee haquu barbaaddu galchi:", step=1, min_value=0)
+                if st.button("Haquu Mirkaneessi"):
+                    conn = sqlite3.connect("dadar_land.db")
+                    conn.cursor().execute("DELETE FROM records WHERE id=?", (idx_to_del,))
+                    conn.commit()
+                    conn.close()
+                    st.warning(f"Galmeen ID {idx_to_del} haqameera!")
+                    st.rerun()
+
+    elif menu == "⚙️ Bulchiinsa":
+        if st.session_state.role == "Admin":
+            st.header("⚙️ Bulchiinsa Fayyadamtootaa")
+            with st.expander("Nama Haaraa Galmeessi"):
+                new_u = st.text_input("Username Haaraa")
+                new_p = st.text_input("Password Haaraa", type="password")
+                new_r = st.selectbox("Gahee (Role)", ["Ogeessa", "Admin"])
+                if st.button("Fayyadamaa Uumi"):
+                    if new_u and new_p:
+                        conn = sqlite3.connect("dadar_land.db")
+                        try:
+                            conn.cursor().execute("INSERT INTO users VALUES (?,?,?)", (new_u, hash_password(new_p), new_r))
+                            conn.commit()
+                            st.success(f"Fayyadamaa '{new_u}' uumameera!")
+                        except:
+                            st.error("Maqaan kun duraan jira!")
+                        finally:
+                            conn.close()
+            
+            st.subheader("Tarree Hojjettootaa")
+            conn = sqlite3.connect("dadar_land.db")
+            st.table(pd.read_sql_query("SELECT username, role FROM users", conn))
+            conn.close()
+        else:
+            st.error("Kutaa kana arguuf mirga Admin qabaachuu qabda!")
