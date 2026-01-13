@@ -55,8 +55,7 @@ st.markdown("""
 
 # ================= 2. DATA & SETTINGS =================
 DATA_FILE = "dadar_final_report.txt"
- COL_NAMES=['Guyyaa', 'Maqaa_Abbbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajaajilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
-
+COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 GATII_DICT = {
     "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
     "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
@@ -168,6 +167,7 @@ else:
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
