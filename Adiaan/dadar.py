@@ -92,43 +92,44 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
 # ================= 4. MAIN APP =================
 # --- 1. LOGIN SECTION ---
 if not st.session_state.get('logged_in', False):
+    # Koodii Login keessan (columns, image, text_input) asitti barreeffama
     _, col_mid, _ = st.columns([1, 1.5, 1]) 
     with col_mid:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=80)
-        
-        st.markdown("""
-            <h4 style='text-align:center; color: #1b5e20; font-family: sans-serif; margin-top: -10px;'>
-                Dadar Land Administration <br> Customer Registration System 
-            </h4>
-            """, unsafe_allow_html=True)
-        
+        # ... (koodii login keessan asuma jira)
+        st.write("Maaloo Login Godhaa")
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
-        
         if st.button("Seeni"):
-            if u == "admin" and p == "123": 
+            if u == "admin" and p == "123":
                 st.session_state.logged_in = True
-                st.rerun()  
-            else: 
-                st.error("Username ykn Password dogoggora!") # Cufaan dabalataa asii haqameera
+                st.rerun()
 
 # --- 2. MAIN APP SECTION (LOGGED IN) ---
 else:
-    # Data asitti dubbisna
+    # DATA DURA DUBBISI
     df = load_data() 
     
-    # Sidebar irratti mallattoo login ta'uu keessanii fi logout fiduuf
+    # SIDEBAR IRRATTI MENU UUMI (Kuni 'menu' uuma)
     with st.sidebar:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=60)
-        st.success(f"Log-in: {u if 'u' in locals() else 'Admin'}")
+        st.success("Log-in: Admin")
+        
+        # VARIABLE 'menu' ASITTI UUMAMA
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
+        
         if st.button("Log Out"):
             st.session_state.logged_in = False
             st.rerun()
-    
-    # Koodiin keessan inni kaan (Dashboard, Registration, etc.) asii gadi itti fufa...
-    st.title("Waajjira Lafaa Magaalaa Dadar")
+
+    # AMMA 'menu' JIRA, KANAAF 'if' KUN NI HOJJETA
+    if menu == "📊 Dashboard":
+        st.title("📊 Dashboard")
+        # Koodii dashboard keessan asitti itti fufa...
+        
+    elif menu == "📝 Galmee Haaraa":
+        st.title("📝 Galmee Haaraa")
+        # Koodii galmee asitti itti fufa...
     if menu == "📊 Dashboard":
         st.markdown("<h3 style='color: #1b5e20;'>📊 Deder City Land Office Dashboard</h3>", unsafe_allow_html=True)
         st.divider()
@@ -248,6 +249,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
