@@ -146,7 +146,6 @@ else:
                     df = pd.concat([df, pd.DataFrame([new], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("Galmeeffameera!")
 
-Adnan Kemer Yusuf, [1/14/2026 1:44 AM]
 # --- 3. GABAASA & CALALII ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa & Calaltuu")
@@ -191,5 +190,6 @@ Adnan Kemer Yusuf, [1/14/2026 1:44 AM]
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
 
 
