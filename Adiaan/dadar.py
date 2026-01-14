@@ -1,4 +1,3 @@
-Adnan Kemer Yusuf, [1/15/2026 1:23 AM]
 import streamlit as st
 import pandas as pd
 import os
@@ -256,3 +255,4 @@ elif menu == "🏆 Badhaasa Ogeeyyii":
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
