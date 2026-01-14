@@ -6,6 +6,7 @@ import requests
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
+from ethiopian_date import EthiopianDateConverter
 
 # ================= 1. CONFIGURATION & STYLE =================
 st.set_page_config(page_title="Dadar Land Office", page_icon="🏢", layout="wide")
@@ -90,9 +91,7 @@ if not st.session_state.logged_in:
     with col_mid:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=120)
-        
         st.markdown("<h2 style='text-align:center; color: #1b5e20;'>🏢 Dadar Land Office</h2>", unsafe_allow_html=True)
-        
         with st.form("login_form"):
             st.markdown("#### 🔐 Login")
             u = st.text_input("Username", placeholder="admin")
@@ -104,7 +103,6 @@ if not st.session_state.logged_in:
                 else:
                     st.error("Maqaan ykn Koodiin dogoggora!")
 else:
-    # --- AFTER LOGIN: SIDEBAR & DATA ---
     df = load_data()
     with st.sidebar:
         if os.path.exists(LOGO_PATH): 
@@ -163,23 +161,21 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
 
-    # --- REPORTING & VISUALS ---
+    # --- REPORTING & VISUALS (ETHIOPIAN CALENDAR INTEGRATED) ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa fi Calalii Bal'aa")
         if not df.empty:
             st.sidebar.markdown("### 🔍 Calalii Gabaasaa")
-            f_type = st.sidebar.selectbox("Yeroo Filadhu:", ["Waliigala", "Guyyaa (Wix-Jim)", "Torbee (1-4)", "Ji'a (Ful-Hag)", "Kurmaana (1-4)", "Waggaa"])
+            f_type = st.sidebar.selectbox("Yeroo Filadhu:", ["Waliigala", "Guyyaa (Kalandara Itoophiyaa)", "Ji'a (Ful-Hag)", "Kurmaana (1-4)", "Waggaa"])
             
             filtered = df.copy()
-            if f_type == "Guyyaa (Wix-Jim)":
-                filtered['Day_Name'] = filtered['Date_Obj'].dt.day_name()
-                days_map = {"Monday": "Wixata", "Tuesday": "Kibxata", "Wednesday": "Roobii", "Thursday": "Kamisa", "Friday": "Jimaata"}
-                filtered = filtered[filtered['Day_Name'].isin(days_map.keys())]
-                filtered['Guyyaa_Hojii'] = filtered['Day_Name'].map(days_map)
-            elif f_type == "Torbee (1-4)":
-                filtered['Torbee_Num'] = (filtered['Date_Obj'].dt.day - 1) // 7 + 1
-                sel_t = st.sidebar.slider("Torbee Filadhu:", 1, 4, 1)
-                filtered = filtered[filtered['Torbee_Num'] == sel_t]
+
+            if f_type == "Guyyaa (Kalandara Itoophiyaa)":
+                selected_date = st.sidebar.date_input("Guyyaa Filadhu (Gregorian):", datetime.now())
+                eth_date = EthiopianDateConverter.to_ethiopian(selected_date.year, selected_date.month, selected_date.day)
+                eth_date_str = f"{eth_date[2]}/{eth_date[1]}/{eth_date[0]}"
+                st.info(f"📅 Guyyaan Itoophiyaa: **{eth_date_str}**")
+                filtered = filtered[filtered['Guyyaa'] == selected_date.strftime('%d/%m/%Y')]
             elif f_type == "Ji'a (Ful-Hag)":
                 sel_j = st.sidebar.selectbox("Ji'a Filadhu:", MONTH_ORDER)
                 filtered = filtered[filtered['Ji\'a'] == sel_j]
@@ -191,53 +187,45 @@ else:
                 filtered = filtered[filtered['Waggaa'] == sel_y]
 
             st.markdown("---")
-            st.subheader("📊 Raawwii Gosa Tajaajilaa")
             service_stats = filtered['Gosa_Tajajjilaa'].str.split(', ').explode().value_counts()
 
             if not service_stats.empty:
-                col_chart1, col_chart2 = st.columns([1, 1])
-                with col_chart1:
-                    st.markdown("##### 🥧 Hirmaannaa Tajaajilaa (%)")
-                    fig_pie = px.pie(values=service_stats.values, names=service_stats.index, hole=0.4, color_discrete_sequence=px.colors.sequential.Greens_r)
-                    st.plotly_chart(fig_pie, use_container_width=True)
-                with col_chart2:
-                    st.markdown("##### 📊 Baay'ina Tajaajilaa (Units)")
-                    st.bar_chart(service_stats)
+                m1, m2 = st.columns(2)
+                total_money = filtered['Kafaltii_Taj'].sum()
+                total_cases = len(filtered)
+                m1.metric("💰 Galii Yeroo Kanat", f"{total_money:,.2f} ETB")
+                m2.metric("👥 Maamiltoota", total_cases)
+                
+                st.bar_chart(service_stats)
+                st.dataframe(filtered[COL_NAMES], use_container_width=True)
 
-            st.markdown("---")
-            m1, m2, m3 = st.columns(3)
-            total_money = filtered['Kafaltii_Taj'].sum()
-            total_cases = len(filtered)
-            top_service = service_stats.idxmax() if not service_stats.empty else "N/A"
-            m1.metric("💰 Galii Waliigalaa", f"{total_money:,.2f} ETB")
-            m2.metric("👥 Maamiltoota", total_cases)
-            m3.metric("🔝 Tajaajila Baay'ee", top_service)
-
-            st.dataframe(filtered[COL_NAMES], use_container_width=True)
-
-            buf = io.BytesIO()
-            with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
-                filtered[COL_NAMES].to_excel(wr, index=False)
-            c1, c2 = st.columns(2)
-            c1.download_button("🟢 Excel Buufadhu", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
-            if c2.button("✈️ Telegram"):
-                cap = f"📊 Gabaasa {f_type}\n💰 Galii: {total_money:,.2f} ETB\n👥 Maamiltoota: {total_cases}"
-                if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", cap): st.success("✅ Ergameera!")
+                buf = io.BytesIO()
+                with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
+                    filtered[COL_NAMES].to_excel(wr, index=False)
+                c1, c2 = st.columns(2)
+                c1.download_button("🟢 Excel Buufadhu", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
+                if c2.button("✈️ Telegram"):
+                    cap = f"📊 Gabaasa {f_type}\n💰 Galii: {total_money:,.2f} ETB"
+                    send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", cap)
+            else:
+                st.warning("Yeroo kana data'n galmeeffame hin jiru.")
         else: st.warning("Data'n hin jiru.")
 
-    # --- AWARDS & SEARCH & EXIT ---
+    # --- AWARDS ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Badhaasa & Sartiifiikeeta")
         cl, cr = st.columns(2)
-        l_l, l_r = cl.file_uploader("Logo Bitaa", type=['png', 'jpg']), cr.file_uploader("Logo Mirgaa", type=['png', 'jpg'])
+        l_l = cl.file_uploader("Logo Bitaa", type=['png', 'jpg'])
+        l_r = cr.file_uploader("Logo Mirgaa", type=['png', 'jpg'])
         if not df.empty:
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
             cols = st.columns(3)
             for i, (name, count) in enumerate(top_3.items(), 1):
                 with cols[i-1]:
                     st.markdown(f"<div class='card'><h2>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
-                    st.download_button(f"📥 PDF {i}", create_advanced_pdf(name, count, i, l_l, l_r), f"Cert_{name}.pdf", "application/pdf")
+                    st.download_button(f"📥 PDF {i}", create_advanced_pdf(name, count, i, l_l, l_r), f"Cert_{name}.pdf")
 
+    # --- SEARCH & EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sirreessi")
         q = st.text_input("Maqaa Barbaadi...")
@@ -248,7 +236,8 @@ else:
                     n_n = st.text_input("Maqaa", row['Maqaa_Abbaa_Dhimmaa'], key=f"n_{idx}")
                     n_f = st.number_input("Kafaltii", float(row['Kafaltii_Taj']), key=f"f_{idx}")
                     if st.button("💾 Update", key=f"u_{idx}"):
-                        df.at[idx, 'Maqaa_Abbaa_Dhimmaa'], df.at[idx, 'Kafaltii_Taj'] = n_n, n_f
+                        df.at[idx, 'Maqaa_Abbaa_Dhimmaa'] = n_n
+                        df.at[idx, 'Kafaltii_Taj'] = n_f
                         save_data(df); st.success("Sirreeffameera!"); st.rerun()
                     if st.button("🗑 Haqi", key=f"d_{idx}"):
                         df = df.drop(idx); save_data(df); st.rerun()
