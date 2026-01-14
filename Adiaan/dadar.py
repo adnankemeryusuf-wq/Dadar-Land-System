@@ -53,39 +53,40 @@ def send_to_telegram(file_data, file_name, caption):
 
 # ================= 3. PDF GENERATOR =================
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
+    # Orientation 'L' (Landscape) fuula tokko qofatti akka bahu godha
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
+    
+    # Halluu badhaasaa akka rank isaaniitti
     rank_colors = {1: (212, 175, 55), 2: (192, 192, 192), 3: (205, 127, 50)}
     r, g, b = rank_colors.get(rank, (27, 94, 32))
 
+    # Border fi Background
     pdf.set_fill_color(245, 255, 245); pdf.rect(12, 12, 273, 186, 'F')
     pdf.set_line_width(4); pdf.set_draw_color(r, g, b); pdf.rect(10, 10, 277, 190)
 
-    # --- Logo Bitaa Sirreessuu ---
+    # --- Logo Bitaa ---
     if logo_left:
-        # Gosa faayilii isaa (jpg ykn png) adda baasuu
         ext_l = logo_left.name.split('.')[-1].lower()
         temp_l = f"temp_l.{ext_l}"
-        with open(temp_l, "wb") as f: 
-            f.write(logo_left.getbuffer())
+        with open(temp_l, "wb") as f: f.write(logo_left.getbuffer())
         pdf.image(temp_l, x=22, y=20, w=35)
 
-    # --- Logo Mirgaa Sirreessuu ---
+    # --- Logo Mirgaa ---
     if logo_right:
         ext_r = logo_right.name.split('.')[-1].lower()
         temp_r = f"temp_r.{ext_r}"
-        with open(temp_r, "wb") as f: 
-            f.write(logo_right.getbuffer())
+        with open(temp_r, "wb") as f: f.write(logo_right.getbuffer())
         pdf.image(temp_r, x=240, y=20, w=35)
 
+    # --- Barreeffama Gidduu ---
     pdf.set_y(45); pdf.set_text_color(r, g, b); pdf.set_font('Arial', 'B', 35)
     pdf.cell(0, 25, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     
-    # ... (koodiin kee inni kaan akkuma jirutti itti fufa)
     pdf.set_text_color(30, 70, 30); pdf.set_font('Arial', 'B', 18)
     pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
     
-    pdf.ln(15); pdf.set_text_color(50, 50, 50); pdf.set_font('Arial', '', 16)
+    pdf.ln(10); pdf.set_text_color(50, 50, 50); pdf.set_font('Arial', '', 16)
     pdf.cell(0, 10, "Sartiifiketiin Gootummaa Hojii kun kan kennameef:", ln=True, align='C')
     
     pdf.ln(5); pdf.set_text_color(r, g, b); pdf.set_font('Arial', 'B', 32)
@@ -96,10 +97,24 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
            f"Abbootii Dhimmaa {count} tajaajiluun beekamtii kanaan badhaafamaniiru.")
     pdf.multi_cell(0, 10, msg, align='C')
     
-    pdf.ln(20); curr_y = pdf.get_y()
-    pdf.line(40, curr_y, 110, curr_y); pdf.set_xy(40, curr_y + 2); pdf.cell(70, 10, "Itti Gaafatamaa", align='C')
-    pdf.line(180, curr_y, 250, curr_y); pdf.set_xy(180, curr_y + 2); pdf.cell(70, 10, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", align='C')
+    # --- Bakka Mallattoo fi Guyyaa (Signature Section) ---
+    # pdf.ln() itti dabaluun gara jalaa siqsa
+    pdf.set_y(155) 
+    curr_y = pdf.get_y()
+    
+    # Itti Gaafatamaa (Bitaa)
+    pdf.set_draw_color(r, g, b); pdf.set_line_width(0.5)
+    pdf.line(40, curr_y, 110, curr_y) # Sarara mallattoo
+    pdf.set_xy(40, curr_y + 2)
+    pdf.set_font('Arial', 'B', 12); pdf.set_text_color(30, 70, 30)
+    pdf.cell(70, 7, "Mallattoo Itti Gaafatamaa", ln=0, align='C')
 
+    # Guyyaa (Mirga)
+    pdf.line(180, curr_y, 250, curr_y) # Sarara mallattoo
+    pdf.set_xy(180, curr_y + 2)
+    pdf.cell(70, 7, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=0, align='C')
+
+    # Xumura: 'latin-1' fayyadamuun gara bytes tti jijjiira
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
@@ -257,6 +272,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
