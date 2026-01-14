@@ -163,7 +163,7 @@ else:
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
  # --- DASHBOARD ---
     if menu == "📊 Dashboard":
-        st.markdown("<h5 style='color: #1b5e20; margin-bottom: -20px;'>📊 Deder City Administration Land Office/h5>", unsafe_allow_html=True)
+        st.markdown("<h5 style='color: #1b5e20; margin-bottom: -20px;'>📊 Deder City Administration Land Office", unsafe_allow_html=True)
         st.divider()
 
         if not df.empty:
@@ -298,6 +298,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
