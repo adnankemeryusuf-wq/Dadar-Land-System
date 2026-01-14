@@ -213,7 +213,8 @@ else:
                     try:
                         pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
                         st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf")
-                    except: st.error("PDF Error!")
+                   except Exception as e:
+    st.error(f"PDF Error: {e}")
         else: st.info("Data'n hin jiru.")
 
     # --- SEARCH/EDIT ---
@@ -239,3 +240,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
