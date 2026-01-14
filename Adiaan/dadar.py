@@ -90,45 +90,46 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
+# --- 1. LOGIN SECTION ---
+if not st.session_state.get('logged_in', False):
+    # Koodii Login keessan (columns, image, text_input) asitti barreeffama
+    _, col_mid, _ = st.columns([1, 1.5, 1]) 
+    with col_mid:
+        # ... (koodii login keessan asuma jira)
+        st.write("DadarLand Customer Registration System")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.button("Seeni"):
+            if u == "admin" and p == "123":
+                st.session_state.logged_in = True
+                st.rerun()
+
+# --- 2. MAIN APP SECTION (LOGGED IN) ---
 else:
-    # Sidebar Interface
+    # DATA DURA DUBBISI
+    df = load_data() 
+    
+    # SIDEBAR IRRATTI MENU UUMI (Kuni 'menu' uuma)
     with st.sidebar:
         if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=80)
-        st.title("Dadar Land Admin")
-        st.write(f"📅 Guyyaa: {datetime.now().strftime('%d/%m/%Y')}")
-        st.write("---")
+            st.image(LOGO_PATH, width=60)
+        st.success("Deder City Land Office")
         
-        menu = st.radio("FILANNOO", 
-                        ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi/Edit", "Ba'i"])
+        # VARIABLE 'menu' ASITTI UUMAMA
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
         
-        st.write("---")
-        if st.button("🚪 Log Out"):
+        if st.button("Log Out"):
             st.session_state.logged_in = False
             st.rerun()
 
-    # --- DASHBOARD ---
+    # AMMA 'menu' JIRA, KANAAF 'if' KUN NI HOJJETA
     if menu == "📊 Dashboard":
-        st.markdown("<h2 style='color: #1b5e20;'>📊 Dashboard Tajaajilaa</h2>", unsafe_allow_html=True)
-        st.divider()
+        st.title("📊 Dashboard")
+        # Koodii dashboard keessan asitti itti fufa...
         
-        # Fakkeenyaaf card-oota Dashboard (Koodii keessan isa duraa asitti deebisaa)
-        c1, c2, c3 = st.columns(3)
-        with c1:
-            st.info("💰 Waliigala Galii")
-            st.subheader("0.00 ETB")
-        with c2:
-            st.success("👥 Maamiltoota")
-            st.subheader("0")
-        with c3:
-            st.warning("👷 Ogeeyyii")
-            st.subheader("0")
-
-    # --- MENUWWAN KAAN ---
     elif menu == "📝 Galmee Haaraa":
-        st.title("📝 Galmee Tajaajilaa")
-        # Formii keessan asitti itti fufa...
-
+        st.title("📝 Galmee Haaraa")
+        # Koodii galmee asitti itti fufa...
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
@@ -251,6 +252,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
