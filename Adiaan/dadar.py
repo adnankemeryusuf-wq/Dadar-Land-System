@@ -29,7 +29,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. FUNCTIONS =================
+# ================= 2. CORE FUNCTIONS =================
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
@@ -57,14 +57,12 @@ def create_advanced_pdf(name, count, rank, logo_l=None, logo_r=None):
     pdf.set_fill_color(*bg); pdf.rect(10, 10, 277, 190, 'F')
     pdf.set_draw_color(*green); pdf.set_line_width(2.5); pdf.rect(10, 10, 277, 190)
     pdf.set_draw_color(*gold); pdf.set_line_width(1.0); pdf.rect(13, 13, 271, 184)
-
     if logo_l:
         with open("temp_l.png", "wb") as f: f.write(logo_l.getbuffer())
         pdf.image("temp_l.png", x=25, y=18, w=35)
     if logo_r:
         with open("temp_r.png", "wb") as f: f.write(logo_r.getbuffer())
         pdf.image("temp_r.png", x=235, y=18, w=35)
-
     pdf.set_y(45); pdf.set_text_color(*gold); pdf.set_font('Arial', 'B', 32)
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     pdf.set_y(65); pdf.set_text_color(*green); pdf.set_font('Arial', 'B', 22)
@@ -95,7 +93,7 @@ if not st.session_state.logged_in:
             if u == "admin" and p == "123":
                 st.session_state.logged_in = True
                 st.rerun()
-            else: st.error("Username ykn Password dogoggora!")
+            else: st.error("Maqaan ykn Koodiin dogoggora!")
 else:
     df = load_data()
     with st.sidebar:
@@ -106,26 +104,28 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
+    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
-        st.title("📊 Dashboard")
-        
+        st.title("📊 Dashboard Waliigalaa")
         if not df.empty:
             c1, c2, c3 = st.columns(3)
             with c1: st.markdown(f"<div class='card'><h4>💰 Galii</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
             with c2: st.markdown(f"<div class='card'><h4>👥 Maamiltoota</h4><h2>{len(df)}</h2><p>Waliigala</p></div>", unsafe_allow_html=True)
             with c3: st.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p>Aktiiwii</p></div>", unsafe_allow_html=True)
-            st.subheader("📈 Galii Ji'aan")
-            chart = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
-            st.area_chart(chart)
+            
+            st.subheader("📈 Raawwii Ogeeyyii (Top 5)")
+            top_staff = df['Maqaa_Ogeessa'].value_counts().head(5)
+            st.bar_chart(top_staff)
         else: st.info("Data'n galmeeffame hin jiru.")
 
+    # --- REGISTRATION ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
         GATII_DICT = {
             "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
             "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
             "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
-            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa "],
+            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa"],
             "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
             "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
             "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
@@ -139,7 +139,6 @@ else:
                     details.append(f"{g}({s})")
                     d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
                     if s == "TOT": is_tot = True
-
         with st.form("entry_form", clear_on_submit=True):
             if is_tot:
                 col1, col2 = st.columns(2)
@@ -157,18 +156,55 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
 
+    # --- REPORTING & VISUALIZATION ---
     elif menu == "📈 Gabaasa Bal'aa":
-        st.header("📈 Gabaasa & Telegram")
-        st.dataframe(df[COL_NAMES], use_container_width=True)
-        total = df['Kafaltii_Taj'].sum()
-        st.metric("Galii Waliigalaa", f"{total:,.2f} ETB")
-        buf = io.BytesIO()
-        with pd.ExcelWriter(buf, engine='xlsxwriter') as wr: df[COL_NAMES].to_excel(wr, index=False)
-        c1, c2 = st.columns(2)
-        c1.download_button("📥 Excel Download", buf.getvalue(), "Gabaasa.xlsx")
-        if c2.button("✈️ Telegram-itti Ergi"):
-            if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", f"Gabaasa Dadar: {total} ETB"): st.success("✅ Ergameera!")
+        st.header("📈 Gabaasa fi Calalii Bal'aa")
+        if not df.empty:
+            st.sidebar.subheader("🔍 Akkaataa Calalii")
+            f_type = st.sidebar.selectbox("Gosa Gabaasaa:", ["Waliigala", "Guyyaa (Wix-Jim)", "Torbee (1-4)", "Ji'a (Ful-Hag)", "Kurmaana (1-4)", "Waggaa"])
+            filtered = df.copy()
+            if f_type == "Guyyaa (Wix-Jim)":
+                filtered['Day_Name'] = filtered['Date_Obj'].dt.day_name()
+                days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+                filtered = filtered[filtered['Day_Name'].isin(days)]
+            elif f_type == "Torbee (1-4)":
+                filtered['Torbee_Num'] = (filtered['Date_Obj'].dt.day - 1) // 7 + 1
+                sel_t = st.sidebar.slider("Torbee Filadhu:", 1, 4, 1)
+                filtered = filtered[filtered['Torbee_Num'] == sel_t]
+            elif f_type == "Ji'a (Ful-Hag)":
+                sel_j = st.sidebar.selectbox("Ji'a Filadhu:", MONTH_ORDER)
+                filtered = filtered[filtered['Ji\'a'] == sel_j]
+            elif f_type == "Kurmaana (1-4)":
+                sel_k = st.sidebar.radio("Kurmaana:", [1, 2, 3, 4])
+                filtered = filtered[filtered['Kurmaana'] == sel_k]
+            elif f_type == "Waggaa":
+                sel_y = st.sidebar.selectbox("Waggaa:", sorted(filtered['Waggaa'].dropna().unique(), reverse=True))
+                filtered = filtered[filtered['Waggaa'] == sel_y]
 
+            # --- Giraafii Gosa Tajaajilaa ---
+            st.subheader("📊 Raawwii Gosa Tajaajilaa")
+            service_stats = filtered['Gosa_Tajajjilaa'].str.split(', ').explode().value_counts()
+            
+            
+            
+            c_left, c_right = st.columns([2, 1])
+            with c_left: st.bar_chart(service_stats)
+            with c_right: st.write("📋 Baay'ina:", service_stats)
+
+            st.dataframe(filtered[COL_NAMES], use_container_width=True)
+            total = filtered['Kafaltii_Taj'].sum()
+            st.metric(f"💰 Galii ({f_type})", f"{total:,.2f} ETB")
+
+            buf = io.BytesIO()
+            with pd.ExcelWriter(buf, engine='xlsxwriter') as wr: filtered[COL_NAMES].to_excel(wr, index=False)
+            col_b1, col_b2 = st.columns(2)
+            col_b1.download_button("📥 Excel Download", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
+            if col_b2.button("✈️ Telegram-itti Ergi"):
+                cap = f"Gabaasa {f_type}\nGalii: {total:,.2f} ETB"
+                if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", cap): st.success("✅ Ergameera!")
+        else: st.warning("Data'n hin jiru.")
+
+    # --- AWARDS ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Badhaasa & Sartiifiikeeta")
         cl, cr = st.columns(2)
@@ -180,9 +216,12 @@ else:
             for i, (name, count) in enumerate(top_3.items(), 1):
                 with cols[i-1]:
                     st.markdown(f"<div class='card'><h2>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
-                    pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
-                    st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
+                    try:
+                        pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
+                        st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf")
+                    except: st.error("PDF uumuu irratti rakkoon uumame.")
 
+    # --- SEARCH & EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sirreessi")
         q = st.text_input("Maqaa Barbaadi...")
@@ -201,7 +240,3 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
-
-
-
-
