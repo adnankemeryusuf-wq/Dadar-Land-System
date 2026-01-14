@@ -51,70 +51,102 @@ def send_to_telegram(file_data, file_name, caption):
     try: return requests.post(url, files=files, data=data).status_code == 200
     except: return False
 
-# ================= 3. PDF GENERATOR =================
+# ================= 3. PDF GENERATOR (VERSIYOO HAWWATAAN) =================
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
-    # Orientation 'L' (Landscape) fuula tokko qofatti akka bahu godha
+    # Orientation 'L' (Landscape), A4
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Halluu badhaasaa akka rank isaaniitti
-    rank_colors = {1: (212, 175, 55), 2: (192, 192, 192), 3: (205, 127, 50)}
-    r, g, b = rank_colors.get(rank, (27, 94, 32))
+    # Halluuwwan akka sadarkaa badhaasaatti (Gold, Silver, Bronze)
+    if rank == 1:
+        primary = (212, 175, 55)   # Gold
+        secondary = (255, 248, 220) # Light Gold background
+    elif rank == 2:
+        primary = (160, 160, 160)   # Silver
+        secondary = (245, 245, 245) # Light Gray background
+    else:
+        primary = (176, 141, 87)    # Bronze
+        secondary = (250, 240, 230) # Shell background
 
-    # Border fi Background
-    pdf.set_fill_color(245, 255, 245); pdf.rect(12, 12, 273, 186, 'F')
-    pdf.set_line_width(4); pdf.set_draw_color(r, g, b); pdf.rect(10, 10, 277, 190)
+    # --- 1. Background fi Border Bareedaa ---
+    pdf.set_fill_color(*secondary)
+    pdf.rect(10, 10, 277, 190, 'F') # Background guutuu
+    
+    # Border alaa (Dukkanaa'aa)
+    pdf.set_draw_color(30, 70, 30) # Deep Green
+    pdf.set_line_width(2)
+    pdf.rect(10, 10, 277, 190)
+    
+    # Border keessaa (Halluu Badhaasaa)
+    pdf.set_draw_color(*primary)
+    pdf.set_line_width(1.5)
+    pdf.rect(13, 13, 271, 184)
 
-    # --- Logo Bitaa ---
+    # --- 2. Logo Sirreessuu ---
     if logo_left:
         ext_l = logo_left.name.split('.')[-1].lower()
         temp_l = f"temp_l.{ext_l}"
         with open(temp_l, "wb") as f: f.write(logo_left.getbuffer())
-        pdf.image(temp_l, x=22, y=20, w=35)
+        pdf.image(temp_l, x=25, y=20, w=35)
 
-    # --- Logo Mirgaa ---
     if logo_right:
         ext_r = logo_right.name.split('.')[-1].lower()
         temp_r = f"temp_r.{ext_r}"
         with open(temp_r, "wb") as f: f.write(logo_right.getbuffer())
-        pdf.image(temp_r, x=240, y=20, w=35)
+        pdf.image(temp_r, x=235, y=20, w=35)
 
-    # --- Barreeffama Gidduu ---
-    pdf.set_y(45); pdf.set_text_color(r, g, b); pdf.set_font('Arial', 'B', 35)
-    pdf.cell(0, 25, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
+    # --- 3. Barreeffama Mata Duree ---
+    pdf.set_y(40)
+    pdf.set_text_color(*primary)
+    pdf.set_font('Arial', 'B', 38)
+    pdf.cell(0, 30, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     
-    pdf.set_text_color(30, 70, 30); pdf.set_font('Arial', 'B', 18)
+    pdf.set_y(65)
+    pdf.set_text_color(30, 70, 30)
+    pdf.set_font('Arial', 'B', 20)
     pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
     
-    pdf.ln(10); pdf.set_text_color(50, 50, 50); pdf.set_font('Arial', '', 16)
+    # Sarara xiqqaa mata duree jalaa
+    pdf.set_draw_color(*primary)
+    pdf.line(100, 78, 197, 78)
+
+    # --- 4. Ibsa Badhaasaa ---
+    pdf.set_y(95)
+    pdf.set_text_color(60, 60, 60)
+    pdf.set_font('Arial', 'I', 16) # 'I' for Italic
     pdf.cell(0, 10, "Sartiifiketiin Gootummaa Hojii kun kan kennameef:", ln=True, align='C')
     
-    pdf.ln(5); pdf.set_text_color(r, g, b); pdf.set_font('Arial', 'B', 32)
-    pdf.cell(0, 20, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
+    pdf.ln(5)
+    pdf.set_text_color(*primary)
+    pdf.set_font('Arial', 'B', 34)
+    pdf.cell(0, 25, f"{name.upper()}", ln=True, align='C')
     
-    pdf.ln(10); pdf.set_text_color(40, 40, 40); pdf.set_font('Arial', '', 15)
+    pdf.ln(5)
+    pdf.set_text_color(40, 40, 40)
+    pdf.set_font('Arial', '', 15)
     msg = (f"Waggaa 2026 keessatti tajaajila saffisaa fi amannamaa ta'een\n"
            f"Abbootii Dhimmaa {count} tajaajiluun beekamtii kanaan badhaafamaniiru.")
     pdf.multi_cell(0, 10, msg, align='C')
-    
-    # --- Bakka Mallattoo fi Guyyaa (Signature Section) ---
-    # pdf.ln() itti dabaluun gara jalaa siqsa
-    pdf.set_y(155) 
+
+    # --- 5. Bakka Mallattoo fi Guyyaa (Gara Jalaa) ---
+    pdf.set_y(165)
     curr_y = pdf.get_y()
     
-    # Itti Gaafatamaa (Bitaa)
-    pdf.set_draw_color(r, g, b); pdf.set_line_width(0.5)
-    pdf.line(40, curr_y, 110, curr_y) # Sarara mallattoo
-    pdf.set_xy(40, curr_y + 2)
-    pdf.set_font('Arial', 'B', 12); pdf.set_text_color(30, 70, 30)
+    # Itti Gaafatamaa
+    pdf.set_draw_color(30, 70, 30)
+    pdf.set_line_width(0.5)
+    pdf.line(40, curr_y, 110, curr_y) # Sarara
+    pdf.set_xy(40, curr_y + 3)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.set_text_color(30, 70, 30)
     pdf.cell(70, 7, "Mallattoo Itti Gaafatamaa", ln=0, align='C')
 
-    # Guyyaa (Mirga)
-    pdf.line(180, curr_y, 250, curr_y) # Sarara mallattoo
-    pdf.set_xy(180, curr_y + 2)
+    # Guyyaa
+    pdf.line(180, curr_y, 250, curr_y) # Sarara
+    pdf.set_xy(180, curr_y + 3)
     pdf.cell(70, 7, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=0, align='C')
 
-    # Xumura: 'latin-1' fayyadamuun gara bytes tti jijjiira
+    # PDF xumuruu
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
@@ -272,6 +304,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
