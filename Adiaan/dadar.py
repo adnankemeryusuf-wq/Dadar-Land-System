@@ -162,12 +162,16 @@ else:
         st.title(" Dadar Land Administration Customer Registration System")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
     # --- DASHBOARD ---
-    if menu == "📊 Dashboard":
-    # Mata-duree xiqqaate (Size h5)
+  # --- Line 165 ---
+if menu == "📊 Dashboard":
+    # Sarara kana bitaa irraa fageessi (Indent godhi)
     st.markdown("<h5 style='color: #1b5e20; margin-bottom: -20px;'>📊 Dadar Land Administration Customer Registration System</h5>", unsafe_allow_html=True)
-    st.divider() # Sarara addaan baasu xiqqaatwaa
-        st.header("📊 Dashboard")
-        if not df.empty:
+    st.divider() 
+    
+    if not df.empty:
+        # Kutaaleen as jiran hundi fageenya qabaachuu qabu
+        c1, c2, c3 = st.columns(3)
+        # ... koodii kee isa kaan itti fufi
             c1, c2, c3 = st.columns(3)
             c1.markdown(f"<div class='card'><h4>💰 Galii Waliigalaa</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='card'><h4>👥 Tajaajilamtoota</h4><h2>{len(df)}</h2><p>Walitti qabaa</p></div>", unsafe_allow_html=True)
@@ -297,6 +301,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
