@@ -128,53 +128,71 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-# 1. Jalqaba irratti variable kana mirkaneessi
+# 1. Session State
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-# 2. Login Logic
+# 2. Fake Data (Load_data keessan bakka bu'a)
+def load_data():
+    # Fakkeenyaaf data kana uumna, isin kana koodii keessan kanaan duraan bakka buusuu dandeessu
+    data = {
+        'Kafaltii_Taj': [1500, 3000, 4500],
+        'Maqaa_Ogeessa': ['Ahmed', 'Chala', 'Ahmed']
+    }
+    return pd.DataFrame(data)
+
+# CSS for Cards
+st.markdown("""
+    <style>
+    .card {
+        background-color: #f1f8e9;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 5px solid #1b5e20;
+        text-align: center;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# 3. Login Page
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
         st.markdown("<h2 style='text-align:center;'>🏢 Admin Login</h2>", unsafe_allow_html=True)
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
-        
         if st.button("Seeni"):
             if u == "admin" and p == "123": 
                 st.session_state.logged_in = True
                 st.rerun()
             else: 
-                st.error("Username ykn Password dogoggora!")
+                st.error("Dogoggora!")
 
-# 3. App-icha (Else kun 'if' olitti argamuun wal-qixa ta'uu qaba)
+# 4. Main Application
 else:
-    # load_data() asitti waammi
-    # df = load_data() 
+    df = load_data() # Data asitti dubbisna
     
     with st.sidebar:
         st.title("Dadar Admin")
         st.write("---")
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
+        
         if st.button("Log Out"):
             st.session_state.logged_in = False
-            st.rerun()     
-    st.title("Waajjira Lafaa Magaalaa Dadar")
-    st.success("Baga nagaan dhuftan!")
-        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
- # --- DASHBOARD ---
+            st.rerun()
+
     if menu == "📊 Dashboard":
-        st.markdown("<h5 style='color: #1b5e20; margin-bottom: -20px;'>📊 Deder City Administration Land Office", unsafe_allow_html=True)
+        st.markdown("<h3 style='color: #1b5e20;'>📊 Deder City Land Office Dashboard</h3>", unsafe_allow_html=True)
         st.divider()
 
         if not df.empty:
             c1, c2, c3 = st.columns(3)
             with c1:
-                st.markdown(f"<div class='card'><h4>💰 Galii</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p style='font-size:10px;'>ETB</p></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='card'><h4>💰 Galii</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
             with c2:
-                st.markdown(f"<div class='card'><h4>👥 Tajaajilamtoota</h4><h2>{len(df)}</h2><p style='font-size:10px;'>Waliigala</p></div>", unsafe_allow_html=True)
+                st.markdown(f"<div class='card'><h4>👥 Maamiltoota</h4><h2>{len(df)}</h2><p>Waliigala</p></div>", unsafe_allow_html=True)
             with c3:
-                st.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p style='font-size:10px;'>Aktiiwii</p></div>", unsafe_allow_html=True)
-            
+                st.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p>Aktiiwii</p></div>", unsafe_allow_html=True)
             st.subheader("📈 Galii Ji'aan")
             # Chart size xiqqaate
             st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0), height=200)
@@ -298,6 +316,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
