@@ -101,7 +101,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     # --- 4. Maqaa Ogeessaa (Size 34) ---
     pdf.set_y(98)
     pdf.set_text_color(60, 60, 60)
-    pdf.set_font('Arial', 'I', 15)
+    pdf.set_font('Arial', 'I', 18)
     pdf.cell(0, 10, "Sartiifiketiin kun kabajaan kan kennameef:", ln=True, align='C')
     
     pdf.ln(4)
@@ -279,6 +279,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
