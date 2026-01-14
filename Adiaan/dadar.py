@@ -160,7 +160,7 @@ else:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, use_container_width=True)
             
-        st.title("Dadar Admin")
+        st.title(" Dadar Land Customer Registration System. Login")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
     # --- DASHBOARD ---
     if menu == "📊 Dashboard":
@@ -295,6 +295,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
