@@ -9,10 +9,18 @@ from fpdf import FPDF
 # --- CONFIGURATION TELEGRAM ---
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
+# --- CONFIG ---
+USER_NAME = "admin"
+PASS_WORD = "123"
 LOGO_PATH = "Adiaan/logo.png"
 EXCEL_FILE = "dadar_land_data.xlsx"
-# ================= 1. CONFIG & STYLING =================
-st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
+
+# --- WEB UI CONFIG ---
+st.set_page_config(
+    page_title="Dadar Land System", 
+    page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢",
+    layout="wide"
+)
 
 st.markdown("""
     <style>
@@ -280,6 +288,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
