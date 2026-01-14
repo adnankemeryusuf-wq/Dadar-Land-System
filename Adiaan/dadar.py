@@ -122,7 +122,7 @@ else:
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
         GATII_DICT = {
-            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Gibira Manaa"],
+            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
             "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
             "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
             "Kaartaa": ["Kaartaa Manaa", "Kaartaa Kadastaara", "Kaartaa Haaromsuu"],
@@ -201,4 +201,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
