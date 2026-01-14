@@ -24,42 +24,43 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 3. PDF GENERATOR (ULTIMATE PREMIUM EDITION) =================
+# ================= 3. PDF GENERATOR (PROFESSIONAL VERSION) =================
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     # Orientation 'L' (Landscape), A4
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Halluuwwan Calaqqisoo fi Kabajamoof
-    gold_metal = (255, 215, 0)      # Bright Gold Metal
-    deep_green = (0, 80, 0)         # Magariisa Dukkanaa'aa
+    # Halluuwwan Gold Metal fi Magariisa Dukkanaa'aa
+    gold_metal = (255, 215, 0)      # Gold calaqqisu
+    deep_green = (0, 80, 0)         # Magariisa qulqulluu
     soft_gold_bg = (255, 254, 240)  # Background ifaa
 
-    # --- 1. Border fi Background ---
+    # --- 1. Background fi Border ---
     pdf.set_fill_color(*soft_gold_bg)
-    pdf.rect(10, 10, 277, 190, 'F') # Background guutuu
+    pdf.rect(10, 10, 277, 190, 'F') 
     
-    # Border alaa (Double Line Effect)
+    # Border 1 (Magariisa)
     pdf.set_draw_color(*deep_green) 
-    pdf.set_line_width(3)
+    pdf.set_line_width(2.5)
     pdf.rect(10, 10, 277, 190)
     
+    # Border 2 (Gold)
     pdf.set_draw_color(*gold_metal)
     pdf.set_line_width(1.2)
     pdf.rect(13, 13, 271, 184)
 
-    # --- 2. Logo Management ---
+    # --- 2. Logo Management (Fixes PNG/JPG Error) ---
     if logo_left:
         ext_l = logo_left.name.split('.')[-1].lower()
         temp_l = f"temp_l.{ext_l}"
         with open(temp_l, "wb") as f: f.write(logo_left.getbuffer())
-        pdf.image(temp_l, x=22, y=18, w=42)
+        pdf.image(temp_l, x=22, y=18, w=40)
 
     if logo_right:
         ext_r = logo_right.name.split('.')[-1].lower()
         temp_r = f"temp_r.{ext_r}"
         with open(temp_r, "wb") as f: f.write(logo_right.getbuffer())
-        pdf.image(temp_r, x=235, y=18, w=42)
+        pdf.image(temp_r, x=235, y=18, w=40)
 
     # --- 3. Mata Duree (Gold Metal Look) ---
     pdf.set_y(35)
@@ -71,7 +72,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_font('Arial', 'B', 24)
     pdf.cell(0, 12, "CERTIFICATE OF RECOGNITION", ln=True, align='C')
     
-    # Sarara bareechituu gidduu
+    # Sarara gidduu
     pdf.set_draw_color(*gold_metal)
     pdf.line(95, 74, 202, 74)
 
@@ -81,18 +82,19 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_font('Arial', 'I', 13)
     pdf.cell(0, 7, "Dedar City Administration Land Office", ln=True, align='C')
 
-    # --- 4. Maqaa Ogeessaa (Size Guddaa & Bright Green) ---
+    # --- 4. Maqaa Ogeessaa (Premium Gold Style) ---
     pdf.set_y(108)
     pdf.set_text_color(60, 60, 60)
     pdf.set_font('Arial', 'I', 15)
     pdf.cell(0, 8, "Sartiifiketiin kun kabajaan kan kennameef / Proudly presented to:", ln=True, align='C')
     
+    # Maqaa (Hamma 38, Magariisa, Bold)
     pdf.ln(4)
     pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 38) # Size 38 maqaa ogeessaaf
+    pdf.set_font('Arial', 'B', 38) 
     pdf.cell(0, 25, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
     
-    # Jechoota Galataa (Bilingual)
+    # Jechoota Galataa (Bilingual Message)
     pdf.ln(5)
     pdf.set_text_color(40, 40, 40)
     pdf.set_font('Arial', '', 14)
@@ -112,7 +114,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_draw_color(*deep_green)
     pdf.set_line_width(0.7)
     
-    # Bitaa: Mallattoo
+    # Bitaa: Itti Gaafatamaa
     pdf.line(40, curr_y, 115, curr_y)
     pdf.set_xy(40, curr_y + 2)
     pdf.set_font('Arial', 'B', 12); pdf.set_text_color(*deep_green)
@@ -130,6 +132,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_font('Arial', '', 10)
     pdf.cell(75, 5, "Dedar, Oromia", align='C')
 
+    # Output (Fixed to single page return)
     return pdf.output(dest='S').encode('latin-1')
 # ================= 4. MAIN APP =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
@@ -286,6 +289,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
