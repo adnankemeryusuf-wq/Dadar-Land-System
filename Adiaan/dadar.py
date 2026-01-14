@@ -106,7 +106,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     
     pdf.ln(4)
     pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 34) 
+    pdf.set_font('Arial', 'B', 24) 
     pdf.cell(0, 22, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
     
     # Jechoota Galataa
@@ -279,6 +279,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
