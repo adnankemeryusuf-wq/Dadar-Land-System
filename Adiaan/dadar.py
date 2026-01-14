@@ -155,13 +155,10 @@ if not st.session_state.logged_in:
 else:
     df = load_data()
     
-   with st.sidebar:
-
-    if os.path.exists(LOGO_PATH):
-
-        # Sidebar irratti akka xiqqaatu width=120 gahaadha
-
-        st.image(LOGO_PATH, width=120)
+    with st.sidebar:
+        # Logo Sidebar - Iddoo isaatti akka xiqqaatuuf width=80 gahaadha
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=80)
         st.title(" Dadar Land Administration Customer Registration System")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
     # --- DASHBOARD ---
@@ -297,6 +294,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
