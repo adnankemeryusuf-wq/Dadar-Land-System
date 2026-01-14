@@ -51,41 +51,45 @@ def send_to_telegram(file_data, file_name, caption):
     try: return requests.post(url, files=files, data=data).status_code == 200
     except: return False
 
-# ================= 3. PDF GENERATOR (SIZE OPTIMIZED) =================
+# ================= 3. PDF GENERATOR (FIXED LOGO ERROR) =================
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     # Orientation 'L' (Landscape), A4
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Halluuwwan (Gold & Green)
-    gold_metal = (255, 215, 0)      # Bright Gold
-    deep_green = (0, 80, 0)         # Deep Green
-    bg_color = (255, 254, 245)      # Cream
+    # Halluuwwan
+    gold_metal = (255, 215, 0)
+    deep_green = (0, 80, 0)
+    bg_color = (255, 254, 245)
 
     # --- 1. Background fi Border ---
     pdf.set_fill_color(*bg_color)
     pdf.rect(10, 10, 277, 190, 'F')
-    
-    # Border alaa fi keessaa
     pdf.set_draw_color(*deep_green); pdf.set_line_width(2.5); pdf.rect(10, 10, 277, 190)
     pdf.set_draw_color(*gold_metal); pdf.set_line_width(1.0); pdf.rect(13, 13, 271, 184)
 
-    # --- 2. Logo Management ---
+    # --- 2. Logo Management (DOGOGGORA KANA FURA) ---
     if logo_left:
-        with open("temp_l.png", "wb") as f: f.write(logo_left.getbuffer())
-        pdf.image("temp_l.png", x=25, y=18, w=35)
+        # Gosa faayilii (jpg/png) addaan baasuu
+        ext_l = logo_left.name.split('.')[-1].lower()
+        temp_l = f"temp_l.{ext_l}"
+        with open(temp_l, "wb") as f: 
+            f.write(logo_left.getbuffer())
+        pdf.image(temp_l, x=25, y=18, w=35)
 
     if logo_right:
-        with open("temp_r.png", "wb") as f: f.write(logo_right.getbuffer())
-        pdf.image("temp_r.png", x=235, y=18, w=35)
+        ext_r = logo_right.name.split('.')[-1].lower()
+        temp_r = f"temp_r.{ext_r}"
+        with open(temp_r, "wb") as f: 
+            f.write(logo_right.getbuffer())
+        pdf.image(temp_r, x=235, y=18, w=35)
 
-    # --- 3. Mata Duree (SIZE 30 - AKKA HIN BAANEEF) ---
+    # --- 3. Mata Duree (Size 30) ---
     pdf.set_y(42)
     pdf.set_text_color(*gold_metal)
     pdf.set_font('Arial', 'B', 30) 
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     
-    # Sarara bareechituu gidduu
     pdf.set_draw_color(*gold_metal)
     pdf.line(105, 58, 192, 58)
 
@@ -94,7 +98,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_font('Arial', 'B', 22)
     pdf.cell(0, 12, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
 
-    # --- 4. Maqaa Ogeessaa (SIZE 34) ---
+    # --- 4. Maqaa Ogeessaa (Size 34) ---
     pdf.set_y(98)
     pdf.set_text_color(60, 60, 60)
     pdf.set_font('Arial', 'I', 15)
@@ -102,10 +106,10 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     
     pdf.ln(4)
     pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 34) # Akkuma gaafatetti Size 34
+    pdf.set_font('Arial', 'B', 34) 
     pdf.cell(0, 22, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
     
-    # Jechoota Galataa (Afaan Oromoo Qofa)
+    # Jechoota Galataa
     pdf.ln(6)
     pdf.set_text_color(40, 40, 40)
     pdf.set_font('Arial', '', 15)
@@ -115,13 +119,10 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     # --- 5. Signature Section ---
     pdf.set_y(172)
     pdf.set_draw_color(*deep_green); pdf.set_line_width(0.6)
-    
-    # Bitaa: Mallattoo
     pdf.line(40, 172, 110, 172)
     pdf.set_xy(40, 174); pdf.set_font('Arial', 'B', 12); pdf.set_text_color(*deep_green)
     pdf.cell(70, 8, "Mallattoo Itti Gaafatamaa", align='C')
 
-    # Mirga: Guyyaa
     pdf.line(180, 172, 250, 172)
     pdf.set_xy(180, 174); pdf.cell(70, 8, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", align='C')
 
@@ -278,6 +279,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
