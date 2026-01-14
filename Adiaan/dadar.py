@@ -113,7 +113,7 @@ else:
     with st.sidebar:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=60)
-        st.success("Log-in: Admin")
+        st.success("Deder City Land Office")
         
         # VARIABLE 'menu' ASITTI UUMAMA
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
@@ -249,6 +249,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
