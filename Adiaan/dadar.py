@@ -140,7 +140,7 @@ if not st.session_state.logged_in:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=120)
         
-        st.markdown("<h2 style='text-align:center;'>🏢 Admin Login</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center;'> Admin Login</h2>", unsafe_allow_html=True)
         
         # 2. Form Login
         u = st.text_input("Username")
@@ -295,6 +295,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
