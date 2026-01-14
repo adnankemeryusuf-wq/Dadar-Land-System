@@ -128,21 +128,42 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-f 'logged_in' not in st.session_state: st.session_state.logged_in = False
+import streamlit as st
+import os
 
+# 1. Jalqaba irratti variable kana mirkaneessi
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# 2. Login Logic
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
         st.markdown("<h2 style='text-align:center;'>🏢 Admin Login</h2>", unsafe_allow_html=True)
-        u, p = st.text_input("Username"), st.text_input("Password", type="password")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        
         if st.button("Seeni"):
-            if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
-            else: st.error("Username ykn Password dogoggora!")
+            if u == "admin" and p == "123": 
+                st.session_state.logged_in = True
+                st.rerun()
+            else: 
+                st.error("Username ykn Password dogoggora!")
+
+# 3. App-icha (Else kun 'if' olitti argamuun wal-qixa ta'uu qaba)
 else:
-    df = load_data()
+    # load_data() asitti waammi
+    # df = load_data() 
     
     with st.sidebar:
         st.title("Dadar Admin")
+        st.write("---")
+        if st.button("Log Out"):
+            st.session_state.logged_in = False
+            st.rerun()
+            
+    st.title("Waajjira Lafaa Magaalaa Dadar")
+    st.success("Baga nagaan dhuftan!")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
  # --- DASHBOARD ---
     if menu == "📊 Dashboard":
@@ -281,6 +302,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
