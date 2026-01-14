@@ -9,18 +9,8 @@ from fpdf import FPDF
 # --- CONFIGURATION TELEGRAM ---
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
-# --- CONFIG ---
-USER_NAME = "admin"
-PASS_WORD = "123"
 LOGO_PATH = "Adiaan/logo.png"
 EXCEL_FILE = "dadar_land_data.xlsx"
-
-# --- WEB UI CONFIG ---
-st.set_page_config(
-    page_title="Dadar Land System", 
-    page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢",
-    layout="wide"
-)
 
 st.markdown("""
     <style>
@@ -152,9 +142,12 @@ else:
     df = load_data()
     
     with st.sidebar:
+        # LOGO PATH kan duraan dubbanne
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, use_container_width=True)
+            
         st.title("Dadar Admin")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
-
     # --- DASHBOARD ---
     if menu == "📊 Dashboard":
         st.header("📊 Dashboard")
@@ -288,6 +281,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
