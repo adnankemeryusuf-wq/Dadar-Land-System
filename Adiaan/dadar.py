@@ -125,7 +125,7 @@ else:
             "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
             "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
             "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
-            "Kaartaa": ["Kaartaa Manaa", "Kaartaa Kadastaara", "Kaartaa Haaromsuu"],
+            "Kaartaa": ["Kaartaa Lafa, "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa "],
             "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
             "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
             "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
@@ -201,5 +201,6 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
