@@ -128,44 +128,35 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-# --- 1. JALQABA IRRATTI KANA DABALAA ---
-# Kun session state jalqabsiisa (Initialize)
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
-
-# --- 2. KAN ISIN BARREESSITAN ---
+# --- Step 1: Login Block ---
 if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.5, 1]) 
+    _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=80)
         
+        # Ensure this markdown block is closed properly
         st.markdown("""
-            <h4 style='text-align:center; color: #1b5e20; font-family: sans-serif; margin-top: -10px;'>
-                Dadar Land Administration <br> Customer Registration System 
+            <h4 style='text-align:center; color: #1b5e20;'>
+                Dadar Land Administration System
             </h4>
             """, unsafe_allow_html=True)
         
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        
-        if st.button("Seeni"):
-            if u == "admin" and p == "123": 
-                st.session_state.logged_in = True
-                st.rerun()  # Erga login ta'ee booda akka refresh godhuuf
-            else: 
-                st.error("Username ykn Password dogoggora!")
-else:
-    # Bakka kanatti koodii registration ykn dashboard keessan itti fufa
-    st.sidebar.success("Milkiin seenuun danda'ameera!")
+        # ... (Your text inputs and login button go here) ...
+
+# --- Step 2: The Else Block (MUST ALIGN WITH 'IF' ABOVE) ---
 else:
     df = load_data()
     
     with st.sidebar:
-        # Logo Sidebar - Iddoo isaatti akka xiqqaatuuf width=80 gahaadha
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=80)
         st.title("Deder City Administration Land Office")
+        
+        # Useful: Add a logout button here
+        if st.button("Log Out"):
+            st.session_state.logged_in = False
+            st.rerun()
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
  # --- DASHBOARD ---
     if menu == "📊 Dashboard":
@@ -304,6 +295,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
