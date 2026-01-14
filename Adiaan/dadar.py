@@ -138,7 +138,7 @@ if not st.session_state.logged_in:
     with col_mid:
         # 1. Logo Login Irratti Agarsiisuu
         if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=100)
+            st.image(LOGO_PATH, width=70)
         
         st.markdown("<h2 style='text-align:center;'> Dadar Land Administration Customer Registration System</h2>", unsafe_allow_html=True)
         
@@ -295,6 +295,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
