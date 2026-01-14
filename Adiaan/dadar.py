@@ -172,14 +172,18 @@ else:
             if f_type == "Guyyaa (Kalandara Itoophiyaa)":
                 selected_date = st.sidebar.date_input("Guyyaa Filadhu (Gregorian):", datetime.now())
                 try:
-                    eth_date = EthiopianDateConverter.to_ethiopian(selected_date.year, selected_date.month, selected_date.day)
-                    if isinstance(eth_date, dict):
-                        eth_date_str = f"{eth_date['day']}/{eth_date['month']}/{eth_date['year']}"
+                    # JIJJIIRRAA: Dogoggora Subscription oolchuuf
+                    eth_val = EthiopianDateConverter.to_ethiopian(selected_date.year, selected_date.month, selected_date.day)
+                    # Library tokko tokko tuple (y, m, d) deebisa, kaan immoo object
+                    if isinstance(eth_val, tuple) or isinstance(eth_val, list):
+                        eth_date_str = f"{eth_val[2]}/{eth_val[1]}/{eth_val[0]}"
                     else:
-                        eth_date_str = f"{eth_date[2]}/{eth_date[1]}/{eth_date[0]}"
+                        eth_date_str = f"{eth_val.day}/{eth_val.month}/{eth_val.year}"
+                    
                     st.info(f"📅 Guyyaan Itoophiyaa: **{eth_date_str}**")
                 except Exception as e:
                     st.error(f"Dogoggora Kalandaraa: {e}")
+                
                 filtered = filtered[filtered['Guyyaa'] == selected_date.strftime('%d/%m/%Y')]
             
             elif f_type == "Ji'a (Ful-Hag)":
