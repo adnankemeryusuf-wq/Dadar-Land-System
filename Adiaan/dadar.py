@@ -24,97 +24,96 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 3. PDF GENERATOR (PROFESSIONAL VERSION) =================
+# ================= 3. PDF GENERATOR (ULTIMATE FINAL VERSION) =================
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
-    # Orientation 'L' (Landscape), A4
+    # Orientation 'L' (Landscape), A4 format
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Halluuwwan Gold Metal fi Magariisa Dukkanaa'aa
-    gold_metal = (255, 215, 0)      # Gold calaqqisu
-    deep_green = (0, 80, 0)         # Magariisa qulqulluu
-    soft_gold_bg = (255, 254, 240)  # Background ifaa
+    # Halluuwwan Filataman
+    gold_metal = (255, 215, 0)      # Bright Gold Metal
+    deep_green = (0, 80, 0)         # Magariisa Kabajamaa
+    bg_cream = (255, 254, 242)      # Cream/Off-white Background
 
-    # --- 1. Background fi Border ---
-    pdf.set_fill_color(*soft_gold_bg)
+    # --- 1. Background fi Border Bareedaa ---
+    pdf.set_fill_color(*bg_cream)
     pdf.rect(10, 10, 277, 190, 'F') 
     
-    # Border 1 (Magariisa)
+    # Border Alaa (Double Frame)
     pdf.set_draw_color(*deep_green) 
-    pdf.set_line_width(2.5)
+    pdf.set_line_width(3.0)
     pdf.rect(10, 10, 277, 190)
     
-    # Border 2 (Gold)
     pdf.set_draw_color(*gold_metal)
-    pdf.set_line_width(1.2)
+    pdf.set_line_width(1.5)
     pdf.rect(13, 13, 271, 184)
 
-    # --- 2. Logo Management (Fixes PNG/JPG Error) ---
+    # --- 2. Logo Management ---
     if logo_left:
         ext_l = logo_left.name.split('.')[-1].lower()
         temp_l = f"temp_l.{ext_l}"
         with open(temp_l, "wb") as f: f.write(logo_left.getbuffer())
-        pdf.image(temp_l, x=22, y=18, w=40)
+        pdf.image(temp_l, x=25, y=18, w=38)
 
     if logo_right:
         ext_r = logo_right.name.split('.')[-1].lower()
         temp_r = f"temp_r.{ext_r}"
         with open(temp_r, "wb") as f: f.write(logo_right.getbuffer())
-        pdf.image(temp_r, x=235, y=18, w=40)
+        pdf.image(temp_r, x=235, y=18, w=38)
 
-    # --- 3. Mata Duree (Gold Metal Look) ---
-    pdf.set_y(35)
+    # --- 3. Mata Duree (Size Guddaa) ---
+    pdf.set_y(32)
     pdf.set_text_color(*gold_metal)
-    pdf.set_font('Arial', 'B', 44) 
+    pdf.set_font('Arial', 'B', 46) # Mata duree guddaa
     pdf.cell(0, 22, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     
     pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 24)
+    pdf.set_font('Arial', 'B', 22)
     pdf.cell(0, 12, "CERTIFICATE OF RECOGNITION", ln=True, align='C')
     
-    # Sarara gidduu
+    # Sarara bareechituu gidduu (Decorative Line)
     pdf.set_draw_color(*gold_metal)
-    pdf.line(95, 74, 202, 74)
+    pdf.line(90, 72, 207, 72)
 
-    pdf.set_y(82)
+    pdf.set_y(78)
+    pdf.set_text_color(*deep_green)
     pdf.set_font('Arial', 'B', 18)
     pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
     pdf.set_font('Arial', 'I', 13)
     pdf.cell(0, 7, "Dedar City Administration Land Office", ln=True, align='C')
 
-    # --- 4. Maqaa Ogeessaa (Premium Gold Style) ---
-    pdf.set_y(108)
-    pdf.set_text_color(60, 60, 60)
+    # --- 4. Maqaa Ogeessaa (Premium Look & High Size) ---
+    pdf.set_y(102)
+    pdf.set_text_color(50, 50, 50)
     pdf.set_font('Arial', 'I', 15)
-    pdf.cell(0, 8, "Sartiifiketiin kun kabajaan kan kennameef / Proudly presented to:", ln=True, align='C')
+    pdf.cell(0, 10, "Sartiifiketiin kun kabaja guddaadhan kan kennameef / Presented to:", ln=True, align='C')
     
-    # Maqaa (Hamma 38, Magariisa, Bold)
-    pdf.ln(4)
+    # Maqaa Ogeessaa (Size 40, Halluu Magariisa, Bold)
+    pdf.ln(2)
     pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 38) 
+    pdf.set_font('Arial', 'B', 40) 
     pdf.cell(0, 25, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
     
-    # Jechoota Galataa (Bilingual Message)
-    pdf.ln(5)
+    # Jechoota Galataa (Professional Wording)
+    pdf.ln(2)
     pdf.set_text_color(40, 40, 40)
     pdf.set_font('Arial', '', 14)
-    
-    msg_oromoo = "Waggaa 2026 keessatti tajaajila saffisaa, qulqulluu fi amannamaa ta'een tajaajila hawaasaa irratti gumaacha guddaa waan gumaachaniif badhaasa kanaan galateeffamaniiru."
-    msg_english = "In deep appreciation for your outstanding dedication and exceptional service delivery throughout the year 2026."
+    msg_oromoo = "Tajaajila saffisaa, qulqulluu fi amannamaa ta'een gumaacha guddaa gumaachuu keessaniif badhaasa kanaan galateeffamtaniiru."
+    msg_english = "In deep appreciation for your outstanding service and dedicated commitment throughout the year 2026."
     
     pdf.multi_cell(0, 8, msg_oromoo, align='C')
-    pdf.ln(2)
+    pdf.ln(1)
     pdf.set_font('Arial', 'I', 12)
-    pdf.multi_cell(0, 7, msg_english, align='C')
+    pdf.multi_cell(0, 6, msg_english, align='C')
 
-    # --- 5. Bakka Mallattoo fi Guyyaa (Signature Section) ---
-    pdf.set_y(172)
+    # --- 5. Bakka Mallattoo fi Guyyaa (Signature & Date) ---
+    pdf.set_y(170)
     curr_y = pdf.get_y()
     
     pdf.set_draw_color(*deep_green)
-    pdf.set_line_width(0.7)
+    pdf.set_line_width(0.8)
     
-    # Bitaa: Itti Gaafatamaa
+    # Bitaa: Mallattoo
     pdf.line(40, curr_y, 115, curr_y)
     pdf.set_xy(40, curr_y + 2)
     pdf.set_font('Arial', 'B', 12); pdf.set_text_color(*deep_green)
@@ -132,7 +131,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_font('Arial', '', 10)
     pdf.cell(75, 5, "Dedar, Oromia", align='C')
 
-    # Output (Fixed to single page return)
+    # Return as single page
     return pdf.output(dest='S').encode('latin-1')
 # ================= 4. MAIN APP =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
@@ -289,6 +288,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
