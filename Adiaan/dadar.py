@@ -86,7 +86,6 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    # --- LOGIN PAGE WITH LOGO ---
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
         if os.path.exists(LOGO_PATH):
@@ -161,7 +160,7 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
 
-    # --- REPORTING & VISUALS (ETHIOPIAN CALENDAR INTEGRATED) ---
+    # --- REPORTING & VISUALS ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa fi Calalii Bal'aa")
         if not df.empty:
@@ -172,10 +171,17 @@ else:
 
             if f_type == "Guyyaa (Kalandara Itoophiyaa)":
                 selected_date = st.sidebar.date_input("Guyyaa Filadhu (Gregorian):", datetime.now())
-                eth_date = EthiopianDateConverter.to_ethiopian(selected_date.year, selected_date.month, selected_date.day)
-                eth_date_str = f"{eth_date[2]}/{eth_date[1]}/{eth_date[0]}"
-                st.info(f"📅 Guyyaan Itoophiyaa: **{eth_date_str}**")
+                try:
+                    eth_date = EthiopianDateConverter.to_ethiopian(selected_date.year, selected_date.month, selected_date.day)
+                    if isinstance(eth_date, dict):
+                        eth_date_str = f"{eth_date['day']}/{eth_date['month']}/{eth_date['year']}"
+                    else:
+                        eth_date_str = f"{eth_date[2]}/{eth_date[1]}/{eth_date[0]}"
+                    st.info(f"📅 Guyyaan Itoophiyaa: **{eth_date_str}**")
+                except Exception as e:
+                    st.error(f"Dogoggora Kalandaraa: {e}")
                 filtered = filtered[filtered['Guyyaa'] == selected_date.strftime('%d/%m/%Y')]
+            
             elif f_type == "Ji'a (Ful-Hag)":
                 sel_j = st.sidebar.selectbox("Ji'a Filadhu:", MONTH_ORDER)
                 filtered = filtered[filtered['Ji\'a'] == sel_j]
