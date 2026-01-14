@@ -157,8 +157,7 @@ else:
         st.write("---")
         if st.button("Log Out"):
             st.session_state.logged_in = False
-            st.rerun()
-            
+            st.rerun()     
     st.title("Waajjira Lafaa Magaalaa Dadar")
     st.success("Baga nagaan dhuftan!")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
@@ -299,6 +298,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
