@@ -24,56 +24,28 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATA MANAGEMENT =================
-DATA_FILE = "dadar_final_report.txt"
-COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
-MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
-MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
-
-def load_data():
-    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
-        return pd.DataFrame(columns=COL_NAMES)
-    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
-    df['Waggaa'] = df['Date_Obj'].dt.year
-    df['Ji\'a'] = df['Date_Obj'].dt.month.map(MONTH_MAP)
-    df['Torbee'] = (df['Date_Obj'].dt.day - 1) // 7 + 1
-    df['Kurmaana'] = df['Date_Obj'].dt.month.apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
-    return df
-
-def save_data(df_to_save):
-    df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
-
-def send_to_telegram(file_data, file_name, caption):
-    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
-    files = {'document': (file_name, file_data)}
-    data = {'chat_id': CHAT_ID_MANAGER, 'caption': caption}
-    try: return requests.post(url, files=files, data=data).status_code == 200
-    except: return False
-
-# ================= 3. PDF GENERATOR (GOLD METAL EDITION) =================
+# ================= 3. PDF GENERATOR (ULTIMATE PREMIUM EDITION) =================
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     # Orientation 'L' (Landscape), A4
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Halluuwwan Gold Metal fi Background Bareedaa
+    # Halluuwwan Calaqqisoo fi Kabajamoof
     gold_metal = (255, 215, 0)      # Bright Gold Metal
-    deep_green = (0, 60, 0)        # Deep Magariisa
-    bg_color = (255, 254, 245)     # Cream/Soft Gold Background
+    deep_green = (0, 80, 0)         # Magariisa Dukkanaa'aa
+    soft_gold_bg = (255, 254, 240)  # Background ifaa
 
-    # --- 1. Background fi Border (Double Design) ---
-    pdf.set_fill_color(*bg_color)
-    pdf.rect(10, 10, 277, 190, 'F')
+    # --- 1. Border fi Background ---
+    pdf.set_fill_color(*soft_gold_bg)
+    pdf.rect(10, 10, 277, 190, 'F') # Background guutuu
     
-    # Border alaa (Magariisa)
+    # Border alaa (Double Line Effect)
     pdf.set_draw_color(*deep_green) 
     pdf.set_line_width(3)
     pdf.rect(10, 10, 277, 190)
     
-    # Border keessaa (Gold Metal)
     pdf.set_draw_color(*gold_metal)
-    pdf.set_line_width(1.5)
+    pdf.set_line_width(1.2)
     pdf.rect(13, 13, 271, 184)
 
     # --- 2. Logo Management ---
@@ -81,59 +53,60 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
         ext_l = logo_left.name.split('.')[-1].lower()
         temp_l = f"temp_l.{ext_l}"
         with open(temp_l, "wb") as f: f.write(logo_left.getbuffer())
-        pdf.image(temp_l, x=22, y=18, w=40)
+        pdf.image(temp_l, x=22, y=18, w=42)
 
     if logo_right:
         ext_r = logo_right.name.split('.')[-1].lower()
         temp_r = f"temp_r.{ext_r}"
         with open(temp_r, "wb") as f: f.write(logo_right.getbuffer())
-        pdf.image(temp_r, x=235, y=18, w=40)
+        pdf.image(temp_r, x=235, y=18, w=42)
 
-    # --- 3. Mata Duree Gurguddaa ---
+    # --- 3. Mata Duree (Gold Metal Look) ---
     pdf.set_y(35)
     pdf.set_text_color(*gold_metal)
-    pdf.set_font('Arial', 'B', 42) # Size baay'ee guddaa
+    pdf.set_font('Arial', 'B', 44) 
     pdf.cell(0, 22, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     
     pdf.set_text_color(*deep_green)
     pdf.set_font('Arial', 'B', 24)
     pdf.cell(0, 12, "CERTIFICATE OF RECOGNITION", ln=True, align='C')
     
-    # Sarara Bareechituu Gidduu
+    # Sarara bareechituu gidduu
     pdf.set_draw_color(*gold_metal)
-    pdf.line(90, 72, 207, 72)
+    pdf.line(95, 74, 202, 74)
 
-    pdf.set_y(78)
+    pdf.set_y(82)
     pdf.set_font('Arial', 'B', 18)
     pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
     pdf.set_font('Arial', 'I', 13)
     pdf.cell(0, 7, "Dedar City Administration Land Office", ln=True, align='C')
 
-    # --- 4. Maqaa Ogeessaa (GOLD METAL LOOK) ---
-    pdf.set_y(105)
+    # --- 4. Maqaa Ogeessaa (Size Guddaa & Bright Green) ---
+    pdf.set_y(108)
     pdf.set_text_color(60, 60, 60)
     pdf.set_font('Arial', 'I', 15)
-    pdf.cell(0, 10, "Sartiifiketiin kun kabajaan kan kennameef / Proudly presented to:", ln=True, align='C')
+    pdf.cell(0, 8, "Sartiifiketiin kun kabajaan kan kennameef / Proudly presented to:", ln=True, align='C')
     
-    # Maqaa (Size guddaa fi Halluu Magariisa calaqqisu)
-    pdf.ln(5)
+    pdf.ln(4)
     pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 38) # Size 38 (Baay'ee ifa)
+    pdf.set_font('Arial', 'B', 38) # Size 38 maqaa ogeessaaf
     pdf.cell(0, 25, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
     
-    # Jechoota Galataa
+    # Jechoota Galataa (Bilingual)
     pdf.ln(5)
     pdf.set_text_color(40, 40, 40)
     pdf.set_font('Arial', '', 14)
+    
     msg_oromoo = "Waggaa 2026 keessatti tajaajila saffisaa, qulqulluu fi amannamaa ta'een tajaajila hawaasaa irratti gumaacha guddaa waan gumaachaniif badhaasa kanaan galateeffamaniiru."
     msg_english = "In deep appreciation for your outstanding dedication and exceptional service delivery throughout the year 2026."
     
     pdf.multi_cell(0, 8, msg_oromoo, align='C')
+    pdf.ln(2)
     pdf.set_font('Arial', 'I', 12)
     pdf.multi_cell(0, 7, msg_english, align='C')
 
     # --- 5. Bakka Mallattoo fi Guyyaa (Signature Section) ---
-    pdf.set_y(172) # Gara jalaatti siqee jira
+    pdf.set_y(172)
     curr_y = pdf.get_y()
     
     pdf.set_draw_color(*deep_green)
@@ -313,6 +286,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
