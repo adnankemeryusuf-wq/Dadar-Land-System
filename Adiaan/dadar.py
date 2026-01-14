@@ -102,7 +102,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_y(98)
     pdf.set_text_color(60, 60, 60)
     pdf.set_font('Arial', 'I', 18)
-    pdf.cell(0, 10, "Sartiifiketiin kun kabajaan kan kennameef:", ln=True, align='C')
+    pdf.cell(0, 8, "Sartiifiketiin kun kabajaan kan kennameef:", ln=True, align='C')
     
     pdf.ln(4)
     pdf.set_text_color(*deep_green)
@@ -112,7 +112,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     # Jechoota Galataa
     pdf.ln(6)
     pdf.set_text_color(40, 40, 40)
-    pdf.set_font('Arial', '', 14)
+    pdf.set_font('Arial', '', 12)
     msg = "Waggaa 2026 keessatti tajaajila saffisaa, qulqulluu fi amannamaa ta'een tajaajila hawaasaa irratti gumaacha guddaa waan gumaachaniif badhaasa kanaan galateeffamaniiru."
     pdf.multi_cell(0, 9, msg, align='C')
 
@@ -279,6 +279,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
