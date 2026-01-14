@@ -128,10 +128,17 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-# --- Step 1: Login Block ---
+# --- KANA JALQABA IRRATTI DABALAA ---
+# Variable 'logged_in' memory keessa jiraachuu isaa mirkaneessa
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# Amma koodiin keessan inni armaan gadii sirriitti hojjeta
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
+        # Logo fi login form keessan asitti itti fufa...
+        pass
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=80)
         
@@ -295,6 +302,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
