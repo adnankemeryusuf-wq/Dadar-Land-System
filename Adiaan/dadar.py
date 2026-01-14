@@ -72,7 +72,6 @@ def create_pdf_cert(name, count, rank):
     pdf.set_line_width(5); pdf.set_draw_color(r, g, b); pdf.rect(10, 10, 277, 190)
     pdf.set_line_width(1); pdf.rect(15, 15, 267, 180)
 
-Adnan Kemer Yusuf, [1/14/2026 1:44 AM]
 # Content
     pdf.set_text_color(r, g, b); pdf.set_font('Arial', 'B', 35)
     pdf.cell(0, 40, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
@@ -192,4 +191,5 @@ Adnan Kemer Yusuf, [1/14/2026 1:44 AM]
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
 
