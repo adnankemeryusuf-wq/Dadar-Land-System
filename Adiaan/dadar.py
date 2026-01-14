@@ -140,7 +140,7 @@ if not st.session_state.logged_in:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=120)
         
-        st.markdown("<h2 style='text-align:center;'> Dadar Land Customer Registration System</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center;'> Dadar Land Administration Customer Registration System</h2>", unsafe_allow_html=True)
         
         # 2. Form Login
         u = st.text_input("Username")
@@ -160,7 +160,7 @@ else:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, use_container_width=True)
             
-        st.title(" Dadar Land Customer Registration System. Login")
+        st.title(" Dadar Land Administration Customer Registration System")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
     # --- DASHBOARD ---
     if menu == "📊 Dashboard":
@@ -295,6 +295,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
