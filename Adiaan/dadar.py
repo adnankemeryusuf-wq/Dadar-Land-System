@@ -51,36 +51,37 @@ def send_to_telegram(file_data, file_name, caption):
     try: return requests.post(url, files=files, data=data).status_code == 200
     except: return False
 
-# ================= 3. PDF GENERATOR (OROMOO & ENGLISH) =================
+# ================= 3. PDF GENERATOR (HALLUU BAREEDAA) =================
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
-    # Orientation 'L' (Landscape), A4
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Halluuwwan akka sadarkaa badhaasaatti
+    # Halluuwwan Ifoo (Gold, Silver, Bronze)
     if rank == 1:
-        primary = (212, 175, 55)   # Gold
-        secondary = (255, 248, 220) # Light Gold
+        primary = (255, 215, 0)     # Gold Ifaa (Bright Gold)
+        secondary = (255, 253, 230) # Background Gold adii keessa jiru
     elif rank == 2:
-        primary = (160, 160, 160)   # Silver
-        secondary = (245, 245, 245) # Light Gray
+        primary = (192, 192, 192)   # Silver
+        secondary = (250, 250, 250)
     else:
-        primary = (176, 141, 87)    # Bronze
-        secondary = (250, 240, 230) # Shell
+        primary = (205, 127, 50)    # Bronze
+        secondary = (255, 245, 235)
 
-    # --- 1. Background fi Border Bareedaa ---
+    # --- 1. Background fi Border ---
     pdf.set_fill_color(*secondary)
     pdf.rect(10, 10, 277, 190, 'F')
     
-    pdf.set_draw_color(30, 70, 30) # Deep Green Border
-    pdf.set_line_width(2)
+    # Border alaa (Magariisa Dukkanaa'aa)
+    pdf.set_draw_color(0, 80, 0) 
+    pdf.set_line_width(2.5)
     pdf.rect(10, 10, 277, 190)
     
+    # Border keessaa (Gold Ifaa)
     pdf.set_draw_color(*primary)
     pdf.set_line_width(1.5)
     pdf.rect(13, 13, 271, 184)
 
-    # --- 2. Logo Management ---
+    # --- 2. Logo Handling ---
     if logo_left:
         ext_l = logo_left.name.split('.')[-1].lower()
         temp_l = f"temp_l.{ext_l}"
@@ -95,35 +96,34 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
 
     # --- 3. Mata Duree ---
     pdf.set_y(40)
-    pdf.set_text_color(*primary)
+    pdf.set_text_color(*primary) # SARTIIFIKETA (Gold)
     pdf.set_font('Arial', 'B', 38)
     pdf.cell(0, 20, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
-    pdf.set_font('Arial', 'B', 24)
+    pdf.set_font('Arial', 'B', 22)
     pdf.cell(0, 15, "CERTIFICATE OF RECOGNITION", ln=True, align='C')
     
     pdf.set_y(78)
-    pdf.set_text_color(30, 70, 30)
+    pdf.set_text_color(0, 80, 0) # Waajjira (Magariisa)
     pdf.set_font('Arial', 'B', 18)
     pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
-    pdf.set_font('Arial', 'B', 14)
-    pdf.cell(0, 8, "Dedar City Administration Land Office", ln=True, align='C')
 
-    # --- 4. Ibsa Badhaasaa (Bilingual) ---
+    # --- 4. Barreeffama Gidduu (Halluu Magariisaa) ---
     pdf.set_y(105)
     pdf.set_text_color(60, 60, 60)
     pdf.set_font('Arial', 'I', 14)
-    pdf.cell(0, 10, "Sartiifiketiin Gootummaa Hojii kun kan kennameef / This certificate is awarded to:", ln=True, align='C')
+    pdf.cell(0, 10, "Sartiifiketiin Gootummaa Hojii kun kan kennameef / Awarded to:", ln=True, align='C')
     
+    # Maqaa Ogeessaa (Magariisa Dukkanaa'aa fi Bold)
     pdf.ln(2)
-    pdf.set_text_color(*primary)
+    pdf.set_text_color(0, 100, 0) # HALLUU MAGARIISAA
     pdf.set_font('Arial', 'B', 32)
-    pdf.cell(0, 20, f"{name.upper()}", ln=True, align='C')
+    pdf.cell(0, 20, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
     
     pdf.ln(5)
     pdf.set_text_color(40, 40, 40)
     pdf.set_font('Arial', '', 14)
     
-    # Barreeffama hawwataa (Lakkoofsi irraa haqameera)
+    # Ibsa Galataa (Bilingual)
     msg_oromoo = "Waggaa 2026 keessatti tajaajila saffisaa fi amannamaa ta'een tajaajila guddaa waan gumaachaniif beekamtii kanaan badhaafamaniiru."
     msg_english = "In recognition of your outstanding, efficient, and reliable service delivery throughout the year 2026."
     
@@ -131,33 +131,21 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_font('Arial', 'I', 13)
     pdf.multi_cell(0, 8, msg_english, align='C')
 
-    # --- 5. Mallattoo fi Guyyaa ---
+    # --- 5. Bakka Mallattoo fi Guyyaa ---
     pdf.set_y(168)
     curr_y = pdf.get_y()
     
-    pdf.set_draw_color(30, 70, 30)
-    pdf.set_line_width(0.5)
-    
-    # Bitaa: Itti Gaafatamaa
+    pdf.set_draw_color(0, 80, 0)
     pdf.line(40, curr_y, 110, curr_y)
     pdf.set_xy(40, curr_y + 2)
-    pdf.set_font('Arial', 'B', 11)
+    pdf.set_font('Arial', 'B', 11); pdf.set_text_color(0, 80, 0)
     pdf.cell(70, 5, "Mallattoo Itti Gaafatamaa", ln=True, align='C')
-    pdf.set_x(40)
-    pdf.set_font('Arial', '', 10)
-    pdf.cell(70, 5, "Authorized Signature", align='C')
 
-    # Mirga: Guyyaa
     pdf.line(180, curr_y, 250, curr_y)
     pdf.set_xy(180, curr_y + 2)
-    pdf.set_font('Arial', 'B', 11)
     pdf.cell(70, 5, f"Guyyaa / Date: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='C')
-    pdf.set_x(180)
-    pdf.set_font('Arial', '', 10)
-    pdf.cell(70, 5, "Dedar, Oromia", align='C')
 
     return pdf.output(dest='S').encode('latin-1')
-
 # ================= 4. MAIN APP =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
@@ -313,6 +301,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
