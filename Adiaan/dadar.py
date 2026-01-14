@@ -52,10 +52,6 @@ def send_to_telegram(file_data, file_name, caption):
     except: return False
 
 # ================= 3. PDF GENERATOR =================
-dimport os
-from datetime import datetime
-from io import BytesIO
-
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
@@ -261,6 +257,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
