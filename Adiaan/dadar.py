@@ -1,4 +1,3 @@
-Adnan Kemer Yusuf, [1/14/2026 2:06 AM]
 import streamlit as st
 import pandas as pd
 import os
@@ -197,3 +196,4 @@ elif menu == "📝 Galmee Haaraa":
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
