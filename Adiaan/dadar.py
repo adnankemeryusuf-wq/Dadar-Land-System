@@ -5,6 +5,7 @@ import io
 import requests
 from datetime import datetime
 from fpdf import FPDF
+import plotly.express as px
 
 # ================= 1. CONFIGURATION & STYLE =================
 st.set_page_config(page_title="Dadar Land Office", page_icon="🏢", layout="wide")
@@ -104,8 +105,9 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
+    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
-        st.title("📊 Dashboard")
+        st.title("📊 Dashboard Waliigalaa")
         if not df.empty:
             c1, c2, c3 = st.columns(3)
             with c1: st.markdown(f"<div class='card'><h4>💰 Galii</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
@@ -113,6 +115,7 @@ else:
             with c3: st.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p>Aktiiwii</p></div>", unsafe_allow_html=True)
         else: st.info("Data'n galmeeffame hin jiru.")
 
+    # --- REGISTRATION ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
         GATII_DICT = {
@@ -150,23 +153,21 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
 
+    # --- REPORTING & VISUALS (FULLY INTEGRATED) ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa fi Calalii Bal'aa")
         if not df.empty:
-            st.sidebar.subheader("🔍 Akkaataa Calalii")
-            f_type = st.sidebar.selectbox("Gosa Gabaasaa:", ["Waliigala", "Guyyaa (Wix-Jim)", "Torbee (1-4)", "Ji'a (Ful-Hag)", "Kurmaana (1-4)", "Waggaa"])
+            st.sidebar.markdown("### 🔍 Calalii Gabaasaa")
+            f_type = st.sidebar.selectbox("Yeroo Filadhu:", ["Waliigala", "Guyyaa (Wix-Jim)", "Torbee (1-4)", "Ji'a (Ful-Hag)", "Kurmaana (1-4)", "Waggaa"])
+            
             filtered = df.copy()
-
-            # --- LOGIC CALALII GUYYAA (WIXATA - JIMAATA) ---
+            
+            # --- CALALII LOGIC ---
             if f_type == "Guyyaa (Wix-Jim)":
                 filtered['Day_Name'] = filtered['Date_Obj'].dt.day_name()
                 days_map = {"Monday": "Wixata", "Tuesday": "Kibxata", "Wednesday": "Roobii", "Thursday": "Kamisa", "Friday": "Jimaata"}
                 filtered = filtered[filtered['Day_Name'].isin(days_map.keys())]
                 filtered['Guyyaa_Hojii'] = filtered['Day_Name'].map(days_map)
-                st.write("📅 **Gabaasa Guyyoota Hojii (Wixata - Jimaata)**")
-                day_counts = filtered['Guyyaa_Hojii'].value_counts().reindex(["Wixata", "Kibxata", "Roobii", "Kamisa", "Jimaata"])
-                st.bar_chart(day_counts)
-
             elif f_type == "Torbee (1-4)":
                 filtered['Torbee_Num'] = (filtered['Date_Obj'].dt.day - 1) // 7 + 1
                 sel_t = st.sidebar.slider("Torbee Filadhu:", 1, 4, 1)
@@ -181,26 +182,48 @@ else:
                 sel_y = st.sidebar.selectbox("Waggaa:", sorted(filtered['Waggaa'].dropna().unique(), reverse=True))
                 filtered = filtered[filtered['Waggaa'] == sel_y]
 
-            # --- VISUALIZATION & TABLE ---
+            # --- VISUALIZATION SECTION ---
+            st.markdown("---")
             st.subheader("📊 Raawwii Gosa Tajaajilaa")
             service_stats = filtered['Gosa_Tajajjilaa'].str.split(', ').explode().value_counts()
-            c_left, c_right = st.columns([2, 1])
-            with c_left: st.bar_chart(service_stats)
-            with c_right: st.write("📋 Baay'ina:", service_stats)
 
+            if not service_stats.empty:
+                col_chart1, col_chart2 = st.columns([1, 1])
+                with col_chart1:
+                    st.markdown("##### 🥧 Hirmaannaa Tajaajilaa (%)")
+                    fig_pie = px.pie(values=service_stats.values, names=service_stats.index, 
+                                   hole=0.4, color_discrete_sequence=px.colors.sequential.Greens_r)
+                    st.plotly_chart(fig_pie, use_container_width=True)
+                with col_chart2:
+                    st.markdown("##### 📊 Baay'ina Tajaajilaa (Units)")
+                    st.bar_chart(service_stats)
+
+            
+
+            # --- DATA METRICS ---
+            st.markdown("---")
+            m1, m2, m3 = st.columns(3)
+            total_money = filtered['Kafaltii_Taj'].sum()
+            total_cases = len(filtered)
+            top_service = service_stats.idxmax() if not service_stats.empty else "N/A"
+            m1.metric("💰 Galii Waliigalaa", f"{total_money:,.2f} ETB")
+            m2.metric("👥 Baay'ina Maamiltootaa", total_cases)
+            m3.metric("🔝 Tajaajila Baay'ee", top_service)
+
+            st.markdown("#### 📄 Odeeffannoo Bal'aa")
             st.dataframe(filtered[COL_NAMES], use_container_width=True)
-            total = filtered['Kafaltii_Taj'].sum()
-            st.metric(f"💰 Galii ({f_type})", f"{total:,.2f} ETB")
 
             buf = io.BytesIO()
-            with pd.ExcelWriter(buf, engine='xlsxwriter') as wr: filtered[COL_NAMES].to_excel(wr, index=False)
+            with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
+                filtered[COL_NAMES].to_excel(wr, index=False)
             col_b1, col_b2 = st.columns(2)
-            col_b1.download_button("📥 Excel Download", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
+            col_b1.download_button("🟢 Excel Buufadhu", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
             if col_b2.button("✈️ Telegram-itti Ergi"):
-                cap = f"Gabaasa {f_type}\nGalii: {total:,.2f} ETB"
+                cap = f"📊 *Gabaasa {f_type}*\n\n💰 Galii: {total_money:,.2f} ETB\n👥 Maamiltoota: {total_cases}\n🔥 Tajaajila Baay'ee: {top_service}"
                 if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", cap): st.success("✅ Ergameera!")
         else: st.warning("Data'n hin jiru.")
 
+    # --- AWARDS ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Badhaasa & Sartiifiikeeta")
         cl, cr = st.columns(2)
@@ -217,6 +240,7 @@ else:
                         st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
                     except: st.error("PDF uumuu irratti rakkoon uumame.")
 
+    # --- SEARCH & EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sirreessi")
         q = st.text_input("Maqaa Barbaadi...")
