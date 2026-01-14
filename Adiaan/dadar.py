@@ -62,14 +62,25 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_fill_color(245, 255, 245); pdf.rect(12, 12, 273, 186, 'F')
     pdf.set_line_width(4); pdf.set_draw_color(r, g, b); pdf.rect(10, 10, 277, 190)
 
-    # Logos - Using getvalue() for reliability
+    # --- LOGO SIRREESSUU (FIXED) ---
+    # Logo Bitaa
     if logo_left:
-        with open("temp_logo_l.png", "wb") as f: f.write(logo_left.getvalue())
-        pdf.image("temp_logo_l.png", x=20, y=15, w=35)
+        # Gosa fayilaa (jpg/png) addaan baasuu
+        ext_l = logo_left.name.split('.')[-1].lower()
+        temp_l = f"temp_logo_l.{ext_l}"
+        with open(temp_l, "wb") as f: 
+            f.write(logo_left.getvalue())
+        pdf.image(temp_l, x=20, y=15, w=35)
+        
+    # Logo Mirgaa
     if logo_right:
-        with open("temp_logo_r.png", "wb") as f: f.write(logo_right.getvalue())
-        pdf.image("temp_logo_r.png", x=240, y=15, w=35)
+        ext_r = logo_right.name.split('.')[-1].lower()
+        temp_r = f"temp_logo_r.{ext_r}"
+        with open(temp_r, "wb") as f: 
+            f.write(logo_right.getvalue())
+        pdf.image(temp_r, x=240, y=15, w=35)
 
+    # --- TEXT CONTENT ---
     pdf.set_y(45); pdf.set_text_color(r, g, b); pdf.set_font('Arial', 'B', 35)
     pdf.cell(0, 25, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     pdf.set_text_color(30, 70, 30); pdf.set_font('Arial', 'B', 18)
@@ -243,3 +254,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
