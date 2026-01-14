@@ -85,20 +85,30 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.5, 1])
+    # --- LOGIN PAGE WITH LOGO ---
+    _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
-        st.markdown("<h2 style='text-align:center;'>🔐 Dadar Land Login</h2>", unsafe_allow_html=True)
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.button("Seeni"):
-            if u == "admin" and p == "123":
-                st.session_state.logged_in = True
-                st.rerun()
-            else: st.error("Maqaan ykn Koodiin dogoggora!")
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=120)
+        
+        st.markdown("<h2 style='text-align:center; color: #1b5e20;'>🏢 Dadar Land Office</h2>", unsafe_allow_html=True)
+        
+        with st.form("login_form"):
+            st.markdown("#### 🔐 Login")
+            u = st.text_input("Username", placeholder="admin")
+            p = st.text_input("Password", type="password", placeholder="••••••••")
+            if st.form_submit_button("Seeni"):
+                if u == "admin" and p == "123":
+                    st.session_state.logged_in = True
+                    st.rerun()
+                else:
+                    st.error("Maqaan ykn Koodiin dogoggora!")
 else:
+    # --- AFTER LOGIN: SIDEBAR & DATA ---
     df = load_data()
     with st.sidebar:
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=80)
+        if os.path.exists(LOGO_PATH): 
+            st.image(LOGO_PATH, width=100)
         st.success("Deder City Land Office")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
         if st.button("Log Out"):
@@ -153,7 +163,7 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
 
-    # --- REPORTING & VISUALS (FULLY INTEGRATED) ---
+    # --- REPORTING & VISUALS ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa fi Calalii Bal'aa")
         if not df.empty:
@@ -161,8 +171,6 @@ else:
             f_type = st.sidebar.selectbox("Yeroo Filadhu:", ["Waliigala", "Guyyaa (Wix-Jim)", "Torbee (1-4)", "Ji'a (Ful-Hag)", "Kurmaana (1-4)", "Waggaa"])
             
             filtered = df.copy()
-            
-            # --- CALALII LOGIC ---
             if f_type == "Guyyaa (Wix-Jim)":
                 filtered['Day_Name'] = filtered['Date_Obj'].dt.day_name()
                 days_map = {"Monday": "Wixata", "Tuesday": "Kibxata", "Wednesday": "Roobii", "Thursday": "Kamisa", "Friday": "Jimaata"}
@@ -182,7 +190,6 @@ else:
                 sel_y = st.sidebar.selectbox("Waggaa:", sorted(filtered['Waggaa'].dropna().unique(), reverse=True))
                 filtered = filtered[filtered['Waggaa'] == sel_y]
 
-            # --- VISUALIZATION SECTION ---
             st.markdown("---")
             st.subheader("📊 Raawwii Gosa Tajaajilaa")
             service_stats = filtered['Gosa_Tajajjilaa'].str.split(', ').explode().value_counts()
@@ -191,56 +198,46 @@ else:
                 col_chart1, col_chart2 = st.columns([1, 1])
                 with col_chart1:
                     st.markdown("##### 🥧 Hirmaannaa Tajaajilaa (%)")
-                    fig_pie = px.pie(values=service_stats.values, names=service_stats.index, 
-                                   hole=0.4, color_discrete_sequence=px.colors.sequential.Greens_r)
+                    fig_pie = px.pie(values=service_stats.values, names=service_stats.index, hole=0.4, color_discrete_sequence=px.colors.sequential.Greens_r)
                     st.plotly_chart(fig_pie, use_container_width=True)
                 with col_chart2:
                     st.markdown("##### 📊 Baay'ina Tajaajilaa (Units)")
                     st.bar_chart(service_stats)
 
-            
-
-            # --- DATA METRICS ---
             st.markdown("---")
             m1, m2, m3 = st.columns(3)
             total_money = filtered['Kafaltii_Taj'].sum()
             total_cases = len(filtered)
             top_service = service_stats.idxmax() if not service_stats.empty else "N/A"
             m1.metric("💰 Galii Waliigalaa", f"{total_money:,.2f} ETB")
-            m2.metric("👥 Baay'ina Maamiltootaa", total_cases)
+            m2.metric("👥 Maamiltoota", total_cases)
             m3.metric("🔝 Tajaajila Baay'ee", top_service)
 
-            st.markdown("#### 📄 Odeeffannoo Bal'aa")
             st.dataframe(filtered[COL_NAMES], use_container_width=True)
 
             buf = io.BytesIO()
             with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
                 filtered[COL_NAMES].to_excel(wr, index=False)
-            col_b1, col_b2 = st.columns(2)
-            col_b1.download_button("🟢 Excel Buufadhu", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
-            if col_b2.button("✈️ Telegram-itti Ergi"):
-                cap = f"📊 *Gabaasa {f_type}*\n\n💰 Galii: {total_money:,.2f} ETB\n👥 Maamiltoota: {total_cases}\n🔥 Tajaajila Baay'ee: {top_service}"
+            c1, c2 = st.columns(2)
+            c1.download_button("🟢 Excel Buufadhu", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
+            if c2.button("✈️ Telegram"):
+                cap = f"📊 Gabaasa {f_type}\n💰 Galii: {total_money:,.2f} ETB\n👥 Maamiltoota: {total_cases}"
                 if send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", cap): st.success("✅ Ergameera!")
         else: st.warning("Data'n hin jiru.")
 
-    # --- AWARDS ---
+    # --- AWARDS & SEARCH & EXIT ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Badhaasa & Sartiifiikeeta")
         cl, cr = st.columns(2)
-        logo_l = cl.file_uploader("Logo Bitaa", type=['png', 'jpg'], key="l_up")
-        logo_r = cr.file_uploader("Logo Mirgaa", type=['png', 'jpg'], key="r_up")
+        l_l, l_r = cl.file_uploader("Logo Bitaa", type=['png', 'jpg']), cr.file_uploader("Logo Mirgaa", type=['png', 'jpg'])
         if not df.empty:
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
             cols = st.columns(3)
             for i, (name, count) in enumerate(top_3.items(), 1):
                 with cols[i-1]:
                     st.markdown(f"<div class='card'><h2>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
-                    try:
-                        pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
-                        st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
-                    except: st.error("PDF uumuu irratti rakkoon uumame.")
+                    st.download_button(f"📥 PDF {i}", create_advanced_pdf(name, count, i, l_l, l_r), f"Cert_{name}.pdf", "application/pdf")
 
-    # --- SEARCH & EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sirreessi")
         q = st.text_input("Maqaa Barbaadi...")
