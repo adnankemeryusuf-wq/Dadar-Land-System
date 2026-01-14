@@ -256,29 +256,39 @@ else:
                         st.error(f"PDF Error: {e}")
         else: st.info("Data'n hin jiru.")
 
-    # --- SEARCH/EDIT ---
+# --- SEARCH/EDIT & DELETE ---
     elif menu == "🔍 Barbaadi/Edit":
-        st.header("🔍 Barbaadi fi Sirreessi")
+        st.header("🔍 Barbaadi fi Sirreessi/Haqi")
         q = st.text_input("Maqaa Abbaa Dhimmaa Barbaadi...")
+        
         if q:
+            # Maqaa barbaadame addaan baasuu
             results = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            
             if not results.empty:
                 for idx, row in results.iterrows():
+                    # Tokko tokkoon galmee bananii ilaaluuf
                     with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} - {row['Guyyaa']}"):
-                        new_name = st.text_input("Maqaa Sirreessi", row['Maqaa_Abbaa_Dhimmaa'], key=f"n_{idx}")
-                        new_fee = st.number_input("Kafaltii Sirreessi", float(row['Kafaltii_Taj']), key=f"f_{idx}")
-                        c1, c2 = st.columns(2)
-                        if c1.button("💾 Update", key=f"u_{idx}"):
-                            df.at[idx, 'Maqaa_Abbaa_Dhimmaa'] = new_name
-                            df.at[idx, 'Kafaltii_Taj'] = new_fee
-                            save_data(df); st.success("Sirreeffameera!"); st.rerun()
-                        if c2.button("🗑 Haqi", key=f"d_{idx}"):
-                            df = df.drop(idx); save_data(df); st.warning("Haqumeera!"); st.rerun()
-            else: st.error("Maqaan kun hin jiru.")
+                        st.write(f"Gosa Tajaajilaa: {row['Gosa_Tajaajilaa']}")
+                        st.write(f"Kafaltii: {row['Kafaltii_Taj']} ETB")
+                        
+                        col1, col2 = st.columns(2)
+                        
+                        # Button Haquu (Delete)
+                        if col2.button("🗑 Galmee Kana Haqi", key=f"del_{idx}"):
+                            # Index fayyadamuun df keessaa haquu
+                            df = df.drop(idx)
+                            # Excel irratti save gochuun akka badu taasisuu
+                            save_data(df)
+                            st.warning(f"Galmeen {row['Maqaa_Abbaa_Dhimmaa']} haqameera!")
+                            st.rerun() # Appii refresh gochuuf
+            else:
+                st.error("Maqaan barbaadame hin jiru.")
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
