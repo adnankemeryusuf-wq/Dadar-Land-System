@@ -96,7 +96,7 @@ if not st.session_state.get('logged_in', False):
     _, col_mid, _ = st.columns([1, 1.5, 1]) 
     with col_mid:
         # ... (koodii login keessan asuma jira)
-        st.write("Maaloo Login Godhaa")
+        st.write("DadarLand Customer Registration System")
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         if st.button("Seeni"):
@@ -249,6 +249,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
