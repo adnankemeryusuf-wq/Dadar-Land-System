@@ -51,96 +51,74 @@ def send_to_telegram(file_data, file_name, caption):
     try: return requests.post(url, files=files, data=data).status_code == 200
     except: return False
 
-# ================= 3. PDF GENERATOR (AFAN OROMO ONLY - SIZE 34) =================
+# ================= 3. PDF GENERATOR (OPTIMIZED SIZE & AFAN OROMO) =================
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     # Orientation 'L' (Landscape), A4
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
-    # Halluuwwan Filataman
-    gold_metal = (255, 215, 0)      # Bright Gold Metal
-    deep_green = (0, 80, 0)         # Magariisa Dukkanaa'aa
-    bg_color = (255, 254, 245)      # Soft Cream Background
+    # Halluuwwan
+    gold_metal = (255, 215, 0)      # Bright Gold
+    deep_green = (0, 80, 0)         # Deep Green
+    bg_color = (255, 254, 245)      # Cream
 
     # --- 1. Background fi Border ---
     pdf.set_fill_color(*bg_color)
     pdf.rect(10, 10, 277, 190, 'F')
     
-    # Border alaa (Double Design)
-    pdf.set_draw_color(*deep_green) 
-    pdf.set_line_width(3)
-    pdf.rect(10, 10, 277, 190)
-    
-    pdf.set_draw_color(*gold_metal)
-    pdf.set_line_width(1.2)
-    pdf.rect(13, 13, 271, 184)
+    pdf.set_draw_color(*deep_green); pdf.set_line_width(2.5); pdf.rect(10, 10, 277, 190)
+    pdf.set_draw_color(*gold_metal); pdf.set_line_width(1.0); pdf.rect(13, 13, 271, 184)
 
     # --- 2. Logo Management ---
     if logo_left:
-        ext_l = logo_left.name.split('.')[-1].lower()
-        temp_l = f"temp_l.{ext_l}"
-        with open(temp_l, "wb") as f: f.write(logo_left.getbuffer())
-        pdf.image(temp_l, x=22, y=18, w=40)
+        with open("temp_l.png", "wb") as f: f.write(logo_left.getbuffer())
+        pdf.image("temp_l.png", x=25, y=18, w=35)
 
     if logo_right:
-        ext_r = logo_right.name.split('.')[-1].lower()
-        temp_r = f"temp_r.{ext_r}"
-        with open(temp_r, "wb") as f: f.write(logo_right.getbuffer())
-        pdf.image(temp_r, x=235, y=18, w=40)
+        with open("temp_r.png", "wb") as f: f.write(logo_right.getbuffer())
+        pdf.image("temp_r.png", x=235, y=18, w=35)
 
-    # --- 3. Mata Duree ---
-    pdf.set_y(38)
+    # --- 3. Mata Duree (XIQQEEFFAME - SIZE 30) ---
+    pdf.set_y(40)
     pdf.set_text_color(*gold_metal)
-    pdf.set_font('Arial', 'B', 45) 
-    pdf.cell(0, 22, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
+    pdf.set_font('Arial', 'B', 30) # Size xiqqeessuuf 46 irraa gara 30tti dhufe
+    pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     
-    # Sarara Bareechituu Gidduu
+    # Sarara bareechituu gidduu
     pdf.set_draw_color(*gold_metal)
-    pdf.line(90, 65, 207, 65)
+    pdf.line(100, 58, 197, 58)
 
-    pdf.set_y(72)
+    pdf.set_y(65)
     pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 22)
-    pdf.cell(0, 12, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
+    pdf.set_font('Arial', 'B', 20)
+    pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
 
-    # --- 4. Maqaa Ogeessaa (Size 34) ---
-    pdf.set_y(105)
+    # --- 4. Maqaa Ogeessaa (SIZE 34) ---
+    pdf.set_y(95)
     pdf.set_text_color(60, 60, 60)
-    pdf.set_font('Arial', 'I', 16)
+    pdf.set_font('Arial', 'I', 15)
     pdf.cell(0, 10, "Sartiifiketiin kun kabajaan kan kennameef:", ln=True, align='C')
     
-    # Maqaa Ogeessaa (Size 34 jedhame)
     pdf.ln(5)
     pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 34) 
-    pdf.cell(0, 25, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
+    pdf.set_font('Arial', 'B', 34) # Maqaan akkuma gaafatetti Size 34
+    pdf.cell(0, 20, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
     
-    # Jechoota Galataa (Afaan Oromoo Qofa)
+    # Jechoota Galataa
     pdf.ln(8)
     pdf.set_text_color(40, 40, 40)
-    pdf.set_font('Arial', '', 16)
-    msg_oromoo = "Waggaa 2026 keessatti tajaajila saffisaa, qulqulluu fi amannamaa ta'een tajaajila hawaasaa irratti gumaacha guddaa waan gumaachaniif badhaasa kanaan galateeffamaniiru."
-    
-    pdf.multi_cell(0, 10, msg_oromoo, align='C')
+    pdf.set_font('Arial', '', 15)
+    msg = "Waggaa 2026 keessatti tajaajila saffisaa, qulqulluu fi amannamaa ta'een tajaajila hawaasaa irratti gumaacha guddaa waan gumaachaniif badhaasa kanaan galateeffamaniiru."
+    pdf.multi_cell(0, 10, msg, align='C')
 
-    # --- 5. Bakka Mallattoo fi Guyyaa ---
-    pdf.set_y(175)
-    curr_y = pdf.get_y()
-    
-    pdf.set_draw_color(*deep_green)
-    pdf.set_line_width(0.8)
-    
-    # Bitaa: Mallattoo
-    pdf.line(40, curr_y, 115, curr_y)
-    pdf.set_xy(40, curr_y + 2)
-    pdf.set_font('Arial', 'B', 14); pdf.set_text_color(*deep_green)
-    pdf.cell(75, 8, "Mallattoo Itti Gaafatamaa", ln=True, align='C')
+    # --- 5. Signature Section ---
+    pdf.set_y(172)
+    pdf.set_draw_color(*deep_green); pdf.set_line_width(0.6)
+    pdf.line(40, 172, 110, 172)
+    pdf.set_xy(40, 174); pdf.set_font('Arial', 'B', 12); pdf.cell(70, 8, "Mallattoo Itti Gaafatamaa", align='C')
 
-    # Mirga: Guyyaa
-    pdf.line(180, curr_y, 255, curr_y)
-    pdf.set_xy(180, curr_y + 2)
-    pdf.set_font('Arial', 'B', 14)
-    pdf.cell(75, 8, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='C')
+    pdf.line(180, 172, 250, 172)
+    pdf.set_xy(180, 174); pdf.cell(70, 8, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", align='C')
 
     return pdf.output(dest='S').encode('latin-1')
 
@@ -295,6 +273,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
