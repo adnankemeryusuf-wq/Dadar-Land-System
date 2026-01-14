@@ -138,7 +138,7 @@ if not st.session_state.logged_in:
         # Mata duree size isaa madaalawaa (h4) fi halluu magariisa dukkanaawaa
         st.markdown("""
             <h4 style='text-align:center; color: #1b5e20; font-family: sans-serif; margin-top: -10px;'>
-            Dadar Land Administration <br> Customer Registration System
+            Dadar Land Administration <br> Land Office
             </h4>
             """, unsafe_allow_html=True)
         
@@ -298,6 +298,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
