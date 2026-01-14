@@ -1,4 +1,3 @@
-Adnan Kemer Yusuf, [1/14/2026 1:44 AM]
 import streamlit as st
 import pandas as pd
 import os
@@ -193,3 +192,4 @@ Adnan Kemer Yusuf, [1/14/2026 1:44 AM]
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
