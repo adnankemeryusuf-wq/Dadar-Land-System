@@ -90,13 +90,14 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-f not st.session_state.logged_in:
+# --- 1. LOGIN SECTION ---
+if not st.session_state.get('logged_in', False):
     _, col_mid, _ = st.columns([1, 1.5, 1]) 
     with col_mid:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=80)
         
-       st.markdown("""
+        st.markdown("""
             <h4 style='text-align:center; color: #1b5e20; font-family: sans-serif; margin-top: -10px;'>
                 Dadar Land Administration <br> Customer Registration System 
             </h4>
@@ -108,20 +109,26 @@ f not st.session_state.logged_in:
         if st.button("Seeni"):
             if u == "admin" and p == "123": 
                 st.session_state.logged_in = True
-                st.rerun()  # Erga login ta'ee booda akka refresh godhuuf
+                st.rerun()  
             else: 
-                st.error("Username ykn Password dogoggora!"))
+                st.error("Username ykn Password dogoggora!") # Cufaan dabalataa asii haqameera
+
+# --- 2. MAIN APP SECTION (LOGGED IN) ---
 else:
-    df = load_data() # KANA QOFA TUQQA! (Fake data isaa sarara 128 irra ture sanan haqera)
+    # Data asitti dubbisna
+    df = load_data() 
     
+    # Sidebar irratti mallattoo login ta'uu keessanii fi logout fiduuf
     with st.sidebar:
-        st.title("Dadar Admin")
-        st.write("---")
-        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=60)
+        st.success(f"Log-in: {u if 'u' in locals() else 'Admin'}")
         if st.button("Log Out"):
             st.session_state.logged_in = False
             st.rerun()
-
+    
+    # Koodiin keessan inni kaan (Dashboard, Registration, etc.) asii gadi itti fufa...
+    st.title("Waajjira Lafaa Magaalaa Dadar")
     if menu == "📊 Dashboard":
         st.markdown("<h3 style='color: #1b5e20;'>📊 Deder City Land Office Dashboard</h3>", unsafe_allow_html=True)
         st.divider()
@@ -241,5 +248,6 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
