@@ -128,21 +128,21 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-if 'logged_in' not in st.session_state: 
-    st.session_state.logged_in = False
-
 if not st.session_state.logged_in:
-    # Saanduqa login gidduutti fiduuf
-    _, col_mid, _ = st.columns([1, 1.2, 1])
-    
+    _, col_mid, _ = st.columns([1, 1.5, 1]) # Giddu-galeessa isaa xiqqoo bal'isneera
     with col_mid:
-        # 1. Logo Login Irratti Agarsiisuu
         if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=70)
+            # Logo baay'ee xiqqaa (80px)
+            st.image(LOGO_PATH, width=80)
         
-        st.markdown("<h2 style='text-align:center;'> Dadar Land Administration Customer Registration System</h2>", unsafe_allow_html=True)
+        # Mata duree size isaa madaalawaa (h4) fi halluu magariisa dukkanaawaa
+        st.markdown("""
+            <h4 style='text-align:center; color: #1b5e20; font-family: sans-serif; margin-top: -10px;'>
+            Dadar Land Administration <br> Customer Registration System
+            </h4>
+            """, unsafe_allow_html=True)
         
-        # 2. Form Login
+        # Form Login...
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         
@@ -294,6 +294,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
