@@ -128,30 +128,36 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
+# --- 1. JALQABA IRRATTI KANA DABALAA ---
+# Kun session state jalqabsiisa (Initialize)
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# --- 2. KAN ISIN BARREESSITAN ---
 if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.5, 1]) # Giddu-galeessa isaa xiqqoo bal'isneera
+    _, col_mid, _ = st.columns([1, 1.5, 1]) 
     with col_mid:
         if os.path.exists(LOGO_PATH):
-            # Logo baay'ee xiqqaa (80px)
             st.image(LOGO_PATH, width=80)
         
-        # Mata duree size isaa madaalawaa (h4) fi halluu magariisa dukkanaawaa
         st.markdown("""
             <h4 style='text-align:center; color: #1b5e20; font-family: sans-serif; margin-top: -10px;'>
-        Dadar Land Administration <br> Customer Registration System 
+                Dadar Land Administration <br> Customer Registration System 
             </h4>
             """, unsafe_allow_html=True)
         
-        # Form Login...
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         
         if st.button("Seeni"):
             if u == "admin" and p == "123": 
                 st.session_state.logged_in = True
-                st.rerun()
+                st.rerun()  # Erga login ta'ee booda akka refresh godhuuf
             else: 
                 st.error("Username ykn Password dogoggora!")
+else:
+    # Bakka kanatti koodii registration ykn dashboard keessan itti fufa
+    st.sidebar.success("Milkiin seenuun danda'ameera!")
 else:
     df = load_data()
     
@@ -298,6 +304,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
