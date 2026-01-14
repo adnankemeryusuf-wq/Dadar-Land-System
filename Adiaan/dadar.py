@@ -52,6 +52,10 @@ def send_to_telegram(file_data, file_name, caption):
     except: return False
 
 # ================= 3. PDF GENERATOR =================
+dimport os
+from datetime import datetime
+from io import BytesIO
+
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
@@ -61,15 +65,27 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_fill_color(245, 255, 245); pdf.rect(12, 12, 273, 186, 'F')
     pdf.set_line_width(4); pdf.set_draw_color(r, g, b); pdf.rect(10, 10, 277, 190)
 
+    # --- Logo Bitaa Sirreessuu ---
     if logo_left:
-        with open("temp_l.png", "wb") as f: f.write(logo_left.getbuffer())
-        pdf.image("temp_l.png", x=22, y=20, w=35)
+        # Gosa faayilii isaa (jpg ykn png) adda baasuu
+        ext_l = logo_left.name.split('.')[-1].lower()
+        temp_l = f"temp_l.{ext_l}"
+        with open(temp_l, "wb") as f: 
+            f.write(logo_left.getbuffer())
+        pdf.image(temp_l, x=22, y=20, w=35)
+
+    # --- Logo Mirgaa Sirreessuu ---
     if logo_right:
-        with open("temp_r.png", "wb") as f: f.write(logo_right.getbuffer())
-        pdf.image("temp_r.png", x=240, y=20, w=35)
+        ext_r = logo_right.name.split('.')[-1].lower()
+        temp_r = f"temp_r.{ext_r}"
+        with open(temp_r, "wb") as f: 
+            f.write(logo_right.getbuffer())
+        pdf.image(temp_r, x=240, y=20, w=35)
 
     pdf.set_y(45); pdf.set_text_color(r, g, b); pdf.set_font('Arial', 'B', 35)
     pdf.cell(0, 25, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
+    
+    # ... (koodiin kee inni kaan akkuma jirutti itti fufa)
     pdf.set_text_color(30, 70, 30); pdf.set_font('Arial', 'B', 18)
     pdf.cell(0, 10, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
     
@@ -245,5 +261,6 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
