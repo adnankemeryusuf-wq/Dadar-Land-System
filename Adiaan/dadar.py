@@ -161,28 +161,25 @@ else:
             st.image(LOGO_PATH, width=80)
         st.title(" Dadar Land Administration Customer Registration System")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
-    # --- DASHBOARD ---
-  # --- Line 165 ---
-if menu == "📊 Dashboard":
-    # Sarara kana bitaa irraa fageessi (Indent godhi)
-    st.markdown("<h5 style='color: #1b5e20; margin-bottom: -20px;'>📊 Dadar Land Administration Customer Registration System</h5>", unsafe_allow_html=True)
-    st.divider() 
-    
-    if not df.empty:
-        # Kutaaleen as jiran hundi fageenya qabaachuu qabu
-        c1, c2, c3 = st.columns(3)
-        # ... koodii kee isa kaan itti fufi
+ # --- DASHBOARD ---
+    if menu == "📊 Dashboard":
+        st.markdown("<h5 style='color: #1b5e20; margin-bottom: -20px;'>📊 Dadar Land Administration Customer Registration System</h5>", unsafe_allow_html=True)
+        st.divider()
+
+        if not df.empty:
             c1, c2, c3 = st.columns(3)
-            c1.markdown(f"<div class='card'><h4>💰 Galii Waliigalaa</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
-            c2.markdown(f"<div class='card'><h4>👥 Tajaajilamtoota</h4><h2>{len(df)}</h2><p>Walitti qabaa</p></div>", unsafe_allow_html=True)
-            c3.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p>Hojii irra jiran</p></div>", unsafe_allow_html=True)
-            st.divider()
-            st.subheader("📈 Raawwii Galii Ji'aan")
-            st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0))
+            with c1:
+                st.markdown(f"<div class='card'><h4>💰 Galii</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p style='font-size:10px;'>ETB</p></div>", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"<div class='card'><h4>👥 Tajaajilamtoota</h4><h2>{len(df)}</h2><p style='font-size:10px;'>Waliigala</p></div>", unsafe_allow_html=True)
+            with c3:
+                st.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p style='font-size:10px;'>Aktiiwii</p></div>", unsafe_allow_html=True)
+            
+            st.subheader("📈 Galii Ji'aan")
+            # Chart size xiqqaate
+            st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0), height=200)
         else:
             st.info("Data'n galmeeffame hin jiru.")
-
-    # --- GALMEE HAARAA ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa Haaraa")
         GATII_DICT = {
@@ -301,6 +298,7 @@ if menu == "📊 Dashboard":
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
