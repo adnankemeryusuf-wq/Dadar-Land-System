@@ -62,11 +62,13 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_draw_color(*gold); pdf.set_line_width(1.0); pdf.rect(13, 13, 271, 184)
 
     if logo_left:
-        with open("temp_l.png", "wb") as f: f.write(logo_left.getbuffer())
-        pdf.image("temp_l.png", x=25, y=18, w=35)
+        ext_l = logo_left.name.split('.')[-1].lower()
+        with open(f"temp_l.{ext_l}", "wb") as f: f.write(logo_left.getbuffer())
+        pdf.image(f"temp_l.{ext_l}", x=25, y=18, w=35)
     if logo_right:
-        with open("temp_r.png", "wb") as f: f.write(logo_right.getbuffer())
-        pdf.image("temp_r.png", x=235, y=18, w=35)
+        ext_r = logo_right.name.split('.')[-1].lower()
+        with open(f"temp_r.{ext_r}", "wb") as f: f.write(logo_right.getbuffer())
+        pdf.image(f"temp_r.{ext_r}", x=235, y=18, w=35)
 
     pdf.set_y(42); pdf.set_text_color(*gold); pdf.set_font('Arial', 'B', 32)
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
@@ -189,8 +191,10 @@ else:
             for i, (name, count) in enumerate(top_3.items(), 1):
                 with cols[i-1]:
                     st.markdown(f"<div class='card'><h2 style='color:green;'>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
-                    pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
-                    st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
+                    try:
+                        pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
+                        st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
+                    except Exception as e: st.error(f"PDF Error: {e}")
 
     # --- BARBAADI / EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
