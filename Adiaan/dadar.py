@@ -90,20 +90,27 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.2, 1])
+f not st.session_state.logged_in:
+    _, col_mid, _ = st.columns([1, 1.5, 1]) 
     with col_mid:
-        st.markdown("<h2 style='text-align:center;'> Admin Login</h2>", unsafe_allow_html=True)
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=80)
+        
+       st.markdown("""
+            <h4 style='text-align:center; color: #1b5e20; font-family: sans-serif; margin-top: -10px;'>
+                Dadar Land Administration <br> Customer Registration System 
+            </h4>
+            """, unsafe_allow_html=True)
+        
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
+        
         if st.button("Seeni"):
             if u == "admin" and p == "123": 
                 st.session_state.logged_in = True
-                st.rerun()
-            else: st.error("Dogoggora!")
+                st.rerun()  # Erga login ta'ee booda akka refresh godhuuf
+            else: 
+                st.error("Username ykn Password dogoggora!"))
 else:
     df = load_data() # KANA QOFA TUQQA! (Fake data isaa sarara 128 irra ture sanan haqera)
     
@@ -234,4 +241,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
