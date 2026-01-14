@@ -1,4 +1,3 @@
-Adnan Kemer Yusuf, [1/15/2026 1:23 AM]
 import streamlit as st
 import pandas as pd
 import os
@@ -72,7 +71,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
         with open(temp_r, "wb") as f: f.write(logo_right.getbuffer())
         pdf.image(temp_r, x=235, y=18, w=35)
 
-Adnan Kemer Yusuf, [1/15/2026 1:23 AM]
+
 pdf.set_y(42); pdf.set_text_color(*gold_metal); pdf.set_font('Arial', 'B', 30) 
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     pdf.line(105, 58, 192, 58)
@@ -256,3 +255,4 @@ elif menu == "🏆 Badhaasa Ogeeyyii":
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
