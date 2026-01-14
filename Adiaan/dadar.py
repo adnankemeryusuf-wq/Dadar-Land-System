@@ -205,17 +205,22 @@ else:
         logo_r = cr.file_uploader("Logo Mirgaa Filadhu", type=['png', 'jpg'])
         
         if not df.empty:
+            # Maqaan kolumunaa 'Maqaa_Ogeessa' ta'uu isaa mirkaneessi
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
             cols = st.columns(3)
+            
             for i, (name, count) in enumerate(top_3.items(), 1):
                 with cols[i-1]:
                     st.markdown(f"<div class='card'><h2 style='color:green;'>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
                     try:
+                        # Funshiniin kun asii gaditti waamama
                         pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
                         st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf")
-                   except Exception as e:
-    st.error(f"PDF Error: {e}")
-        else: st.info("Data'n hin jiru.")
+                    except Exception as e:
+                        # Dogoggora jiru asitti sitti hima
+                        st.error(f"PDF Error: {str(e)}")
+        else:
+            st.info("Data'n hin jiru.")
 
     # --- SEARCH/EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
@@ -240,4 +245,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
