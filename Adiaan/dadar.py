@@ -128,16 +128,30 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+if 'logged_in' not in st.session_state: 
+    st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
+    # Saanduqa login gidduutti fiduuf
     _, col_mid, _ = st.columns([1, 1.2, 1])
+    
     with col_mid:
+        # 1. Logo Login Irratti Agarsiisuu
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=120)
+        
         st.markdown("<h2 style='text-align:center;'>🏢 Admin Login</h2>", unsafe_allow_html=True)
-        u, p = st.text_input("Username"), st.text_input("Password", type="password")
+        
+        # 2. Form Login
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        
         if st.button("Seeni"):
-            if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
-            else: st.error("Username ykn Password dogoggora!")
+            if u == "admin" and p == "123": 
+                st.session_state.logged_in = True
+                st.rerun()
+            else: 
+                st.error("Username ykn Password dogoggora!")
 else:
     df = load_data()
     
@@ -281,6 +295,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
