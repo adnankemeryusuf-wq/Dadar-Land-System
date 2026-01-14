@@ -138,7 +138,7 @@ if not st.session_state.logged_in:
         # Mata duree size isaa madaalawaa (h4) fi halluu magariisa dukkanaawaa
         st.markdown("""
             <h4 style='text-align:center; color: #1b5e20; font-family: sans-serif; margin-top: -10px;'>
-            Dadar Land Administration <br> Land Office
+            "Dadar Land Administration <br> Customer Registration System 
             </h4>
             """, unsafe_allow_html=True)
         
@@ -159,7 +159,7 @@ else:
         # Logo Sidebar - Iddoo isaatti akka xiqqaatuuf width=80 gahaadha
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=80)
-        st.title("Dadar Land Administration Customer Registration System")
+        st.title("Deder City Administration Land Office")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
  # --- DASHBOARD ---
     if menu == "📊 Dashboard":
@@ -298,6 +298,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
