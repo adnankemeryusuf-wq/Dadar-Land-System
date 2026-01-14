@@ -163,6 +163,9 @@ else:
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
     # --- DASHBOARD ---
     if menu == "📊 Dashboard":
+    # Mata-duree xiqqaate (Size h5)
+    st.markdown("<h5 style='color: #1b5e20; margin-bottom: -20px;'>📊 Dadar Land Administration Customer Registration System</h5>", unsafe_allow_html=True)
+    st.divider() # Sarara addaan baasu xiqqaatwaa
         st.header("📊 Dashboard")
         if not df.empty:
             c1, c2, c3 = st.columns(3)
@@ -294,6 +297,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
