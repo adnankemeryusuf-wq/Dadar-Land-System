@@ -128,9 +128,6 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-import streamlit as st
-import os
-
 # 1. Jalqaba irratti variable kana mirkaneessi
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
@@ -302,6 +299,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
