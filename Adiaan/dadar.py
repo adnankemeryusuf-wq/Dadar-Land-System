@@ -128,42 +128,21 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP =================
-# --- KANA JALQABA IRRATTI DABALAA ---
-# Variable 'logged_in' memory keessa jiraachuu isaa mirkaneessa
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
+f 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
-# Amma koodiin keessan inni armaan gadii sirriitti hojjeta
 if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.5, 1])
+    _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
-        # Logo fi login form keessan asitti itti fufa...
-        pass
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=80)
-        
-        # Ensure this markdown block is closed properly
-        st.markdown("""
-            <h4 style='text-align:center; color: #1b5e20;'>
-                Dadar Land Administration System
-            </h4>
-            """, unsafe_allow_html=True)
-        
-        # ... (Your text inputs and login button go here) ...
-
-# --- Step 2: The Else Block (MUST ALIGN WITH 'IF' ABOVE) ---
+        st.markdown("<h2 style='text-align:center;'>🏢 Admin Login</h2>", unsafe_allow_html=True)
+        u, p = st.text_input("Username"), st.text_input("Password", type="password")
+        if st.button("Seeni"):
+            if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
+            else: st.error("Username ykn Password dogoggora!")
 else:
     df = load_data()
     
     with st.sidebar:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=80)
-        st.title("Deder City Administration Land Office")
-        
-        # Useful: Add a logout button here
-        if st.button("Log Out"):
-            st.session_state.logged_in = False
-            st.rerun()
+        st.title("Dadar Admin")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
  # --- DASHBOARD ---
     if menu == "📊 Dashboard":
@@ -302,6 +281,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
