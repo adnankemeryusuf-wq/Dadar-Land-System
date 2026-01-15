@@ -158,7 +158,7 @@ if not st.session_state.logged_in:
     with col_mid:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=100)
-        st.markdown("<h1 style='text-align:center; color: #1b5e20;'>Dadar Land Administration Customer Registration System</h2>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center; color: #1b5e20;'>Dadar Land Administration Customer Registration System</h1>", unsafe_allow_html=True)
         with st.form("login_form"):
             st.markdown("####  Login")
             u = st.text_input("Username", placeholder="admin")
@@ -378,6 +378,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
