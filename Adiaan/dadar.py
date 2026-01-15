@@ -243,19 +243,51 @@ else:
                 st.warning("Yeroo kana data'n galmeeffame hin jiru.")
         else: st.warning("Data'n hin jiru.")
 
-    # --- AWARDS ---
+   # --- BADHAASA OGEEYYII ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
-        st.header("🏆 Badhaasa & Sartiifiikeeta")
+        st.markdown("<h4 style='color: #1b5e20;'>🏆 Sadarkaa fi Badhaasa Ogeeyyii</h4>", unsafe_allow_html=True)
+        
+        # Logo filachuuf
         cl, cr = st.columns(2)
-        l_l = cl.file_uploader("Logo Bitaa", type=['png', 'jpg'])
-        l_r = cr.file_uploader("Logo Mirgaa", type=['png', 'jpg'])
+        l_l = cl.file_uploader("Logo Bitaa (PDF irratti)", type=['png', 'jpg'], key="logo_l")
+        l_r = cr.file_uploader("Logo Mirgaa (PDF irratti)", type=['png', 'jpg'], key="logo_r")
+        
+        st.divider()
+
         if not df.empty:
+            # Ogeeyyii baay'ina hojiitiin addaan baasuu
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
             cols = st.columns(3)
-            for i, (name, count) in enumerate(top_3.items(), 1):
-                with cols[i-1]:
-                    st.markdown(f"<div class='card'><h2>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
-                    st.download_button(f"📥 PDF {i}", create_advanced_pdf(name, count, i, l_l, l_r), f"Cert_{name}.pdf")
+            
+            # Halluuwwan sadarkaaf
+            colors = ["#FFD700", "#C0C0C0", "#CD7F32"] # Gold, Silver, Bronze
+            labels = ["1FFAA", "2FFAA", "3FFAA"]
+
+            for i, (name, count) in enumerate(top_3.items()):
+                with cols[i]:
+                    # Card bareedaa halluu sadarkaatiin
+                    st.markdown(f"""
+                        <div class='card' style='border-top: 5px solid {colors[i]};'>
+                            <h2 style='color: {colors[i]};'>{labels[i]}</h2>
+                            <h3 style='margin: 5px 0;'>{name}</h3>
+                            <p style='font-size: 14px; color: #555;'>Hojii Raawwatame: <b>{count}</b></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # PDF Generate gochuu
+                    try:
+                        pdf_file = create_advanced_pdf(name, count, i+1, l_l, l_r)
+                        st.download_button(
+                            label=f"📥 Sartiifiketa {labels[i]}",
+                            data=pdf_file,
+                            file_name=f"Sadarkaa_{i+1}_{name}.pdf",
+                            mime="application/pdf",
+                            key=f"dl_{i}"
+                        )
+                    except Exception as e:
+                        st.error("PDF uumuu irratti dogoggora!")
+        else:
+            st.info("Data'n hojii ogeeyyii agarsiisu hin jiru.")
 
     # --- SEARCH & EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
@@ -291,6 +323,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
