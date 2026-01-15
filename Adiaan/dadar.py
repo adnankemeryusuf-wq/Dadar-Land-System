@@ -1,3 +1,4 @@
+
 import streamlit as st
 import pandas as pd
 import os
@@ -14,7 +15,7 @@ LOGO_PATH = "Adiaan/logo.png"
 
 # 2. Page config irratti variable sana fayyadami (Waraabbii malee)
 st.set_page_config(
-    page_title="Dadar Land Office", 
+    page_title="Dadar Land Customer Registration System", 
     page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢", 
     layout="wide"
 )
@@ -377,6 +378,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
