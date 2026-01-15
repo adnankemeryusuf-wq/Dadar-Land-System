@@ -7,3 +7,5 @@ plotly
 ethiopian-date
 customtkinter
 xlsxwriter
+sqlalchemy
+psycopg2-binary
