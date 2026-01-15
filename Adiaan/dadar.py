@@ -59,12 +59,23 @@ def create_advanced_pdf(name, count, rank, logo_l=None, logo_r=None):
     pdf.set_fill_color(*bg); pdf.rect(10, 10, 277, 190, 'F')
     pdf.set_draw_color(*green); pdf.set_line_width(2.5); pdf.rect(10, 10, 277, 190)
     pdf.set_draw_color(*gold); pdf.set_line_width(1.0); pdf.rect(13, 13, 271, 184)
+
+    # SIRREEFFAMA: Gosa fakkii (extension) adda baasanii save gochuu
     if logo_l:
-        with open("temp_l.png", "wb") as f: f.write(logo_l.getbuffer())
-        pdf.image("temp_l.png", x=25, y=18, w=35)
+        # Maqaa file-ii irraa extension (.png ykn .jpg) adda baasna
+        ext_l = logo_l.name.split('.')[-1]
+        temp_l = f"temp_l.{ext_l}"
+        with open(temp_l, "wb") as f: 
+            f.write(logo_l.getbuffer())
+        pdf.image(temp_l, x=25, y=18, w=35)
+        
     if logo_r:
-        with open("temp_r.png", "wb") as f: f.write(logo_r.getbuffer())
-        pdf.image("temp_r.png", x=235, y=18, w=35)
+        ext_r = logo_r.name.split('.')[-1]
+        temp_r = f"temp_r.{ext_r}"
+        with open(temp_r, "wb") as f: 
+            f.write(logo_r.getbuffer())
+        pdf.image(temp_r, x=235, y=18, w=35)
+
     pdf.set_y(45); pdf.set_text_color(*gold); pdf.set_font('Arial', 'B', 32)
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     pdf.set_y(65); pdf.set_text_color(*green); pdf.set_font('Arial', 'B', 22)
@@ -74,11 +85,15 @@ def create_advanced_pdf(name, count, rank, logo_l=None, logo_r=None):
     pdf.set_text_color(*green); pdf.set_font('Arial', 'B', 26)
     pdf.cell(0, 22, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
     pdf.set_font('Arial', '', 14); pdf.set_text_color(40, 40, 40)
+    
+    # Odeeffannoo gabaabaa (Gufuu 'latin-1' hambisuuf Unicode irraa fagaachuu)
     msg = "Waggaa 2026 keessatti tajaajila saffisaa, qulqulluu fi amannamaa ta'een tajaajila hawaasaa irratti gumaacha guddaa waan gumaachaniif badhaasa kanaan galateeffamaniiru."
-    pdf.multi_cell(0, 9, msg, align='C')
+    pdf.multi_cell(0, 9, "Waggaa 2026 keessatti tajaajila saffisaa fi qulqulluun gumaacha guddaa waan gumaachaniif galateeffamaniiru.", align='C')
+    
     pdf.set_y(172); pdf.line(40, 172, 110, 172); pdf.line(180, 172, 250, 172)
     pdf.set_xy(40, 174); pdf.cell(70, 8, "Mallattoo Itti Gaafatamaa", align='C')
     pdf.set_xy(180, 174); pdf.cell(70, 8, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", align='C')
+    
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 3. MAIN APP =================
@@ -269,3 +284,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
