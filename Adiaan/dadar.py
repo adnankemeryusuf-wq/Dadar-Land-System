@@ -10,7 +10,7 @@ from ethiopian_date import EthiopianDateConverter
 
 # ================= 1. CONFIGURATION & STYLE =================
 st.set_page_config(page_title="Dadar Land Office", page_icon="🏢", layout="wide")
-
+LOGO_PATH = "Adiaan/logo.png"
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
 LOGO_PATH = "Adiaan/logo.png"
@@ -284,4 +284,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
