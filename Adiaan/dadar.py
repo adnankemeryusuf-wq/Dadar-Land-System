@@ -174,7 +174,7 @@ else:
         if os.path.exists(LOGO_PATH): 
             st.image(LOGO_PATH, width=100)
         st.success("Deder City Land Office")
-        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit"])
         if st.button("Log Out"):
             st.session_state.logged_in = False
             st.rerun()
@@ -368,6 +368,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
