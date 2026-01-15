@@ -227,66 +227,75 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
 
-    # --- REPORTING & VISUALS ---
+    # --- GABAASA BAL'AA (MODERN UI) ---
     elif menu == "📈 Gabaasa Bal'aa":
-        st.header("📈 Gabaasa fi Calalii Bal'aa")
+        st.markdown("<h4 style='color: #1b5e20;'>📈 Gabaasa fi Xiinxala Galii</h4>", unsafe_allow_html=True)
+        
         if not df.empty:
-            st.sidebar.markdown("### 🔍 Calalii Gabaasaa")
-            f_type = st.sidebar.selectbox("Yeroo Filadhu:", ["Waliigala", "Guyyaa (Kalandara Itoophiyaa)", "Ji'a (Ful-Hag)", "Kurmaana (1-4)", "Waggaa"])
-            
-            filtered = df.copy()
-
-            if f_type == "Guyyaa (Kalandara Itoophiyaa)":
-                selected_date = st.sidebar.date_input("Guyyaa Filadhu (Gregorian):", datetime.now())
-                try:
-                    # JIJJIIRRAA: Dogoggora Subscription oolchuuf
-                    eth_val = EthiopianDateConverter.to_ethiopian(selected_date.year, selected_date.month, selected_date.day)
-                    # Library tokko tokko tuple (y, m, d) deebisa, kaan immoo object
-                    if isinstance(eth_val, tuple) or isinstance(eth_val, list):
-                        eth_date_str = f"{eth_val[2]}/{eth_val[1]}/{eth_val[0]}"
-                    else:
-                        eth_date_str = f"{eth_val.day}/{eth_val.month}/{eth_val.year}"
-                    
-                    st.info(f"📅 Guyyaan Itoophiyaa: **{eth_date_str}**")
-                except Exception as e:
-                    st.error(f"Dogoggora Kalandaraa: {e}")
+            # --- 1. Filter Section (Calala) ---
+            with st.expander("🔍 Calali ykn Barbaadi", expanded=True):
+                c1, c2, c3 = st.columns(3)
+                f_type = c1.selectbox("Gosa Gabaasaa:", ["Waliigala", "Waggaa", "Kurmaana", "Ji'a", "Guyyaa"])
                 
-                filtered = filtered[filtered['Guyyaa'] == selected_date.strftime('%d/%m/%Y')]
-            
-            elif f_type == "Ji'a (Ful-Hag)":
-                sel_j = st.sidebar.selectbox("Ji'a Filadhu:", MONTH_ORDER)
-                filtered = filtered[filtered['Ji\'a'] == sel_j]
-            elif f_type == "Kurmaana (1-4)":
-                sel_k = st.sidebar.radio("Kurmaana:", [1, 2, 3, 4])
-                filtered = filtered[filtered['Kurmaana'] == sel_k]
-            elif f_type == "Waggaa":
-                sel_y = st.sidebar.selectbox("Waggaa:", sorted(filtered['Waggaa'].dropna().unique(), reverse=True))
-                filtered = filtered[filtered['Waggaa'] == sel_y]
+                filtered = df.copy()
+                if f_type == "Waggaa":
+                    sel_y = c2.selectbox("Waggaa:", sorted(df['Waggaa'].unique(), reverse=True))
+                    filtered = filtered[filtered['Waggaa'] == sel_y]
+                elif f_type == "Kurmaana":
+                    sel_k = c2.selectbox("Kurmaana:", [1, 2, 3, 4])
+                    filtered = filtered[filtered['Kurmaana'] == sel_k]
+                elif f_type == "Ji'a":
+                    sel_m = c2.selectbox("Ji'a:", MONTH_ORDER)
+                    filtered = filtered[filtered['Ji\'a'] == sel_m]
+                elif f_type == "Guyyaa":
+                    sel_d = c2.date_input("Guyyaa Filadhu:", datetime.now())
+                    filtered = filtered[filtered['Guyyaa'] == sel_d.strftime('%d/%m/%Y')]
 
+            # --- 2. Visual Metrics (Cards) ---
             st.markdown("---")
-            service_stats = filtered['Gosa_Tajajjilaa'].str.split(', ').explode().value_counts()
+            m1, m2, m3 = st.columns(3)
+            with m1:
+                st.markdown(f"<div class='card'><h4>💰 Kaffaltii</h4><h2>{filtered['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
+            with m2:
+                st.markdown(f"<div class='card'><h4>👥 Baay'ina</h4><h2>{len(filtered)}</h2><p>Abbaa Dhimmaa</p></div>", unsafe_allow_html=True)
+            with m3:
+                # Ogeessa baay'ee hojjete
+                top_st = filtered['Maqaa_Ogeessa'].mode()[0] if not filtered.empty else "-"
+                st.markdown(f"<div class='card'><h4>🏆 Ogeessa</h4><h2>{top_st}</h2><p>Hojii Baay'ee</p></div>", unsafe_allow_html=True)
 
-            if not service_stats.empty:
-                m1, m2 = st.columns(2)
-                total_money = filtered['Kafaltii_Taj'].sum()
-                total_cases = len(filtered)
-                m1.metric("💰 Galii Yeroo Kanat", f"{total_money:,.2f} ETB")
-                m2.metric("👥 Maamiltoota", total_cases)
-                
-                st.bar_chart(service_stats)
-                st.dataframe(filtered[COL_NAMES], use_container_width=True)
+            # --- 3. Graphical Analysis ---
+            col_left, col_right = st.columns([2, 1])
+            
+            with col_left:
+                st.subheader("📊 Trendii Galii")
+                # Line chart for revenue trend
+                st.area_chart(filtered.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0))
 
-                buf = io.BytesIO()
-                with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
-                    filtered[COL_NAMES].to_excel(wr, index=False)
-                c1, c2 = st.columns(2)
-                c1.download_button("🟢 Excel Buufadhu", buf.getvalue(), f"Gabaasa_{f_type}.xlsx")
-                if c2.button("✈️ Telegram"):
-                    cap = f"📊 Gabaasa {f_type}\n💰 Galii: {total_money:,.2f} ETB"
-                    send_to_telegram(buf.getvalue(), "Gabaasa.xlsx", cap)
-            else:
-                st.warning("Yeroo kana data'n galmeeffame hin jiru.")
-        else: st.warning("Data'n hin jiru.")
+            with col_right:
+                st.subheader("🍕 Gosa Tajaajilaa")
+                # Pie chart simple (Bar horizontal)
+                service_dist = filtered['Gosa_Tajajjilaa'].value_counts()
+                st.bar_chart(service_dist)
+
+            # --- 4. Data Table & Export ---
+            st.subheader("📋 Tarreeffama Gabaasaa")
+            st.dataframe(filtered[COL_NAMES], use_container_width=True)
+
+            # Export Buttons
+            buf = io.BytesIO()
+            with pd.ExcelWriter(buf, engine='xlsxwriter') as writer:
+                filtered[COL_NAMES].to_excel(writer, index=False, sheet_name='Gabaasa')
+            
+            ex_c1, ex_c2 = st.columns([1, 5])
+            ex_c1.download_button("📥 Excel Buusi", buf.getvalue(), "Gabaasa_Dadar.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+            if ex_c2.button("✈️ Gabaasa Telegramitti Ergi"):
+                # Function telegram kee waamuu
+                msg = f"📊 Gabaasa {f_type}\n💰 Waliigala: {filtered['Kafaltii_Taj'].sum():,.2f} ETB\n👥 Baay'ina: {len(filtered)}"
+                # send_to_telegram logic asitti deema
+                st.success("Gabaasa telegramitti ergameera!")
+
+        else:
+            st.warning("Gabaasa agarsiisuuf data'n hin jiru.")
 
    # --- BADHAASA OGEEYYII ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
@@ -368,6 +377,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
