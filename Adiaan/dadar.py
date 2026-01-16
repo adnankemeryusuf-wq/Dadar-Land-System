@@ -1,133 +1,202 @@
 import streamlit as st
-import pandas as pd
 import os
+import pandas as pd
 from datetime import datetime
 from fpdf import FPDF
-import plotly.express as px
+from ethiopian_date import EthiopianDateConverter
 
-# ================= 1. CONFIGURATION & STYLE =================
-DATA_FILE = "dadar_final_report.txt"
-NAGAHEE_DIR = "nagahee_kuusaa"
+# --- 1. CONFIGURATION ---
+st.set_page_config(page_title="Dadar Land System V9.9", layout="wide", page_icon="🏢")
 
-if not os.path.exists(NAGAHEE_DIR):
-    os.makedirs(NAGAHEE_DIR)
+USER_NAME, PASS_WORD = "admin", "1234"
+DATA_FILE = "dadar_data.csv"
+# Mirkaneessi: Logo-n kee maqaa 'logo.png' jedhuun folder koodii kana bira jiru keessa jiraachuu qaba.
+LOGO_PATH = "logo.png" if os.path.exists("logo.png") else None
 
-st.set_page_config(page_title="Dadar Land Admin", layout="wide")
+# --- 2. HELPER FUNCTIONS ---
 
-# Akka Dashboard kee ijaatti tolutti
+def to_ethiopian(dt):
+    try:
+        ey, em, ed = EthiopianDateConverter.to_ethiopian(dt.year, dt.month, dt.day)
+        return f"{ed}/{em}/{ey} E.C"
+    except: return dt.strftime("%Y-%m-%d")
+
+def generate_certificate(name, rank, year):
+    # FPDF Landscape format
+    pdf = FPDF(orientation='L', unit='mm', format='A4')
+    pdf.add_page()
+    
+    # Border (Salphaa fi bareedaa)
+    pdf.set_draw_color(31, 78, 120)
+    pdf.set_line_width(2.5)
+    pdf.rect(10, 10, 277, 190)
+    
+    # Border keessaa (Double line effect)
+    pdf.set_line_width(0.5)
+    pdf.rect(12, 12, 273, 186)
+
+    # Logo
+    if LOGO_PATH:
+        pdf.image(LOGO_PATH, x=133, y=15, w=30)
+    
+    pdf.ln(40)
+    
+    # Title - Afaan Oromoo
+    pdf.set_font('Times', 'B', 28)
+    pdf.set_text_color(31, 78, 120)
+    pdf.cell(0, 15, 'SARTIFIKETII BADHAASA WAGGAA', ln=True, align='C')
+    
+    # Title - English
+    pdf.set_font('Times', 'B', 18)
+    pdf.set_text_color(100, 100, 100)
+    pdf.cell(0, 10, 'ANNUAL AWARD CERTIFICATE', ln=True, align='C')
+    
+    pdf.ln(10)
+    pdf.set_text_color(0, 0, 0)
+    
+    # Body Text
+    pdf.set_font('Times', '', 16)
+    pdf.cell(0, 10, f"Badhaasni kun ogeessa kabajamaa:", ln=True, align='C')
+    
+    pdf.ln(5)
+    pdf.set_font('Arial', 'B', 24)
+    pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 15, name.upper(), ln=True, align='C')
+    
+    pdf.ln(5)
+    pdf.set_font('Times', '', 15)
+    pdf.multi_cell(0, 10, f"Waggaa {year} keessa tajaajila quubsaa fi gahumsa qabuun hojjechuun badhaasa {rank} ta'uu keessaniif qophaa'e.", align='C')
+    
+    # Digital Seal / Badge Placeholder (Optional visual)
+    # pdf.set_draw_color(184, 134, 11) # Gold color
+    # pdf.ellipse(240, 150, 30, 30, 'D')
+
+    # Signature Section
+    pdf.set_font('Times', 'B', 14)
+    pdf.set_xy(30, 160)
+    pdf.cell(100, 7, "__________________________", ln=True, align='L')
+    pdf.set_x(30)
+    pdf.cell(100, 7, "Obbo Aqiil Abdujaliil", ln=True, align='L')
+    pdf.set_font('Times', '', 11)
+    pdf.set_x(30)
+    pdf.cell(100, 5, "Itti Gaafatamaa Waajjiraa / Office Head", ln=True, align='L')
+    
+    # Date in Certificate
+    pdf.set_xy(200, 167)
+    pdf.set_font('Times', '', 12)
+    pdf.cell(60, 7, f"Guyyaa: {to_ethiopian(datetime.now())}", ln=True, align='R')
+
+    return pdf.output(dest='S').encode('latin-1')
+
+# --- 3. UI STYLE ---
 st.markdown("""
     <style>
-    .main { background-color: #f1f4f9; }
-    .stMetric { background-color: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 5px solid #2e7d32; }
-    .stSidebar { background-color: #0d2335; }
+    .main { background-color: #f8f9fa; }
+    .header-box { text-align: center; padding: 25px; background: linear-gradient(135deg, #1f4e78, #3b71a3); color: white; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+    .metric-card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-top: 5px solid #1f4e78; text-align: center; }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. CORE FUNCTIONS =================
+# --- 4. DATA HANDLING ---
+if not os.path.exists(DATA_FILE):
+    df = pd.DataFrame(columns=["Guyyaa", "Maqaa", "Bilbila", "Dhimma", "Kafaltii"])
+    df.to_csv(DATA_FILE, index=False)
+
 def load_data():
-    columns = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj', 'Nagahee_Path']
-    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
-        return pd.DataFrame(columns=columns)
-    try:
-        df = pd.read_csv(DATA_FILE, sep="|", encoding='utf-8')
-        if 'Guyyaa' not in df.columns:
-            df = pd.read_csv(DATA_FILE, sep="|", names=columns, header=None, encoding='utf-8')
-        df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
-        return df
-    except:
-        return pd.DataFrame(columns=columns)
+    return pd.read_csv(DATA_FILE)
 
-def save_data(df):
-    cols = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj', 'Nagahee_Path']
-    df[cols].to_csv(DATA_FILE, sep="|", index=False, encoding="utf-8")
-
-# ================= 3. LOGIN SYSTEM =================
+# --- 5. MAIN INTERFACE ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
-    st.session_state.role = None
 
 if not st.session_state.logged_in:
-    st.title("🔐 Dadar Land Admin Login")
-    u = st.text_input("Username (ADMIN / USER)")
-    p = st.text_input("Password", type="password")
-    
-    if st.button("Seeni"):
-        if u.upper() == "ADMIN" and p == "2026":
-            st.session_state.logged_in = True
-            st.session_state.role = "admin"
-            st.rerun()
-        elif u.upper() == "USER" and p == "1234":
-            st.session_state.logged_in = True
-            st.session_state.role = "user"
-            st.rerun()
-        else:
-            st.error("Username ykn Password dogoggora!")
-
-# ================= 4. MAIN APP =================
+    _, col, _ = st.columns([1, 1.5, 1])
+    with col:
+        st.markdown('<div style="background:white; padding:30px; border-radius:15px; box-shadow:0 4px 10px rgba(0,0,0,0.1)">', unsafe_allow_html=True)
+        if LOGO_PATH: st.image(LOGO_PATH, width=120)
+        st.header("Dadar Land Login")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.button("SEENI", use_container_width=True):
+            if u == USER_NAME and p == PASS_WORD:
+                st.session_state.logged_in = True
+                st.rerun()
+            else:
+                st.error("Username ykn Password dogoggora!")
+        st.markdown('</div>', unsafe_allow_html=True)
 else:
+    with st.sidebar:
+        if LOGO_PATH: st.image(LOGO_PATH, use_container_width=True)
+        menu = ["🏠 Dashboard", "📝 Galmee Haaraa", "📊 Gabaasa & Sartifiketii", "🚪 Logout"]
+        choice = st.selectbox("Menu", menu)
+        st.divider()
+        st.info(f"📅 {to_ethiopian(datetime.now())}")
+
+    st.markdown('<div class="header-box"><h1>Waajjira Lafaa Bulchiinsa Magaalaa Dadar</h1></div>', unsafe_allow_html=True)
+
     df = load_data()
-    
-    # 🔐 Iccitii: Menu calaluu
-    if st.session_state.role == "admin":
-        options = ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "🔍 Barbaadi"]
-    else:
-        # User-iin Dashboard fi Badhaasa hin argu
-        options = ["📝 Galmee Haaraa", "🔍 Barbaadi"]
+
+    if choice == "🏠 Dashboard":
+        c1, c2, c3 = st.columns(3)
+        with c1: st.markdown(f'<div class="metric-card"><h3>👥 Galmee</h3><h2>{len(df)}</h2></div>', unsafe_allow_html=True)
+        with c2: st.markdown(f'<div class="metric-card"><h3>💰 Galii</h3><h2>{df["Kafaltii"].sum():,.2f}</h2></div>', unsafe_allow_html=True)
+        with c3: st.markdown(f'<div class="metric-card"><h3>📅 Guyyaa</h3><h2>{to_ethiopian(datetime.now())[:5]}</h2></div>', unsafe_allow_html=True)
         
-    menu = st.sidebar.radio("FILANNOO", options)
-    if st.sidebar.button("Log Out"):
+        if not df.empty:
+            st.write("### 📈 Raawwii Hojii")
+            st.bar_chart(df['Dhimma'].value_counts())
+        else:
+            st.info("Ragaan galmaa'e hin jiru.")
+
+    elif choice == "📝 Galmee Haaraa":
+        st.subheader("📝 Galmee Abbaa Dhimmaa Haaraa")
+        with st.form("galmee_form", clear_on_submit=True):
+            m_name = st.text_input("Maqaa Guutuu")
+            m_phone = st.text_input("Bilbila")
+            m_dhimma = st.selectbox("Gosa Tajaajilaa", ["Kartaa", "Jijjiirraa Maqaa", "Safara", "Lizi"])
+            m_price = st.number_input("Kafaltii (ETB)", min_value=0.0)
+            
+            if st.form_submit_button("Galmeessi"):
+                if m_name and m_phone:
+                    new_entry = pd.DataFrame([[datetime.now().strftime("%Y-%m-%d"), m_name, m_phone, m_dhimma, m_price]], 
+                                            columns=["Guyyaa", "Maqaa", "Bilbila", "Dhimma", "Kafaltii"])
+                    new_entry.to_csv(DATA_FILE, mode='a', header=False, index=False)
+                    st.success(f"{m_name} milkiin galmeeffameera!")
+                    st.balloons()
+                else:
+                    st.warning("Maaloo maqaa fi bilbila galchi.")
+
+    elif choice == "📊 Gabaasa & Sartifiketii":
+        tab1, tab2 = st.tabs(["📊 Gabaasa Mamiilaa", "🎓 Sartifiketii Ogeessaa"])
+        
+        with tab1:
+            st.subheader("Ragaa Mamiilaa Waliigalaa")
+            st.dataframe(df, use_container_width=True)
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button("Gabaasa Excel Buufadhu", csv, "gabaasa_dadar.csv", "text/csv")
+        
+        with tab2:
+            st.subheader("🎓 Sartifiketii Badhaasaa Qopheessi")
+            
+            # Certificate Layout Preview Illustration
+            
+            
+            c_name = st.text_input("Maqaa Ogeessaa (Full Name)")
+            c_rank = st.selectbox("Sadarkaa Badhaasaa", ["1ffaa", "2ffaa", "3ffaa", "Badhaasa Addaa"])
+            c_year = st.text_input("Waggaa Tajaajilaa (E.C)", "2017/18")
+            
+            if st.button("🎨 GENERATE PDF CERTIFICATE"):
+                if c_name:
+                    try:
+                        pdf_bytes = generate_certificate(c_name, c_rank, c_year)
+                        st.download_button(f"📥 Sartifiketii {c_name} Buufadhu", pdf_bytes, f"Award_{c_name}.pdf", "application/pdf")
+                        st.success("Sartifiketiin qophaa'eera!")
+                        st.balloons()
+                    except Exception as e:
+                        st.error(f"Dogoggora PDF uumuu irratti: {e}")
+                else:
+                    st.warning("Maaloo maqaa ogeessaa guuti.")
+
+    elif choice == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
-
-    # --- DASHBOARD (ADMIN QOFAAF) ---
-    if menu == "📊 Dashboard":
-        st.header("📊 Dashboard Waliigalaa")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("💰 Galii Waliigalaa", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
-        c2.metric("👥 Maamiltoota", len(df))
-        c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
-        
-        st.subheader("📈 Trendii Kaffaltii")
-        if not df.empty:
-            st.area_chart(df.groupby('Guyyaa')['Kafaltii_Taj'].sum())
-
-    # --- REGISTRATION ---
-    elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa")
-        with st.form("reg_form", clear_on_submit=True):
-            col1, col2 = st.columns(2)
-            
-            # 💡 Fakkeenya ati jette itti dabalameera
-            name = col1.text_input("Maqaa Maamilaa", placeholder="Abdi Mahammad Yusuuf")
-            ara = col2.text_input("Araddaa", placeholder="01 ykn 02")
-            gosa = col1.selectbox("Gosa Tajaajilaa", ["Kaartaa Haaraa", "Jijjiirraa Maqaa", "Liizii", "Gibira", "TOT"])
-            ogeessa = col2.text_input("Maqaa Ogeessaa")
-            
-            # 💰 Fakkeenya 0.00
-            kaffaltii = col1.number_input("Kaffaltii (ETB)", min_value=0.0, format="%.2f")
-            
-            nagahee_file = st.file_uploader("Nagahee Scan Upload", type=['jpg', 'png'])
-            
-            if st.form_submit_button("💾 Galmeessi"):
-                if name and ara and ogeessa:
-                    n_path = "N/A"
-                    if nagahee_file:
-                        n_path = os.path.join(NAGAHEE_DIR, f"{name}_{datetime.now().strftime('%H%M%S')}.jpg")
-                        with open(n_path, "wb") as f: f.write(nagahee_file.getbuffer())
-                    
-                    new_row = pd.DataFrame([[datetime.now().strftime('%d/%m/%Y'), name, ara, "-", gosa, ogeessa, kaffaltii, n_path]], 
-                                           columns=['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj', 'Nagahee_Path'])
-                    df = pd.concat([df, new_row], ignore_index=True)
-                    save_data(df)
-                    st.success(f"✅ Galmeen {name} milkaa'inaan kuufameera!")
-                else:
-                    st.error("Maaloo kutaalee hunda guuti!")
-
-    # --- BARBAADI (FIXED KEYERROR) ---
-    elif menu == "🔍 Barbaadi":
-        st.header("🔍 Barbaadi")
-        query = st.text_input("Maqaa Maamilaa Barreessi...")
-        if query:
-            # SIRREEFFAMA: Square bracket asitti sirreeffameera
-            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(query, case=False, na=False)]
-            st.dataframe(res)
