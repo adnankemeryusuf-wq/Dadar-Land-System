@@ -301,51 +301,46 @@ else:
             st.warning("Gabaasa agarsiisuuf data'n hin jiru.")
 
 
-# --- BADHAASA OGEEYYII ---
+# --- BADHAASA OGEEYYII (1FFAA, 2FFAA, 3FFAA) ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
-        st.markdown("<h4 style='color: #1b5e20;'>🏆 Sadarkaa fi Badhaasa Ogeeyyii</h4>", unsafe_allow_html=True)
+        st.markdown("<h3 style='text-align:center; color: #1b5e20;'>🏆 Sadarkaa fi Badhaasa Ogeeyyii</h3>", unsafe_allow_html=True)
         
-        # Logo filachuuf
-        cl, cr = st.columns(2)
-        l_l = cl.file_uploader("Logo Bitaa (PDF irratti)", type=['png', 'jpg'], key="logo_l")
-        l_r = cr.file_uploader("Logo Mirgaa (PDF irratti)", type=['png', 'jpg'], key="logo_r")
-        
-        st.divider()
-
         if not df.empty:
             # Ogeeyyii baay'ina hojiitiin addaan baasuu
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            
+            # Kolomni sadii qopheessuuf
             cols = st.columns(3)
             
-            # Halluuwwan sadarkaaf
-            colors = ["#FFD700", "#C0C0C0", "#CD7F32"] # Gold, Silver, Bronze
+            # Halluuwwan sadarkaaf (Gold, Silver, Bronze)
+            colors = ["#FFD700", "#C0C0C0", "#CD7F32"] 
             labels = ["1FFAA", "2FFAA", "3FFAA"]
 
             for i, (name, count) in enumerate(top_3.items()):
                 with cols[i]:
                     # Card bareedaa halluu sadarkaatiin
                     st.markdown(f"""
-                        <div class='card' style='border-top: 5px solid {colors[i]};'>
-                            <h2 style='color: {colors[i]};'>{labels[i]}</h2>
-                            <h3 style='margin: 5px 0;'>{name}</h3>
-                            <p style='font-size: 14px; color: #555;'>Hojii Raawwatame: <b>{count}</b></p>
+                        <div class='card' style='border-top: 8px solid {colors[i]}; padding: 20px; background-color: white;'>
+                            <h1 style='color: {colors[i]}; margin-bottom: 0;'>{labels[i]}</h1>
+                            <p style='font-size: 1.2rem; font-weight: bold; color: #333;'>{name}</p>
+                            <p style='font-size: 1rem; color: #666;'>Hojii: <b>{count}</b></p>
                         </div>
                         """, unsafe_allow_html=True)
                     
-                    # PDF Generate gochuu
+                    # PDF Generate gochuun download button asitti fiduu
                     try:
-                        pdf_file = create_advanced_pdf(name, count, i+1, l_l, l_r)
+                        pdf_file = create_advanced_pdf(name, count, i+1)
                         st.download_button(
                             label=f"📥 Sartiifiketa {labels[i]}",
                             data=pdf_file,
                             file_name=f"Sadarkaa_{i+1}_{name}.pdf",
                             mime="application/pdf",
-                            key=f"dl_{i}"
+                            key=f"btn_{i}"
                         )
                     except Exception as e:
-                        st.error("PDF uumuu irratti dogoggora!")
+                        st.error(f"PDF uumuu hin dandeenye: {e}")
         else:
-            st.info("Data'n hojii ogeeyyii agarsiisu hin jiru.")
+            st.warning("Ogeeyyiin galmeeffaman hin jiran. Galmee tajaajilaa dura galchaa.")
 
     # --- SEARCH & EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
@@ -381,4 +376,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
