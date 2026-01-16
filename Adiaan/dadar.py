@@ -42,13 +42,26 @@ st.markdown("""
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
+    
+    # Faayila dubbisuu
     df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+    
+    # 1. Kaffaltii gara lakkoofsaatti jijjiiri (NaN gara 0.0 tti)
+    df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0.0)
+    
+    # 2. Guyyaa sirreessi
     df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
+    
+    # 3. Waggaa, Ji'a fi Kurmaana uumi (Dashboard-f barbaachisaa dha)
     df['Waggaa'] = df['Date_Obj'].dt.year
     df['Ji\'a'] = df['Date_Obj'].dt.month.map(MONTH_MAP)
-    df['Kurmaana'] = df['Date_Obj'].dt.month.apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
+    
+    # Kurmaana Itiyoophiyaatti hunda'ee (9-12=Q1, 1-3=Q2, 4-6=Q3, 7-8=Q4)
+    df['Kurmaana'] = df['Date_Obj'].dt.month.apply(
+        lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4))
+    )
+    
     return df
-
 def save_data(df_to_save):
     df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
@@ -358,3 +371,14 @@ Message Copilot or @ mention a tab
         st.session_state.logged_in = False
         st.rerun()
 
+# --- SEARCH & EDIT ---
+elif menu == "🔍 Barbaadi/Edit":
+    col_l, col_r = st.columns([1, 4])
+    with col_l:
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=80)
+    with col_r:
+        st.header("🔍 Barbaadi fi Sirreessi")
+        st.info("Maqaa maamilaa barreessuun galmee isaa sirreessi ykn haqi.")
+    
+    # Kutaalee Copilot ykn Maqaa namootaa as jiran hunda haqi
