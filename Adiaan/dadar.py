@@ -192,7 +192,7 @@ def ilaali_galmee():
         elif cmd == 'b' and idx > 0: idx -= 1
         elif cmd == 'e': break
 
-Adnan Kemer Yusuf, [1/10/2026 10:59 PM]
+
 def galmeessi():
     print("\n--- GALMEE HAARAA ---")
     ad = input("Maqaa AD: "); bad = input("Bilbila AD: ")
@@ -243,5 +243,6 @@ if name == "main":
             elif c == '4': barbaadi_galmee()
             elif c == '5': break
     else: print("[!] Login Dogoggora!")
+
 
 
