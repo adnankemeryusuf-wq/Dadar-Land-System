@@ -180,16 +180,60 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-# --- DASHBOARD ---
+# --- DASHBOARD (REFINED) ---
     if menu == "📊 Dashboard":
-        st.title("📊 Dashboard Waliigalaa")
+        st.markdown("<h2 style='color: #1b5e20;'>📊 Dashboard Waliigalaa</h2>", unsafe_allow_html=True)
+        
         if not df.empty:
+            # Kaardiiwwan Metric-f
             c1, c2, c3 = st.columns(3)
-            with c1: st.markdown(f"<div class='card'><h4>💰 Galii</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
-            with c2: st.markdown(f"<div class='card'><h4>👥 Maamiltoota</h4><h2>{len(df)}</h2><p>Waliigala</p></div>", unsafe_allow_html=True)
-            with c3: st.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p>Aktiiwii</p></div>", unsafe_allow_html=True)
-        else: st.info("Data'n galmeeffame hin jiru.")
+            
+            with c1:
+                st.markdown(f"""
+                <div class='card'>
+                    <h4 style='color: #2e7d32;'>💰 Galii Waliigalaa</h4>
+                    <h2 style='margin: 10px 0;'>{df['Kafaltii_Taj'].sum():,.2f}</h2>
+                    <p style='color: #666;'>ETB (Kafaltii Qulqulluu)</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            with c2:
+                st.markdown(f"""
+                <div class='card'>
+                    <h4 style='color: #2e7d32;'>👥 Baay'ina Maamiltootaa</h4>
+                    <h2 style='margin: 10px 0;'>{len(df)}</h2>
+                    <p style='color: #666;'>Galmee Waliigalaa</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            with c3:
+                # Ogeessa baay'ee hojjete (Top Performer)
+                top_ogeessa = df['Maqaa_Ogeessa'].mode()[0] if not df['Maqaa_Ogeessa'].empty else "-"
+                st.markdown(f"""
+                <div class='card'>
+                    <h4 style='color: #2e7d32;'>🏆 Ogeessa Filatamaa</h4>
+                    <h2 style='margin: 10px 0;'>{top_ogeessa}</h2>
+                    <p style='color: #666;'>Baay'ina Hojiitiin</p>
+                </div>
+                """, unsafe_allow_html=True)
 
+            # --- Visual Analysis (Grafii) ---
+            st.markdown("---")
+            col_graph1, col_graph2 = st.columns([2, 1])
+            
+            with col_graph1:
+                st.subheader("📈 Trendii Galii (Ji'aan)")
+                # Ji'aan kafaltii walitti qabame agarsiisa
+                trend_data = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
+                st.line_chart(trend_data)
+                
+            with col_graph2:
+                st.subheader("📍 Gosa Tajaajilaa")
+                # Gosa tajaajilaa baay'inaan barbaadame
+                service_counts = df['Gosa_Tajajjilaa'].value_counts()
+                st.bar_chart(service_counts)
+        else:
+            st.info("Hamma ammaatti data'n galmeeffame hin jiru. Maaloo 'Galmee Haaraa' irratti dabali.")
     # --- REGISTRATION ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
@@ -380,3 +424,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
