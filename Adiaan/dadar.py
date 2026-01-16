@@ -1,88 +1,91 @@
-import os
+mport os
 import requests
 from datetime import datetime, timedelta
-from fpdf import FPDF
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-# --- Telegram Setup (TOKEN KEE ASITTI GALMEEFFAMEERA) ---
+# --- CONFIGURATION ---
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-# CHAT_ID kee asitti galchi (Fkn: "987654321")
-CHAT_ID = "ID_KEE_ASITTI_GALCHI" 
+CHAT_ID_MANAGER = "7329587700"  # Telegram Hoggantootaaf
 
-class PDF(FPDF):
-    def header(self):
-        self.set_font('Arial', 'B', 12)
-        self.cell(0, 10, 'GABAASA WAJJIRA LAFAA DADAR', 0, 1, 'C')
-        self.ln(5)
+# --- SMS FUNCTION (Ethio Telecom Simulation) ---
+def send_ethio_sms(bilbila, ergaa):
+    """SMS Simulation: Bilbila {bilbila} irratti ergaa dabarsa."""
+    print(f"\n[📡 SMS ETHIO-TELECOM ERGAME] -> Bilbila: {bilbila}")
+    print(f"[✉️ MESSAGE]: {ergaa}")
 
-def galmeessi():
-    print("\n--- GALMEE ABBAA DHIMMMAA ---")
-    maqaa = input("Maqaa Abbaa Dhimmaa: ")
-    iddoo = input("Ganda/Iddoo: ")
-    dhimma = input("Dhimma dhufeef: ")
-    guyyaa = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    dataa = f"Guyyaa: {guyyaa} | Maqaa: {maqaa} | Iddoo: {iddoo} | Dhimma: {dhimma}\n"
-    with open("galmee_abbaa_dhimmaa.txt", "a") as file:
-        file.write(dataa)
-    print(f"\n[✓] Abbaan dhimmaa {maqaa} galmeeffameera!")
-
-def gara_telegram_ergi(maqaa_file):
+# --- TELEGRAM FUNCTION (Manager Report) ---
+def send_telegram_report(maqaa_file):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
     try:
         with open(maqaa_file, 'rb') as doc:
             files = {'document': doc}
-            payload = {'chat_id': CHAT_ID, 'caption': f"Gabaasa Wajjira Lafaa: {maqaa_file}"}
-            response = requests.post(url, files=files, data=payload)
-            if response.status_code == 200:
-                print(f"[✓] Gabaasni kallattiin Telegram irratti ergameera!")
-            else:
-                print(f"[!] Erguun hin danda'amne. Status: {response.status_code}")
+            payload = {'chat_id': CHAT_ID_MANAGER, 'caption': f"Gabaasa Mana Hojii: {datetime.now().strftime('%Y-%m-%d')}"}
+            r = requests.post(url, files=files, data=payload)
+            if r.status_code == 200:
+                print(f"[✓] Gabaasni {maqaa_file} hoggantootaaf Telegram irratti ergameera.")
     except Exception as e:
-        print(f"[!] Dogoggora Telegram: {e}")
+        print(f"[!] Error Telegram: {e}")
 
-def uumi_fi_ergi_pdf(data_list, maqaa_file):
-    if not data_list:
-        print("\n[!] Daataan gabaasaa kutaawwan kanaan wal qabatu hin jiru!")
-        return
-    pdf = PDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=10)
-    for line in data_list:
-        pdf.multi_cell(0, 10, txt=line)
-        pdf.ln(2)
-    pdf.output(maqaa_file)
-    print(f"\n[✓] PDF '{maqaa_file}' uumameera.")
-    gara_telegram_ergi(maqaa_file)
+def galmeessi():
+    print("\n" + "="*45)
+    print("--- GALMEE ABBAA DHIMMMAA FI OGEESSAA ---")
+    maqaa = input("Maqaa Abbaa Dhimmaa: ")
+    # Bilbila default: 0912266121
+    bilbila_a = input("Bilbila Abbaa Dhimmaa (Fkn: 0912266121): ") or "0912266121"
+    araddaa = input("Araddaa: ") 
+    wirtuu = input("Wirtuu: ") 
+    dhimma = input("Dhimma (Kartaa/Jijjiira...): ")
+    beellama = input("Guyyaa Beellamaa (YYYY-MM-DD): ")
+    
+    print("\n--- KAFALTII GALII ---")
+    kartaa = input("Kafaltii Kartaa: ") or "0"
+    lizi = input("Kafaltii Lizi: ") or "0"
+    
+    ogeessa = "-"
+    bilbila_o = "-"
+    if "kartaa" in dhimma.lower():
+        ogeessa = input("Maqaa Ogeessa Safaraa: ")
+        # Bilbila default: 0912266121
+        bilbila_o = input("Bilbila Ogeessaa (Fkn: 0912266121): ") or "0912266121"
+        
+        sms_ogeessaa = f"Kabajamoo {ogeessa}, Ajaja Safaraa: {maqaa}, Araddaa {araddaa}, Bilbila: {bilbila_a}. Maaloo itti dhihaadhaa."
+        send_ethio_sms(bilbila_o, sms_ogeessaa)
 
-def gabaasa_calali(guyyaa):
-    if not os.path.exists("galmee_abbaa_dhimmaa.txt"): return []
-    amma = datetime.now()
-    daataa = []
+    guyyaa_ammaa = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    id_system = guyyaa_ammaa[-4:] 
+    
+    dataa = (f"ID:{id_system} | Guyyaa:{guyyaa_ammaa} | Maqaa:{maqaa} | Bilbila:{bilbila_a} | "
+             f"Araddaa:{araddaa} | Wirtuu:{wirtuu} | Dhimma:{dhimma} | Kartaa:{kartaa} | "
+             f"Lizi:{lizi} | Beellama:{beellama} | Ogeessa:{ogeessa} | B_Ogeessa:{bilbila_o} | Status:Pending\n")
+    
+    with open("galmee_abbaa_dhimmaa.txt", "a") as file:
+        file.write(dataa)
+    print(f"\n[✓] Galmeeffameera! ID: {id_system}")
+
+def notify_xumurame():
+    print("\n--- DHIMMA XUMURAME BEEKSISU (SMS) ---")
+    id_barbaadu = input("ID abbaa dhimmaa galchi: ")
+    sararoota = []
+    found = False
+    
+    if not os.path.exists("galmee_abbaa_dhimmaa.txt"): return
+
     with open("galmee_abbaa_dhimmaa.txt", "r") as f:
         for sarara in f:
-            try:
-                part = sarara.split("|")[0].split("Guyyaa:")[1].strip()
-                if amma - datetime.strptime(part, "%Y-%m-%d %H:%M:%S") <= timedelta(days=guyyaa):
-                    daataa.append(sarara.strip())
-            except: continue
-    return daataa
+            if f"ID:{id_barbaadu}" in sarara:
+                p = [x.split(":")[1].strip() for x in sarara.split("|")]
+                maqaa, bilbila, dhimma, beellama = p[2], p[3], p[6], p[9]
+                
+                sms_abbaa = f"Kabajamoo {maqaa}, Dhimmi keessan ({dhimma}) xumurameera. Guyyaa {beellama} dhuftanii fudhadhaa. Wajjira Lafaa Dadar."
+                send_ethio_sms(bilbila, sms_abbaa)
+                
+                sarara = sarara.replace("Status:Pending", "Status:Finished")
+                found = True
+            sararoota.append(sarara)
+            
+    with open("galmee_abbaa_dhimmaa.txt", "w") as f:
+        f.writelines(sararoota)
+    if not found: print("[!] ID sun hin argamne.")
 
-if name == "main":
-    while True:
-        print("\n* SIRNA GALMEE WAJJIRA LAFAA DADAR *")
-        print("1. Abbaa Dhimmaa Galmeessi")
-        print("2. Gabaasa Guyyaa Ergi (PDF)")
-        print("3. Gabaasa Torbee Ergi (PDF)")
-        print("4. Gabaasa Ji'aa Ergi (PDF)")
-        print("5. Exit")
-        
-        filannoo = input("\nFilannoo kee (1-5): ")
-        if filannoo == '1':
-            galmeessi()
-        elif filannoo in ['2', '3', '4']:
-            guyyaa = 1 if filannoo == '2' else (7 if filannoo == '3' else 30)
-            maqaa = f"gabaasa_{guyyaa}.pdf"
-            d = gabaasa_calali(guyyaa)
-            uumi_fi_ergi_pdf(d, maqaa)
-        elif filannoo == '5':
-            print("Nagaan turaa!")
-            break
+def uumi_excel_gabaasa(guyyaa_calalu):
