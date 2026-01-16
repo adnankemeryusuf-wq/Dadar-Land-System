@@ -1,4 +1,3 @@
-# ================== IMPORTS ==================
 import streamlit as st
 import pandas as pd
 import os, io, requests
@@ -6,8 +5,8 @@ from datetime import datetime
 from fpdf import FPDF
 
 # ================== CONFIGURATION ==================
-BOT_TOKEN = os.getenv("BOT_TOKEN", "YOUR_TOKEN")
-CHAT_ID_MANAGER = os.getenv("CHAT_ID_MANAGER", "YOUR_CHAT_ID")
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
 DATA_FILE = "dadar_final_report.txt"
 LOGO_PATH = "Adiaan/logo.png"
 
@@ -18,11 +17,7 @@ MONTH_ORDER = ["Fulbaana","Onkololeessa","Sadaasa","Muddee","Amajjii","Guraandha
 MONTH_MAP = {9:"Fulbaana",10:"Onkololeessa",11:"Sadaasa",12:"Muddee",1:"Amajjii",2:"Guraandhala",
              3:"Bitootessa",4:"Eebila",5:"Caamsaa",6:"Waxabajjii",7:"Adooleessa",8:"Hagayya"}
 
-st.set_page_config(
-    page_title="Dadar Land Customer Registration System",
-    page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢",
-    layout="wide"
-)
+st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="wide")
 
 # ================== STYLE ==================
 st.markdown("""
@@ -44,7 +39,6 @@ def load_data():
     df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
     df['Waggaa'] = df['Date_Obj'].dt.year
     df['Ji\'a'] = df['Date_Obj'].dt.month.map(MONTH_MAP)
-    df['Kurmaana'] = df['Date_Obj'].dt.month.apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
     return df
 
 def save_data(df_to_save):
@@ -57,13 +51,7 @@ def send_to_telegram(file_data, file_name, caption):
     try: return requests.post(url, files=files, data=data).status_code == 200
     except: return False
 
-def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
-    pdf = FPDF(orientation='L', unit='mm', format='A4')
-    pdf.add_page()
-    # ... certificate design code ...
-    return pdf.output(dest='S').encode('latin-1')
-
-# ================== LOGIN ==================
+# ================== MAIN APP ==================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
@@ -71,7 +59,7 @@ if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1,1.2,1])
     with col_mid:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=100)
-        st.markdown("<h2 style='text-align:center; color:#1b5e20;'>Dadar Land Administration Customer Registration System</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center; color:#1b5e20;'>🏢 Dadar Land System</h2>", unsafe_allow_html=True)
         with st.form("login_form"):
             u = st.text_input("Username", placeholder="admin")
             p = st.text_input("Password", type="password", placeholder="••••••••")
@@ -83,34 +71,91 @@ else:
     df = load_data()
     with st.sidebar:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=100)
-        st.success("Deder City Land Office")
         menu = st.radio("FILANNOO", ["📊 Dashboard","📝 Galmee Haaraa","📈 Gabaasa Bal'aa","🏆 Badhaasa Ogeeyyii","🔍 Barbaadi/Edit"])
-        if st.button("Log Out"): st.session_state.logged_in=False; st.rerun()
+        if st.sidebar.button("Log Out"): st.session_state.logged_in=False; st.rerun()
 
     # --- DASHBOARD ---
     if menu=="📊 Dashboard":
         st.title("📊 Dashboard Waliigalaa")
         if not df.empty:
             c1,c2,c3 = st.columns(3)
-            with c1: st.markdown(f"<div class='card'><h4>💰 Galii</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
-            with c2: st.markdown(f"<div class='card'><h4>👥 Maamiltoota</h4><h2>{len(df)}</h2><p>Waliigala</p></div>", unsafe_allow_html=True)
-            with c3: st.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p>Aktiiwii</p></div>", unsafe_allow_html=True)
+            c1.markdown(f"<div class='card'><h4>💰 Galii</h4><h2>{df['Kafaltii_Taj'].sum():,.2f}</h2><p>ETB</p></div>", unsafe_allow_html=True)
+            c2.markdown(f"<div class='card'><h4>👥 Maamiltoota</h4><h2>{len(df)}</h2><p>Waliigala</p></div>", unsafe_allow_html=True)
+            c3.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p>Aktiiwii</p></div>", unsafe_allow_html=True)
+            st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER))
         else: st.info("Data'n galmeeffame hin jiru.")
 
     # --- GALMEE HAARAA ---
     elif menu=="📝 Galmee Haaraa":
-        # registration form code (maqaa, araddaa, qaxana, ogeessa, gosa tajaajilaa, fees, TOT case)
-        # save_data(df) call
+        st.header("📝 Galmee Tajaajilaa Haaraa")
+        GATII_DICT = {
+            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
+            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "TOT"],
+            "Kaartaa": ["Kaartaa Haaromsuu", "Kaartaa Kadastaara"]
+        }
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
+        details, d_fees, is_tot = [], {}, False
+        
+        if selected_main:
+            for g in selected_main:
+                subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"sub_{g}")
+                for s in subs:
+                    details.append(f"{g}({s})")
+                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
+                    if s == "TOT": is_tot = True
+
+        with st.form("entry_form", clear_on_submit=True):
+            if is_tot:
+                col1, col2 = st.columns(2)
+                maqaa_f = f"G: {col1.text_input('Maqaa Gurguraa')} / B: {col2.text_input('Maqaa Bitataa')}"
+                ara_f = f"G: {col1.text_input('Araddaa G')} / B: {col2.text_input('Araddaa B')}"
+                qax_f = f"G: {col1.text_input('Qaxana G')} / B: {col2.text_input('Qaxana B')}"
+            else:
+                c1, c2 = st.columns(2)
+                maqaa_f, ara_f = c1.text_input("Maqaa Abbaa Dhimmaa"), c2.text_input("Araddaa")
+                qax_f = c1.text_input("Qaxana")
+            
+            ogeessa = st.text_input("Maqaa Ogeessaa")
+            bio_check = st.checkbox("Mirkaneessaa Biometric (Fingerprint Scan)")
+
+            if st.form_submit_button("💾 Galmeessi"):
+                if maqaa_f and details and bio_check:
+                    bio_id = f"BIO-{datetime.now().strftime('%M%S')}"
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values()), bio_id]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df); st.success(f"✅ Galmeeffameera! ID: {bio_id}"); st.rerun()
+                else: st.error("Maaloo kutaalee hunda guuti!")
 
     # --- GABAASA BAL'AA ---
     elif menu=="📈 Gabaasa Bal'aa":
-        # report table, Excel export, Telegram send
+        st.header("📈 Gabaasa Filtarii")
+        if not df.empty:
+            sel_m = st.selectbox("Ji'a Filadhu", MONTH_ORDER)
+            filtered = df[df['Ji\'a'] == sel_m]
+            st.dataframe(filtered[COL_NAMES], use_container_width=True)
+            
+            buf = io.BytesIO()
+            with pd.ExcelWriter(buf, engine='xlsxwriter') as writer:
+                filtered[COL_NAMES].to_excel(writer, index=False)
+            
+            c1, c2 = st.columns([1, 4])
+            c1.download_button("📥 Excel Download", buf.getvalue(), f"Gabaasa_{sel_m}.xlsx")
+            if c2.button("✈️ Telegram-itti Ergi"):
+                if send_to_telegram(buf.getvalue(), f"Gabaasa_{sel_m}.xlsx", f"Gabaasa Ji'a {sel_m}"):
+                    st.success("Gabaasni gara Telegramitti ergameera!")
+        else: st.info("Data'n hin jiru.")
 
-    # --- BADHAASA OGEEYYII ---
-    elif menu=="🏆 Badhaasa Ogeeyyii":
-        # top 3 performers, certificate PDF
-
-    # --- BARBAADI/EDIT ---
+    # --- SEARCH & EDIT ---
     elif menu=="🔍 Barbaadi/Edit":
-        # search by name/ID, update, delete
-
+        st.header("🔍 Barbaadi ykn Fooyyessi")
+        q = st.text_input("Maqaa ykn Biometric ID barreessi...")
+        if q and not df.empty:
+            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False) | df['Biometric_ID'].str.contains(q, case=False, na=False)]
+            for idx, row in res.iterrows():
+                with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} ({row['Guyyaa']})"):
+                    new_fee = st.number_input("Kafaltii Sirreessi", value=float(row['Kafaltii_Taj']), key=f"edit_{idx}")
+                    if st.button("💾 Save Changes", key=f"save_{idx}"):
+                        df.at[idx, 'Kafaltii_Taj'] = new_fee
+                        save_data(df); st.success("Sirreeffameera!"); st.rerun()
+                    if st.button("🗑 Haqi", key=f"del_{idx}"):
+                        df = df.drop(idx); save_data(df); st.rerun()
