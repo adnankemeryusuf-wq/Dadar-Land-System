@@ -10,7 +10,7 @@ from fpdf import FPDF
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
 DATA_FILE = "dadar_final_report.txt"
-NAGAHEE_DIR = "nagahee_scan"
+
 
 # Folder nagahee itti kuusnu yoo hin jirre uumuuf
 if not os.path.exists(NAGAHEE_DIR):
@@ -154,3 +154,4 @@ else:
                         pdf_out = create_advanced_pdf(name, count, i, l_l, l_r, sig)
                         st.download_button(f"📥 Download Cert {i}", pdf_out, f"Cert_{name}.pdf", "application/pdf")
                     except Exception as e: st.error(f"Error: {e}")
+
