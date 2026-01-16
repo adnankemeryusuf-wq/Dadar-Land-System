@@ -60,94 +60,20 @@ def send_to_telegram(file_data, file_name, caption):
     except: return False
 
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
-    # Orientation 'L' (Landscape), A4
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    
-    # --- Halluuwwan Sadarkaatti Hunda'an ---
-    if rank == 1:
-        rank_color = (255, 215, 0)   # Gold
-        rank_text = "1FFAA"
-    elif rank == 2:
-        rank_color = (192, 192, 192) # Silver
-        rank_text = "2FFAA"
-    else:
-        rank_color = (205, 127, 50)  # Bronze
-        rank_text = "3FFAA"
-
+    rank_color = (255, 215, 0) if rank == 1 else ((192, 192, 192) if rank == 2 else (205, 127, 50))
+    rank_text = f"{rank}FFAA"
     deep_green = (0, 80, 0)
-    bg_color = (255, 255, 255) # White background for clarity
-
-
-# --- 1. Background fi Border (Dynamic Border Color) ---
-    pdf.set_fill_color(*bg_color)
+    pdf.set_fill_color(255, 255, 255)
     pdf.rect(10, 10, 277, 190, 'F')
+    pdf.set_draw_color(*deep_green); pdf.set_line_width(3.0); pdf.rect(10, 10, 277, 190)
+    pdf.set_draw_color(*rank_color); pdf.set_line_width(1.5); pdf.rect(13, 13, 271, 184)
     
-    # Border inni gubbaa (Magariisa)
-    pdf.set_draw_color(*deep_green)
-    pdf.set_line_width(3.0)
-    pdf.rect(10, 10, 277, 190)
-    
-    # Border inni keessaa (Halluu Sadarkaa: Gold/Silver/Bronze)
-    pdf.set_draw_color(*rank_color)
-    pdf.set_line_width(1.5)
-    pdf.rect(13, 13, 271, 184)
-
-    # --- 2. Logo Handling (Safe Temporary Files) ---
-    def save_temp_logo(logo_file, prefix):
-        if logo_file:
-            ext = logo_file.name.split('.')[-1].lower()
-            temp_path = f"temp_{prefix}.{ext}"
-            with open(temp_path, "wb") as f:
-                f.write(logo_file.getbuffer())
-            return temp_path
-        return None
-
-    path_l = save_temp_logo(logo_left, "left")
-    path_r = save_temp_logo(logo_right, "right")
-
-    if path_l: pdf.image(path_l, x=20, y=18, w=25)
-    if path_r: pdf.image(path_r, x=250, y=18, w=25)
-
-    # --- 3. Mata Duree ---
-    pdf.set_y(45)
-    pdf.set_text_color(*rank_color)
-    pdf.set_font('Arial', 'B', 35) 
+    pdf.set_y(45); pdf.set_text_color(*rank_color); pdf.set_font('Arial', 'B', 35) 
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
-    
-    pdf.set_y(62)
-    pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 22)
-    pdf.cell(0, 12, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
-
-    # --- 4. Sadarkaa fi Maqaa ---
-    pdf.set_y(90)
-    pdf.set_text_color(50, 50, 50)
-    pdf.set_font('Arial', 'I', 18)
-    pdf.cell(0, 10, f"Badhaasa Sadarkaa {rank_text} Waggaa 2026", ln=True, align='C')
-
-    pdf.ln(5)
-    pdf.set_text_color(*deep_green)
-    pdf.set_font('Arial', 'B', 30) 
+    pdf.set_y(90); pdf.set_text_color(50, 50, 50); pdf.set_font('Arial', 'B', 30)
     pdf.cell(0, 25, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
-
-    # --- 5. Gumaacha Hojii ---
-    pdf.set_y(140)
-    pdf.set_text_color(60, 60, 60)
-    pdf.set_font('Arial', '', 14)
-    msg = f"Tajaajilamtoota {count} saffisaa fi qulqullinaan tajaajiluun gumaacha guddaa waan gumaachaniif badhaasa kanaan galateeffamaniiru."
-    pdf.multi_cell(0, 10, msg, align='C')
-
-    # --- 6. Mallattoo ---
-    pdf.set_y(175)
-    pdf.set_draw_color(*deep_green)
-    pdf.line(40, 175, 100, 175)
-    pdf.set_xy(40, 177); pdf.set_font('Arial', 'B', 12)
-    pdf.cell(60, 8, "Mallattoo Itti Gaafatamaa", align='C')
-
-    pdf.line(190, 175, 250, 175)
-    pdf.set_xy(190, 177); pdf.cell(60, 8, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", align='C')
-
     return pdf.output(dest='S').encode('latin-1')
 # ================= 3. MAIN APP =================
 if 'logged_in' not in st.session_state:
@@ -424,4 +350,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
