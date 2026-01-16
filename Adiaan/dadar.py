@@ -6,19 +6,55 @@ import requests
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
-from ethiopian_date import EthiopianDateConverter
 
-# ================= 1. CONFIGURATION & HIDE UI =================
+# ================= 1. CONFIGURATION =================
 
-# Logo path qopheessi
 LOGO_PATH = "Adiaan/logo.png"
 
-# Page config (Share fi Manage dhoksuuf qajeelfama gubbaa jiru)
 st.set_page_config(
     page_title="Dadar Land Customer Registration System", 
     page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢", 
     layout="wide"
 )
+
+# ================= 2. HIDE UI (Manage App & Toolbar) =================
+
+hide_streamlit_style = """
+            <style>
+            /* Menu gubbaa guutummaatti dhoksuuf (Manage App, Share, etc.) */
+            header, .stAppToolbar, .stActionButton {visibility: hidden; display: none !important;}
+            
+            /* Menu sarara sadii dhoksuuf */
+            #MainMenu {visibility: hidden;}
+            
+            /* Footer dhoksuuf */
+            footer {visibility: hidden;}
+
+            /* Iddoo duwwaa gubbaa jiru hir'isuuf */
+            .block-container {
+                padding-top: 1rem;
+                padding-bottom: 0rem;
+            }
+            
+            /* Sidebar irratti 'Deploy' button yoo jiraate dhoksuuf */
+            .stDeployButton {display:none;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
+# halluu sidebar fi card koodii kee isa duraa itti fufa...
+st.markdown("""
+    <style>
+    .stApp { background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%); }
+    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
+    [data-testid="stSidebar"] * { color: #ffffff !important; }
+    div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; margin-bottom: 10px; }
+    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; border: none; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# ... (Koodii kee isa biro hunda itti fufi) ...
 
 # --- SHARE FI MANAGE DHOKSUUF ---
 hide_streamlit_style = """
@@ -156,3 +192,4 @@ else:
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
             for i, (name, count) in enumerate(top_3.items()):
                 st.write(f"Sadarkaa {i+1}: {name} ({count} Hojii)")
+
