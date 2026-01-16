@@ -80,7 +80,7 @@ if name == "main":
     else:
         print("Login kuffiseera!")
 
-Adnan Kemer Yusuf, [1/10/2026 10:59 PM]
+
 import os
 import requests
 from datetime import datetime, timedelta
@@ -243,3 +243,4 @@ if name == "main":
             elif c == '4': barbaadi_galmee()
             elif c == '5': break
     else: print("[!] Login Dogoggora!")
+
