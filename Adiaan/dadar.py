@@ -212,15 +212,35 @@ else:
                     except: st.error("PDF Error!")
         else: st.info("Data'n hin jiru.")
 
-    # --- SEARCH/EDIT ---
+# --- SEARCH/EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sirreessi")
         q = st.text_input("Maqaa Abbaa Dhimmaa Barbaadi...")
         if q:
+            # Maqaa barbaanicha calaluu
             results = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             if not results.empty:
                 for idx, row in results.iterrows():
-                    with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} - {row['Guyyaa']}"
+                    # SARARA KANA ILAALI: Cufaan ')' dabalameera
+                    with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} - {row['Guyyaa']}"):
+                        new_name = st.text_input("Maqaa Sirreessi", row['Maqaa_Abbaa_Dhimmaa'], key=f"n_{idx}")
+                        new_fee = st.number_input("Kafaltii Sirreessi", float(row['Kafaltii_Taj']), key=f"f_{idx}")
+                        
+                        c1, c2 = st.columns(2)
+                        if c1.button("💾 Update", key=f"u_{idx}"):
+                            df.at[idx, 'Maqaa_Abbaa_Dhimmaa'] = new_name
+                            df.at[idx, 'Kafaltii_Taj'] = new_fee
+                            save_data(df)
+                            st.success("Sirreeffameera!")
+                            st.rerun()
+                            
+                        if c2.button("🗑 Haqi", key=f"d_{idx}"):
+                            df = df.drop(idx)
+                            save_data(df)
+                            st.warning("Haqameera!")
+                            st.rerun()
+            else:
+                st.error("Maqaan kun galmee keessa hin jiru.")
 # --- CONFIGURATION TELEGRAM ---
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
@@ -464,4 +484,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
