@@ -120,23 +120,7 @@ else:
             tajaajila = st.selectbox("Gosa Tajaajilaa", ["Gibira Baaxii Gooroo", "Liizii Waggaa", "Kaartaa Manaa"])
             fee = st.number_input("Kafaltii (ETB)", min_value=0.0)
             
-            # --- FILE UPLOADER FOR RECEIPT ---
-            nagahee_file = st.file_uploader("Nagahee Scan godhame (JPG/PNG) Olkaasi", type=['jpg','png','jpeg'])
-            
-            if st.form_submit_button("💾 Galmeessi"):
-                if name and ogeessa:
-                    # Save receipt to folder
-                    if nagahee_file:
-                        file_path = os.path.join(NAGAHEE_DIR, f"{name.replace(' ', '_')}_{datetime.now().strftime('%H%M%S')}.jpg")
-                        with open(file_path, "wb") as f:
-                            f.write(nagahee_file.getbuffer())
-                        st.info(f"Nagaheen kuusameera: {file_path}")
-                    
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, tajaajila, ogeessa, fee]
-                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df)
-                    st.success(f"✅ Galmeeffameera! Kafaltii {fee} ETB mirkanaa'eera.")
-
+     
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Sartiifiikeeta Badhaasaa")
         cl, cm, cr = st.columns(3)
@@ -154,5 +138,6 @@ else:
                         pdf_out = create_advanced_pdf(name, count, i, l_l, l_r, sig)
                         st.download_button(f"📥 Download Cert {i}", pdf_out, f"Cert_{name}.pdf", "application/pdf")
                     except Exception as e: st.error(f"Error: {e}")
+
 
 
