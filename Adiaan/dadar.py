@@ -1,4 +1,4 @@
-Adnan Kemer Yusuf, [1/10/2026 10:48 PM]
+
 import csv
 import os
 import requests
@@ -243,4 +243,5 @@ if name == "main":
             elif c == '4': barbaadi_galmee()
             elif c == '5': break
     else: print("[!] Login Dogoggora!")
+
 
