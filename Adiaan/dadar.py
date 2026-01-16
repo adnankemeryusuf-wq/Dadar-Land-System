@@ -78,7 +78,7 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     deep_green = (0, 80, 0)
     bg_color = (255, 255, 255) # White background for clarity
 
-Adnan Kemer Yusuf, [1/16/2026 7:06 PM]
+
 # --- 1. Background fi Border (Dynamic Border Color) ---
     pdf.set_fill_color(*bg_color)
     pdf.rect(10, 10, 277, 190, 'F')
@@ -381,3 +381,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
