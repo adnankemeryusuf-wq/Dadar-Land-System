@@ -1,153 +1,156 @@
-Adnan Kemer Yusuf, [1/11/2026 9:57 PM]
 import os
 import requests
 from datetime import datetime, timedelta
 import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.styles import Font, PatternFill, Alignment
 
 # --- CONFIGURATION ---
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"  # Telegram Hoggantootaaf
+BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # TOKEN hin maxxansin
+CHAT_ID_MANAGER = os.getenv("TELEGRAM_CHAT_ID")
 
-# --- SMS FUNCTION (Ethio Telecom Simulation) ---
+if not BOT_TOKEN or not CHAT_ID_MANAGER:
+    print("❌ TELEGRAM_BOT_TOKEN ykn TELEGRAM_CHAT_ID hin guutamne!")
+    exit()
+
+# --- SMS FUNCTION (Simulation) ---
 def send_ethio_sms(bilbila, ergaa):
-    """SMS Simulation: Bilbila {bilbila} irratti ergaa dabarsa."""
-    print(f"\n[📡 SMS ETHIO-TELECOM ERGAME] -> Bilbila: {bilbila}")
-    print(f"[✉️ MESSAGE]: {ergaa}")
+    print(f"\n[📡 SMS ERGAME] -> {bilbila}")
+    print(f"[✉️] {ergaa}")
 
-# --- TELEGRAM FUNCTION (Manager Report) ---
+# --- TELEGRAM FUNCTION ---
 def send_telegram_report(maqaa_file):
     url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
-    try:
-        with open(maqaa_file, 'rb') as doc:
-            files = {'document': doc}
-            payload = {'chat_id': CHAT_ID_MANAGER, 'caption': f"Gabaasa Mana Hojii: {datetime.now().strftime('%Y-%m-%d')}"}
-            r = requests.post(url, files=files, data=payload)
-            if r.status_code == 200:
-                print(f"[✓] Gabaasni {maqaa_file} hoggantootaaf Telegram irratti ergameera.")
-    except Exception as e:
-        print(f"[!] Error Telegram: {e}")
+    with open(maqaa_file, 'rb') as doc:
+        files = {'document': doc}
+        payload = {
+            'chat_id': CHAT_ID_MANAGER,
+            'caption': f"Gabaasa Guyyaa: {datetime.now().strftime('%Y-%m-%d')}"
+        }
+        r = requests.post(url, files=files, data=payload)
+        if r.status_code == 200:
+            print("[✓] Gabaasni Telegramtti ergameera.")
+        else:
+            print("[!] Telegram error:", r.text)
 
 def galmeessi():
-    print("\n" + "="*45)
-    print("--- GALMEE ABBAA DHIMMMAA FI OGEESSAA ---")
-    maqaa = input("Maqaa Abbaa Dhimmaa: ")
-    # Bilbila default: 0912266121
-    bilbila_a = input("Bilbila Abbaa Dhimmaa (Fkn: 0912266121): ") or "0912266121"
-    araddaa = input("Araddaa: ") 
-    wirtuu = input("Wirtuu: ") 
-    dhimma = input("Dhimma (Kartaa/Jijjiira...): ")
+    print("\n--- GALMEE ABBAA DHIMMAA ---")
+    maqaa = input("Maqaa: ")
+    bilbila_a = input("Bilbila: ") or "0912266121"
+    araddaa = input("Araddaa: ")
+    wirtuu = input("Wirtuu: ")
+    dhimma = input("Dhimma: ")
     beellama = input("Guyyaa Beellamaa (YYYY-MM-DD): ")
-    
-    print("\n--- KAFALTII GALII ---")
+
     kartaa = input("Kafaltii Kartaa: ") or "0"
     lizi = input("Kafaltii Lizi: ") or "0"
-    
+
     ogeessa = "-"
     bilbila_o = "-"
     if "kartaa" in dhimma.lower():
-        ogeessa = input("Maqaa Ogeessa Safaraa: ")
-        # Bilbila default: 0912266121
-        bilbila_o = input("Bilbila Ogeessaa (Fkn: 0912266121): ") or "0912266121"
-        
-        sms_ogeessaa = f"Kabajamoo {ogeessa}, Ajaja Safaraa: {maqaa}, Araddaa {araddaa}, Bilbila: {bilbila_a}. Maaloo itti dhihaadhaa."
-        send_ethio_sms(bilbila_o, sms_ogeessaa)
+        ogeessa = input("Maqaa Ogeessa: ")
+        bilbila_o = input("Bilbila Ogeessa: ") or "0912266121"
+        send_ethio_sms(
+            bilbila_o,
+            f"Ogeessa {ogeessa}, Safaraa {maqaa}, Araddaa {araddaa}, Bilbila {bilbila_a}"
+        )
 
-    guyyaa_ammaa = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    id_system = guyyaa_ammaa[-4:] 
-    
-    dataa = (f"ID:{id_system} | Guyyaa:{guyyaa_ammaa} | Maqaa:{maqaa} | Bilbila:{bilbila_a} | "
-             f"Araddaa:{araddaa} | Wirtuu:{wirtuu} | Dhimma:{dhimma} | Kartaa:{kartaa} | "
-             f"Lizi:{lizi} | Beellama:{beellama} | Ogeessa:{ogeessa} | B_Ogeessa:{bilbila_o} | Status:Pending\n")
-    
-    with open("galmee_abbaa_dhimmaa.txt", "a") as file:
-        file.write(dataa)
-    print(f"\n[✓] Galmeeffameera! ID: {id_system}")
+    yeroo = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    id_sys = datetime.now().strftime("%H%M%S")
+
+    dataa = (
+        f"ID:{id_sys} | Guyyaa:{yeroo} | Maqaa:{maqaa} | Bilbila:{bilbila_a} | "
+        f"Araddaa:{araddaa} | Wirtuu:{wirtuu} | Dhimma:{dhimma} | "
+        f"Kartaa:{kartaa} | Lizi:{lizi} | Beellama:{beellama} | "
+        f"Ogeessa:{ogeessa} | B_Ogeessa:{bilbila_o} | Status:Pending\n"
+    )
+
+    with open("galmee_abbaa_dhimmaa.txt", "a", encoding="utf-8") as f:
+        f.write(dataa)
+
+    print(f"[✓] Galmeeffameera! ID={id_sys}")
 
 def notify_xumurame():
-    print("\n--- DHIMMA XUMURAME BEEKSISU (SMS) ---")
-    id_barbaadu = input("ID abbaa dhimmaa galchi: ")
-    sararoota = []
+    id_barbaadu = input("ID galchi: ")
+    if not os.path.exists("galmee_abbaa_dhimmaa.txt"):
+        return
+
+    lines = []
     found = False
-    
-    if not os.path.exists("galmee_abbaa_dhimmaa.txt"): return
 
-    with open("galmee_abbaa_dhimmaa.txt", "r") as f:
-        for sarara in f:
-            if f"ID:{id_barbaadu}" in sarara:
-                p = [x.split(":")[1].strip() for x in sarara.split("|")]
-                maqaa, bilbila, dhimma, beellama = p[2], p[3], p[6], p[9]
-                
-                sms_abbaa = f"Kabajamoo {maqaa}, Dhimmi keessan ({dhimma}) xumurameera. Guyyaa {beellama} dhuftanii fudhadhaa. Wajjira Lafaa Dadar."
-                send_ethio_sms(bilbila, sms_abbaa)
-                
-                sarara = sarara.replace("Status:Pending", "Status:Finished")
+    with open("galmee_abbaa_dhimmaa.txt", "r", encoding="utf-8") as f:
+        for line in f:
+            if f"ID:{id_barbaadu}" in line:
+                parts = [x.split(":",1)[1].strip() for x in line.split("|")]
+                maqaa, bilbila, dhimma, beellama = parts[2], parts[3], parts[6], parts[9]
+                send_ethio_sms(
+                    bilbila,
+                    f"{maqaa}, Dhimma {dhimma} xumurameera. Guyyaa {beellama} dhuftanii fudhadhaa."
+                )
+                line = line.replace("Status:Pending", "Status:Finished")
                 found = True
-            sararoota.append(sarara)
-            
-    with open("galmee_abbaa_dhimmaa.txt", "w") as f:
-        f.writelines(sararoota)
-    if not found: print("[!] ID sun hin argamne.")
+            lines.append(line)
 
-def uumi_excel_gabaasa(guyyaa_calalu):
+    with open("galmee_abbaa_dhimmaa.txt", "w", encoding="utf-8") as f:
+        f.writelines(lines)
 
-Adnan Kemer Yusuf, [1/11/2026 9:57 PM]
-if not os.path.exists("galmee_abbaa_dhimmaa.txt"): return
-    
+    if not found:
+        print("[!] ID hin argamne.")
+
+def uumi_excel_gabaasa(guyyaa):
+    if not os.path.exists("galmee_abbaa_dhimmaa.txt"):
+        return
+
     amma = datetime.now()
-    daataa_filter = []
-    with open("galmee_abbaa_dhimmaa.txt", "r") as f:
-        for sarara in f:
-            try:
-                g_str = sarara.split("|")[1].split("Guyyaa:")[1].strip()
-                if amma - datetime.strptime(g_str, "%Y-%m-%d %H:%M:%S") <= timedelta(days=guyyaa_calalu):
-                    daataa_filter.append(sarara.strip())
-            except: continue
+    records = []
 
-    if not daataa_filter:
-        print("[!] Daataan gabaasaa hin jiru.")
+    with open("galmee_abbaa_dhimmaa.txt", "r", encoding="utf-8") as f:
+        for l in f:
+            try:
+                g = l.split("|")[1].split(":")[1].strip()
+                if amma - datetime.strptime(g, "%Y-%m-%d %H:%M:%S") <= timedelta(days=guyyaa):
+                    records.append(l.strip())
+            except:
+                continue
+
+    if not records:
+        print("[!] Daataan hin jiru.")
         return
 
     wb = openpyxl.Workbook()
-    sheet = wb.active
-    sheet.title = "Gabaasa Galmee"
-    
-    headers = ["ID", "Guyyaa", "Maqaa", "Bilbila", "Araddaa", "Wirtuu", "Dhimma", "Kartaa", "Lizi", "Beellama", "Ogeessa", "B_Ogeessa", "Status"]
-    sheet.append(headers)
+    sh = wb.active
+    sh.title = "Gabaasa"
 
-    # Styling
-    header_fill = PatternFill(start_color="002060", end_color="002060", fill_type="solid")
-    white_font = Font(color="FFFFFF", bold=True)
-    for cell in sheet[1]:
-        cell.fill = header_fill
-        cell.font = white_font
-        cell.alignment = Alignment(horizontal="center")
+    headers = ["ID","Guyyaa","Maqaa","Bilbila","Araddaa","Wirtuu","Dhimma",
+               "Kartaa","Lizi","Beellama","Ogeessa","B_Ogeessa","Status"]
+    sh.append(headers)
 
-    for line in daataa_filter:
-        row = [x.split(":")[1].strip() for x in line.split("|")]
-        sheet.append(row)
+    for c in sh[1]:
+        c.font = Font(bold=True, color="FFFFFF")
+        c.fill = PatternFill("solid", fgColor="002060")
+        c.alignment = Alignment(horizontal="center")
 
-    for col in sheet.columns:
-        sheet.column_dimensions[col[0].column_letter].width = 15
+    for r in records:
+        sh.append([x.split(":",1)[1].strip() for x in r.split("|")])
 
-    file_name = f"gabaasa_{datetime.now().strftime('%H%M%S')}.xlsx"
-    wb.save(file_name)
-    send_telegram_report(file_name)
+    file = f"gabaasa_{datetime.now().strftime('%H%M%S')}.xlsx"
+    wb.save(file)
+    send_telegram_report(file)
 
-if name == "main":
+# --- MAIN ---
+if __name__ == "__main__":
     while True:
-        print("\n" + "="*40 + "\n  WAJJIRA LAFAA DADAR - SYSTEM V5\n" + "="*40)
-        print("1. Abbaa Dhimmaa Galmeessi (SMS Ogeessaaf)")
-        print("2. Dhimma Xumurame Beeksisi (SMS Abbaa Dhimmaaf)")
-        print("3. Gabaasa Excel Hoggantootaaf Ergi (Telegram)")
+        print("\nWAJJIRA LAFAA DADAR - SYSTEM V5")
+        print("1. Galmeessi")
+        print("2. Xumurame Beeksisi (SMS)")
+        print("3. Gabaasa Excel Ergi")
         print("4. Exit")
-        
-        filannoo = input("\nFilannoo kee: ")
-        if filannoo == '1':
+
+        f = input("Filannoo: ")
+        if f == "1":
             galmeessi()
-        elif filannoo == '2':
+        elif f == "2":
             notify_xumurame()
-        elif filannoo == '3':
-            uumi_excel_gabaasa(1) # Gabaasa guyyaa 1
-        elif filannoo == '4':
+        elif f == "3":
+            uumi_excel_gabaasa(1)
+        elif f == "4":
             break
