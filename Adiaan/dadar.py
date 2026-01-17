@@ -118,60 +118,91 @@ else:
         if st.button("Log Out"):
             st.session_state.logged_in = False
             st.rerun()
-
-    # --- 📊 DASHBOARD ---
+ # 1. DASHBOARD
     if menu == "📊 Dashboard":
-        st.header("📊 Dashboard Waliigalaa")
+        st.header("📊 Dashboard")
         if not df.empty:
             c1, c2, c3 = st.columns(3)
-            c1.markdown(f"<div class='card'><p>💰 Galii Waliigalaa</p><p class='metric-value'>{df['Kafaltii_Taj'].sum():,.2f} ETB</p></div>", unsafe_allow_html=True)
-            c2.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
-            c3.markdown(f"<div class='card'><p>👷 Ogeeyyii Active</p><p class='metric-value'>{df['Maqaa_Ogeessa'].nunique()}</p></div>", unsafe_allow_html=True)
-            st.subheader("📈 Trendii Galii Ji'aan")
-            trend = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
-            st.area_chart(trend)
-        else: st.info("Data'n galmeeffame hin jiru.")
+            with c1: st.markdown(f"<div class='card'><p>💰 Galii</p><p class='metric-value'>{df['Kafaltii_Taj'].sum():,.2f}</p></div>", unsafe_allow_html=True)
+            with c2: st.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
+            with c3: st.markdown(f"<div class='card'><p>👷 Ogeeyyii</p><p class='metric-value'>{df['Maqaa_Ogeessa'].nunique()}</p></div>", unsafe_allow_html=True)
+            st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0))
+        else: st.info("Data'n hin jiru.")
 
-    # --- 📝 REGISTRATION ---
+    # 2. REGISTRATION
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
+        
+        # Gosa tajaajilaa filachuuf
         GATII_DICT = {
             "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
-            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "TOT"],
-            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara"]
+            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
+            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
+            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa"],
+            "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
+            "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
         }
-        sel_main = st.multiselect("Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
-        details, d_fees, is_tot = [], {}, False
-        for g in sel_main:
-            subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g])
-            for s in subs:
-                details.append(f"{g}({s})")
-                d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0)
-                if s == "TOT": is_tot = True
 
-        with st.form("reg_form", clear_on_submit=True):
-            if is_tot:
-                col1, col2 = st.columns(2)
-                maqaa = f"G: {col1.text_input('Maqaa Gurguraa')} / B: {col2.text_input('Maqaa Bitataa')}"
-                ara = f"G: {col1.text_input('Araddaa G')} / B: {col2.text_input('Araddaa B')}"
-                qax = f"G: {col1.text_input('Qaxana G')} / B: {col2.text_input('Qaxana B')}"
-            else:
-                c1, c2 = st.columns(2)
-                maqaa, ara = c1.text_input("Maqaa Abbaa Dhimmaa"), c2.text_input("Araddaa")
-                qax = c1.text_input("Qaxana")
+        # 1. Filannoo Gosa Tajaajilaa (Dirqama akka filatamuuf)
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu (Dirqama)", list(GATII_DICT.keys()))
+        
+        details, d_fees = [], {}
+        if selected_main:
+            for g in selected_main:
+                subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
+                for s in subs:
+                    details.append(f"{g}({s})")
+                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
+
+        # 2. Form Galmee
+        with st.form("entry_form", clear_on_submit=True):
+            st.markdown("##### Odeeffannoo Maamilaa")
+            c1, c2 = st.columns(2)
             
-            ogeessa = st.text_input("Maqaa Ogeessaa")
-            nagahee = st.file_uploader("Nagahee Scan (Image)", type=['jpg','png','jpeg'])
+            # Form validation: placeholder fi label irratti "Required" dabalameera
+            maqaa_f = c1.text_input("Maqaa Abbaa Dhimmaa *", placeholder="Maqaa guutuu barreessi")
+            ara_f = c2.text_input("Araddaa *", placeholder="Araddaa  Dhimma")
+            qax_f = c1.text_input("Qaxana *", placeholder="Qaxana Abbaa Dhimma")
+            ogeessa = c2.text_input("Maqaa Ogeessaa *", placeholder="Maqaa Ogeessa")
+            
+            nagahee_file = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png','jpeg'])
 
-            if st.form_submit_button("💾 Galmeessi"):
-                if maqaa and details and ogeessa:
-                    if nagahee:
-                        with open(os.path.join(NAGAHEE_DIR, f"{datetime.now().strftime('%H%M%S')}.jpg"), "wb") as f:
-                            f.write(nagahee.getbuffer())
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, ara, qax, ", ".join(details), ogeessa, sum(d_fees.values())]
+            # Button submit
+            submit = st.form_submit_button("💾 Galmeessi")
+
+            if submit:
+                # --- VALIDATION LOGIC ---
+                # Check gochuu: Wantoonni ijoon guutamaniiru?
+                if not maqaa_f or not ara_f or not qax_f or not ogeessa:
+                    st.error("⚠️ Maaloo! Bakka mallattoo (*) qaban hunda guutuu kee mirkaneessi.")
+                elif not details:
+                    st.error("⚠️ Maaloo! Gosa tajaajilaa kamiyyuu hin filanne.")
+                else:
+                    # Yoo hundi guutame, data save godha
+                    if nagahee_file:
+                        f_name = f"{maqaa_f.replace(' ','_')}_{datetime.now().strftime('%H%M%S')}.jpg"
+                        with open(os.path.join(NAGAHEE_DIR, f_name), "wb") as f:
+                            f.write(nagahee_file.getbuffer())
+                    
+                    new_row = [
+                        datetime.now().strftime('%d/%m/%Y'), 
+                        maqaa_f, 
+                        ara_f, 
+                        qax_f, 
+                        ", ".join(details), 
+                        ogeessa, 
+                        sum(d_fees.values())
+                    ]
+                    
+                    # Data update gochuu
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
-
+                    save_data(df)
+                    
+                    st.balloons() # Success animation
+                    st.success(f"✅ Galmeen {maqaa_f} milkaa'inaan Galmeeffameera!")
+                    
+                    # Refresh gochuuf
+                    # st.rerun()
     # --- 📈 GABAASA ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa fi Export")
@@ -197,17 +228,17 @@ else:
                     st.download_button(f"📥 Sartifiikeetii {i+1}", pdf_b, f"Badhaasa_{name}.pdf", key=f"staff_{i}")
         else: st.info("Data'n hojii ogeeyyii hin jiru.")
 
-    # --- 🔍 BARBAADI / EDIT / CERTIFICATE ---
+    # 4. BADHAASA
+    elif menu == "🏆 Badhaasa Ogeeyyii":
+        st.header("🏆 Ogeeyyii Filatamoa")
+        if not df.empty:
+            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            for i, (name, count) in enumerate(top_3.items()):
+                st.write(f"{i+1}. {name} - {count} Hojii")
+    
+    # 5. SEARCH/EDIT
     elif menu == "🔍 Barbaadi/Edit":
-        st.header("🔍 Barbaadi fi Sartifiikeetii")
-        q = st.text_input("🔍 Maqaa Abbaa Dhimmaa Barbaadi...")
-        if q and not df.empty:
+        q = st.text_input("Maqaa Barbaadi")
+        if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-            for idx, row in res.iterrows():
-                with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} ({row['Guyyaa']})"):
-                    st.write(f"Tajaajila: {row['Gosa_Tajajjilaa']} | Kafaltii: {row['Kafaltii_Taj']} ETB")
-                    if st.button(f"📜 Sartifiikeetii Qopheessi", key=f"cust_{idx}"):
-                        pdf_m = create_certificate(row['Maqaa_Abbaa_Dhimmaa'], row['Gosa_Tajajjilaa'], row['Guyyaa'], "CUSTOMER")
-                        st.download_button("📥 PDF Buusi", pdf_m, f"Ragaa_{idx}.pdf", key=f"dl_{idx}")
-                    if st.button("🗑 Haqi", key=f"del_{idx}"):
-                        df = df.drop(idx); save_data(df); st.rerun()
+            st.dataframe(res)
