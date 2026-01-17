@@ -11,7 +11,10 @@ from ethiopian_date import EthiopianDateConverter
 # ================= 1. CONFIGURATION & STYLE =================
 # 1. Jalqaba variable kana qopheessi
 LOGO_PATH = "Adiaan/logo.png"
-
+NAGAHEE_DIR = "nagahee_scan"
+# Folder nagahee itti kuusnu yoo hin jirre uumuuf
+if not os.path.exists(NAGAHEE_DIR):
+    os.makedirs(NAGAHEE_DIR)
 # 2. Page config irratti variable sana fayyadami (Waraabbii malee)
 st.set_page_config(
     page_title="Dadar Land Customer Registration System", 
@@ -238,7 +241,20 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
 
-
+# --- UPLOAD NAGAHEE ---
+            nagahee_file = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png','jpeg'])
+            
+            if st.form_submit_button("💾 Galmeessi"):
+                if maqaa and ogeessa and details:
+                    if nagahee_file:
+                        f_name = f"{maqaa.replace(' ','_')}_{datetime.now().strftime('%H%M%S')}.jpg"
+                        with open(os.path.join(NAGAHEE_DIR, f_name), "wb") as f:
+                            f.write(nagahee_file.getbuffer())
+                    
+                    new_data = [datetime.now().strftime('%d/%m/%Y'), maqaa, ara, qax, ", ".join(details), ogeessa, sum(d_fees.values())]
+                    df = pd.concat([df, pd.DataFrame([new_data], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    st.success("✅ Galmeeffameera!")
 # --- GABAASA BAL'AA (MODERN UI) ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.markdown("<h4 style='color: #1b5e20;'>📈 Gabaasa fi Xiinxala Galii</h4>", unsafe_allow_html=True)
@@ -390,3 +406,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
