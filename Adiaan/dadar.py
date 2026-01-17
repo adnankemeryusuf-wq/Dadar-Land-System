@@ -143,31 +143,92 @@ else:
             st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0))
         else: st.info("Data'n hin jiru.")
 
-    # 2. REGISTRATION
-    elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa")
-        
-        # Gosa tajaajilaa filachuuf
-        GATII_DICT = {
-            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
-            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
-            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
-            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa"],
-            "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
-            "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
-        }
+  # ================= 2. REGISTRATION (GALMEE) =================
+elif menu == "📝 Galmee Haaraa":
+    st.header("📝 Galmee Tajaajilaa")
+    
+    # 1. Gosa tajaajilaa bal'inaan (Dictionary kee isa haaraa)
+    GATII_DICT = {
+        "Gibira": [
+            "Gibira Baaxii Gooroo", 
+            "Gibira Lafa Qonnaa", 
+            "Gibira Manaa"
+        ],
+        "Liizii": [
+            "Liizii Waggaa", 
+            "Jijjiirraa Maqaa", 
+            "Kafaltii Liizii Duraa", 
+            "TOT (Turnover Tax)"
+        ],
+        "Ittii Fayyaddam": [
+            "Hayyama Itti Fayyadama Lafaa", 
+            "Humna Mahandiisaa", 
+            "Waraqaa Ragaa Qabiyyee"
+        ],
+        "Kaartaa": [
+            "Kaartaa Lafa", 
+            "Kaartaa Kadastaara", 
+            "Kaartaa Lafa Qonnaa", 
+            "Suphaa Kaartaa"
+        ],
+        "Dhimma Mana Murtii": [
+            "Ugura Mana Murtii", 
+            "Uguraa Mana Murtii Kaasuu", 
+            "Waraqaa Ragaa Dhorkaa"
+        ],
+        "Liqii Bankii": [
+            "Dhorkaa Liqii Bankii", 
+            "Dhorkaa Liqii Bankii Kaasuu", 
+            "Xalayaa Madaallii Qabeenyaa"
+        ]
+    }
 
-        # 1. Filannoo Gosa Tajaajilaa (Dirqama akka filatamuuf)
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu (Dirqama)", list(GATII_DICT.keys()))
-        
-        details, d_fees = [], {}
-        if selected_main:
-            for g in selected_main:
-                subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
-                for s in subs:
-                    details.append(f"{g}({s})")
-                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
+    # Filannoo gosa tajaajilaa
+    selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu (Dirqama)", list(GATII_DICT.keys()))
+    
+    details, d_fees = [], {}
+    if selected_main:
+        for g in selected_main:
+            subs = st.multiselect(f"Tajaajila {g} keessaa filadhu:", GATII_DICT[g], key=f"m_{g}")
+            for s in subs:
+                details.append(f"{g}({s})")
+                d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
 
+    # 2. Form Galmee
+    with st.form("entry_form", clear_on_submit=True):
+        st.markdown("##### Odeeffannoo Maamilaa")
+        c1, c2 = st.columns(2)
+        
+        maqaa_f = c1.text_input("Maqaa Abbaa Dhimmaa *")
+        ara_f = c2.text_input("Araddaa *")
+        qax_f = c1.text_input("Qaxana *")
+        ogeessa = c2.text_input("Maqaa Ogeessaa *")
+        
+        submit = st.form_submit_button("💾 Galmeessi")
+
+        if submit:
+            if not (maqaa_f and ara_f and ogeessa) or not details:
+                st.error("⚠️ Maaloo, odeeffannoo hunda sirriitti guuti!")
+            else:
+                # Row haaraa uumi
+                new_row = [
+                    datetime.now().strftime('%d/%m/%Y'), 
+                    maqaa_f, 
+                    ara_f, 
+                    qax_f, 
+                    ", ".join(details), 
+                    ogeessa, 
+                    sum(d_fees.values())
+                ]
+                
+                # DataFrame keetti dabalii save godhi
+                new_df = pd.DataFrame([new_row], columns=COL_NAMES)
+                df = pd.concat([df, new_df], ignore_index=True)
+                
+                # FUNCTION SAVE_DATA WAAMUU (Mirkaneessi olii jiraachuu isaa)
+                if save_data(df):
+                    st.success(f"✅ Galmeen {maqaa_f} milkaa'inaan raawwatameera!")
+                    st.balloons()
         # 2. Form Galmee
         with st.form("entry_form", clear_on_submit=True):
             st.markdown("##### Odeeffannoo Maamilaa")
@@ -303,3 +364,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
