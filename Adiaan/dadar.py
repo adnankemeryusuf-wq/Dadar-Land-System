@@ -5,23 +5,34 @@ import io
 import requests
 from datetime import datetime
 from fpdf import FPDF
-import plotly.express as px
-from ethiopian_date import EthiopianDateConverter
 
 # ================= 1. CONFIGURATION & STYLE =================
-# 1. Jalqaba variable kana qopheessi
 LOGO_PATH = "Adiaan/logo.png"
+NAGAHEE_DIR = "nagahee_scan"
+DATA_FILE = "dadar_final_report.txt"
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
 
-# 2. Page config irratti variable sana fayyadami (Waraabbii malee)
+if not os.path.exists(NAGAHEE_DIR):
+    os.makedirs(NAGAHEE_DIR)
+
 st.set_page_config(
-    page_title="Dadar Land Customer Registration System", 
+    page_title="Dadar Land Administration", 
     page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢", 
     layout="wide"
 )
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
-LOGO_PATH = "Adiaan/logo.png"
-DATA_FILE = "dadar_final_report.txt"
+
+# Custom CSS for UI
+st.markdown("""
+    <style>
+    .stApp { background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%); }
+    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
+    [data-testid="stSidebar"] * { color: #ffffff !important; }
+    div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; margin-bottom: 10px; }
+    .metric-value { font-size: 24px; font-weight: bold; color: #2e7d32; }
+    </style>
+    """, unsafe_allow_html=True)
 # ================= 2. CORE FUNCTIONS =================
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
@@ -284,6 +295,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
