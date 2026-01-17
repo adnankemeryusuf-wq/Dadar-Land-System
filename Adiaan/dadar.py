@@ -171,13 +171,11 @@ else:
                     if save_data(df):
                         st.success(f"✅ Galmeen {maqaa_f} raawwatameera!"); st.balloons()
 
-  # --- BADHAASA OGEEYYII ---
-    elif menu == "🏆 Badhaasa Ogeeyyii":
+  elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Badhaasa & Sartiifiikeeta")
         cl, cr = st.columns(2)
         logo_l = cl.file_uploader("Logo Bitaa Filadhu", type=['png', 'jpg'], key="l_up")
         logo_r = cr.file_uploader("Logo Mirgaa Filadhu", type=['png', 'jpg'], key="r_up")
-        
         if not df.empty:
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
             cols = st.columns(3)
@@ -185,13 +183,10 @@ else:
                 with cols[i-1]:
                     st.markdown(f"<div class='card'><h2 style='color:green;'>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
                     try:
-                        # Passing uploaded files directly
                         pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
                         st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
-                    except Exception as e: 
-                        st.error(f"PDF Error: {e}")
+                    except Exception as e: st.error(f"PDF Error: {e}")
         else: st.info("Data'n hin jiru.")
-
     # 4. SEARCH & EDIT
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sirreessi")
@@ -210,4 +205,5 @@ else:
                     if st.button("🗑 Haqi", key=f"d_{idx}"):
                         df = df.drop(idx)
                         if save_data(df): st.success("Haqameera!"); st.rerun()
+
 
