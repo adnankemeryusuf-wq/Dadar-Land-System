@@ -172,22 +172,44 @@ else:
                         st.success(f"✅ Galmeen {maqaa_f} raawwatameera!"); st.balloons()
 
 elif menu == "🏆 Badhaasa Ogeeyyii":
-        st.header("🏆 Badhaasa & Sartiifiikeeta")
-        cl, cr = st.columns(2)
-        logo_l = cl.file_uploader("Logo Bitaa Filadhu", type=['png', 'jpg'], key="l_up")
-        logo_r = cr.file_uploader("Logo Mirgaa Filadhu", type=['png', 'jpg'], key="r_up")
-        if not df.empty:
-            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-            cols = st.columns(3)
-            for i, (name, count) in enumerate(top_3.items(), 1):
-                with cols[i-1]:
-                    st.markdown(f"<div class='card'><h2 style='color:green;'>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
-                    try:
-                        pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
-                        st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
-                    except Exception as e: st.error(f"PDF Error: {e}")
-        else: st.info("Data'n hin jiru.")
-
+    st.header("🏆 Badhaasa & Sartiifiikeeta")
+    
+    # Logo filachuu
+    cl, cr = st.columns(2)
+    logo_l = cl.file_uploader("Logo Bitaa Filadhu", type=['png', 'jpg', 'jpeg'], key="l_up")
+    logo_r = cr.file_uploader("Logo Mirgaa Filadhu", type=['png', 'jpg', 'jpeg'], key="r_up")
+    
+    # Data'n jiraachuu isaa mirkaneessuu
+    if not df.empty and 'Maqaa_Ogeessa' in df.columns:
+        top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+        cols = st.columns(3)
+        
+        for i, (name, count) in enumerate(top_3.items(), 1):
+            with cols[i-1]:
+                # Kaardii bifa bareedaa qabu
+                st.markdown(f"""
+                    <div style="border: 2px solid green; padding: 15px; border-radius: 10px; text-align: center; background-color: #f9f9f9;">
+                        <h2 style='color:green;'>{i}FFAA</h2>
+                        <h4 style='color: black;'>{name}</h4>
+                        <p style='color: gray;'>Tajaajila: <b>{count}</b></p>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                # PDF uumuufi download button
+                try:
+                    pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
+                    if pdf_bytes:
+                        st.download_button(
+                            label=f"📥 PDF {i}ffaa Buufadhu",
+                            data=pdf_bytes,
+                            file_name=f"Sartiifiikeeta_{name}.pdf",
+                            mime="application/pdf",
+                            key=f"btn_{i}"
+                        )
+                except Exception as e: 
+                    st.error(f"Dogoggora PDF: {e}")
+    else: 
+        st.warning("Data'n hin jiru ykn Maqaan Ogeessaa galmee keessa hin jiru.")
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sirreessi")
         q = st.text_input("Maqaa Abbaa Dhimmaa Barbaadi...")
@@ -228,6 +250,7 @@ elif menu == "🏆 Badhaasa Ogeeyyii":
                     if st.button("🗑 Haqi", key=f"d_{idx}"):
                         df = df.drop(idx)
                         if save_data(df): st.success("Haqameera!"); st.rerun()
+
 
 
 
