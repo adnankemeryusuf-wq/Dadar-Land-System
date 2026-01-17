@@ -7,6 +7,7 @@ from datetime import datetime
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
+
 from reportlab.lib.colors import gold, silver, hexColor, green, black, white
 
 # ================= 1. QINDEESSA (CONFIG) =================
@@ -140,3 +141,4 @@ else:
 
     if st.sidebar.button("🚪 Ba'i"):
         st.session_state.login = False; st.rerun()
+
