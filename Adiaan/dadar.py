@@ -82,16 +82,6 @@ else:
         st.session_state.logged_in = False
         st.rerun()
 
-   import streamlit as st
-import pandas as pd
-import os
-import io
-import requests
-from datetime import datetime
-from fpdf import FPDF
-import plotly.express as px
-from ethiopian_date import EthiopianDateConverter
-
 # ================= 1. CONFIGURATION & STYLE =================
 # 1. Jalqaba variable kana qopheessi
 LOGO_PATH = "Adiaan/logo.png"
@@ -517,4 +507,5 @@ else:
                         save_data(df); st.success("Sirreeffameera!"); st.rerun()
                     if st.button("🗑 Haqi", key=f"d_{idx}"):
                         df = df.drop(idx); save_data(df); st.rerun()
+
 
