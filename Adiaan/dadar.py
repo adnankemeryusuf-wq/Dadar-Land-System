@@ -171,22 +171,26 @@ else:
                     if save_data(df):
                         st.success(f"✅ Galmeen {maqaa_f} raawwatameera!"); st.balloons()
 
-    # 3. BADHAASA
-    elif menu == "🏆 Badhaasa":
-        st.header("🏆 Sadarkaa fi Badhaasa Ogeeyyii")
+  # --- BADHAASA OGEEYYII ---
+    elif menu == "🏆 Badhaasa Ogeeyyii":
+        st.header("🏆 Badhaasa & Sartiifiikeeta")
         cl, cr = st.columns(2)
-        up_l = cl.file_uploader("Logo Bitaa (PDF)", type=['png', 'jpg'], key="u_l")
-        up_r = cr.file_uploader("Logo Mirgaa (PDF)", type=['png', 'jpg'], key="u_r")
-        st.divider()
+        logo_l = cl.file_uploader("Logo Bitaa Filadhu", type=['png', 'jpg'], key="l_up")
+        logo_r = cr.file_uploader("Logo Mirgaa Filadhu", type=['png', 'jpg'], key="r_up")
+        
         if not df.empty:
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-            cols = st.columns(3); colors = ["#FFD700", "#C0C0C0", "#CD7F32"]
-            for i, (name, count) in enumerate(top_3.items()):
-                with cols[i]:
-                    st.markdown(f"<div class='card' style='border-top: 5px solid {colors[i]};'><h2>#{i+1}</h2><h3>{name}</h3><p>Hojii: {count}</p></div>", unsafe_allow_html=True)
-                    pdf_data = create_advanced_pdf(name, count, i+1, up_l, up_r)
-                    st.download_button(f"📥 Download Sartifiikeeta", data=pdf_data, file_name=f"Sartifiikeeta_{name}.pdf", mime="application/pdf", key=f"btn_{i}")
-        else: st.info("Data'n hojii hin jiru.")
+            cols = st.columns(3)
+            for i, (name, count) in enumerate(top_3.items(), 1):
+                with cols[i-1]:
+                    st.markdown(f"<div class='card'><h2 style='color:green;'>{i}FFAA</h2><h3>{name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
+                    try:
+                        # Passing uploaded files directly
+                        pdf_bytes = create_advanced_pdf(name, count, i, logo_l, logo_r)
+                        st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
+                    except Exception as e: 
+                        st.error(f"PDF Error: {e}")
+        else: st.info("Data'n hin jiru.")
 
     # 4. SEARCH & EDIT
     elif menu == "🔍 Barbaadi/Edit":
@@ -206,3 +210,4 @@ else:
                     if st.button("🗑 Haqi", key=f"d_{idx}"):
                         df = df.drop(idx)
                         if save_data(df): st.success("Haqameera!"); st.rerun()
+
