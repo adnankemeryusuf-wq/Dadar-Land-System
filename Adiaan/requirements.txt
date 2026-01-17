@@ -9,3 +9,4 @@ customtkinter
 xlsxwriter
 sqlalchemy
 psycopg2-binary
+schedule
