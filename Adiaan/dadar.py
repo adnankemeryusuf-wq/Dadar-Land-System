@@ -171,7 +171,7 @@ else:
                     if save_data(df):
                         st.success(f"✅ Galmeen {maqaa_f} raawwatameera!"); st.balloons()
 
-  elif menu == "🏆 Badhaasa Ogeeyyii":
+elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Badhaasa & Sartiifiikeeta")
         cl, cr = st.columns(2)
         logo_l = cl.file_uploader("Logo Bitaa Filadhu", type=['png', 'jpg'], key="l_up")
@@ -187,6 +187,29 @@ else:
                         st.download_button(f"📥 PDF {i}ffaa", pdf_bytes, f"Cert_{name}.pdf", "application/pdf", key=f"btn_{i}")
                     except Exception as e: st.error(f"PDF Error: {e}")
         else: st.info("Data'n hin jiru.")
+
+    elif menu == "🔍 Barbaadi/Edit":
+        st.header("🔍 Barbaadi fi Sirreessi")
+        q = st.text_input("Maqaa Abbaa Dhimmaa Barbaadi...")
+        if q and not df.empty:
+            results = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            if not results.empty:
+                for idx, row in results.iterrows():
+                    with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} - {row['Guyyaa']}"):
+                        new_name = st.text_input("Maqaa Sirreessi", row['Maqaa_Abbaa_Dhimmaa'], key=f"n_{idx}")
+                        new_fee = st.number_input("Kafaltii Sirreessi", float(row['Kafaltii_Taj']), key=f"f_{idx}")
+                        c1, c2 = st.columns(2)
+                        if c1.button("💾 Update", key=f"u_{idx}"):
+                            df.at[idx, 'Maqaa_Abbaa_Dhimmaa'] = new_name
+                            df.at[idx, 'Kafaltii_Taj'] = new_fee
+                            save_data(df); st.success("Sirreeffameera!"); st.rerun()
+                        if c2.button("🗑 Haqi", key=f"d_{idx}"):
+                            df = df.drop(idx); save_data(df); st.warning("Haqumeera!"); st.rerun()
+            else: st.error("Maqaan kun hin jiru.")
+
+    elif menu == "Ba'i":
+        st.session_state.logged_in = False
+        st.rerun()
     # 4. SEARCH & EDIT
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sirreessi")
@@ -205,5 +228,6 @@ else:
                     if st.button("🗑 Haqi", key=f"d_{idx}"):
                         df = df.drop(idx)
                         if save_data(df): st.success("Haqameera!"); st.rerun()
+
 
 
