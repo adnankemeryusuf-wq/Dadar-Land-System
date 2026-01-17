@@ -110,8 +110,19 @@ else:
     # 2. REGISTRATION
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
-        GATII_DICT = {"Gibira": ["Gibira Manaa", "Gibira Lafa"], "Liizii": ["TOT", "Kafaltii Liizii"]}
-        selected_main = st.multiselect("Gosa Tajaajilaa", list(GATII_DICT.keys()))
+        
+        # Gosa tajaajilaa filachuuf
+        GATII_DICT = {
+            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
+            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
+            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
+            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa"],
+            "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
+            "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
+        }
+
+        # 1. Filannoo Gosa Tajaajilaa (Dirqama akka filatamuuf)
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu (Dirqama)", list(GATII_DICT.keys()))
         
         details, d_fees = [], {}
         if selected_main:
@@ -119,28 +130,57 @@ else:
                 subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
                 for s in subs:
                     details.append(f"{g}({s})")
-                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s}", min_value=0.0, key=f"f_{g}_{s}")
+                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
 
-        with st.form("main_entry_form", clear_on_submit=True):
-            maqaa = st.text_input("Maqaa Abbaa Dhimmaa")
-            ara = st.text_input("Araddaa")
-            qax = st.text_input("Qaxana")
-            ogeessa = st.text_input("Maqaa Ogeessaa")
-            nagahee_file = st.file_uploader("Nagahee Scan", type=['jpg','png'])
+        # 2. Form Galmee
+        with st.form("entry_form", clear_on_submit=True):
+            st.markdown("##### Odeeffannoo Maamilaa")
+            c1, c2 = st.columns(2)
             
-            if st.form_submit_button("💾 Galmeessi", key="final_save_btn"):
-                if maqaa and ogeessa and details:
+            # Form validation: placeholder fi label irratti "Required" dabalameera
+            maqaa_f = c1.text_input("Maqaa Abbaa Dhimmaa *", placeholder="Maqaa guutuu barreessi")
+            ara_f = c2.text_input("Araddaa *", placeholder="Araddaa maamilaa")
+            qax_f = c1.text_input("Qaxana *", placeholder="Qaxana maamilaa")
+            ogeessa = c2.text_input("Maqaa Ogeessaa *", placeholder="Maqaa kee barreessi")
+            
+            nagahee_file = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png','jpeg'])
+
+            # Button submit
+            submit = st.form_submit_button("💾 Galmeessi")
+
+            if submit:
+                # --- VALIDATION LOGIC ---
+                # Check gochuu: Wantoonni ijoon guutamaniiru?
+                if not maqaa_f or not ara_f or not qax_f or not ogeessa:
+                    st.error("⚠️ Maaloo! Bakka mallattoo (*) qaban hunda guutuu kee mirkaneessi.")
+                elif not details:
+                    st.error("⚠️ Maaloo! Gosa tajaajilaa kamiyyuu hin filanne.")
+                else:
+                    # Yoo hundi guutame, data save godha
                     if nagahee_file:
-                        f_name = f"{maqaa.replace(' ','_')}_{datetime.now().strftime('%H%M%S')}.jpg"
+                        f_name = f"{maqaa_f.replace(' ','_')}_{datetime.now().strftime('%H%M%S')}.jpg"
                         with open(os.path.join(NAGAHEE_DIR, f_name), "wb") as f:
                             f.write(nagahee_file.getbuffer())
                     
-                    new_data = [datetime.now().strftime('%d/%m/%Y'), maqaa, ara, qax, ", ".join(details), ogeessa, sum(d_fees.values())]
-                    df = pd.concat([df, pd.DataFrame([new_data], columns=COL_NAMES)], ignore_index=True)
+                    new_row = [
+                        datetime.now().strftime('%d/%m/%Y'), 
+                        maqaa_f, 
+                        ara_f, 
+                        qax_f, 
+                        ", ".join(details), 
+                        ogeessa, 
+                        sum(d_fees.values())
+                    ]
+                    
+                    # Data update gochuu
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
-                    st.success("✅ Galmeeffameera!")
-                    st.rerun()
-
+                    
+                    st.balloons() # Success animation
+                    st.success(f"✅ Galmeen {maqaa_f} milkaa'inaan kuusameera!")
+                    
+                    # Refresh gochuuf
+                    # st.rerun()
     # 3. GABAASA
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa")
@@ -160,3 +200,4 @@ else:
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.dataframe(res)
+
