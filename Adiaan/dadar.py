@@ -18,10 +18,12 @@ st.set_page_config(
     page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢", 
     layout="wide"
 )
+ --- CONFIGURATION TELEGRAM ---
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
 LOGO_PATH = "Adiaan/logo.png"
-DATA_FILE = "dadar_final_report.txt"
+EXCEL_FILE = "dadar_land_data.xlsx"
+
 
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
@@ -390,3 +392,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
