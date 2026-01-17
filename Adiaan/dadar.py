@@ -180,7 +180,7 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    # --- REGISTRATION ---
+  # --- REGISTRATION ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
         GATII_DICT = {
@@ -201,7 +201,8 @@ else:
                 subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
                 for s in subs:
                     details.append(f"{g}({s})")
-                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0)
+                    # Added unique key to avoid Duplicate Widget ID errors
+                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"fee_{g}_{s}")
                     if s == "TOT": is_tot = True
 
         with st.form("entry_form"):
@@ -220,20 +221,25 @@ else:
             nagahee_file = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png','jpeg'])
 
             if st.form_submit_button("💾 Galmeessi"):
-                if maqaa_f and details and ogeessa:
+                # Validation check
+                if not maqaa_f or not details or not ogeessa:
+                    st.error("Maaloo odeeffannoo barbaachisu hunda guutaa!")
+                else:
                     # Save Receipt if uploaded
                     if nagahee_file:
-                        f_name = f"{maqaa_f[:10].replace(' ','_')}_{datetime.now().strftime('%H%M%S')}.jpg"
+                        # Sanitize filename
+                        clean_name = "".join(x for x in maqaa_f[:15] if x.isalnum() or x in "._- ")
+                        f_name = f"{clean_name}_{datetime.now().strftime('%H%M%S')}.jpg"
                         with open(os.path.join(NAGAHEE_DIR, f_name), "wb") as f:
                             f.write(nagahee_file.getbuffer())
                     
-                    # Save Data
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values())]
+                    # Save Data to CSV/Text file
+                    total_payment = sum(d_fees.values())
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, total_payment]
+                    
+                    # Update global dataframe and save
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
-                    st.success("✅ Galmeeffameera!")
+                    st.success(f"✅ Galmeeffameera! Waliigala: {total_payment:,.2f} ETB")
                     st.rerun()
-
-    # --- (Include Dashboard, Report, and Awards logic here as in your original) ---
-
 
