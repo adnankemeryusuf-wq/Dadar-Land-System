@@ -1,6 +1,9 @@
 streamlit
 pandas
-reportlab
+Pillow
+openpyxl
 requests
+psycopg2-binary
+fpdf
 plotly
 xlsxwriter
