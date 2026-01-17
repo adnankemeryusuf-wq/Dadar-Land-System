@@ -222,17 +222,84 @@ else:
         st.header("📈 Gabaasa")
         st.dataframe(df[COL_NAMES])
 
-    # 4. BADHAASA
+
+# --- BADHAASA OGEEYYII ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
-        st.header("🏆 Ogeeyyii Filatamoa")
+        st.markdown("<h4 style='color: #1b5e20;'>🏆 Sadarkaa fi Badhaasa Ogeeyyii</h4>", unsafe_allow_html=True)
+        
+        # Logo filachuuf
+        cl, cr = st.columns(2)
+        l_l = cl.file_uploader("Logo Bitaa (PDF irratti)", type=['png', 'jpg'], key="logo_l")
+        l_r = cr.file_uploader("Logo Mirgaa (PDF irratti)", type=['png', 'jpg'], key="logo_r")
+        
+        st.divider()
+
         if not df.empty:
+            # Ogeeyyii baay'ina hojiitiin addaan baasuu
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            cols = st.columns(3)
+            
+            # Halluuwwan sadarkaaf
+            colors = ["#FFD700", "#C0C0C0", "#CD7F32"] # Gold, Silver, Bronze
+            labels = ["1FFAA", "2FFAA", "3FFAA"]
+
             for i, (name, count) in enumerate(top_3.items()):
-                st.write(f"{i+1}. {name} - {count} Hojii")
-    
-    # 5. SEARCH/EDIT
+                with cols[i]:
+                    # Card bareedaa halluu sadarkaatiin
+                    st.markdown(f"""
+                        <div class='card' style='border-top: 5px solid {colors[i]};'>
+                            <h2 style='color: {colors[i]};'>{labels[i]}</h2>
+                            <h3 style='margin: 5px 0;'>{name}</h3>
+                            <p style='font-size: 14px; color: #555;'>Hojii Raawwatame: <b>{count}</b></p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                    
+                    # PDF Generate gochuu
+                    try:
+                        pdf_file = create_advanced_pdf(name, count, i+1, l_l, l_r)
+                        st.download_button(
+                            label=f"📥 Sartiifiketa {labels[i]}",
+                            data=pdf_file,
+                            file_name=f"Sadarkaa_{i+1}_{name}.pdf",
+                            mime="application/pdf",
+                            key=f"dl_{i}"
+                        )
+                    except Exception as e:
+                        st.error("PDF uumuu irratti dogoggora!")
+        else:
+            st.info("Data'n hojii ogeeyyii agarsiisu hin jiru.")
+
+    # --- SEARCH & EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
-        q = st.text_input("Maqaa Barbaadi")
-        if q:
+        col_l, col_r = st.columns([1, 4])
+        with col_l:
+            if os.path.exists(LOGO_PATH):
+                st.image(LOGO_PATH, width=80)
+        with col_r:
+            st.header("🔍 Barbaadi fi Sirreessi")
+            st.info("Maqaa maamilaa barreessuun galmee isaa sirreessi ykn haqi.")
+
+        q = st.text_input("🔍 Maqaa Abbaa Dhimmaa Barbaadi...", placeholder="Fkn: Alii Mohammed")
+        
+        if q and not df.empty:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-            st.dataframe(res)
+            if not res.empty:
+                st.write(f"🔎 Bu'aa {len(res)} argaman:")
+                for idx, row in res.iterrows():
+                    with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} ({row['Guyyaa']})"):
+                        c1, c2 = st.columns(2)
+                        n_n = c1.text_input("Maqaa Sirreessi", row['Maqaa_Abbaa_Dhimmaa'], key=f"n_{idx}")
+                        n_f = c2.number_input("Kafaltii (ETB)", float(row['Kafaltii_Taj']), key=f"f_{idx}")
+                        ca1, ca2, _ = st.columns([1, 1, 2])
+                        if ca1.button("💾 Update", key=f"u_{idx}"):
+                            df.at[idx, 'Maqaa_Abbaa_Dhimmaa'] = n_n
+                            df.at[idx, 'Kafaltii_Taj'] = n_f
+                            save_data(df); st.success("✅ Sirreeffameera!"); st.rerun()
+                        if ca2.button("🗑 Haqi", key=f"d_{idx}"):
+                            df = df.drop(idx); save_data(df); st.rerun()
+            else:
+                st.error("Maqaan kun galmee keessa hin jiru!")
+
+    elif menu == "Ba'i":
+        st.session_state.logged_in = False
+        st.rerun()
