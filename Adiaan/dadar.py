@@ -49,45 +49,24 @@ def load_data():
     df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
     df['Waggaa'] = df['Date_Obj'].dt.year
     df['Ji\'a'] = df['Date_Obj'].dt.month.map(MONTH_MAP)
+    df['Kurmaana'] = df['Date_Obj'].dt.month.apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
     return df
 
 def save_data(df_to_save):
     df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-def create_certificate(name, service_or_count, date_str, cert_type="CUSTOMER", rank=None):
+def create_advanced_pdf(name, count, rank, logo_l=None, logo_r=None):
+    # Functional PDF logic
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    
-    # Border Logic (Gold for Rank 1)
-    b_color = (255, 215, 0) if rank == 1 else (27, 94, 32)
-    pdf.set_draw_color(*b_color)
-    pdf.set_line_width(2)
-    pdf.rect(5, 5, 287, 200)
-    pdf.rect(8, 8, 281, 194)
-
-    if os.path.exists(LOGO_PATH):
-        pdf.image(LOGO_PATH, 135, 12, 25)
-
-    pdf.set_y(45)
-    pdf.set_font('Arial', 'B', 32)
-    pdf.set_text_color(*b_color)
-    title = "SARTIIFIKETA BEEKAMTII" if cert_type == "STAFF" else "WARAQAA RAGAA TAJAAJILAA"
-    pdf.cell(0, 15, title, ln=True, align='C')
-    
+    pdf.set_draw_color(0, 80, 0)
+    pdf.set_line_width(3.0)
+    pdf.rect(10, 10, 277, 190)
+    pdf.set_font('Arial', 'B', 30)
+    pdf.set_xy(0, 50)
+    pdf.cell(297, 20, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     pdf.set_font('Arial', '', 20)
-    pdf.set_text_color(0, 0, 0)
-    pdf.ln(20)
-    
-    if cert_type == "STAFF":
-        msg = f"Obbo/Adde {name.upper()}\n\nTajaajilamtoota {service_or_count} saffisaan tajaajiluun sadarkaa {rank}ffaa\nwaggaa 2026 waan qabataniif beekamtiin kun kennameef."
-    else:
-        msg = f"Obbo/Adde {name.upper()}\n\nWaajjira Lafaa Bulchiinsa Magaalaa Dadar irraa tajaajila\n'{service_or_count}'\nguyyaa {date_str} argachuu keessaniif ragaa kenname."
-    
-    pdf.multi_cell(0, 12, msg, align='C')
-    pdf.set_y(165)
-    pdf.line(110, 175, 187, 175)
-    pdf.set_xy(110, 177); pdf.set_font('Arial', 'I', 12)
-    pdf.cell(77, 8, "Itti Gaafatamaa Waajjiraa", align='C')
+    pdf.cell(297, 20, f"Ogeessa: {name}", ln=True, align='C')
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 3. MAIN APPLICATION =================
@@ -242,3 +221,4 @@ else:
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.dataframe(res)
+
