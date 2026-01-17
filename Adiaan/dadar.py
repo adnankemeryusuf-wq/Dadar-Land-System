@@ -181,7 +181,7 @@ else:
             st.rerun()
 
   # --- REGISTRATION ---
-    elif menu == "📝 Galmee Haaraa":
+  
         st.header("📝 Galmee Tajaajilaa")
         GATII_DICT = {
             "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
@@ -242,4 +242,5 @@ else:
                     save_data(df)
                     st.success(f"✅ Galmeeffameera! Waliigala: {total_payment:,.2f} ETB")
                     st.rerun()
+
 
