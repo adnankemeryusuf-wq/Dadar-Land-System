@@ -3,7 +3,3 @@ pandas
 reportlab
 requests
 openpyxl
-plotly
-ethiopian-date
-sqlalchemy
-psycopg2-binary
