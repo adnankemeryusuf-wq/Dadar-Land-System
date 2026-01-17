@@ -180,8 +180,29 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-  # --- REGISTRATION ---
-  
+ 
+   # --- DASHBOARD ---
+    if menu == "📊 Dashboard":
+        st.markdown("<h2 style='color: #1b5e20;'>📊 Dashboard Waliigalaa</h2>", unsafe_allow_html=True)
+        if not df.empty:
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                rev = float(df['Kafaltii_Taj'].sum())
+                st.markdown(f"<div class='card'><p>💰 Galii Waliigalaa</p><p class='metric-value'>{rev:,.2f} ETB</p></div>", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
+            with c3:
+                top_og = df['Maqaa_Ogeessa'].mode()[0] if not df['Maqaa_Ogeessa'].empty else "-"
+                st.markdown(f"<div class='card'><p>🏆 Ogeessa Filatamaa</p><p class='metric-value'>{top_og}</p></div>", unsafe_allow_html=True)
+            
+            st.markdown("---")
+            st.subheader("📈 Trendii Galii Ji'aan")
+            trend_data = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
+            st.area_chart(trend_data)
+        else:
+            st.info("Data'n galmeeffame hin jiru.")
+    # --- REGISTRATION ---
+    elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
         GATII_DICT = {
             "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
@@ -192,20 +213,16 @@ else:
             "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
             "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
         }
-        
         selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
         details, d_fees, is_tot = [], {}, False
-        
         if selected_main:
             for g in selected_main:
                 subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
                 for s in subs:
                     details.append(f"{g}({s})")
-                    # Added unique key to avoid Duplicate Widget ID errors
-                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"fee_{g}_{s}")
+                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
                     if s == "TOT": is_tot = True
-
-        with st.form("entry_form"):
+        with st.form("entry_form", clear_on_submit=True):
             if is_tot:
                 col1, col2 = st.columns(2)
                 maqaa_f = f"G: {col1.text_input('Maqaa Gurguraa')} / B: {col2.text_input('Maqaa Bitataa')}"
@@ -213,34 +230,12 @@ else:
                 qax_f = f"G: {col1.text_input('Qaxana G')} / B: {col2.text_input('Qaxana B')}"
             else:
                 c1, c2 = st.columns(2)
-                maqaa_f = c1.text_input("Maqaa Abbaa Dhimmaa")
-                ara_f = c2.text_input("Araddaa")
+                maqaa_f, ara_f = c1.text_input("Maqaa Abbaa Dhimmaa"), c2.text_input("Araddaa")
                 qax_f = c1.text_input("Qaxana")
-            
             ogeessa = st.text_input("Maqaa Ogeessaa")
-            nagahee_file = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png','jpeg'])
-
             if st.form_submit_button("💾 Galmeessi"):
-                # Validation check
-                if not maqaa_f or not details or not ogeessa:
-                    st.error("Maaloo odeeffannoo barbaachisu hunda guutaa!")
-                else:
-                    # Save Receipt if uploaded
-                    if nagahee_file:
-                        # Sanitize filename
-                        clean_name = "".join(x for x in maqaa_f[:15] if x.isalnum() or x in "._- ")
-                        f_name = f"{clean_name}_{datetime.now().strftime('%H%M%S')}.jpg"
-                        with open(os.path.join(NAGAHEE_DIR, f_name), "wb") as f:
-                            f.write(nagahee_file.getbuffer())
-                    
-                    # Save Data to CSV/Text file
-                    total_payment = sum(d_fees.values())
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, total_payment]
-                    
-                    # Update global dataframe and save
+                if maqaa_f and details and ogeessa:
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values())]
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df)
-                    st.success(f"✅ Galmeeffameera! Waliigala: {total_payment:,.2f} ETB")
-                    st.rerun()
-
+                    save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
 
