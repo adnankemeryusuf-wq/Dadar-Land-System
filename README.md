@@ -24,4 +24,4 @@ streamlit run app.py
 * Iccitii ragaalee eeguu.
 
 ## 👨‍💻 Namoota Hojjetan
-* **Adnan Kemeryusuf**
+* **Adnan Kemer yusuf**
