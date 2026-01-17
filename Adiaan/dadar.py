@@ -91,14 +91,16 @@ else:
 
     # --- REGISTRATION ---
     elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Haaraa")
-        with st.form(key="registration_form_new", clear_on_submit=True):
-            col1, col2 = st.columns(2)
-            m_name = col1.text_input("Maqaa Abbaa Dhimmaa")
-            m_ara = col2.text_input("Araddaa")
-            m_oge = col1.text_input("Maqaa Ogeessaa")
-            m_kaff = col2.number_input("Kafaltii (ETB)", min_value=0.0)
-            m_gosa = st.selectbox("Gosa Tajaajilaa", ["Gibira", "Liizii", "Kaartaa", "Jijjiirraa Maqaa"])
+        st.header("📝 Galmee Tajaajilaa")
+        GATII_DICT = {
+            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
+            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
+            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
+            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa"],
+            "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
+            "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
+            "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
+        }
             
             nagahee_file = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png','jpeg'])
 
@@ -140,3 +142,4 @@ else:
                             df.at[idx, 'Maqaa_Abbaa_Dhimmaa'] = u_n
                             df.at[idx, 'Kafaltii_Taj'] = u_k
                             save_data(df); st.success("Sirreeffameera!"); st.rerun()
+
