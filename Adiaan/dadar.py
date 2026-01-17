@@ -217,20 +217,22 @@ else:
                     
                     # Refresh gochuuf
                     # st.rerun()
-    elif menu == "🏆 Badhaasa":
-        st.subheader("🏆 Sadarkaa Ogeeyyii")
+        # 3. GABAASA
+    elif menu == "📈 Gabaasa Bal'aa":
+        st.header("📈 Gabaasa")
+        st.dataframe(df[COL_NAMES])
+
+    # 4. BADHAASA
+    elif menu == "🏆 Badhaasa Ogeeyyii":
+        st.header("🏆 Ogeeyyii Filatamoa")
         if not df.empty:
             top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-            cols = st.columns(3)
             for i, (name, count) in enumerate(top_3.items()):
-                with cols[i]:
-                    st.markdown(f"<div class='card'><h3>{name}</h3><p>Hojii: {count}</p></div>", unsafe_allow_html=True)
-                    pdf = create_advanced_pdf(name, count, i+1)
-                    st.download_button(f"📥 Sartiifiketa {i+1}", pdf, f"Badhaasa_{name}.pdf", key=f"s_{i}")
-
-    elif menu == "🔍 Barbaadi":
-        q = st.text_input("Maqaa Maamilaa Barbaadi")
-        if q and not df.empty:
+                st.write(f"{i+1}. {name} - {count} Hojii")
+    
+    # 5. SEARCH/EDIT
+    elif menu == "🔍 Barbaadi/Edit":
+        q = st.text_input("Maqaa Barbaadi")
+        if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-            st.dataframe(res[COL_NAMES])
-
+            st.dataframe(res)
