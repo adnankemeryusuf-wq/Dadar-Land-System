@@ -1,13 +1,9 @@
 streamlit
-requests
 pandas
-fpdf
+reportlab
+requests
 openpyxl
 plotly
 ethiopian-date
-customtkinter
-xlsxwriter
 sqlalchemy
 psycopg2-binary
-
-
