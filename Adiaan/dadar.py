@@ -1,17 +1,14 @@
 import streamlit as st
 import pandas as pd
-import os, io, requests
+import os, io
 from datetime import datetime
 from fpdf import FPDF
 
 # ================= 1. SETUP & CONFIG =================
-LOGO_PATH = "Adiaan/logo.png"
+# Folder maqaa "Adiaan" jedhu keessa jiraachuu isaa mirkaneessi
+LOGO_PATH = "Adiaan/logo.png" 
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
-
-# Telegram Settings
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
 
 if 'pdf_to_download' not in st.session_state: st.session_state.pdf_to_download = None
 if 'pdf_name' not in st.session_state: st.session_state.pdf_name = ""
@@ -26,24 +23,30 @@ def create_clearance_pdf(data):
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # Header
-    if os.path.exists(LOGO_PATH): pdf.image(LOGO_PATH, 92, 15, 26)
+    # Header - LOGO (ERROR HANDLING ADDED)
+    try:
+        if os.path.exists(LOGO_PATH):
+            # lakk_kaartaa fi gosa fayilaa yoo wal dhabe koodichi akka hin kufne
+            pdf.image(LOGO_PATH, 92, 15, 26)
+    except Exception as e:
+        # Logo-n yoo rakkoo qabaate barreeffama qofaan hojjeta
+        pdf.set_y(20)
+        pdf.set_font('Arial', 'B', 10)
+        pdf.cell(0, 5, "[MALLATTOO WAAJJIRAA]", ln=True, align='C')
+
     pdf.set_y(45); pdf.set_font('Arial', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
     pdf.set_font('Arial', 'B', 14); pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
     
-    # Lakk fi Guyyaa
     pdf.ln(5); pdf.set_font('Arial', '', 11)
     pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=False, align='L')
     pdf.cell(0, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
     
-    # Subject
     pdf.ln(10); pdf.set_font('Arial', 'B', 13); pdf.set_fill_color(230, 230, 230)
     pdf.cell(0, 10, "SUBJECT: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C', fill=True)
     
-    # Body Text (Odeeffannoo kee isa sirrii)
-    pdf.set_y(90); pdf.set_font('Arial', '', 12); pdf.set_x(20)
+    pdf.set_y(95); pdf.set_font('Arial', '', 12); pdf.set_x(20)
     text = (
         f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} "
         f"Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n"
@@ -56,7 +59,6 @@ def create_clearance_pdf(data):
     )
     pdf.multi_cell(170, 8, text, align='L')
     
-    # Sign Section
     pdf.set_y(230); pdf.set_font('Arial', 'B', 12)
     pdf.cell(110); pdf.cell(0, 7, "Maqaa Itti Gaafatamaa:", ln=True)
     pdf.cell(110); pdf.cell(0, 7, "Mallattoo: _________________", ln=True)
@@ -67,51 +69,33 @@ def create_clearance_pdf(data):
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
-menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Clearance", "📈 Gabaasa"])
+# Formii Galmeessaa
+st.header("📝 Galmee fi Qophii Clearance")
 
-if menu == "📝 Galmee Clearance":
-    st.header("📝 Galmee fi Qophii Clearance")
-    
-    if st.session_state.pdf_to_download:
-        st.success("📄 Clearance qophaa'eera!")
-        st.download_button("📥 IRRA BUUFADHU (PDF)", st.session_state.pdf_to_download, st.session_state.pdf_name, "application/pdf")
-        if st.button("Haaraa Galmeessi"): 
-            st.session_state.pdf_to_download = None; st.rerun()
-    
-    with st.form("clearance_form", clear_on_submit=True):
-        st.subheader("Odeeffannoo Barbaachisu")
-        c1, c2 = st.columns(2)
-        m_maqaa = c1.text_input("Maqaa Maamilaa *")
-        m_araddaa = c2.text_input("Araddaa *")
-        m_qaxana = c1.text_input("Lakk. Qaxana *")
-        m_kaartaa = c2.text_input("Lakk. Kaartaa *")
-        m_bara = c1.text_input("Bara Gibiraa (Fkn: 2016)")
-        m_dhimma = c2.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
-        m_kaffaltii = c1.number_input("Kaffaltii Tajaajilaa (ETB)", min_value=0.0)
-        m_ogeessa = c2.text_input("Ogeessa Galmeesse *")
+if st.session_state.pdf_to_download:
+    st.success("📄 Clearance qophaa'eera!")
+    st.download_button("📥 IRRA BUUFADHU (PDF)", st.session_state.pdf_to_download, st.session_state.pdf_name, "application/pdf")
+    if st.button("Galmee Haaraa"): 
+        st.session_state.pdf_to_download = None; st.rerun()
 
-        if st.form_submit_button("💾 GALMEESSI FI PDF UUMI"):
-            if m_maqaa and m_kaartaa:
-                data = {
-                    'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana,
-                    'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma
-                }
-                # PDF Uumuu
-                st.session_state.pdf_to_download = create_clearance_pdf(data)
-                st.session_state.pdf_name = f"Clearance_{m_maqaa}.pdf"
-                
-                # Data kuusuu
-                new_row = [datetime.now().strftime('%d/%m/%Y'), m_maqaa, m_araddaa, m_qaxana, f"Clearance ({m_dhimma})", m_ogeessa, m_kaffaltii]
-                df = pd.DataFrame([new_row], columns=COL_NAMES)
-                df.to_csv(DATA_FILE, mode='a', sep="|", index=False, header=False)
-                st.rerun()
+with st.form("clearance_form", clear_on_submit=True):
+    c1, c2 = st.columns(2)
+    m_maqaa = c1.text_input("Maqaa Maamilaa *")
+    m_araddaa = c2.text_input("Araddaa *")
+    m_qaxana = c1.text_input("Lakk. Qaxana *")
+    m_kaartaa = c2.text_input("Lakk. Kaartaa *")
+    m_bara = c1.text_input("Bara Gibiraa (Fkn: 2016)")
+    m_dhimma = c2.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+    m_kaffaltii = c1.number_input("Kaffaltii Tajaajilaa (ETB)", min_value=0.0)
+    m_ogeessa = c2.text_input("Ogeessa Galmeesse *")
 
-elif menu == "📊 Dashboard":
-    st.title("📊 Dashboard")
-    st.info("Odeeffannoo waliigalaa asitti ilaaluu dandeessa.")
-
-elif menu == "📈 Gabaasa":
-    st.title("📈 Gabaasa")
-    if os.path.exists(DATA_FILE):
-        df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES)
-        st.dataframe(df)
+    if st.form_submit_button("💾 GALMEESSI FI PDF UUMI"):
+        if m_maqaa and m_kaartaa:
+            data_map = {
+                'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana,
+                'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma
+            }
+            # PDF Uumuu
+            st.session_state.pdf_to_download = create_clearance_pdf(data_map)
+            st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
+            st.rerun()
