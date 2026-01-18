@@ -3,9 +3,10 @@ import pandas as pd
 import os, io
 from datetime import datetime
 from fpdf import FPDF
+from PIL import Image  # Rakkoo gosa fayilaa furuuf kan dabalame
 
 # ================= 1. SETUP & CONFIG =================
-LOGO_FILE = "waajjira_logo.png" # Maqaa fayila logo kuusamee
+LOGO_FILE = "waajjira_logo.png" 
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
@@ -18,14 +19,22 @@ def create_clearance_pdf(data):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # Border bareedaa
+    # Border
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # 1. HEADER - LOGO (TOP CENTER)
+    # 1. HEADER - LOGO (ERROR-PROOF)
     if os.path.exists(LOGO_FILE):
-        # 90mm gidduudha, 15mm gubbaarra fageenya, 30mm bal'ina
-        pdf.image(LOGO_FILE, 90, 15, 30)
+        try:
+            # Gosa fayilaa sirreessuuf (PNG/JPG mismatch furuuf)
+            img = Image.open(LOGO_FILE)
+            if img.mode in ("RGBA", "P"): # Yoo duubbiin isaa calaqqisiiftuu ta'e
+                img = img.convert("RGB")
+            img.save("temp_logo.jpg", "JPEG")
+            pdf.image("temp_logo.jpg", 90, 15, 30)
+        except Exception as e:
+            st.error(f"Logo uumuun hin danda'amne: {e}")
+            pdf.ln(20)
     else:
         pdf.ln(20)
 
@@ -43,7 +52,7 @@ def create_clearance_pdf(data):
     pdf.set_x(20)
     pdf.cell(170, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
     
-    # 2. SUBJECT (UNDERLINED)
+    # 2. SUBJECT (CLEAN)
     pdf.ln(10)
     pdf.set_font('Arial', 'BU', 13)
     pdf.cell(0, 10, "SUBJECT: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
@@ -113,6 +122,7 @@ with st.form("clearance_form", clear_on_submit=True):
     if st.form_submit_button("💾 GALMEESSI FI PDF UUMI"):
         if m_maqaa and m_kaartaa and m_dhorkaa_bilisa:
             data_map = {'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana, 'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 'gosa_qabiyyee': m_gosa}
+            # Amma RuntimeError sun hin uumamu
             st.session_state.pdf_to_download = create_clearance_pdf(data_map)
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
