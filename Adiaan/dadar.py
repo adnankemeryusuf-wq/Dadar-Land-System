@@ -83,11 +83,17 @@ else:
     if menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa Haaraa")
         
-        GATII_DICT = {
-            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
-            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
-            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"]
-        }
+      # --- GALMEE HAARAA ---
+elif menu == "📝 Galmee Haaraa":
+    st.header("📝 Galmee Tajaajilaa Haaraa")
+    GATII_DICT = {
+        "🏷️ Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)"],
+        "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"],
+        "🏗️ Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", "Humna Mahandisummaa"],
+        "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"],
+        "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"]
+    }
+    
         
         selected_main = st.multiselect("🟢 Gosa Tajaajilaa", list(GATII_DICT.keys()))
         details, d_fees = [], {}
@@ -140,3 +146,4 @@ else:
             st.line_chart(trend)
         else:
             st.info("Data'n galmeeffame hin jiru.")
+
