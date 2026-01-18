@@ -144,10 +144,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
 
-    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; border: none; }
-    </style>
-    """, unsafe_allow_html=True)
-
+    
 # ================= 2. CORE FUNCTIONS =================
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
@@ -2509,6 +2506,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.session_state.pdf_to_download = create_clearance_pdf(data_map)
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
+
 
 
 
