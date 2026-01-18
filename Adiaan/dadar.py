@@ -1,9 +1,4 @@
-import streamlit as st
-import pandas as pd
-import os, io
-from datetime import datetime
-from fpdf import FPDF
-from PIL import Image  # Rakkoo gosa fayilaa furuuf kan dabalame
+
 
 # ================= 1. SETUP & CONFIG =================
 LOGO_FILE = "waajjira_logo.png" 
@@ -150,6 +145,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
 
