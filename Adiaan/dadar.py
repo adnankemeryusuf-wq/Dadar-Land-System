@@ -194,23 +194,8 @@ else:
             if st.button("✈️ Gabaasa Telegramitti Ergi"):
                 st.success("Gabaasa telegramitti ergameera!") # Logic erguu armaan olitti jira
 
-    # --- 🏆 BADHAASA OGEEYYII ---
-    elif menu == "🏆 Badhaasa Ogeeyyii":
-        st.header("🏆 Sadarkaa fi Badhaasa Ogeeyyii")
-        if not df.empty:
-            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-            cols = st.columns(3)
-            for i, (name, count) in enumerate(top_3.items()):
-                with cols[i]:
-                    st.markdown(f"<div class='card'><h2>{i+1}ffaa</h2><h3>{name}</h3><p>Hojii: {count}</p></div>", unsafe_allow_html=True)
-                    pdf_b = create_certificate(name, count, "", "STAFF", i+1)
-                    st.download_button(f"📥 Sartifiikeetii {i+1}", pdf_b, f"Badhaasa_{name}.pdf", key=f"staff_{i}")
-        else: st.info("Data'n hojii ogeeyyii hin jiru.")
-
-
-
-
-
+   
  
+
 
 
