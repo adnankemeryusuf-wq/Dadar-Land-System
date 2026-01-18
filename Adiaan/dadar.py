@@ -27,7 +27,6 @@ def load_data():
 def save_data(df_to_save):
     df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-# --- WARAQAA RAGAA (CLEARANCE) PDF GENERATOR ---
 def create_clearance_pdf(name, araddaa, qaxana, services, nagahee_lakk):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
@@ -68,7 +67,6 @@ def create_clearance_pdf(name, araddaa, qaxana, services, nagahee_lakk):
     
     return pdf.output(dest='S').encode('latin-1')
 
-# --- EXCEL TELEGRAM ---
 def send_excel_to_telegram(df_to_send):
     try:
         output = io.BytesIO()
@@ -83,6 +81,11 @@ def send_excel_to_telegram(df_to_send):
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Management", layout="wide")
 df = load_data()
+
+# Session State Setup
+if 'show_download' not in st.session_state: st.session_state.show_download = False
+if 'pdf_data' not in st.session_state: st.session_state.pdf_data = None
+if 'pdf_filename' not in st.session_state: st.session_state.pdf_filename = ""
 
 menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
 
@@ -139,15 +142,25 @@ elif menu == "📝 Galmee Haaraa":
                 st.success(f"✅ Galmeen {m_maqaa} milkaa'eera!")
                 
                 if "Waraqaa Ragaa (Clearance)" in details:
-                    st.info("📄 Waraqaan Ragaa (Clearance) qophaa'eera.")
-                    pdf_data = create_clearance_pdf(m_maqaa, m_araddaa, m_qaxana, ", ".join(details), m_nagahee_lakk)
-                    st.download_button(
-                        label="📥 Waraqaa Ragaa (Clearance) Download Godhuuf As Cuqaasi",
-                        data=pdf_data,
-                        file_name=f"Clearance_{m_maqaa.replace(' ', '_')}.pdf",
-                        mime="application/pdf"
-                    )
-            else: st.error("⚠️ Maaloo hunda guuti!")
+                    st.session_state.pdf_data = create_clearance_pdf(m_maqaa, m_araddaa, m_qaxana, ", ".join(details), m_nagahee_lakk)
+                    st.session_state.pdf_filename = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
+                    st.session_state.show_download = True
+                else:
+                    st.session_state.show_download = False
+            else:
+                st.error("⚠️ Maaloo hunda guuti!")
+                st.session_state.show_download = False
+
+    # Download button Form-ii alatti akka hin badneef
+    if st.session_state.show_download:
+        st.info("📄 Waraqaan Ragaa (Clearance) Maamila kanaaf qophaa'eera.")
+        st.download_button(
+            label="📥 Waraqaa Ragaa (Clearance) Download Godhuuf As Cuqaasi",
+            data=st.session_state.pdf_data,
+            file_name=st.session_state.pdf_filename,
+            mime="application/pdf",
+            key="final_dl_btn"
+        )
 
 elif menu == "📈 Gabaasa":
     st.header("📈 Gabaasa Bal'aa")
