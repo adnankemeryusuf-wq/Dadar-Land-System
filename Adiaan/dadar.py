@@ -25,26 +25,40 @@ def create_clearance_pdf(data):
     # 1. HEADER - LOGO (Gubbaa gidduutti akka mul'atu)
     try:
         if os.path.exists(LOGO_PATH):
-            # Logo bal'ina isaa (30mm) fi gidduu (90mm) kaa'uun
+            # Logo gidduu akka seenuuf x=90, bal'inni 30mm
             pdf.image(LOGO_PATH, 90, 15, 30)
+        else:
+            # Yoo logo-n hin jirre bakka isaa duwwaa dhiisa
+            pdf.ln(20)
     except:
-        pdf.set_y(25); pdf.set_font('Arial', 'B', 12)
-        pdf.cell(0, 5, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
+        pdf.ln(20)
 
     # Teessoo fi Maqaa Waajjiraa
-    pdf.set_y(48); pdf.set_font('Arial', 'BU', 12)
+    pdf.set_y(48)
+    pdf.set_font('Arial', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
-    pdf.set_font('Arial', 'B', 14); pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
+    pdf.set_font('Arial', 'B', 14)
+    pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
     
     # Lakk fi Guyyaa
-    pdf.ln(5); pdf.set_font('Arial', '', 11)
+    pdf.ln(5)
+    pdf.set_font('Arial', '', 11)
+    # Lakk. Galmee bitaatti, Guyyaa mirgaatti
+    current_y = pdf.get_y()
+    pdf.set_x(20)
     pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=False, align='L')
-    pdf.cell(0, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
+    pdf.set_x(20)
+    pdf.cell(170, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
     
     # 2. SUBJECT (Background malee, Bold fi Underline qofa)
-    pdf.ln(10); pdf.set_font('Arial', 'BU', 10)
-    pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
+    pdf.ln(10)
+    pdf.set_font('Arial', 'BU', 13) # 'BU' jechuun Bold + Underline
+    pdf.cell(0, 10, "SUBJECT: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
+    
+    # 3. BODY TEXT (Barreeffama qulqulluu)
+    pdf.set_y(95)
+    pdf.set_font('Arial', '', 12)
     
     # Ibsa kaffaltii qabiyyee adda baasuu
     if data['gosa_qabiyyee'] == "Liizii":
@@ -52,21 +66,20 @@ def create_clearance_pdf(data):
     else:
         kaffaltii_ibsa = "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina."
 
-    # 3. BODY TEXT (Barreeffama qulqulluu)
-    pdf.set_y(95); pdf.set_font('Arial', '', 12); pdf.set_x(20)
-    
+    # Barreeffama guutuu
+    pdf.set_x(20)
     # Seensa
     pdf.multi_cell(170, 8, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} "
                           f"Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.", align='L')
-    pdf.ln(4)
+    pdf.ln(5)
     
     # Qabxiiwwan mirkaneessaa
     pdf.set_x(20)
-    pdf.multi_cell(170, 8, f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n"
+    pdf.multi_cell(170, 8, f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n\n"
                           f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n"
                           f"{kaffaltii_ibsa}\n"
                           f"3. Lafni/Manni kun DHORKAA MANA MURTII ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.", align='L')
-    pdf.ln(4)
+    pdf.ln(5)
     
     # Goolaba
     pdf.set_x(20)
@@ -74,10 +87,14 @@ def create_clearance_pdf(data):
                           f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina.", align='L')
     
     # 4. SIGN SECTION (Mallattoo)
-    pdf.set_y(230); pdf.set_font('Arial', 'B', 12)
-    pdf.cell(110); pdf.cell(0, 7, "Maqaa Itti Gaafatamaa:", ln=True, align='L')
-    pdf.cell(110); pdf.cell(0, 7, "Mallattoo: _________________", ln=True, align='L')
-    pdf.cell(110); pdf.cell(0, 7, "(Chaappaa Waajjiraa)", ln=True, align='L')
+    pdf.set_y(230)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.set_x(120) # Mirgaatti butuuf
+    pdf.cell(0, 7, "Maqaa Itti Gaafatamaa:", ln=True)
+    pdf.set_x(120)
+    pdf.cell(0, 7, "Mallattoo: _________________", ln=True)
+    pdf.set_x(120)
+    pdf.cell(0, 7, "(Chaappaa Waajjiraa)", ln=True)
     
     return pdf.output(dest='S').encode('latin-1')
 
@@ -131,6 +148,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.error("⚠️ Hubachiisa: Dhorkaa irraa bilisa ta'uu isaa osoo hin mirkaneessin Clearance uumuun hin danda'amu!")
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi!")
+
 
 
 
