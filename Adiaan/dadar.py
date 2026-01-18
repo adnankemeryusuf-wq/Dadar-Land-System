@@ -97,7 +97,7 @@ else:
         if st.button("Log Out"):
             st.session_state.logged_in = False
             st.rerun()
- # 1. DASHBOARD
+ #  DASHBOARD
     if menu == "📊 Dashboard":
         st.header("📊 Dashboard")
         if not df.empty:
@@ -108,7 +108,7 @@ else:
             st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0))
         else: st.info("Data'n hin jiru.")
 
-    # 2. REGISTRATION
+    # REGISTRATION
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
         
@@ -484,6 +484,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.session_state.pdf_to_download = create_clearance_pdf(data_map)
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
+
 
 
 
