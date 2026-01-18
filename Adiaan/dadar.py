@@ -15,22 +15,29 @@ if 'pdf_name' not in st.session_state: st.session_state.pdf_name = ""
 
 # ================= 2. CORE FUNCTIONS =================
 
+from ethiopian_date import EthiopianDateConverter
+
+def get_ethiopian_date_str():
+    # Guyyaa har'aa G.C. irraa gara E.C. tti jijjiira
+    now = datetime.now()
+    e_date = EthiopianDateConverter.to_ethiopian(now.year, now.month, now.day)
+    # Akkaataa kanaan dhiyaata: DD/MM/YYYY
+    return f"{e_date[2]:02d}/{e_date[1]:02d}/{e_date[0]}"
+
 def create_clearance_pdf(data):
-    # 'Times' jechuun 'Times New Roman' dha
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
+    pdf.set_font('Times', '', 12)
     
-    # 1. BORDER (Sarara Qarqaraa Double)
-    pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277) 
-    pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273) 
+    # Border
+    pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
+    pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # 2. LOGO BITTAA FI MIRGAA
-    if os.path.exists("logo_bitta.jpg"):
-        pdf.image("logo_bitta.jpg", 15, 15, 25)
-    if os.path.exists("logo_mirga.jpg"):
-        pdf.image("logo_mirga.jpg", 170, 15, 25)
+    # Logos (Bitta fi Mirga)
+    if os.path.exists("logo_bitta.jpg"): pdf.image("logo_bitta.jpg", 15, 15, 25)
+    if os.path.exists("logo_mirga.jpg"): pdf.image("logo_mirga.jpg", 170, 15, 25)
 
-    # 3. HEADER (Times New Roman BOLD)
+    # Header
     pdf.set_y(22)
     pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
@@ -38,24 +45,25 @@ def create_clearance_pdf(data):
     pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
     pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
     
-  
-    # Lakk Galmee
-    pdf.ln(8); pdf.set_font('Times', '', 11); pdf.set_x(20)
-    pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=True, align='L')
+    pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
+
+    # --- LAKK FI GUYYAA (E.C.) ---
+    pdf.ln(8); pdf.set_font('Times', '', 12)
+    pdf.set_x(20)
+    pdf.cell(90, 5, f"Lakk. Galmee: DAD/WL/{EthiopianDateConverter.to_ethiopian(datetime.now().year, 1, 1)[0]}/____", ln=False, align='L')
     
-    # 4. SUBJECT (Times New Roman BOLD + UNDERLINE)
-    pdf.ln(10)
-    pdf.set_font('Times', 'BU', 14)
+    guyyaa_ec = get_ethiopian_date_str() # Guyyaa Itoophiyaa argachuu
+    pdf.cell(80, 5, f"Guyyaa: {guyyaa_ec}", ln=True, align='R')
+
+    # Subject
+    pdf.ln(10); pdf.set_font('Times', 'BU', 14)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
-    
-    # 5. BODY TEXT (Times New Roman Normal)
-    pdf.set_y(90)
-    pdf.set_font('Times', '', 12)
-    
-    if data['gosa_qabiyyee'] == "Liizii":
-        kaffaltii_ibsa = "2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina."
-    else:
-        kaffaltii_ibsa = "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina."
+
+    # Body Text (Spacing 9mm)
+    pdf.set_y(90); pdf.set_font('Times', '', 12)
+    kaffaltii_ibsa = ("2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina." 
+                      if data['gosa_qabiyyee'] == "Liizii" else 
+                      "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina.")
 
     pdf.set_x(20)
     text_content = (
@@ -69,19 +77,14 @@ def create_clearance_pdf(data):
         f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina."
     )
     pdf.multi_cell(170, 9, text_content, align='L')
-    
-   
-    pdf.set_y(230)
-    pdf.set_font('Times', 'B', 12)
-    pdf.set_x(120)
+
+    # Signature Section
+    pdf.set_y(230); pdf.set_font('Times', 'B', 12); pdf.set_x(120)
     pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
-    pdf.set_x(120)
-    pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
-    pdf.set_x(120)
-    pdf.cell(0, 8, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True)
-    pdf.set_x(120)
-    pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True)
-    
+    pdf.set_x(120); pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
+    pdf.set_x(120); pdf.cell(0, 8, f"Guyyaa (E.C): {guyyaa_ec}", ln=True) # Guyyaa E.C. bakka mallattoo jalatti
+    pdf.set_x(120); pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True)
+
     return pdf.output(dest='S').encode('latin-1')
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
@@ -136,6 +139,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
 
