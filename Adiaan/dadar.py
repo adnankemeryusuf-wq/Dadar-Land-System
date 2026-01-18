@@ -207,25 +207,10 @@ else:
                     st.download_button(f"📥 Sartifiikeetii {i+1}", pdf_b, f"Badhaasa_{name}.pdf", key=f"staff_{i}")
         else: st.info("Data'n hojii ogeeyyii hin jiru.")
 
-    # 4. BADHAASA
-    elif menu == "🏆 Badhaasa Ogeeyyii":
-        st.header("🏆 Ogeeyyii Filatamoa")
-        if not df.empty:
-            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-            for i, (name, count) in enumerate(top_3.items()):
-                st.write(f"{i+1}. {name} - {count} Hojii")
-    
-    # 5. SEARCH/EDIT
-    elif menu == "🔍 Barbaadi/Edit":
-        q = st.text_input("Maqaa Barbaadi")
-        if q:
-            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-            st.dataframe(res)
-
-
 
 
 
 
  
+
 
