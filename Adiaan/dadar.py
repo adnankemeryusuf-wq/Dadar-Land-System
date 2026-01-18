@@ -82,7 +82,7 @@ def send_excel_to_telegram(df_to_send):
 st.set_page_config(page_title="Dadar Land Management", layout="wide")
 df = load_data()
 
-# Session State Setup
+# Session State Setup (Kuni baay'ee barbaachisaa dha)
 if 'show_download' not in st.session_state: st.session_state.show_download = False
 if 'pdf_data' not in st.session_state: st.session_state.pdf_data = None
 if 'pdf_filename' not in st.session_state: st.session_state.pdf_filename = ""
@@ -141,6 +141,7 @@ elif menu == "📝 Galmee Haaraa":
                 save_data(df)
                 st.success(f"✅ Galmeen {m_maqaa} milkaa'eera!")
                 
+                # Clearance yoo jiraate Session State irratti save godhi (Form ala agarsiisuuf)
                 if "Waraqaa Ragaa (Clearance)" in details:
                     st.session_state.pdf_data = create_clearance_pdf(m_maqaa, m_araddaa, m_qaxana, ", ".join(details), m_nagahee_lakk)
                     st.session_state.pdf_filename = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
@@ -151,7 +152,7 @@ elif menu == "📝 Galmee Haaraa":
                 st.error("⚠️ Maaloo hunda guuti!")
                 st.session_state.show_download = False
 
-    # Download button Form-ii alatti akka hin badneef
+    # Download button Form-ii alatti akka refresh yoo ta'ellee hin badneef
     if st.session_state.show_download:
         st.info("📄 Waraqaan Ragaa (Clearance) Maamila kanaaf qophaa'eera.")
         st.download_button(
