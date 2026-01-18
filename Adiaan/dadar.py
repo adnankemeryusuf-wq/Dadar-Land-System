@@ -58,7 +58,7 @@ def create_clearance_pdf(data):
     pdf.ln(12); pdf.set_font('Times', 'BU', 14)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
 
-    # Body (Fageenya sararaa 9mm - 1.5 spacing)
+    # Body (Line spacing 9mm)
     pdf.set_y(95); pdf.set_font('Times', '', 12)
     kaffaltii_ibsa = ("2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina." 
                       if data.get('gosa_qabiyyee') == "Liizii" else 
@@ -77,32 +77,20 @@ def create_clearance_pdf(data):
     )
     pdf.multi_cell(170, 9, text_content, align='L')
 
-    # --- SIGNATURE SECTION (Bitatti Ogeessa, Mirgatti Itti Gaafatamaa) ---
-    # Fageenya gahaa jalaan dhiiseera (y=230)
-    pdf.set_y(230)
-    
-    # Sarara 1: Maqaa
+    # --- SIGNATURE SECTION (Itti Gaafatamaa BITA JALAATTI) ---
+    pdf.set_y(235)
     pdf.set_x(20)
     pdf.set_font('Times', 'B', 12)
-    pdf.cell(85, 8, f"Ogeessa Qopheesse: {data['ogeessa_name']}", ln=0, align='L')
-    pdf.set_x(110)
-    pdf.cell(85, 8, f"Itti Gaafatamaa: {data['head_name']}", ln=1, align='L')
+    pdf.cell(0, 8, f"Maqaa Itti Gaafatamaa: {data['head_name']}", ln=True, align='L')
     
-    pdf.ln(2) # Fageenya xiqqaa gidduutti
-
-    # Sarara 2: Mallattoo
     pdf.set_x(20)
-    pdf.cell(85, 8, "Mallattoo: _________________", ln=0, align='L')
-    pdf.set_x(110)
-    pdf.cell(85, 8, "Mallattoo: _________________", ln=1, align='L')
-
-    pdf.ln(2)
-
-    # Sarara 3: Guyyaa fi Chaappaa
+    pdf.cell(0, 8, "Mallattoo: _________________", ln=True, align='L')
+    
     pdf.set_x(20)
-    pdf.cell(85, 8, f"Guyyaa: {guyyaa_ec}", ln=0, align='L')
-    pdf.set_x(110)
-    pdf.cell(85, 8, "(Chaappaa Waajjiraa)", ln=1, align='L')
+    pdf.cell(0, 8, f"Guyyaa (E.C): {guyyaa_ec}", ln=True, align='L')
+    
+    pdf.set_x(20)
+    pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True, align='L')
 
     return pdf.output(dest='S').encode('latin-1')
 
@@ -110,7 +98,7 @@ def create_clearance_pdf(data):
 
 st.header("📝 Galmee fi Qophii Clearance (E.C.)")
 
-# Logo handling (Optional sidebars)
+# Logo handling in Sidebar
 with st.sidebar:
     st.header("⚙️ Logos")
     up_b = st.file_uploader("Logo Bittaa", type=['png', 'jpg'])
@@ -134,19 +122,16 @@ with st.form("clearance_form", clear_on_submit=True):
     m_bara = c2.text_input("Bara Gibiraa Xumurame (Fkn: 2017)")
     m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
     
-    st.markdown("### Kutaa Mallattoo")
-    col_a, col_b = st.columns(2)
-    m_ogeessa = col_a.text_input("Ogeessa Qopheesse (Bita) *")
-    m_head = col_b.text_input("Itti Gaafatamaa (Mirga) *")
-    
+    st.markdown("---")
+    m_head = st.text_input("Maqaa Itti Gaafatamaa *")
     m_dhorkaa_bilisa = st.checkbox("Dhorkaa irraa bilisa ta'uu nan mirkaneessa.")
 
     if st.form_submit_button("💾 PDF UUMI"):
-        if all([m_maqaa, m_kaartaa, m_head, m_ogeessa, m_dhorkaa_bilisa]):
+        if all([m_maqaa, m_kaartaa, m_head, m_dhorkaa_bilisa]):
             data_map = {
                 'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana, 
                 'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 
-                'gosa_qabiyyee': m_gosa, 'head_name': m_head, 'ogeessa_name': m_ogeessa
+                'gosa_qabiyyee': m_gosa, 'head_name': m_head
             }
             st.session_state.pdf_to_download = create_clearance_pdf(data_map)
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
