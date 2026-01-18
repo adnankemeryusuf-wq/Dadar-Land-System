@@ -16,29 +16,29 @@ if 'pdf_name' not in st.session_state: st.session_state.pdf_name = ""
 # ================= 2. CORE FUNCTIONS =================
 
 def create_clearance_pdf(data):
+    # 'latin-1' irraa gara 'utf-8' tti jijjiiruuf yoo barbaachise (Ethiopic fonts yoo hin jirre)
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # 1. BORDER (Sarara Qarqaraa)
+    # 1. BORDER (Sarara Qarqaraa Double)
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277) 
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273) 
 
     # 2. LOGO BITTAA FI MIRGAA
     if os.path.exists("logo_bitta.jpg"):
-        pdf.image("logo_bitta.jpg", 15, 15, 26)
+        pdf.image("logo_bitta.jpg", 15, 15, 25)
     if os.path.exists("logo_mirga.jpg"):
-        pdf.image("logo_mirga.jpg", 168, 15, 26)
+        pdf.image("logo_mirga.jpg", 170, 15, 25)
 
     # 3. HEADER (Mata duree waajjiraa)
-    pdf.set_y(20)
-    pdf.set_font('Arial', 'B', 16)
+    pdf.set_y(22)
+    pdf.set_font('Arial', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
-    pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
     
-    # Sarara Header jalaa
+    # Sarara Header jalaa (Separator Line)
     pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
     
     # Lakk fi Guyyaa
@@ -47,7 +47,7 @@ def create_clearance_pdf(data):
     pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=False, align='L')
     pdf.cell(170, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
     
-    # 4. SUBJECT (Bifa Qulqulluun)
+    # 4. SUBJECT (Bifa Qulqulluun - Underlined)
     pdf.ln(12)
     pdf.set_font('Arial', 'BU', 13)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
@@ -56,28 +56,31 @@ def create_clearance_pdf(data):
     pdf.set_y(90)
     pdf.set_font('Arial', '', 12)
     
-    # Gosa qabiyyee irratti hundaa'uun
+    # Gosa qabiyyee irratti hundaa'uun barreeffama jijjiiru
     if data['gosa_qabiyyee'] == "Liizii":
         kaffaltii_ibsa = "2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina."
     else:
         kaffaltii_ibsa = "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina."
 
-    # Barreeffama Sanadaa
+    # Barreeffama Sanadaa - Spacing 9mm akka bareeduuf
     pdf.set_x(20)
-    pdf.multi_cell(170, 9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} "
-                          f"Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n"
-                          f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n\n"
-                          f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n"
-                          f"{kaffaltii_ibsa}\n"
-                          f"3. Lafni/Manni kun DHORKAA MANA MURTII ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.\n\n"
-                          f"Kanaafuu, maamilli kun dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, "
-                          f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina.", align='L')
+    text_content = (
+        f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} "
+        f"Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n"
+        f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n\n"
+        f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n"
+        f"{kaffaltii_ibsa}\n"
+        f"3. Lafni/Manni kun DHORKAA MANA MURTII ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.\n\n"
+        f"Kanaafuu, maamilli kun dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, "
+        f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina."
+    )
+    pdf.multi_cell(170, 9, text_content, align='L')
     
     # 6. SIGNATURE SECTION
-    pdf.set_y(230)
+    pdf.set_y(235)
     pdf.set_font('Arial', 'B', 12)
     pdf.set_x(120)
-    pdf.cell(0, 8, "Maqaa Itti Gaafatamaa:", ln=True)
+    pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
     pdf.set_x(120)
     pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
     pdf.set_x(120)
@@ -137,6 +140,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
 
