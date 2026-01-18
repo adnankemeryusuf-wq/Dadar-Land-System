@@ -12,9 +12,6 @@ COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajji
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
 
-    # Uploaders asitti ta'u
-    menu = st.radio("FILANNOO", ["📝 Galmee & Clearance", "📊 Dashboard", "📈 Gabaasa"])
-
 # 1. Kutaa Galmee
 if menu == "📝 Galmee & Clearance":
     st.subheader("Galmee Tajaajilaa")
@@ -29,5 +26,6 @@ elif menu == "📊 Dashboard":
 elif menu == "📈 Gabaasa":
     st.subheader("Gabatee Gabaasaa")
     # Dataframe asitti agarsiisama...
+
 
 
