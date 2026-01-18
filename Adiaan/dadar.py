@@ -19,25 +19,27 @@ def create_clearance_pdf(data):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # Border
+    # Border bareedaa
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # 1. HEADER - LOGO (ERROR-PROOF)
-    if os.path.exists(LOGO_FILE):
+    # 1. LOGO BITTAA (Government Emblem)
+    if os.path.exists("logo_bitta.png"):
         try:
-            # Gosa fayilaa sirreessuuf (PNG/JPG mismatch furuuf)
-            img = Image.open(LOGO_FILE)
-            if img.mode in ("RGBA", "P"): # Yoo duubbiin isaa calaqqisiiftuu ta'e
-                img = img.convert("RGB")
-            img.save("temp_logo.jpg", "JPEG")
-            pdf.image("temp_logo.jpg", 90, 15, 30)
-        except Exception as e:
-            st.error(f"Logo uumuun hin danda'amne: {e}")
-            pdf.ln(20)
-    else:
-        pdf.ln(20)
+            img_b = Image.open("logo_bitta.png").convert("RGB")
+            img_b.save("temp_b.jpg")
+            pdf.image("temp_b.jpg", 15, 15, 25) # Bitaatti
+        except: pass
 
+    # 2. LOGO MIRGAA (Office/Region Logo)
+    if os.path.exists("logo_mirga.png"):
+        try:
+            img_m = Image.open("logo_mirga.png").convert("RGB")
+            img_m.save("temp_m.jpg")
+            pdf.image("temp_m.jpg", 170, 15, 25) # Mirgaatti
+        except: pass
+
+    # Header Text
     pdf.set_y(48)
     pdf.set_font('Arial', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
@@ -45,21 +47,18 @@ def create_clearance_pdf(data):
     pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
     
-    pdf.ln(5)
-    pdf.set_font('Arial', '', 11)
-    pdf.set_x(20)
+    # Lakk fi Guyyaa
+    pdf.ln(5); pdf.set_font('Arial', '', 11); pdf.set_x(20)
     pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=False, align='L')
     pdf.set_x(20)
     pdf.cell(170, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
     
-    # 2. SUBJECT (CLEAN)
-    pdf.ln(10)
-    pdf.set_font('Arial', 'BU', 13)
+    # Subject (Underlined)
+    pdf.ln(10); pdf.set_font('Arial', 'BU', 13)
     pdf.cell(0, 10, "SUBJECT: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
     
-    # 3. BODY TEXT
-    pdf.set_y(95)
-    pdf.set_font('Arial', '', 12)
+    # Body Text
+    pdf.set_y(95); pdf.set_font('Arial', '', 12)
     kaffaltii_ibsa = "2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina." if data['gosa_qabiyyee'] == "Liizii" else "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina."
 
     pdf.set_x(20)
@@ -73,29 +72,28 @@ def create_clearance_pdf(data):
             f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina.")
     pdf.multi_cell(170, 8, text, align='L')
     
-    # 4. SIGN SECTION
-    pdf.set_y(235)
-    pdf.set_font('Arial', 'B', 12)
-    pdf.set_x(120)
+    # Sign
+    pdf.set_y(235); pdf.set_font('Arial', 'B', 12); pdf.set_x(120)
     pdf.cell(0, 7, "Maqaa Itti Gaafatamaa:", ln=True)
-    pdf.set_x(120)
-    pdf.cell(0, 7, "Mallattoo: _________________", ln=True)
-    pdf.set_x(120)
-    pdf.cell(0, 7, "(Chaappaa Waajjiraa)", ln=True)
+    pdf.set_x(120); pdf.cell(0, 7, "Mallattoo: _________________", ln=True)
+    pdf.set_x(120); pdf.cell(0, 7, "(Chaappaa Waajjiraa)", ln=True)
     
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
-# SIDEBAR: UPLOAD LOGO
-st.sidebar.header("⚙️ Qindaa'ina")
-uploaded_logo = st.sidebar.file_uploader("Mallattoo Waajjiraa (Logo) Ol-kaasi", type=['png', 'jpg', 'jpeg'])
-if uploaded_logo is not None:
-    with open(LOGO_FILE, "wb") as f:
-        f.write(uploaded_logo.getbuffer())
-    st.sidebar.success("✅ Logoon milkaa'inaan jijjiirameera!")
+st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
 
+# Logo Bittaa
+up_bitta = st.sidebar.file_uploader("Logo Bittaa (Mootummaa)", type=['png', 'jpg', 'jpeg'], key="bitta")
+if up_bitta:
+    with open("logo_bitta.png", "wb") as f: f.write(up_bitta.getbuffer())
+
+# Logo Mirgaa
+up_mirga = st.sidebar.file_uploader("Logo Mirgaa (Waajjira)", type=['png', 'jpg', 'jpeg'], key="mirga")
+if up_mirga:
+    with open("logo_mirga.png", "wb") as f: f.write(up_mirga.getbuffer())
 # MAIN UI
 st.header("📝 Galmee fi Qophii Clearance")
 
@@ -128,3 +126,4 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
