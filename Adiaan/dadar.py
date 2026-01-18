@@ -139,7 +139,6 @@ elif menu == "🏆 Badhaasa":
         st.write(top)
 
 
-# ================= 1. SETUP & CONFIG =================
 LOGO_FILE = "waajjira_logo.png" 
 DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
@@ -279,6 +278,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
 
