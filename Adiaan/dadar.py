@@ -44,22 +44,24 @@ def create_clearance_pdf(data):
     
     pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
 
-    # Date
-    pdf.ln(10); pdf.set_font('Times', '', 12)
+    # Date Section (Bold)
+    pdf.ln(10); pdf.set_font('Times', 'B', 12)
+    guyyaa_ec = get_ethiopian_date_str()
     converter = EthiopianDateConverter()
     now_ec = converter.to_ethiopian(datetime.now().year, datetime.now().month, datetime.now().day)
-    guyyaa_ec = get_ethiopian_date_str()
 
     pdf.set_x(20)
     pdf.cell(90, 5, f"Lakk. Galmee: DAD/WL/{now_ec.year}/____", ln=False, align='L')
     pdf.cell(80, 5, f"Guyyaa: {guyyaa_ec}", ln=True, align='R')
 
     # Subject
-    pdf.ln(12); pdf.set_font('Times', 'BU', 14)
-    pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
+    pdf.ln(12); pdf.set_font('Times', 'B', 14) # BU (Bold Underline) irraa gara B (Bold) qofatti
+    pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C', border="B")
 
-    # Body (Line spacing 9mm)
-    pdf.set_y(95); pdf.set_font('Times', '', 12)
+    # Body (HUNDA BOLD GODHEERA)
+    pdf.set_y(95)
+    pdf.set_font('Times', 'B', 12) # Hunda Bold godheera
+    
     kaffaltii_ibsa = ("2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina." 
                       if data.get('gosa_qabiyyee') == "Liizii" else 
                       "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina.")
@@ -77,20 +79,20 @@ def create_clearance_pdf(data):
     )
     pdf.multi_cell(170, 9, text_content, align='L')
 
-    # --- SIGNATURE SECTION (Itti Gaafatamaa BITA JALAATTI) ---
+    # --- SIGNATURE SECTION ---
     pdf.set_y(235)
+    
+    # Maqaa fi Mallattoo (Bitaatti)
     pdf.set_x(20)
     pdf.set_font('Times', 'B', 12)
-    pdf.cell(0, 8, f"Maqaa Itti Gaafatamaa: {data['head_name']}", ln=True, align='L')
-    
+    pdf.cell(90, 8, f"Maqaa Itti Gaafatamaa: {data['head_name']}", ln=True, align='L')
     pdf.set_x(20)
-    pdf.cell(0, 8, "Mallattoo: _________________", ln=True, align='L')
+    pdf.cell(90, 8, "Mallattoo: _________________", ln=True, align='L')
     
-    pdf.set_x(20)
-    pdf.cell(0, 8, f"Guyyaa (E.C): {guyyaa_ec}", ln=True, align='L')
-    
-    pdf.set_x(20)
-    pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True, align='L')
+    # Chaappaa (Mirgaatti)
+    pdf.set_y(243)
+    pdf.set_x(110)
+    pdf.cell(80, 8, "(Chaappaa Waajjiraa)", ln=True, align='R')
 
     return pdf.output(dest='S').encode('latin-1')
 
@@ -98,7 +100,6 @@ def create_clearance_pdf(data):
 
 st.header("📝 Galmee fi Qophii Clearance (E.C.)")
 
-# Logo handling in Sidebar
 with st.sidebar:
     st.header("⚙️ Logos")
     up_b = st.file_uploader("Logo Bittaa", type=['png', 'jpg'])
