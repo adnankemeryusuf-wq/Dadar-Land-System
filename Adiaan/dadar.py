@@ -23,16 +23,13 @@ def create_clearance_pdf(data):
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # Header - LOGO (ERROR HANDLING ADDED)
+    # Header - LOGO
     try:
         if os.path.exists(LOGO_PATH):
-            # lakk_kaartaa fi gosa fayilaa yoo wal dhabe koodichi akka hin kufne
             pdf.image(LOGO_PATH, 92, 15, 26)
-    except Exception as e:
-        # Logo-n yoo rakkoo qabaate barreeffama qofaan hojjeta
-        pdf.set_y(20)
-        pdf.set_font('Arial', 'B', 10)
-        pdf.cell(0, 5, "[MALLATTOO WAAJJIRAA]", ln=True, align='C')
+    except:
+        pdf.set_y(25); pdf.set_font('Arial', 'B', 10)
+        pdf.cell(0, 5, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
 
     pdf.set_y(45); pdf.set_font('Arial', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
@@ -46,13 +43,19 @@ def create_clearance_pdf(data):
     pdf.ln(10); pdf.set_font('Arial', 'B', 13); pdf.set_fill_color(230, 230, 230)
     pdf.cell(0, 10, "SUBJECT: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C', fill=True)
     
+    # Ibsa kaffaltii adda baasuu (Liizii vs Qabiyyee Durii)
+    if data['gosa_qabiyyee'] == "Liizii":
+        kaffaltii_ibsa = "2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina."
+    else:
+        kaffaltii_ibsa = "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina."
+
     pdf.set_y(95); pdf.set_font('Arial', '', 12); pdf.set_x(20)
     text = (
         f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} "
         f"Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n"
         f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n"
         f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n"
-        f"2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina.\n"
+        f"{kaffaltii_ibsa}\n"
         f"3. Lafni/Manni kun ugura Mana Murtii ykn dhimma seeraa biroo irraa bilisa ta'uu isaa qulqulleessinee jirra.\n\n"
         f"Kanaafuu, maamilli kun dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, "
         f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina."
@@ -65,7 +68,6 @@ def create_clearance_pdf(data):
     pdf.cell(110); pdf.cell(0, 7, "(Chaappaa Waajjiraa)", ln=True)
     
     return pdf.output(dest='S').encode('latin-1')
-
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
@@ -84,18 +86,22 @@ with st.form("clearance_form", clear_on_submit=True):
     m_araddaa = c2.text_input("Araddaa *")
     m_qaxana = c1.text_input("Lakk. Qaxana *")
     m_kaartaa = c2.text_input("Lakk. Kaartaa *")
-    m_bara = c1.text_input("Bara Gibiraa (Fkn: 2016)")
-    m_dhimma = c2.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
-    m_kaffaltii = c1.number_input("Kaffaltii Tajaajilaa (ETB)", min_value=0.0)
-    m_ogeessa = c2.text_input("Ogeessa Galmeesse *")
+    
+    # Filannoo Qabiyyee
+    m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
+    
+    m_bara = c2.text_input("Bara Gibiraa (Fkn: 2016)")
+    m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+    m_kaffaltii = c2.number_input("Kaffaltii Tajaajilaa (ETB)", min_value=0.0)
+    m_ogeessa = st.text_input("Ogeessa Galmeesse *")
 
     if st.form_submit_button("💾 GALMEESSI FI PDF UUMI"):
         if m_maqaa and m_kaartaa:
             data_map = {
                 'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana,
-                'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma
+                'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma,
+                'gosa_qabiyyee': m_gosa  # Iddoo kana of-eggannoon dabalteetta
             }
-            # PDF Uumuu
             st.session_state.pdf_to_download = create_clearance_pdf(data_map)
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
