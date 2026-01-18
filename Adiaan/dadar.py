@@ -1,7 +1,8 @@
 import streamlit as st
+import pandas as pd
+import os, io
 from datetime import datetime
 from fpdf import FPDF
-import os
 from PIL import Image
 from ethiopian_date import EthiopianDateConverter
 
@@ -11,27 +12,23 @@ def get_ethiopian_date_str():
     """Guyyaa har'aa G.C. irraa gara E.C. tti jijjiira"""
     now = datetime.now()
     converter = EthiopianDateConverter()
-    # EthiopianDate Object deebisa
     e_date = converter.to_ethiopian(now.year, now.month, now.day)
-    # Object irraa .day, .month, .year fayyadamna
+    # EthiopianDate Object irraa year, month, day akkasitti fudhatama
     return f"{e_date.day:02d}/{e_date.month:02d}/{e_date.year}"
 
 def create_clearance_pdf(data):
-    # 'Times' jechuun Times New Roman jechuudha
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # 1. BORDER (Sarara Qarqaraa Double)
+    # Border
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # 2. LOGOS
-    if os.path.exists("logo_bitta.jpg"): 
-        pdf.image("logo_bitta.jpg", 15, 15, 25)
-    if os.path.exists("logo_mirga.jpg"): 
-        pdf.image("logo_mirga.jpg", 170, 15, 25)
+    # Logos
+    if os.path.exists("logo_bitta.jpg"): pdf.image("logo_bitta.jpg", 15, 15, 25)
+    if os.path.exists("logo_mirga.jpg"): pdf.image("logo_mirga.jpg", 170, 15, 25)
 
-    # 3. HEADER
+    # Header
     pdf.set_y(22)
     pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
@@ -41,25 +38,25 @@ def create_clearance_pdf(data):
     
     pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
 
-    # 4. LAKK FI GUYYAA (Kalaandara Itoophiyaa)
+    # --- LAKK FI GUYYAA (SIRREEFFAME) ---
     pdf.ln(8); pdf.set_font('Times', '', 12)
     converter = EthiopianDateConverter()
     now_ec = converter.to_ethiopian(datetime.now().year, datetime.now().month, datetime.now().day)
     
-    guyyaa_ec = get_ethiopian_date_str()
+    # !!! AS IRRATTI: .year malee [0] miti !!!
     now_ec_year = now_ec.year 
+    guyyaa_ec = get_ethiopian_date_str() 
 
     pdf.set_x(20)
     pdf.cell(90, 5, f"Lakk. Galmee: DAD/WL/{now_ec_year}/____", ln=False, align='L')
     pdf.cell(80, 5, f"Guyyaa: {guyyaa_ec}", ln=True, align='R')
 
-    # 5. SUBJECT
+    # Subject
     pdf.ln(10); pdf.set_font('Times', 'BU', 14)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
 
-    # 6. BODY TEXT
+    # Body Text
     pdf.set_y(90); pdf.set_font('Times', '', 12)
-    
     kaffaltii_ibsa = ("2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina." 
                       if data.get('gosa_qabiyyee') == "Liizii" else 
                       "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina.")
@@ -77,11 +74,61 @@ def create_clearance_pdf(data):
     )
     pdf.multi_cell(170, 9, text_content, align='L')
 
-    # 7. SIGNATURE SECTION (Maqaa Ogeessaa haqameera)
-    pdf.set_y(230); pdf.set_font('Times', 'B', 12); pdf.set_x(120)
-    pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
+    # Signature Section
+    pdf.set_y(225); pdf.set_font('Times', 'B', 11)
+    pdf.set_x(120)
+    pdf.cell(0, 6, f"Ogeessa Galmeesse: {data['ogeessa']}", ln=True)
+    pdf.ln(2)
+    pdf.set_font('Times', 'B', 12)
+    pdf.set_x(120); pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, f"Guyyaa (E.C): {guyyaa_ec}", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True)
 
     return pdf.output(dest='S').encode('latin-1')
+
+# ================= 3. UI LAYOUT =================
+st.set_page_config(page_title="Dadar Land Admin", layout="wide")
+
+# Sidebar Logos
+st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
+up_bitta = st.sidebar.file_uploader("Logo Bittaa", type=['png', 'jpg', 'jpeg'])
+if up_bitta:
+    Image.open(up_bitta).convert("RGB").save("logo_bitta.jpg", "JPEG")
+
+up_mirga = st.sidebar.file_uploader("Logo Mirgaa", type=['png', 'jpg', 'jpeg'])
+if up_mirga:
+    Image.open(up_mirga).convert("RGB").save("logo_mirga.jpg", "JPEG")
+
+st.header("📝 Galmee fi Qophii Clearance (E.C.)")
+
+if st.session_state.pdf_to_download:
+    st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, st.session_state.pdf_name, "application/pdf")
+    if st.button("Galmee Haaraa"): 
+        st.session_state.pdf_to_download = None; st.rerun()
+
+with st.form("clearance_form", clear_on_submit=True):
+    c1, c2 = st.columns(2)
+    m_maqaa = c1.text_input("Maqaa Maamilaa *")
+    m_araddaa = c2.text_input("Araddaa *")
+    m_qaxana = c1.text_input("Lakk. Qaxana *")
+    m_kaartaa = c2.text_input("Lakk. Kaartaa *")
+    m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
+    m_bara = c2.text_input("Bara Gibiraa Xumurame (Fkn: 2017)")
+    m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+    m_ogeessa = c2.text_input("Ogeessa Galmeesse *") # Ogeessa daballeera
+    
+    m_dhorkaa_bilisa = st.checkbox("Dhorkaa irraa bilisa ta'uu nan mirkaneessa.")
+
+    if st.form_submit_button("💾 PDF UUMI"):
+        if m_maqaa and m_kaartaa and m_dhorkaa_bilisa and m_ogeessa:
+            data_map = {
+                'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana, 
+                'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 
+                'gosa_qabiyyee': m_gosa, 'ogeessa': m_ogeessa
+            }
+            st.session_state.pdf_to_download = create_clearance_pdf(data_map)
+            st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
+            st.rerun()
+        else:
+            st.error("⚠️ Odeeffannoo hunda guuti!")
