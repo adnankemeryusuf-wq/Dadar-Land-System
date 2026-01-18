@@ -7,27 +7,18 @@ from fpdf import FPDF
 # ================= 1. CONFIGURATION & SETUP =================
 LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
-NAGAHEE_DIR = "Adiaan/nagahee"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
 
-if not os.path.exists(NAGAHEE_DIR): os.makedirs(NAGAHEE_DIR, exist_ok=True)
-
-# Session State: Akka Download Button-ni hin badneef baay'ee barbaachisaa dha
-if 'show_download' not in st.session_state: st.session_state.show_download = False
+# Session State Setup
 if 'pdf_data' not in st.session_state: st.session_state.pdf_data = None
 if 'pdf_filename' not in st.session_state: st.session_state.pdf_filename = ""
+if 'show_dl' not in st.session_state: st.session_state.show_dl = False
 
-# ================= 2. CORE FUNCTIONS =================
-
+# ================= 2. FUNCTIONS =================
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
-    try:
-        return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None)
-    except:
-        return pd.DataFrame(columns=COL_NAMES)
+    return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None)
 
 def save_data(df_to_save):
     df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
@@ -37,23 +28,17 @@ def create_clearance_pdf(name, araddaa, qaxana, services, nagahee_lakk):
     pdf.add_page()
     pdf.set_line_width(0.5)
     pdf.rect(10, 10, 190, 277)
-    
-    if os.path.exists(LOGO_PATH):
-        pdf.image(LOGO_PATH, 90, 15, 25)
-    
+    if os.path.exists(LOGO_PATH): pdf.image(LOGO_PATH, 90, 15, 25)
     pdf.set_y(45)
     pdf.set_font('Arial', 'B', 16)
     pdf.cell(0, 10, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
     pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
-    
     pdf.ln(10)
     pdf.set_font('Arial', 'U', 14)
     pdf.cell(0, 10, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
-    
     pdf.set_y(85)
     pdf.set_font('Arial', '', 12)
     pdf.set_x(20)
-    
     date_str = datetime.now().strftime('%d/%m/%Y')
     text = (
         f"Waraqaan ragaa kun Obbo/Adde {str(name).upper()}, Araddaa {araddaa}, "
@@ -63,50 +48,40 @@ def create_clearance_pdf(name, araddaa, qaxana, services, nagahee_lakk):
         f"guyyaa har'aa ({date_str}) ragaa qulqullinaa kana akka tajaajiluuf waajjirri keenya kenneeraaf."
     )
     pdf.multi_cell(170, 10, text, align='L')
-    
     pdf.set_y(220)
     pdf.set_font('Arial', 'B', 12)
     pdf.cell(0, 10, "__________________________", ln=True, align='C')
     pdf.cell(0, 10, "Itti Gaafatamaa Waajjiraa", ln=True, align='C')
-    pdf.cell(0, 10, "(Mallattoo fi Chaappaa)", ln=True, align='C')
-    
     return pdf.output(dest='S').encode('latin-1')
-
-def send_excel_to_telegram(df_to_send):
-    try:
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df_to_send[COL_NAMES].to_excel(writer, index=False, sheet_name='Gabaasa')
-        output.seek(0)
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
-        requests.post(url, data={'chat_id': CHAT_ID_MANAGER, 'caption': "📊 Gabaasa Dadar"}, files={'document': ('Gabaasa_Dadar.xlsx', output)})
-        return True
-    except: return False
 
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Management", layout="wide")
 df = load_data()
 
-menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
+menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa"])
 
-if menu == "📊 Dashboard":
-    st.title("📊 Dashboard")
-    if not df.empty:
-        c1, c2, c3 = st.columns(3)
-        c1.metric("Waliigala Galii", f"{pd.to_numeric(df['Kafaltii_Taj']).sum():,.2f} ETB")
-        c2.metric("Maamiltoota", len(df))
-        c3.metric("Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
-    else: st.info("Data'n hojii hin jiru.")
-
-elif menu == "📝 Galmee Haaraa":
+if menu == "📝 Galmee Haaraa":
     st.header("📝 Galmee Tajaajilaa Haaraa")
-    
+
+    # --- KUTAA DOWNLOAD (GUBBAATTI) ---
+    if st.session_state.show_dl:
+        st.success("📄 Waraqaan Ragaa (Clearance) Maamila darbe qophaa'eera!")
+        st.download_button(
+            label="📥 Waraqaa Ragaa (Clearance) IRRA BUUFADHU",
+            data=st.session_state.pdf_data,
+            file_name=st.session_state.pdf_filename,
+            mime="application/pdf"
+        )
+        if st.button("❌ Linkii kana balleessi"):
+            st.session_state.show_dl = False
+            st.rerun()
+    st.divider()
+
+    # --- FILANNOO TAJAAJILAA ---
     GATII_DICT = {
-        "🏷️ Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa"],
-        "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Jijjiirraa Maqaa (Gift/Sale)"],
-        "🏗️ Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)"],
-        "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
-        "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"]
+        "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"],
+        "🏷️ Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
+        "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa"]
     }
     
     selected_cats = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
@@ -118,8 +93,6 @@ elif menu == "📝 Galmee Haaraa":
             for s in subs:
                 details.append(f"{s}")
                 d_fees[f"{cat}_{s}"] = st.number_input(f"Kaffaltii {s}", min_value=0.0, key=f"f_{s}")
-
-    st.divider()
 
     # --- FORMII GALMEESSAA ---
     with st.form("main_form", clear_on_submit=True):
@@ -141,38 +114,20 @@ elif menu == "📝 Galmee Haaraa":
                 df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                 save_data(df)
                 
-                st.success(f"✅ Galmeen {m_maqaa} milkaa'eera!")
-                
-                # Yoo Clearance filatameera ta'e, qopheessi
+                # PDF Qopheessu
                 if "Waraqaa Ragaa (Clearance)" in details:
                     st.session_state.pdf_data = create_clearance_pdf(m_maqaa, m_araddaa, m_qaxana, ", ".join(details), m_nagahee_lakk)
                     st.session_state.pdf_filename = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
-                    st.session_state.show_download = True
+                    st.session_state.show_dl = True
+                    st.success(f"✅ Galmeen {m_maqaa} milkaa'eera! Gubbaatti linkii download cuqaasi.")
                 else:
-                    st.session_state.show_download = False
+                    st.session_state.show_dl = False
+                    st.success(f"✅ Galmeen {m_maqaa} milkaa'eera!")
+                
+                st.rerun() # Akka linkiin download sun kallaattiin mul'atuuf
             else:
                 st.error("⚠️ Maaloo hunda guuti!")
-                st.session_state.show_download = False
-
-    # --- IDDOO IRRA BUUFATAN (DOWNLOAD SECTION) ---
-    # Formii alatti waan ta'eef kallaattiin asitti mul'ata
-    if st.session_state.show_download:
-        st.markdown("---")
-        st.info("📄 **Waraqaan Ragaa (Clearance)** maamila kanaaf qophaa'eera. Gadiitti cuqaasii buufadhu.")
-        st.download_button(
-            label="📥 Waraqaa Ragaa (Clearance) IRRA BUUFADHU",
-            data=st.session_state.pdf_data,
-            file_name=st.session_state.pdf_filename,
-            mime="application/pdf",
-            key="irra_bufadhu_btn"
-        )
 
 elif menu == "📈 Gabaasa":
     st.header("📈 Gabaasa Bal'aa")
     st.dataframe(df, use_container_width=True)
-    if st.button("🚀 Excel Gara Telegram"):
-        if send_excel_to_telegram(df): st.success("✅ Ergameera!")
-
-elif menu == "🏆 Badhaasa":
-    st.header("🏆 Sadarkaa Ogeeyyii")
-    if not df.empty: st.table(df['Maqaa_Ogeessa'].value_counts().head(3))
