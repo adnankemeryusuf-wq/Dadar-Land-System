@@ -44,55 +44,97 @@ def create_clearance_pdf(data):
     
     pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
 
-    # Date Section (Bold)
-    pdf.ln(10); pdf.set_font('Times', 'B', 12)
+    # Date Section
+    pdf.ln(10); pdf.set_font('Times', '', 12)
     guyyaa_ec = get_ethiopian_date_str()
     converter = EthiopianDateConverter()
     now_ec = converter.to_ethiopian(datetime.now().year, datetime.now().month, datetime.now().day)
 
     pdf.set_x(20)
-    pdf.cell(90, 5, f"Lakk. Galmee: DAD/WL/{now_ec.year}/____", ln=False, align='L')
-    pdf.cell(80, 5, f"Guyyaa: {guyyaa_ec}", ln=True, align='R')
+    pdf.write(5, "Lakk. Galmee: ")
+    pdf.set_font('Times', 'B', 12) # Lakk Bold
+    pdf.write(5, f"DAD/WL/{now_ec.year}/____")
+    pdf.set_font('Times', '', 12)
+    pdf.set_x(140)
+    pdf.write(5, f"Guyyaa: {guyyaa_ec}")
+    pdf.ln(15)
 
     # Subject
-    pdf.ln(12); pdf.set_font('Times', 'B', 14) # BU (Bold Underline) irraa gara B (Bold) qofatti
-    pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C', border="B")
+    pdf.set_font('Times', 'B', 14)
+    pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
 
-    # Body (HUNDA BOLD GODHEERA)
+    # Body (Odeeffannoo galfamu qofa Bold godha)
     pdf.set_y(95)
-    pdf.set_font('Times', 'B', 12) # Hunda Bold godheera
-    
-    kaffaltii_ibsa = ("2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina." 
-                      if data.get('gosa_qabiyyee') == "Liizii" else 
-                      "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina.")
-
     pdf.set_x(20)
-    text_content = (
-        f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} "
-        f"Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n"
-        f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n\n"
-        f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n"
-        f"{kaffaltii_ibsa}\n"
-        f"3. Lafni/Manni kun DHORKAA MANA MURTII ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.\n\n"
-        f"Kanaafuu, maamilli kun dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, "
-        f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina."
-    )
-    pdf.multi_cell(170, 9, text_content, align='L')
+    pdf.set_font('Times', '', 12)
+
+    # Paragraph 1
+    pdf.write(9, "Waraqaan ragaa kun Obbo/Adde/Dhaabbata ")
+    pdf.set_font('Times', 'B', 12) # Bold
+    pdf.write(9, f"{data['maqaa'].upper()}")
+    pdf.set_font('Times', '', 12)
+    pdf.write(9, " Araddaa ")
+    pdf.set_font('Times', 'B', 12) # Bold
+    pdf.write(9, f"{data['araddaa']}")
+    pdf.set_font('Times', '', 12)
+    pdf.write(9, " Qaxana ")
+    pdf.set_font('Times', 'B', 12) # Bold
+    pdf.write(9, f"{data['qaxana']}")
+    pdf.set_font('Times', '', 12)
+    pdf.write(9, " keessatti mana/lafa Lakk. Kaartaa ")
+    pdf.set_font('Times', 'B', 12) # Bold
+    pdf.write(9, f"{data['kaartaa']}")
+    pdf.set_font('Times', '', 12)
+    pdf.write(9, " qabaniif kan kennameedha.\n\n")
+
+    pdf.write(9, "Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n\n")
+
+    # List 1
+    pdf.write(9, "1. Kaffaltii Gibira waggaa hanga bara ")
+    pdf.set_font('Times', 'B', 12) # Bold
+    pdf.write(9, f"{data['bara_gibiraa']}")
+    pdf.set_font('Times', '', 12)
+    pdf.write(9, " guutummaatti kaffalaniiru.\n")
+
+    # List 2
+    if data.get('gosa_qabiyyee') == "Liizii":
+        pdf.write(9, "2. Kaffaltii ")
+        pdf.set_font('Times', 'B', 12)
+        pdf.write(9, "Liizii")
+        pdf.set_font('Times', '', 12)
+        pdf.write(9, " waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina.\n")
+    else:
+        pdf.write(9, "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina.\n")
+
+    # List 3
+    pdf.write(9, "3. Lafni/Manni kun ")
+    pdf.set_font('Times', 'B', 12)
+    pdf.write(9, "DHORKAA MANA MURTII")
+    pdf.set_font('Times', '', 12)
+    pdf.write(9, " ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.\n\n")
+
+    # Conclusion
+    pdf.write(9, "Kanaafuu, maamilli kun dhimma ")
+    pdf.set_font('Times', 'B', 12) # Bold
+    pdf.write(9, f"{data['dhimma']}")
+    pdf.set_font('Times', '', 12)
+    pdf.write(9, " raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina.")
 
     # --- SIGNATURE SECTION ---
     pdf.set_y(235)
-    
-    # Maqaa fi Mallattoo (Bitaatti)
     pdf.set_x(20)
-    pdf.set_font('Times', 'B', 12)
-    pdf.cell(90, 8, f"Maqaa Itti Gaafatamaa: {data['head_name']}", ln=True, align='L')
-    pdf.set_x(20)
-    pdf.cell(90, 8, "Mallattoo: _________________", ln=True, align='L')
+    pdf.set_font('Times', '', 12)
+    pdf.write(8, "Maqaa Itti Gaafatamaa: ")
+    pdf.set_font('Times', 'B', 12) # Maqaa Itti Gaafatamaa Bold
+    pdf.write(8, f"{data['head_name']}")
     
-    # Chaappaa (Mirgaatti)
-    pdf.set_y(243)
-    pdf.set_x(110)
-    pdf.cell(80, 8, "(Chaappaa Waajjiraa)", ln=True, align='R')
+    pdf.ln(8); pdf.set_x(20)
+    pdf.set_font('Times', '', 12)
+    pdf.write(8, "Mallattoo: _________________")
+    
+    # Chaappaa Mirgaatti
+    pdf.set_y(243); pdf.set_x(120)
+    pdf.cell(70, 8, "(Chaappaa Waajjiraa)", ln=True, align='R')
 
     return pdf.output(dest='S').encode('latin-1')
 
@@ -137,5 +179,3 @@ with st.form("clearance_form", clear_on_submit=True):
             st.session_state.pdf_to_download = create_clearance_pdf(data_map)
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
-        else:
-            st.error("⚠️ Maaloo odeeffannoo hunda guuti!")
