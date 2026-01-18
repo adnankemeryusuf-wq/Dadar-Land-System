@@ -2,7 +2,7 @@ import streamlit as st
 
 # Sidebar Filannoo
 with st.sidebar:
-    st.header("⚙️ Qindaa'ina")
+
     # Uploaders asitti ta'u
     menu = st.radio("FILANNOO", ["📝 Galmee & Clearance", "📊 Dashboard", "📈 Gabaasa"])
 
@@ -20,3 +20,4 @@ elif menu == "📊 Dashboard":
 elif menu == "📈 Gabaasa":
     st.subheader("Gabatee Gabaasaa")
     # Dataframe asitti agarsiisama...
+
