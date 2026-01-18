@@ -38,9 +38,7 @@ def create_clearance_pdf(data):
     pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
     pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
     
-    # Separator Line (Sarara Header jalaa)
-    pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
-    
+  
     # Lakk Galmee
     pdf.ln(8); pdf.set_font('Times', '', 11); pdf.set_x(20)
     pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=True, align='L')
@@ -72,7 +70,7 @@ def create_clearance_pdf(data):
     )
     pdf.multi_cell(170, 9, text_content, align='L')
     
-    # 6. SIGNATURE SECTION (Guyyaan itti dabalameera)
+   
     pdf.set_y(230)
     pdf.set_font('Times', 'B', 12)
     pdf.set_x(120)
@@ -138,6 +136,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
 
