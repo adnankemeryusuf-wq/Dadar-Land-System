@@ -200,44 +200,40 @@ else:
             st.area_chart(trend_data)
         else:
             st.info("Data'n galmeeffame hin jiru.")
-    # --- REGISTRATION ---
-    elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa")
-        GATII_DICT = {
-            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
-            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
-            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
-            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa"],
-            "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
-            "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
-            "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
-        }
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
-        details, d_fees, is_tot = [], {}, False
-        if selected_main:
-            for g in selected_main:
-                subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
-                for s in subs:
-                    details.append(f"{g}({s})")
-                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
-                    if s == "TOT": is_tot = True
-        with st.form("entry_form", clear_on_submit=True):
-            if is_tot:
-                col1, col2 = st.columns(2)
-                maqaa_f = f"G: {col1.text_input('Maqaa Gurguraa')} / B: {col2.text_input('Maqaa Bitataa')}"
-                ara_f = f"G: {col1.text_input('Araddaa G')} / B: {col2.text_input('Araddaa B')}"
-                qax_f = f"G: {col1.text_input('Qaxana G')} / B: {col2.text_input('Qaxana B')}"
-            else:
-                c1, c2 = st.columns(2)
-                maqaa_f, ara_f = c1.text_input("Maqaa Abbaa Dhimmaa"), c2.text_input("Araddaa")
-                qax_f = c1.text_input("Qaxana")
-            ogeessa = st.text_input("Maqaa Ogeessaa")
-            if st.form_submit_button("💾 Galmeessi"):
-                if maqaa_f and details and ogeessa:
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values())]
-                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
+    # --- GALMEE HAARAA ---
+elif menu == "📝 Galmee Haaraa":
+    st.header("📝 Galmee Tajaajilaa Haaraa")
+    GATII_DICT = {
+        "🏷️ Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)"],
+        "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"],
+        "🏗️ Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", "Humna Mahandisummaa"],
+        "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"],
+        "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"]
+    }
+    
+    selected_cats = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
+    details, d_fees = [], {}
+    
+    for cat in selected_cats:
+        with st.expander(f"Kaffaltii {cat}"):
+            subs = st.multiselect(f"Tajaajiloota {cat}:", GATII_DICT[cat], key=cat)
+            for s in subs:
+                details.append(f"{cat}({s})")
+                d_fees[f"{cat}_{s}"] = st.number_input(f"Kaffaltii {s}", min_value=0.0, key=f"f_{s}")
 
+    with st.form("main_form", clear_on_submit=True):
+        c1, c2 = st.columns(2)
+        m_maqaa = c1.text_input("Maqaa Maamilaa *")
+        m_qaxana = c2.text_input("Qaxana")
+        m_araddaa = c1.text_input("Araddaa *")
+        nagahee = st.file_uploader("Nagahee Scan", type=['jpg','png','jpeg'])
+        
+        if st.form_submit_button("💾 Galmeessi"):
+            if m_maqaa and m_araddaa and details:
+                new_row = [datetime.now().strftime('%d/%m/%Y'), m_maqaa, m_araddaa, m_qaxana, ", ".join(details), m_ogeessa, sum(d_fees.values())]
+                df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                save_data(df)
+                st.success(f"Galmeen {m_maqaa} milkaa'eera!")
 
 # --- GABAASA BAL'AA (MODERN UI) ---
     elif menu == "📈 Gabaasa Bal'aa":
@@ -390,6 +386,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
