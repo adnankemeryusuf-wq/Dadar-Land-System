@@ -32,7 +32,7 @@ def create_clearance_pdf(data):
         pdf.cell(0, 5, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
 
     # Teessoo fi Maqaa Waajjiraa
-    pdf.set_y(48); pdf.set_font('Arial', 'B', 15)
+    pdf.set_y(48); pdf.set_font('Arial', 'BU', 12)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
     pdf.set_font('Arial', 'B', 14); pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
@@ -131,5 +131,6 @@ with st.form("clearance_form", clear_on_submit=True):
             st.error("⚠️ Hubachiisa: Dhorkaa irraa bilisa ta'uu isaa osoo hin mirkaneessin Clearance uumuun hin danda'amu!")
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi!")
+
 
 
