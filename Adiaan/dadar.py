@@ -43,7 +43,7 @@ def create_clearance_pdf(data):
     pdf.cell(0, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
     
     # 2. SUBJECT (Background malee, Bold fi Underline qofa)
-    pdf.ln(10); pdf.set_font('Arial', 'BU', 13)
+    pdf.ln(10); pdf.set_font('Arial', 'BU', 10)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
     
     # Ibsa kaffaltii qabiyyee adda baasuu
@@ -131,4 +131,5 @@ with st.form("clearance_form", clear_on_submit=True):
             st.error("⚠️ Hubachiisa: Dhorkaa irraa bilisa ta'uu isaa osoo hin mirkaneessin Clearance uumuun hin danda'amu!")
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi!")
+
 
