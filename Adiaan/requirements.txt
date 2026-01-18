@@ -1,10 +1,11 @@
 streamlit
 pandas
 Pillow
+fpdf
+ethiopian-date
 openpyxl
 requests
 psycopg2-binary
-fpdf
 plotly
 xlsxwriter
 python-pptx
