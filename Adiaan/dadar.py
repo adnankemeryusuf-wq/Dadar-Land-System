@@ -92,7 +92,7 @@ def create_clearance_pdf(data):
 st.set_page_config(page_title="Dadar Land Management", layout="wide")
 df = load_data()
 
-menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee & Clearance", "🏆 Badhaasa", "📈 Gabaasa"])
+menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee", "CLEARANCE", "🏆 Badhaasa", "📈 Gabaasa"])
 
 # --- DASHBOARD ---
 if menu == "📊 Dashboard":
@@ -164,3 +164,4 @@ elif menu == "🏆 Badhaasa":
     st.header("🏆 Ogeeyyii Baay'ee Hojjetan")
     if not df.empty:
         st.bar_chart(df['Maqaa_Ogeessa'].value_counts())
+
