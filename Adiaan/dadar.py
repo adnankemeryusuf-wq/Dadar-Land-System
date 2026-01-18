@@ -6,14 +6,20 @@ from fpdf import FPDF
 from PIL import Image
 from ethiopian_date import EthiopianDateConverter
 
-# ================= 1. CORE FUNCTIONS =================
+# ================= 1. SETUP & CONFIG =================
+# Session state qindeessuuf
+if 'pdf_to_download' not in st.session_state:
+    st.session_state.pdf_to_download = None
+if 'pdf_name' not in st.session_state:
+    st.session_state.pdf_name = ""
+
+# ================= 2. CORE FUNCTIONS =================
 
 def get_ethiopian_date_str():
     """Guyyaa har'aa G.C. irraa gara E.C. tti jijjiira"""
     now = datetime.now()
     converter = EthiopianDateConverter()
     e_date = converter.to_ethiopian(now.year, now.month, now.day)
-    # EthiopianDate Object irraa year, month, day akkasitti fudhatama
     return f"{e_date.day:02d}/{e_date.month:02d}/{e_date.year}"
 
 def create_clearance_pdf(data):
@@ -38,12 +44,11 @@ def create_clearance_pdf(data):
     
     pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
 
-    # --- LAKK FI GUYYAA (SIRREEFFAME) ---
+    # --- LAKK FI GUYYAA ---
     pdf.ln(8); pdf.set_font('Times', '', 12)
     converter = EthiopianDateConverter()
     now_ec = converter.to_ethiopian(datetime.now().year, datetime.now().month, datetime.now().day)
     
-    # !!! AS IRRATTI: .year malee [0] miti !!!
     now_ec_year = now_ec.year 
     guyyaa_ec = get_ethiopian_date_str() 
 
@@ -75,12 +80,10 @@ def create_clearance_pdf(data):
     pdf.multi_cell(170, 9, text_content, align='L')
 
     # Signature Section
-    pdf.set_y(225); pdf.set_font('Times', 'B', 11)
-    pdf.set_x(120)
+    pdf.set_y(225); pdf.set_font('Times', 'B', 11); pdf.set_x(120)
     pdf.cell(0, 6, f"Ogeessa Galmeesse: {data['ogeessa']}", ln=True)
-    pdf.ln(2)
-    pdf.set_font('Times', 'B', 12)
-    pdf.set_x(120); pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
+    pdf.ln(2); pdf.set_font('Times', 'B', 12); pdf.set_x(120)
+    pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, f"Guyyaa (E.C): {guyyaa_ec}", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True)
@@ -90,7 +93,7 @@ def create_clearance_pdf(data):
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
-# Sidebar Logos
+# Sidebar
 st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
 up_bitta = st.sidebar.file_uploader("Logo Bittaa", type=['png', 'jpg', 'jpeg'])
 if up_bitta:
@@ -102,11 +105,14 @@ if up_mirga:
 
 st.header("📝 Galmee fi Qophii Clearance (E.C.)")
 
+# Download Button
 if st.session_state.pdf_to_download:
+    st.success(f"📄 PDF {st.session_state.pdf_name} Qophaa'eera!")
     st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, st.session_state.pdf_name, "application/pdf")
     if st.button("Galmee Haaraa"): 
         st.session_state.pdf_to_download = None; st.rerun()
 
+# Form
 with st.form("clearance_form", clear_on_submit=True):
     c1, c2 = st.columns(2)
     m_maqaa = c1.text_input("Maqaa Maamilaa *")
@@ -116,7 +122,7 @@ with st.form("clearance_form", clear_on_submit=True):
     m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
     m_bara = c2.text_input("Bara Gibiraa Xumurame (Fkn: 2017)")
     m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
-    m_ogeessa = c2.text_input("Ogeessa Galmeesse *") # Ogeessa daballeera
+    m_ogeessa = c2.text_input("Ogeessa Galmeesse *") # Maqaa ogeessaa itti dabaleera
     
     m_dhorkaa_bilisa = st.checkbox("Dhorkaa irraa bilisa ta'uu nan mirkaneessa.")
 
@@ -131,4 +137,4 @@ with st.form("clearance_form", clear_on_submit=True):
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
         else:
-            st.error("⚠️ Odeeffannoo hunda guuti!")
+            st.error("⚠️ Odeeffannoo hunda guuti (Maqaa, Kaartaa, Ogeessa fi Mirkaneessa Seeraa)!")
