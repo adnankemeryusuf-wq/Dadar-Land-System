@@ -96,16 +96,20 @@ def create_clearance_pdf(data):
 # ================= 3. INTERFACE (UI) =================
 
 st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
-up_bitta = st.sidebar.file_uploader("Logo Bittaa", type=['png', 'jpg', 'jpeg'])
+# Logo Bittaa (Saffisaan)
+up_bitta = st.sidebar.file_uploader("Logo Bittaa (Mootummaa)", type=['png', 'jpg', 'jpeg'], key="up_logo_bitta")
 if up_bitta:
-    Image.open(up_bitta).convert("RGB").save("logo_bitta.jpg", "JPEG")
+    img_b = Image.open(up_bitta)
+    # Saffisaaf qulqullina isaa giddu-galeessa gochuun kuusa
+    img_b.convert("RGB").save("logo_bitta.jpg", "JPEG", quality=80)
+    st.sidebar.success("✅ Bittaa ol-ka'eera")
 
-up_mirga = st.sidebar.file_uploader("Logo Mirgaa", type=['png', 'jpg', 'jpeg'])
+# Logo Mirgaa (Saffisaan)
+up_mirga = st.sidebar.file_uploader("Logo Mirgaa (Waajjira)", type=['png', 'jpg', 'jpeg'], key="up_logo_mirga")
 if up_mirga:
-    Image.open(up_mirga).convert("RGB").save("logo_mirga.jpg", "JPEG")
-
-st.header("📝 Galmee fi Qophii Clearance (E.C.)")
-
+    img_m = Image.open(up_mirga)
+    img_m.convert("RGB").save("logo_mirga.jpg", "JPEG", quality=80)
+    st.sidebar.success("✅ Mirgaa ol-ka'eera")
 # Download Button
 if st.session_state.pdf_to_download:
     st.success(f"📄 PDF {st.session_state.pdf_name} Qophaa'eera!")
@@ -138,3 +142,4 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo hunda guuti!")
+
