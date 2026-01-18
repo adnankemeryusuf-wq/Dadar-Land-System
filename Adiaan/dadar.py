@@ -17,6 +17,7 @@ def get_ethiopian_date_str():
     return f"{e_date.day:02d}/{e_date.month:02d}/{e_date.year}"
 
 def create_clearance_pdf(data):
+    # 'Times' jechuun Times New Roman jechuudha
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
@@ -25,10 +26,12 @@ def create_clearance_pdf(data):
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
     # 2. LOGOS
-    if os.path.exists("logo_bitta.jpg"): pdf.image("logo_bitta.jpg", 15, 15, 25)
-    if os.path.exists("logo_mirga.jpg"): pdf.image("logo_mirga.jpg", 170, 15, 25)
+    if os.path.exists("logo_bitta.jpg"): 
+        pdf.image("logo_bitta.jpg", 15, 15, 25)
+    if os.path.exists("logo_mirga.jpg"): 
+        pdf.image("logo_mirga.jpg", 170, 15, 25)
 
-    # 3. HEADER (Times New Roman BOLD)
+    # 3. HEADER
     pdf.set_y(22)
     pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
@@ -44,18 +47,17 @@ def create_clearance_pdf(data):
     now_ec = converter.to_ethiopian(datetime.now().year, datetime.now().month, datetime.now().day)
     
     guyyaa_ec = get_ethiopian_date_str()
-    # Bara (Year) Object irraa fudhachuu
     now_ec_year = now_ec.year 
 
     pdf.set_x(20)
     pdf.cell(90, 5, f"Lakk. Galmee: DAD/WL/{now_ec_year}/____", ln=False, align='L')
     pdf.cell(80, 5, f"Guyyaa: {guyyaa_ec}", ln=True, align='R')
 
-    # 5. SUBJECT (Underlined)
+    # 5. SUBJECT
     pdf.ln(10); pdf.set_font('Times', 'BU', 14)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
 
-    # 6. BODY TEXT (Spacing 9mm)
+    # 6. BODY TEXT
     pdf.set_y(90); pdf.set_font('Times', '', 12)
     
     kaffaltii_ibsa = ("2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina." 
@@ -75,11 +77,8 @@ def create_clearance_pdf(data):
     )
     pdf.multi_cell(170, 9, text_content, align='L')
 
-    # 7. SIGNATURE SECTION (Mallattoo fi Guyyaa)
-    pdf.set_y(225); pdf.set_font('Times', 'B', 11); pdf.set_x(120)
-    pdf.cell(0, 6, f"Ogeessa Galmeesse: {data.get('ogeessa', '________________')}", ln=True)
-    pdf.ln(2)
-    pdf.set_font('Times', 'B', 12); pdf.set_x(120)
+    # 7. SIGNATURE SECTION (Maqaa Ogeessaa haqameera)
+    pdf.set_y(230); pdf.set_font('Times', 'B', 12); pdf.set_x(120)
     pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, f"Guyyaa (E.C): {guyyaa_ec}", ln=True)
