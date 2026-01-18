@@ -3,44 +3,37 @@ import pandas as pd
 import os, io
 from datetime import datetime
 from fpdf import FPDF
-from PIL import Image  # Rakkoo gosa fayilaa furuuf kan dabalame
+from PIL import Image
+from ethiopian_date import EthiopianDateConverter
 
 # ================= 1. SETUP & CONFIG =================
-LOGO_FILE = "waajjira_logo.png" 
-DATA_FILE = "dadar_final_report.txt"
-COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
-
 if 'pdf_to_download' not in st.session_state: st.session_state.pdf_to_download = None
 if 'pdf_name' not in st.session_state: st.session_state.pdf_name = ""
 
-# ================= 1. GUYYAA E.C. ARGCHUU =================
+# ================= 2. CORE FUNCTIONS =================
 
 def get_ethiopian_date_str():
     """Guyyaa har'aa G.C. irraa gara E.C. tti jijjiira"""
     now = datetime.now()
-    # Object uumuun barbaachisaadha
     converter = EthiopianDateConverter()
     e_date = converter.to_ethiopian(now.year, now.month, now.day)
-    # Format: DD/MM/YYYY (E.C.)
     return f"{e_date[2]:02d}/{e_date[1]:02d}/{e_date[0]}"
-
-# ================= 2. PDF UUMUU =================
 
 def create_clearance_pdf(data):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # Border (Sarara Qarqaraa)
+    # Border
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # Logos (Bitta fi Mirga)
+    # Logos
     if os.path.exists("logo_bitta.jpg"): 
         pdf.image("logo_bitta.jpg", 15, 15, 25)
     if os.path.exists("logo_mirga.jpg"): 
         pdf.image("logo_mirga.jpg", 170, 15, 25)
 
-    # Header
+    # Header (Times New Roman)
     pdf.set_y(22)
     pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
@@ -50,10 +43,8 @@ def create_clearance_pdf(data):
     
     pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
 
-    # --- LAKK FI GUYYAA (SIRREEFFAME) ---
+    # --- LAKK FI GUYYAA (E.C.) ---
     pdf.ln(8); pdf.set_font('Times', '', 12)
-    
-    # Object uumuun bara Itoophiyaa har'aa argachuu (TypeError furuuf)
     converter = EthiopianDateConverter()
     now_ec = converter.to_ethiopian(datetime.now().year, datetime.now().month, datetime.now().day)
     now_ec_year = now_ec[0]
@@ -67,10 +58,8 @@ def create_clearance_pdf(data):
     pdf.ln(10); pdf.set_font('Times', 'BU', 14)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
 
-    # Body Text (Spacing 9mm)
+    # Body Text
     pdf.set_y(90); pdf.set_font('Times', '', 12)
-    
-    # Gosa kaffaltii adda baasuu
     if data.get('gosa_qabiyyee') == "Liizii":
         kaffaltii_ibsa = "2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina."
     else:
@@ -89,7 +78,7 @@ def create_clearance_pdf(data):
     )
     pdf.multi_cell(170, 9, text_content, align='L')
 
-    # Signature Section
+    # Signature
     pdf.set_y(230); pdf.set_font('Times', 'B', 12); pdf.set_x(120)
     pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
@@ -97,29 +86,25 @@ def create_clearance_pdf(data):
     pdf.set_x(120); pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True)
 
     return pdf.output(dest='S').encode('latin-1')
+
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
 st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
 
-st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
-
-# Logo Bittaa (Saffisaan)
-up_bitta = st.sidebar.file_uploader("Logo Bittaa (Mootummaa)", type=['png', 'jpg', 'jpeg'], key="up_logo_bitta")
+up_bitta = st.sidebar.file_uploader("Logo Bittaa", type=['png', 'jpg', 'jpeg'], key="up_logo_bitta")
 if up_bitta:
     img_b = Image.open(up_bitta)
-    # Saffisaaf qulqullina isaa giddu-galeessa gochuun kuusa
-    img_b.convert("RGB").save("logo_bitta.jpg", "JPEG", quality=80)
+    img_b.convert("RGB").save("logo_bitta.jpg", "JPEG")
     st.sidebar.success("✅ Bittaa ol-ka'eera")
 
-# Logo Mirgaa (Saffisaan)
-up_mirga = st.sidebar.file_uploader("Logo Mirgaa (Waajjira)", type=['png', 'jpg', 'jpeg'], key="up_logo_mirga")
+up_mirga = st.sidebar.file_uploader("Logo Mirgaa", type=['png', 'jpg', 'jpeg'], key="up_logo_mirga")
 if up_mirga:
     img_m = Image.open(up_mirga)
-    img_m.convert("RGB").save("logo_mirga.jpg", "JPEG", quality=80)
+    img_m.convert("RGB").save("logo_mirga.jpg", "JPEG")
     st.sidebar.success("✅ Mirgaa ol-ka'eera")
-# MAIN UI
-st.header("📝 Galmee fi Qophii Clearance")
+
+st.header("📝 Galmee fi Qophii Clearance (E.C.)")
 
 if st.session_state.pdf_to_download:
     st.success("📄 Clearance qophaa'eera!")
@@ -136,7 +121,6 @@ with st.form("clearance_form", clear_on_submit=True):
     m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
     m_bara = c2.text_input("Bara Gibiraa Xumurame (Fkn: 2017)")
     m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
-    m_ogeessa = c2.text_input("Ogeessa Galmeesse *")
     
     st.warning("⚠️ Mirkaneessa Seeraa")
     m_dhorkaa_bilisa = st.checkbox("Lafni/Manni kun Dhorkaa Mana Murtii irraa bilisa ta'uu isaa nan mirkaneessa.")
@@ -144,18 +128,8 @@ with st.form("clearance_form", clear_on_submit=True):
     if st.form_submit_button("💾 GALMEESSI FI PDF UUMI"):
         if m_maqaa and m_kaartaa and m_dhorkaa_bilisa:
             data_map = {'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana, 'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 'gosa_qabiyyee': m_gosa}
-            # Amma RuntimeError sun hin uumamu
             st.session_state.pdf_to_download = create_clearance_pdf(data_map)
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
         else:
-            st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
-
-
-
-
-
-
-
-
-
+            st.error("⚠️ Maaloo odeeffannoo guutuu galchi!")
