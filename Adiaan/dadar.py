@@ -347,7 +347,7 @@ else:
         st.session_state.logged_in = False
         st.rerun()
 
-#  CLEARANCE 
+#  ---CLEARANCE--- 
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
 if 'pdf_to_download' not in st.session_state:
@@ -484,6 +484,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.session_state.pdf_to_download = create_clearance_pdf(data_map)
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
+
 
 
 
