@@ -1,7 +1,16 @@
 import streamlit as st
+import pandas as pd
+import os, io, requests
+from datetime import datetime
+from fpdf import FPDF
 
-# Sidebar Filannoo
-with st.sidebar:
+# ================= 1. CONFIGURATION & SETUP =================
+LOGO_PATH = "Adiaan/logo.png"
+DATA_FILE = "dadar_final_report.txt"
+NAGAHEE_DIR = "Adiaan/nagahee"
+COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
 
     # Uploaders asitti ta'u
     menu = st.radio("FILANNOO", ["📝 Galmee & Clearance", "📊 Dashboard", "📈 Gabaasa"])
@@ -20,4 +29,5 @@ elif menu == "📊 Dashboard":
 elif menu == "📈 Gabaasa":
     st.subheader("Gabatee Gabaasaa")
     # Dataframe asitti agarsiisama...
+
 
