@@ -201,7 +201,6 @@ else:
         else:
             st.info("Data'n galmeeffame hin jiru.")
     # --- GALMEE HAARAA ---
-elif menu == "📝 Galmee Haaraa":
     st.header("📝 Galmee Tajaajilaa Haaraa")
     GATII_DICT = {
         "🏷️ Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)"],
@@ -386,6 +385,7 @@ elif menu == "📝 Galmee Haaraa":
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
