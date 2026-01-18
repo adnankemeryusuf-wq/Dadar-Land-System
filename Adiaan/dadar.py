@@ -19,57 +19,71 @@ def create_clearance_pdf(data):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # Border
-    pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
-    pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
+    # 1. BORDER (Sarara Qarqaraa)
+    pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277) 
+    pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273) 
 
-    # 1. LOGO BITTAA - (X=15, Y=15)
+    # 2. LOGO BITTAA FI MIRGAA
     if os.path.exists("logo_bitta.jpg"):
-        pdf.image("logo_bitta.jpg", 15, 15, 25)
-
-    # 2. LOGO MIRGAA - (X=170, Y=15)
+        pdf.image("logo_bitta.jpg", 15, 15, 26)
     if os.path.exists("logo_mirga.jpg"):
-        pdf.image("logo_mirga.jpg", 170, 15, 25)
+        pdf.image("logo_mirga.jpg", 168, 15, 26)
 
-    # Header Center Text
-    pdf.set_y(48)
-    pdf.set_font('Arial', 'B', 15)
+    # 3. HEADER (Mata duree waajjiraa)
+    pdf.set_y(20)
+    pdf.set_font('Arial', 'B', 16)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
+    pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
     pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
     
-    # Odeeffannoo biroo (Subject, Body, Signature) koodii kee isa duraa itti fufi...
-    # ... (Barreeffamni biroo akkuma kanaan duraatti hafa)
+    # Sarara Header jalaa
+    pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
     
-    pdf.ln(5); pdf.set_font('Arial', '', 11); pdf.set_x(20)
-    pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=False, align='L')
-    pdf.set_x(20); pdf.cell(170, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
-    
-    pdf.ln(10); pdf.set_font('Arial', 'BU', 13)
-    pdf.cell(0, 10, "SUBJECT: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
-    
-    pdf.set_y(95); pdf.set_font('Arial', '', 12)
-    kaffaltii_ibsa = "2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina." if data['gosa_qabiyyee'] == "Liizii" else "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina."
-
+    # Lakk fi Guyyaa
+    pdf.ln(8); pdf.set_font('Arial', '', 11)
     pdf.set_x(20)
-    text = (f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} "
-            f"Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n"
-            f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n\n"
-            f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n"
-            f"{kaffaltii_ibsa}\n"
-            f"3. Lafni/Manni kun DHORKAA MANA MURTII ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.\n\n"
-            f"Kanaafuu, maamilli kun dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, "
-            f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina.")
-    pdf.multi_cell(170, 8, text, align='L')
+    pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=False, align='L')
+    pdf.cell(170, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
     
-    pdf.set_y(235); pdf.set_font('Arial', 'B', 12); pdf.set_x(120)
-    pdf.cell(0, 7, "Maqaa Itti Gaafatamaa:", ln=True); pdf.set_x(120)
-    pdf.cell(0, 7, "Mallattoo: _________________", ln=True); pdf.set_x(120)
-    pdf.cell(0, 7, "(Chaappaa Waajjiraa)", ln=True)
+    # 4. SUBJECT (Bifa Qulqulluun)
+    pdf.ln(12)
+    pdf.set_font('Arial', 'BU', 13)
+    pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
+    
+    # 5. BODY TEXT (Barreeffama Bareedaa)
+    pdf.set_y(90)
+    pdf.set_font('Arial', '', 12)
+    
+    # Gosa qabiyyee irratti hundaa'uun
+    if data['gosa_qabiyyee'] == "Liizii":
+        kaffaltii_ibsa = "2. Kaffaltii Liizii waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina."
+    else:
+        kaffaltii_ibsa = "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina."
 
+    # Barreeffama Sanadaa
+    pdf.set_x(20)
+    pdf.multi_cell(170, 9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} "
+                          f"Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n"
+                          f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n\n"
+                          f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n"
+                          f"{kaffaltii_ibsa}\n"
+                          f"3. Lafni/Manni kun DHORKAA MANA MURTII ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.\n\n"
+                          f"Kanaafuu, maamilli kun dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, "
+                          f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina.", align='L')
+    
+    # 6. SIGNATURE SECTION
+    pdf.set_y(230)
+    pdf.set_font('Arial', 'B', 12)
+    pdf.set_x(120)
+    pdf.cell(0, 8, "Maqaa Itti Gaafatamaa:", ln=True)
+    pdf.set_x(120)
+    pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
+    pdf.set_x(120)
+    pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True)
+    
     return pdf.output(dest='S').encode('latin-1')
-
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
@@ -123,5 +137,6 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
