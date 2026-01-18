@@ -14,7 +14,7 @@ CHAT_ID_MANAGER = "7329587700"
 
 if not os.path.exists(NAGAHEE_DIR): os.makedirs(NAGAHEE_DIR, exist_ok=True)
 
-# Session State Setup (Kuni download button akka hin badneef baay'ee barbaachisa)
+# Session State: Akka Download Button-ni hin badneef baay'ee barbaachisaa dha
 if 'show_download' not in st.session_state: st.session_state.show_download = False
 if 'pdf_data' not in st.session_state: st.session_state.pdf_data = None
 if 'pdf_filename' not in st.session_state: st.session_state.pdf_filename = ""
@@ -79,7 +79,7 @@ def send_excel_to_telegram(df_to_send):
             df_to_send[COL_NAMES].to_excel(writer, index=False, sheet_name='Gabaasa')
         output.seek(0)
         url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
-        requests.post(url, data={'chat_id': CHAT_ID_MANAGER, 'caption': "📊 Gabaasa Dadar Formatted"}, files={'document': ('Gabaasa_Dadar.xlsx', output)})
+        requests.post(url, data={'chat_id': CHAT_ID_MANAGER, 'caption': "📊 Gabaasa Dadar"}, files={'document': ('Gabaasa_Dadar.xlsx', output)})
         return True
     except: return False
 
@@ -89,7 +89,6 @@ df = load_data()
 
 menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
 
-# --- DASHBOARD ---
 if menu == "📊 Dashboard":
     st.title("📊 Dashboard")
     if not df.empty:
@@ -99,15 +98,14 @@ if menu == "📊 Dashboard":
         c3.metric("Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
     else: st.info("Data'n hojii hin jiru.")
 
-# --- GALMEE HAARAA ---
 elif menu == "📝 Galmee Haaraa":
     st.header("📝 Galmee Tajaajilaa Haaraa")
     
     GATII_DICT = {
-        "🏷️ Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)"],
-        "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"],
-        "🏗️ Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", "Humna Mahandisummaa"],
-        "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"],
+        "🏷️ Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa"],
+        "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Jijjiirraa Maqaa (Gift/Sale)"],
+        "🏗️ Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)"],
+        "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
         "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"]
     }
     
@@ -123,6 +121,7 @@ elif menu == "📝 Galmee Haaraa":
 
     st.divider()
 
+    # --- FORMII GALMEESSAA ---
     with st.form("main_form", clear_on_submit=True):
         st.subheader("Odeeffannoo Maamilaa")
         c1, c2 = st.columns(2)
@@ -141,8 +140,10 @@ elif menu == "📝 Galmee Haaraa":
                 new_row = [datetime.now().strftime('%d/%m/%Y'), m_maqaa, m_araddaa, m_qaxana, ", ".join(details), m_ogeessa, kafallti_hunda]
                 df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                 save_data(df)
+                
                 st.success(f"✅ Galmeen {m_maqaa} milkaa'eera!")
                 
+                # Yoo Clearance filatameera ta'e, qopheessi
                 if "Waraqaa Ragaa (Clearance)" in details:
                     st.session_state.pdf_data = create_clearance_pdf(m_maqaa, m_araddaa, m_qaxana, ", ".join(details), m_nagahee_lakk)
                     st.session_state.pdf_filename = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
@@ -153,30 +154,25 @@ elif menu == "📝 Galmee Haaraa":
                 st.error("⚠️ Maaloo hunda guuti!")
                 st.session_state.show_download = False
 
-    # Download button Form-ii alatti akka hin badneef
+    # --- IDDOO IRRA BUUFATAN (DOWNLOAD SECTION) ---
+    # Formii alatti waan ta'eef kallaattiin asitti mul'ata
     if st.session_state.show_download:
-        st.info("📄 Waraqaan Ragaa (Clearance) Maamila kanaaf qophaa'eera.")
+        st.markdown("---")
+        st.info("📄 **Waraqaan Ragaa (Clearance)** maamila kanaaf qophaa'eera. Gadiitti cuqaasii buufadhu.")
         st.download_button(
-            label="📥 Waraqaa Ragaa (Clearance) Download Godhuuf As Cuqaasi",
+            label="📥 Waraqaa Ragaa (Clearance) IRRA BUUFADHU",
             data=st.session_state.pdf_data,
             file_name=st.session_state.pdf_filename,
             mime="application/pdf",
-            key="download_btn_unique"
+            key="irra_bufadhu_btn"
         )
 
-# --- GABAASA ---
 elif menu == "📈 Gabaasa":
     st.header("📈 Gabaasa Bal'aa")
-    if not df.empty:
-        st.dataframe(df, use_container_width=True)
-        if st.button("🚀 Excel Gara Telegram-itti Ergi"):
-            if send_excel_to_telegram(df): st.success("✅ Ergameera!")
-            else: st.error("❌ Dogoggora uumame!")
-    else: st.info("Galmeen agarsiifamu hin jiru.")
+    st.dataframe(df, use_container_width=True)
+    if st.button("🚀 Excel Gara Telegram"):
+        if send_excel_to_telegram(df): st.success("✅ Ergameera!")
 
-# --- BADHAASA ---
 elif menu == "🏆 Badhaasa":
     st.header("🏆 Sadarkaa Ogeeyyii")
-    if not df.empty:
-        top = df['Maqaa_Ogeessa'].value_counts().head(3)
-        st.table(top)
+    if not df.empty: st.table(df['Maqaa_Ogeessa'].value_counts().head(3))
