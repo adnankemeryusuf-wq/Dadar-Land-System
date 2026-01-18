@@ -235,7 +235,6 @@ else:
                 st.success(f"Galmeen {m_maqaa} milkaa'eera!")
 
 # --- GABAASA BAL'AA (MODERN UI) ---
-    
         st.markdown("<h4 style='color: #1b5e20;'>📈 Gabaasa fi Xiinxala Galii</h4>", unsafe_allow_html=True)
         
         if not df.empty:
@@ -385,6 +384,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
