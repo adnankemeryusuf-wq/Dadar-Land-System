@@ -236,8 +236,6 @@ st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
 st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
 
-st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
-
 # Logo Bittaa (Saffisaan)
 up_bitta = st.sidebar.file_uploader("Logo Bittaa (Mootummaa)", type=['png', 'jpg', 'jpeg'], key="up_logo_bitta")
 if up_bitta:
@@ -284,6 +282,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
 
