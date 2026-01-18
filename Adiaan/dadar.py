@@ -14,30 +14,28 @@ if 'pdf_to_download' not in st.session_state:
 if 'pdf_name' not in st.session_state:
     st.session_state.pdf_name = ""
 
-# ================= 2. FUNKSHINOOTA GUYYAA FI PDF =================
+# ================= 2. FUNKSHINOOTA PDF =================
 
 def get_ethiopian_date_str():
-    """Guyyaa har'aa G.C. irraa gara E.C. tti jijjiira"""
     now = datetime.now()
     converter = EthiopianDateConverter()
     e_date = converter.to_ethiopian(now.year, now.month, now.day)
-    # Deebii: DD/MM/YYYY
     return f"{e_date.day:02d}/{e_date.month:02d}/{e_date.year}"
 
 def create_clearance_pdf(data):
-    # 'Times' jechuun Times New Roman jechuudha
+    # Times New Roman (Times) fayyadamna
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
-    # Border (Sarara Qarqaraa Double)
+    # Sarara Border
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
     # Logos
-    if os.path.exists("logo_bitta.jpg"): pdf.image("logo_bitta.jpg", 15, 15, 25)
-    if os.path.exists("logo_mirga.jpg"): pdf.image("logo_mirga.jpg", 170, 15, 25)
+    if os.path.exists("logo_bitta.jpg"): pdf.image("logo_bitta.jpg", 15, 15, 23)
+    if os.path.exists("logo_mirga.jpg"): pdf.image("logo_mirga.jpg", 172, 15, 23)
 
-    # Header (Times Bold)
+    # --- HEADER (14pt & 15pt Bold) ---
     pdf.set_y(22)
     pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 8, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
@@ -47,23 +45,21 @@ def create_clearance_pdf(data):
     
     pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
 
-    # Lakk fi Guyyaa (Times Regular)
+    # Lakk fi Guyyaa (12pt)
     pdf.ln(8); pdf.set_font('Times', '', 12)
     converter = EthiopianDateConverter()
     now_ec = converter.to_ethiopian(datetime.now().year, datetime.now().month, datetime.now().day)
-    
     guyyaa_ec = get_ethiopian_date_str()
-    now_ec_year = now_ec.year 
 
     pdf.set_x(20)
-    pdf.cell(90, 5, f"Lakk. Galmee: DAD/WL/{now_ec_year}/____", ln=False, align='L')
+    pdf.cell(90, 5, f"Lakk. Galmee: DAD/WL/{now_ec.year}/____", ln=False, align='L')
     pdf.cell(80, 5, f"Guyyaa: {guyyaa_ec}", ln=True, align='R')
 
-    # Subject (Bold + Underline)
+    # --- SUBJECT (14pt Bold + Underline) ---
     pdf.ln(10); pdf.set_font('Times', 'BU', 14)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
 
-    # Body Text (Spacing 9mm)
+    # --- BODY TEXT (12pt, Spacing 9mm ≈ 1.5 spacing) ---
     pdf.set_y(90); pdf.set_font('Times', '', 12)
     
     if data.get('gosa_qabiyyee') == "Liizii":
@@ -82,9 +78,10 @@ def create_clearance_pdf(data):
         f"Kanaafuu, maamilli kun dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, "
         f"waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina."
     )
+    # 9mm spacing filatamaadha
     pdf.multi_cell(170, 9, text_content, align='L')
 
-    # Signature Section
+    # --- SIGNATURE (12pt Bold) ---
     pdf.set_y(230); pdf.set_font('Times', 'B', 12); pdf.set_x(120)
     pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
     pdf.set_x(120); pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
@@ -93,31 +90,24 @@ def create_clearance_pdf(data):
 
     return pdf.output(dest='S').encode('latin-1')
 
-# ================= 3. INTERFACE (UI) =================
+# ================= 3. UI LAYOUT =================
 
 st.sidebar.header("⚙️ Qindaa'ina Mallattoo")
-# Logo Bittaa (Saffisaan)
-up_bitta = st.sidebar.file_uploader("Logo Bittaa (Mootummaa)", type=['png', 'jpg', 'jpeg'], key="up_logo_bitta")
+up_bitta = st.sidebar.file_uploader("Logo Bittaa", type=['png', 'jpg', 'jpeg'], key="up_b")
 if up_bitta:
-    img_b = Image.open(up_bitta)
-    # Saffisaaf qulqullina isaa giddu-galeessa gochuun kuusa
-    img_b.convert("RGB").save("logo_bitta.jpg", "JPEG", quality=80)
-    st.sidebar.success("✅ Bittaa ol-ka'eera")
+    Image.open(up_bitta).convert("RGB").save("logo_bitta.jpg", "JPEG")
 
-# Logo Mirgaa (Saffisaan)
-up_mirga = st.sidebar.file_uploader("Logo Mirgaa (Waajjira)", type=['png', 'jpg', 'jpeg'], key="up_logo_mirga")
+up_mirga = st.sidebar.file_uploader("Logo Mirgaa", type=['png', 'jpg', 'jpeg'], key="up_m")
 if up_mirga:
-    img_m = Image.open(up_mirga)
-    img_m.convert("RGB").save("logo_mirga.jpg", "JPEG", quality=80)
-    st.sidebar.success("✅ Mirgaa ol-ka'eera")
-# Download Button
+    Image.open(up_mirga).convert("RGB").save("logo_mirga.jpg", "JPEG")
+
+st.header("📝 Galmee fi Qophii Clearance (E.C.)")
+
 if st.session_state.pdf_to_download:
-    st.success(f"📄 PDF {st.session_state.pdf_name} Qophaa'eera!")
     st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, st.session_state.pdf_name, "application/pdf")
     if st.button("Galmee Haaraa"): 
         st.session_state.pdf_to_download = None; st.rerun()
 
-# Form
 with st.form("clearance_form", clear_on_submit=True):
     c1, c2 = st.columns(2)
     m_maqaa = c1.text_input("Maqaa Maamilaa *")
@@ -127,7 +117,6 @@ with st.form("clearance_form", clear_on_submit=True):
     m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
     m_bara = c2.text_input("Bara Gibiraa Xumurame (Fkn: 2017)")
     m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
-    
     m_dhorkaa_bilisa = st.checkbox("Dhorkaa irraa bilisa ta'uu nan mirkaneessa.")
 
     if st.form_submit_button("💾 PDF UUMI"):
@@ -141,5 +130,4 @@ with st.form("clearance_form", clear_on_submit=True):
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
         else:
-            st.error("⚠️ Maaloo odeeffannoo hunda guuti!")
-
+            st.error("⚠️ Odeeffannoo hunda guuti!")
