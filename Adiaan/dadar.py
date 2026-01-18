@@ -16,7 +16,7 @@ if 'pdf_name' not in st.session_state: st.session_state.pdf_name = ""
 # ================= 2. CORE FUNCTIONS =================
 
 def create_clearance_pdf(data):
-    # FPDF keessatti 'Times' jechuun 'Times New Roman' dha
+    # 'Times' jechuun 'Times New Roman' dha
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     
@@ -38,18 +38,16 @@ def create_clearance_pdf(data):
     pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
     pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
     
-    # Separator Line
+    # Separator Line (Sarara Header jalaa)
     pdf.ln(2); pdf.set_line_width(0.5); pdf.line(20, 48, 190, 48)
     
-    # Lakk fi Guyyaa
-    pdf.ln(8); pdf.set_font('Times', '', 11)
-    pdf.set_x(20)
-    pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=False, align='L')
-    pdf.cell(170, 5, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align='R')
+    # Lakk Galmee
+    pdf.ln(8); pdf.set_font('Times', '', 11); pdf.set_x(20)
+    pdf.cell(0, 5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____", ln=True, align='L')
     
     # 4. SUBJECT (Times New Roman BOLD + UNDERLINE)
-    pdf.ln(12)
-    pdf.set_font('Times', 'BU', 14) # Hamma isaa 14 gooneera akka caalaatti mul'atuuf
+    pdf.ln(10)
+    pdf.set_font('Times', 'BU', 14)
     pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
     
     # 5. BODY TEXT (Times New Roman Normal)
@@ -74,17 +72,18 @@ def create_clearance_pdf(data):
     )
     pdf.multi_cell(170, 9, text_content, align='L')
     
-    # 6. SIGNATURE SECTION
-    pdf.set_y(235)
+    # 6. SIGNATURE SECTION (Guyyaan itti dabalameera)
+    pdf.set_y(230)
     pdf.set_font('Times', 'B', 12)
     pdf.set_x(120)
     pdf.cell(0, 8, "Maqaa Itti Gaafatamaa: ________________", ln=True)
     pdf.set_x(120)
     pdf.cell(0, 8, "Mallattoo: _________________", ln=True)
     pdf.set_x(120)
+    pdf.cell(0, 8, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True)
+    pdf.set_x(120)
     pdf.cell(0, 8, "(Chaappaa Waajjiraa)", ln=True)
     
-    # Latin-1 kanaan encode gochuun qubee Afaan Oromoo hunda ni deeggara
     return pdf.output(dest='S').encode('latin-1')
 # ================= 3. UI LAYOUT =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
@@ -139,6 +138,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
 
