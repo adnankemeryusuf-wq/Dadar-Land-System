@@ -261,9 +261,6 @@ if st.session_state.pdf_to_download:
 
 with st.form("clearance_form", clear_on_submit=True):
     c1, c2 = st.columns(2)
-    m_maqaa = c1.text_input("Maqaa Maamilaa *")
-    m_araddaa = c2.text_input("Araddaa *")
-    m_qaxana = c1.text_input("Lakk. Qaxana *")
     m_kaartaa = c2.text_input("Lakk. Kaartaa *")
     m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
     m_bara = c2.text_input("Bara Gibiraa Xumurame (Fkn: 2017)")
@@ -282,6 +279,7 @@ with st.form("clearance_form", clear_on_submit=True):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo guutuu galchi, dhorkaa bilisa ta'uus mirkaneessi!")
+
 
 
 
