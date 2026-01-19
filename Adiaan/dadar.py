@@ -23,7 +23,7 @@ st.markdown("""
 <style>
 .stApp { background-color: #f4f7f9; }
 div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
-.card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+.card { background: white; padding: 15px; border-radius: 7px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -180,6 +180,7 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
 
 
 
