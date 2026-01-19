@@ -47,7 +47,8 @@ def load_data():
 def save_data(df_to_save):
     df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-# ================= 3. SERVICE STRUCTURE =================
+# ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
+# Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
 SERVICE_STRUCTURE = {
     "🏷️ Gibira & Kaffaltii": [
         "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
@@ -68,6 +69,8 @@ SERVICE_STRUCTURE = {
     "📂 Tajaajila Biroo": [
         "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
     ]
+}
+
 }
 
 # ================= 4. MAIN APP =================
@@ -120,3 +123,4 @@ else:
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
