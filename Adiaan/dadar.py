@@ -35,15 +35,15 @@ st.markdown("""
 SERVICE_STRUCTURE = {
     "🏷 Gibira & Kaffaltii": [
         "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
-        "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
+        "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
     ],
     "📜 Kaartaa & Qabiyyee": [
         "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
-        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"
+        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
     ],
     "🏗 Pilaanii & Ijaarsa": [
-        "Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
-        "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"
+      "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+       "Humna Mahandisummaa"
     ],
     "⚖️ Dhimma Seeraa": [
         "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
@@ -184,5 +184,6 @@ else:
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
+
 
 
