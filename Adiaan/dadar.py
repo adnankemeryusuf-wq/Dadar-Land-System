@@ -284,6 +284,42 @@ elif menu == "Ba'i":
 
 
 
+# --- LOGIN LOGIC ---
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    # Fuula Login irratti logo agarsiisuuf
+    if os.path.exists(LOGO_PATH):
+        st.image(LOGO_PATH, width=120)
+    
+    st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+    with st.form("Login"):
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.form_submit_button("Login"):
+            if u == USER_NAME and p == PASS_WORD:
+                st.session_state.logged_in = True
+                st.rerun()
+            else:
+                st.error("Login Dogoggora!")
+else:
+    # --- SIDEBAR (Logo & Menu) ---
+    if os.path.exists(LOGO_PATH):
+        st.sidebar.image(LOGO_PATH, use_container_width=True)
+    
+    st.sidebar.title("Main Menu")
+    menu = ["Galmee Haaraa", "Gabaasa Excel (Telegram)", "Barbaadi (Search)", "Logout"]
+    choice = st.sidebar.selectbox("Filannoo", menu)
+
+    # --- MAIN HEADER (Logo & Title) ---
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=80)
+    with col2:
+        st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+
 
 
 
