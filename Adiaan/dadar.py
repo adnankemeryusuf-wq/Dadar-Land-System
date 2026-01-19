@@ -1,4 +1,3 @@
-Adnan Kemer Yusuf, [1/19/2026 10:25 PM]
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -109,7 +108,6 @@ else:
     df = load_data()
     menu = st.sidebar.radio("MENU", ["📊 Dashboard","📝 Galmee Haaraa","📄 Clearance","📤 Telegram Report"])
 
-Adnan Kemer Yusuf, [1/19/2026 10:25 PM]
 # ---------- DASHBOARD ----------
     if menu=="📊 Dashboard":
         st.header("📊 Dashboard")
@@ -162,3 +160,4 @@ Adnan Kemer Yusuf, [1/19/2026 10:25 PM]
             res=create_excel_report(df,"monthly")
             if res: send_excel_to_telegram(*res,"Monthly Report"); st.success("Ergameera")
             else: st.warning("Ragaan hin jiru")
+
