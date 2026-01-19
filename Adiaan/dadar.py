@@ -407,6 +407,67 @@ else:
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
 
+# --- GALMEE & CLEARANCE ---
+elif menu == "📝 Galmee & Clearance":
+    st.header("📝 Galmee fi Qophii Clearance")
+    
+    # Logo Configuration in Sidebar
+    st.sidebar.subheader("⚙️ Qindaa'ina Mallattoo")
+    up_bitta = st.sidebar.file_uploader("Logo Bittaa", type=['png', 'jpg'])
+    if up_bitta:
+        img_b = Image.open(up_bitta).convert("RGB").save("logo_bitta.jpg")
+    
+    up_mirga = st.sidebar.file_uploader("Logo Mirgaa", type=['png', 'jpg'])
+    if up_mirga:
+        img_m = Image.open(up_mirga).convert("RGB").save("logo_mirga.jpg")
+
+    if st.session_state.pdf_to_download:
+        st.success("📄 Clearance qophaa'eera!")
+        st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, st.session_state.pdf_name)
+        if st.button("Galmee Haaraa"): 
+            st.session_state.pdf_to_download = None
+            st.rerun()
+
+    with st.form("clearance_form"):
+        c1, c2 = st.columns(2)
+        m_maqaa = c1.text_input("Maqaa Maamilaa *")
+        m_ogeessa = c2.text_input("Maqaa Ogeessa Galmeessu *")
+        m_araddaa = c1.text_input("Araddaa *")
+        m_qaxana = c2.text_input("Qaxana")
+        m_kaartaa = c1.text_input("Lakk. Kaartaa")
+        m_bara = c2.text_input("Bara Gibiraa (Fkn: 2017)")
+        m_dhimma = st.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+        m_kaffaltii = st.number_input("Kaffaltii Tajaajilaa (ETB)", min_value=0.0)
+        m_dhorkaa = st.checkbox("Dhorkaa irraa bilisa ta'uu nan mirkaneessa")
+
+        if st.form_submit_button("💾 GALMEESSI FI PDF UUMI"):
+            if m_maqaa and m_ogeessa and m_dhorkaa:
+                # Save to Data
+                new_row = [get_ethiopian_date_str(), m_maqaa, m_araddaa, m_qaxana, "Clearance", m_ogeessa, m_kaffaltii]
+                df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                save_data(df)
+                
+                # Generate PDF
+                data_map = {'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana, 'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma}
+                st.session_state.pdf_to_download = create_clearance_pdf(data_map)
+                st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
+                st.rerun()
+            else: st.error("Maaloo odeeffannoo guutuu galchi!")
+
+# --- GABAASA ---
+elif menu == "📈 Gabaasa":
+    st.header("📈 Gabaasa Galmee Waliigalaa")
+    st.dataframe(df, use_container_width=True)
+    
+    if st.button("🚀 Excel Gara Telegram-itti Ergi"):
+        # (Asitti logic Telegram kee itti fufi)
+        st.info("Gabaasni gara maanjaraatti ergamaa jira...")
+
+# --- BADHAASA ---
+elif menu == "🏆 Badhaasa":
+    st.header("🏆 Ogeeyyii Baay'ee Hojjetan")
+    if not df.empty:
+        st.bar_chart(df['Maqaa_Ogeessa'].value_counts())
 
 
 
