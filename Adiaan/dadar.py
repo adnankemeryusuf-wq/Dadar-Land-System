@@ -3,7 +3,8 @@ import pandas as pd
 import os
 from datetime import datetime
 from fpdf import FPDF
-import plotly.express as pximport streamlit as st
+import plotly.express as px
+import streamlit as st
 import pandas as pd
 import os, io, requests
 from datetime import datetime
@@ -532,5 +533,6 @@ with tab2:
             st.warning("Ragaan hin jiru")
 
     st.dataframe(df)
+
 
 
