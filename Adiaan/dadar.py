@@ -1,5 +1,4 @@
 import streamlit as st
-iAdnan Kemer Yusuf, [1/19/2026 3:18 PM]
 import streamlit as st
 import pandas as pd
 import os
@@ -107,7 +106,6 @@ else:
     df = load_data()
     menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
 
-Adnan Kemer Yusuf, [1/19/2026 3:18 PM]
 # --- REGISTRATION ---
     if menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa Haaraa")
@@ -1871,4 +1869,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
