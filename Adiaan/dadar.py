@@ -184,7 +184,7 @@ else:
         st.header("📋 Galmeewwan Hundi")
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")mport pandas as pd]
+        st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")mport pandas as pd']
 import os, io
 from datetime import datetime
 from fpdf import FPDF
@@ -1869,6 +1869,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
