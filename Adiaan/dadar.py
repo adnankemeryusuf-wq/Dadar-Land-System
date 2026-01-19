@@ -145,11 +145,6 @@ else:
             st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
             st.rerun()
 
-
-        
-        if st.session_state.pdf_to_download:
-            st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, "Clearance.pdf")
-
     elif menu == "📈 Gabaasa":
         st.header("📈 Gabaasa Waliigalaa")
         st.dataframe(df)
@@ -225,4 +220,5 @@ logo_r = st.sidebar.file_uploader("Logo Mirgaa (Right)", type=['jpg', 'png', 'jp
 
 if logo_l: st.sidebar.image(logo_l, caption="Logo Bittaa", width=100)
 if logo_r: st.sidebar.image(logo_r, caption="Logo Mirgaa", width=100)
+
 
