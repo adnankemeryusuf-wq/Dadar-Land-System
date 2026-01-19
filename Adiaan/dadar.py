@@ -188,10 +188,6 @@ else:
         st.rerun()
 
 
-
-# ================= 1. SETUP =================
-st.set_page_config(page_title="Dadar Land Admin", layout="wide", page_icon="🏢")
-
 if 'pdf_to_download' not in st.session_state:
     st.session_state.pdf_to_download = None
 if 'pdf_name' not in st.session_state:
@@ -355,6 +351,7 @@ with st.form("clearance_form", clear_on_submit=False):
                 st.error(f"Dogoggora: {e}")
         else:
             st.warning("Maaloo, dirree '*' qaban hunda guuti, akkasumas mirkaneessi.")
+
 
 
 
