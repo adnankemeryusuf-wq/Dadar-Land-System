@@ -123,7 +123,7 @@ else:
     # ================= SIDEBAR =================
     if os.path.exists(LOGO_PATH): st.sidebar.image(LOGO_PATH, use_container_width=True)
     st.sidebar.title("Main Menu")
-    menu_options = ["📝 Galmee Haaraa","📊 Dashboard","📈 Gabaasa Bal'aa","🏆 Badhaasa Ogeeyyii","🔍 Barbaadi/Edit","Ba'i"]
+    menu_options = ["📝 Galmee Haaraa","📊 Dashboard","📈 Gabaasa Bal'aa","🏆 Badhaasa Ogeeyyii","🔍 Barbaadi/Edit"]
     menu = st.sidebar.selectbox("Filannoo", menu_options)
     if st.sidebar.button("Logout"):
         st.session_state.logged_in=False
@@ -208,3 +208,4 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
