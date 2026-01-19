@@ -1,3 +1,10 @@
+import streamlit as st
+import pandas as pd
+import os, io
+from datetime import datetime
+from fpdf import FPDF
+from PIL import Image
+from ethiopian_date import EthiopianDateConverter
 
 # ================= 1. SETUP =================
 if 'pdf_to_download' not in st.session_state:
@@ -126,4 +133,12 @@ with st.form("clearance_form"):
             st.rerun()
         else:
             st.error("⚠️ Maaloo odeeffannoo urjii (*) qaban hunda guuti!")
+
+import streamlit as st
+import pandas as pd
+import os, io
+from datetime import datetime
+from fpdf import FPDF
+from PIL import Image
+from ethiopian_date import EthiopianDateConverter
 
