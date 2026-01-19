@@ -7,11 +7,16 @@ from fpdf import FPDF
 import plotly.express as px
 from PIL import Image
 
-# ================= 1. FUNCTIONS & LOGIC =================
+import streamlit as st
+import os
+from datetime import datetime
+from fpdf import FPDF
+
+# ================= 1. FUNCTIONS =================
 
 def get_ethiopian_date_str():
+    # Herrega salphaa (Approximate for 2018 E.C)
     now = datetime.now()
-    # Herrega salphaa (Approximate for 2018-2026 range)
     e_year = now.year - 8 if now.month > 9 or (now.month == 9 and now.day >= 11) else now.year - 9
     e_month = (now.month + 3) % 12 + 1
     e_day = now.day 
@@ -20,30 +25,112 @@ def get_ethiopian_date_str():
 def create_clearance_pdf(data):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
+    
+    # Border (Double line)
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
-    if os.path.exists("logo_bitta.jpg"): pdf.image("logo_bitta.jpg", 15, 18, 23)
-    if os.path.exists("logo_mirga.jpg"): pdf.image("logo_mirga.jpg", 172, 18, 23)
+
+    # --- LOGOS (BITTAA FI MIRGA) ---
+    # Logo Bittaa (Fkn: Mallattoo Oromiyaa)
+    if os.path.exists("logo_bitta.jpg"): 
+        pdf.image("logo_bitta.jpg", 15, 18, 23)
+    
+    # Logo Mirgaa (Fkn: Mallattoo Bulchiinsa Magaalaa)
+    if os.path.exists("logo_mirga.jpg"): 
+        pdf.image("logo_mirga.jpg", 172, 18, 23)
+
+    # --- Header Section ---
     pdf.set_y(22)
     pdf.set_font('Arial', 'B', 15)
     pdf.cell(0, 10, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
     pdf.cell(0, 10, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
+    
     pdf.ln(3); pdf.set_line_width(0.5); pdf.line(20, 56, 190, 56)
+
+    # Date and Ref No
     pdf.ln(12); pdf.set_font('Arial', '', 12)
-    pdf.set_x(20); pdf.write(5, "Lakk. Galmee: "); pdf.set_font('Arial', 'B', 12) 
-    pdf.write(5, f"DAD/WL/2018/____"); pdf.set_font('Arial', '', 12)
-    pdf.set_x(140); pdf.write(5, f"Guyyaa: {get_ethiopian_date_str()}"); pdf.ln(18)
-    pdf.set_font('Arial', 'B', 14); pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(8)
+    pdf.set_x(20)
+    pdf.write(5, "Lakk. Galmee: ")
+    pdf.set_font('Arial', 'B', 12); pdf.write(5, f"DAD/WL/2018/____")
+    pdf.set_font('Arial', '', 12); pdf.set_x(140)
+    pdf.write(5, f"Guyyaa: {get_ethiopian_date_str()}")
+    pdf.ln(18)
+
+    # Subject
+    pdf.set_font('Arial', 'B', 14)
+    pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
+    pdf.ln(8)
+
+    # Body
     pdf.set_font('Arial', '', 12); pdf.set_x(20)
     pdf.write(9, "Waraqaan ragaa kun Obbo/Adde/Dhaabbata ")
     pdf.set_font('Arial', 'B', 12); pdf.write(9, f"{data['maqaa'].upper()}")
-    pdf.set_font('Arial', '', 12); pdf.write(9, f" Araddaa {data['araddaa']} Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n")
-    pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} kaffalaniiru.\n")
-    pdf.write(9, "2. Kaffaltii tajaajilaa hunda xumuran.\n3. Dhorkaa irraa bilisa.\n\n")
-    pdf.set_y(235); pdf.set_x(20); pdf.write(8, f"Maqaa Itti Gaafatamaa: {data['head_name']}\n Mallattoo: _________________")
+    pdf.set_font('Arial', '', 12); pdf.write(9, f" Araddaa {data['araddaa']} keessatti qabiyyee Lakk. Kaartaa ")
+    pdf.set_font('Arial', 'B', 12); pdf.write(9, f"{data['kaartaa']}")
+    pdf.set_font('Arial', '', 12); pdf.write(9, " qabaniif kan kennameedha.\n\n")
+
+    pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n")
+    pdf.write(9, "2. Kaffaltii tajaajilaa hunda raawwatanii kan xumuran ta'uu ni mirkaneessina.\n")
+
+    # --- DHORKAA MANA MURTII ---
+    pdf.set_font('Arial', 'B', 12)
+    pdf.write(9, "3. DHORKAA MANA MURTII: ")
+    pdf.set_font('Arial', '', 12)
+    
+    if data['haala_dhorkaa'] == "Dhorkaa qaba":
+        pdf.set_text_color(200, 0, 0) # Halluu Diimaa (Warning)
+        pdf.write(9, "Qabiyyeen kun DHORKAA MANA MURTII waan qabuuf tajaajilli kamiyyuu akka hin kennamne ni hubachiifna.")
+    else:
+        pdf.write(9, "Lafni/Manni kun dhorkaa mana murtii ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa mirkaneessineera.")
+    
+    pdf.set_text_color(0, 0, 0) # Deebisii gurraacha godhi
+    pdf.ln(12)
+    pdf.write(9, f"Kanaafuu, dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan ni mirkaneessina.")
+
+    # --- Signature ---
+    pdf.set_y(240); pdf.set_x(20)
+    pdf.write(8, f"Maqaa Itti Gaafatamaa: {data['head_name']}\nMallattoo: _________________")
+    pdf.set_y(245); pdf.set_x(130); pdf.set_font('Arial', 'B', 11)
+    pdf.cell(60, 8, "(Chaappaa Waajjiraa)", ln=True, align='R')
+
     return pdf.output(dest='S').encode('latin-1', 'ignore')
+
+# ================= 2. STREAMLIT UI =================
+st.set_page_config(page_title="Dadar Land Admin", layout="wide")
+st.header("📝 Sirna Qophii Waraqaa Qulqullinaa")
+
+if 'pdf_to_download' not in st.session_state:
+    st.session_state.pdf_to_download = None
+
+if st.session_state.pdf_to_download:
+    st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, "Clearance.pdf")
+    if st.button("🔄 Galmee Haaraa"):
+        st.session_state.pdf_to_download = None
+        st.rerun()
+
+with st.form("clearance_form"):
+    c1, c2 = st.columns(2)
+    m_maqaa = c1.text_input("Maqaa Maamilaa *")
+    m_kaartaa = c2.text_input("Lakk. Kaartaa *")
+    m_araddaa = c1.text_input("Araddaa")
+    m_bara = c2.text_input("Bara Gibiraa (Fkn: 2017)")
+    m_dhorkaa = c1.selectbox("Haala Dhorkaa Mana Murtii *", ["Bilisa", "Dhorkaa qaba"])
+    m_dhimma = c2.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+    m_head = st.text_input("Maqaa Itti Gaafatamaa *")
+    
+    if st.form_submit_button("💾 PDF UUMI"):
+        if m_maqaa and m_kaartaa and m_head:
+            data_map = {
+                'maqaa': m_maqaa, 'araddaa': m_araddaa, 'kaartaa': m_kaartaa,
+                'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 'head_name': m_head,
+                'haala_dhorkaa': m_dhorkaa
+            }
+            st.session_state.pdf_to_download = create_clearance_pdf(data_map)
+            st.rerun()
+        else:
+            st.warning("Maaloo, odeeffannoo mallattoo (*) qabu guuti.")
 
 # ================= 2. CONFIGURATION & DATA =================
 LOGO_PATH = "Adiaan/logo.png"
@@ -143,3 +230,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
