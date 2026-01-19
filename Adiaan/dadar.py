@@ -24,16 +24,17 @@ def init_db():
 
 init_db()
 
-# ================= 2. SERVICE LIST =================
+# ================= 2. DATA LISTS =================
 SERVICE_STRUCTURE = {
     "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT"],
-    "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"],
+    "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"],
     "🏗 Pilaanii & Ijaarsa": ["Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa", "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"],
     "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", "Waliigaltee Hiikuu", "Dhimma Dhala"],
     "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii"]
 }
 
 ARADDAA_LIST = ["Araddaa 01", "Araddaa 02", "Araddaa 03", "Araddaa 04", "Araddaa 05"]
+QAXANA_LIST = [str(i) for i in range(1, 11)]  # Lakkoofsa 1 hanga 10 uuma
 
 # ================= 3. PAGES =================
 
@@ -48,9 +49,10 @@ def registration_page():
         sub_cat = col2.selectbox("🔵 Gosa Tajaajilaa", options=SERVICE_STRUCTURE[main_cat])
         
         araddaa = col1.selectbox("📍 Araddaa", options=ARADDAA_LIST)
-        kaffaltii = col2.number_input("Kaffaltii (ETB)", min_value=0.0)
+        qaxana = col2.selectbox("🔢 Qaxana (1-10)", options=QAXANA_LIST)
         
-        nagahee_file = st.file_uploader("Scan Nagahee (Image)", type=['jpg', 'png', 'jpeg'])
+        kaffaltii = col1.number_input("Kaffaltii (ETB)", min_value=0.0)
+        nagahee_file = col2.file_uploader("Scan Nagahee (Image)", type=['jpg', 'png', 'jpeg'])
         
         if st.form_submit_button("💾 Galmeessi"):
             if maqaa and ogeessa:
@@ -62,13 +64,40 @@ def registration_page():
                 
                 conn = sqlite3.connect(DB_FILE)
                 conn.execute("INSERT INTO galmee (guyyaa, maqaa, araddaa, qaxana, tajaajila, ogeessa, kaffaltii, nagahee_path) VALUES (?,?,?,?,?,?,?,?)",
-                             (datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, "-", sub_cat, ogeessa, kaffaltii, n_path))
+                             (datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, sub_cat, ogeessa, kaffaltii, n_path))
                 conn.commit()
                 conn.close()
-                st.success(f"✅ Maamilli {maqaa} milkiin galmeeffameera!")
+                st.success(f"✅ Maamilli {maqaa} (Qaxana {qaxana}) milkiin galmeeffameera!")
                 st.rerun()
             else:
-                st.error("Maaloo, dirree (*) qaban guuti!")
+                st.error("Maaloo, Maqaa fi Ogeessa guuti!")
+
+def search_page(df):
+    st.header("🔍 Barbaadi & Nagahee Ilaali")
+    col1, col2 = st.columns([2, 1])
+    q = col1.text_input("Maqaa maamilaa barreessi...")
+    f_qaxana = col2.selectbox("Filter Qaxana", options=["Hunda"] + QAXANA_LIST)
+
+    # Filter Logic
+    res = df.copy()
+    if q:
+        res = res[res['maqaa'].str.contains(q, case=False, na=False)]
+    if f_qaxana != "Hunda":
+        res = res[res['qaxana'] == f_qaxana]
+
+    if not res.empty:
+        for _, row in res.iterrows():
+            with st.expander(f"📄 {row['maqaa']} | Qaxana: {row['qaxana']} | {row['guyyaa']}"):
+                c1, c2 = st.columns([2, 1])
+                c1.write(f"**Tajaajila:** {row['tajaajila']}\n\n**Araddaa:** {row['araddaa']}\n\n**Kaffaltii:** {row['kaffaltii']} ETB")
+                if row['nagahee_path'] and os.path.exists(row['nagahee_path']):
+                    c2.image(row['nagahee_path'], caption="Scan Nagahee")
+                else:
+                    c2.info("Scan nagahee hin jiru.")
+    else:
+        st.warning("Maamilli barbaaddan hin jiru.")
+
+# ================= 4. DASHBOARD & MAIN =================
 
 def show_dashboard(df):
     st.title("🏢 Dadar Land Admin Dashboard")
@@ -86,29 +115,13 @@ def show_dashboard(df):
         st.plotly_chart(fig_pie, use_container_width=True)
     
     with col_right:
-        df['Guyyaa_Obj'] = pd.to_datetime(df['guyyaa'], format='%d/%m/%Y')
-        trend = df.groupby('guyyaa')['kaffaltii'].sum().reset_index()
-        fig_line = px.line(trend, x='guyyaa', y='kaffaltii', title="Trendii Galii Guyyaatti", markers=True)
-        st.plotly_chart(fig_line, use_container_width=True)
+        # Bar chart galii Qaxanaan
+        qaxana_revenue = df.groupby('qaxana')['kaffaltii'].sum().reset_index()
+        fig_bar = px.bar(qaxana_revenue, x='qaxana', y='kaffaltii', title="Galii Qaxanaan", color='qaxana')
+        st.plotly_chart(fig_bar, use_container_width=True)
 
-def search_page(df):
-    st.header("🔍 Barbaadi & Nagahee Ilaali")
-    q = st.text_input("Maqaa maamilaa barreessi...")
-    if q:
-        res = df[df['maqaa'].str.contains(q, case=False, na=False)]
-        for _, row in res.iterrows():
-            with st.expander(f"📄 {row['maqaa']} - {row['tajaajila']}"):
-                c1, c2 = st.columns([2, 1])
-                c1.write(f"**Guyyaa:** {row['guyyaa']}\n\n**Kaffaltii:** {row['kaffaltii']} ETB\n\n**Ogeessa:** {row['ogeessa']}")
-                if row['nagahee_path'] and os.path.exists(row['nagahee_path']):
-                    c2.image(row['nagahee_path'], caption="Scan Nagahee")
-                else:
-                    c2.warning("Scan nagahee hin jiru.")
-
-# ================= 4. MAIN NAVIGATION =================
-
-if 'logged_in' not in st.session_state: 
-    st.session_state.logged_in = False
+# Main Navigation Logic
+if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
     st.title("🔐 Login: Dadar Land Admin")
@@ -129,7 +142,7 @@ else:
 
     if menu == "📊 Dashboard":
         if not df.empty: show_dashboard(df)
-        else: st.info("Data'n galmeeffame hin jiru.")
+        else: st.info("Data'n hin jiru.")
     elif menu == "📝 Galmee Haaraa":
         registration_page()
     elif menu == "📈 Gabaasa":
