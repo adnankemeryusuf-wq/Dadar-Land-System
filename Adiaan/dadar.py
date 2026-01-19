@@ -19,14 +19,31 @@ BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
 CHAT_ID_MANAGER = "YOUR_CHAT_ID"
 
 SERVICE_STRUCTURE = {
-    "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo","Gibira Lafa Qonnaa","Kaffaltii Liizii Waggaa","Kaffaltii Liizii Duraa","TOT","Jijjiirraa Maqaa"],
-    "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa","Kaartaa Bakka Bu'aa","Kaartaa Kadastaaraa","Jijjiirraa Maqaa","Sirreeffama Daangaa","Kaartaa Lafa Qoonnaa"],
-    "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa","Itti Fayyadama Lafaa","Humna Mahandisummaa"],
-    "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii","Ugura Kaasuu","Waliigaltee Liqii Baankii","Waliigaltee Hiikuu","Dhimma Dhala"],
-    "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)","Deebii Iyyannoo"],
-    "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa","Kaffaltii Seeressuu","Adabbii Faallaa Pilaanii"]
+    "🏷 Gibira & Kaffaltii": [
+        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
+        "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
+    ],
+    "📜 Kaartaa & Qabiyyee": [
+        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
+        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
+    ],
+    "🏗 Pilaanii & Ijaarsa": [
+      "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+       "Humna Mahandisummaa"
+    ],
+    "⚖️ Dhimma Seeraa": [
+        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
+        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
+    ],
+    "📂 Tajaajila Biroo": [
+        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo)"
+    ],
+    "⚖️ Adabbii & Seeressuu": [
+        "Adabbii Ijaarsa Seeraan Alaa",
+        "Kaffaltii Seeressuu (Regularization)",
+        "Adabbii Faallaa Pilaanii"
+    ],
 }
-
 # ================= DIRECTORY =================
 if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
@@ -220,3 +237,4 @@ def auto_daily_report():
         time.sleep(30)
 
 threading.Thread(target=auto_daily_report,daemon=True).start()
+
