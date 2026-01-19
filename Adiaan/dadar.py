@@ -1,4 +1,3 @@
-Adnan Kemer Yusuf, [1/19/2026 9:36 PM]
 import streamlit as st
 import pandas as pd
 import os
@@ -100,7 +99,7 @@ def create_certificate(name, count, rank, l_l, l_r, sig):
 # ================= 4. MAIN NAVIGATION =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
-Adnan Kemer Yusuf, [1/19/2026 9:36 PM]
+
 if not st.session_state.logged_in:
     # Login Section
     st.title("🔐 Dadar Land Admin Login")
@@ -175,3 +174,4 @@ else:
             st.subheader("Trendii Kaffaltii")
             fig = px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa')
             st.plotly_chart(fig, use_container_width=True)
+
