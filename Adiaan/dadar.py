@@ -297,7 +297,7 @@ def create_certificate(name, count, rank, l_l, l_r, sig):
     # Logo
     if l_l: 
         with open("tmp_l.png", "wb") as f: f.write(l_l.getbuffer())
-        pdf.image("tmp_l.png", 20, 15, 30)}
+        pdf.image("tmp_l.png", 20, 15, 30)
     
     pdf.set_y(50); pdf.set_font('Arial', 'B', 30); pdf.cell(0, 10, "SARTIIFIKEETA BEEKAMTII", 0, 1, 'C')
     pdf.set_font('Arial', '', 20); pdf.cell(0, 20, f"Obbo/Adde: {name}", 0, 1, 'C')
@@ -468,6 +468,7 @@ elif menu == "🏆 Badhaasa":
     st.header("🏆 Ogeeyyii Baay'ee Hojjetan")
     if not df.empty:
         st.bar_chart(df['Maqaa_Ogeessa'].value_counts())
+
 
 
 
