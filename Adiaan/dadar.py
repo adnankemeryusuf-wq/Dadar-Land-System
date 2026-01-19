@@ -172,10 +172,10 @@ SERVICE_STRUCTURE = {
     ]
 }
         
-elif menu == "📝 Galmee Tajaajilaa":
+elif menu == "📝 Galmee Haaraa":  # Menu sidebar waliin maqaan isaa tokko ta'uu qaba
         st.header("📝 Galmee Tajaajilaa Haaraa")
         
-        # 1. Filannoo tajaajilaa (Gatii herreguuf)
+        # 1. Filannoo tajaajilaa
         selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
         
         details = []
@@ -184,14 +184,54 @@ elif menu == "📝 Galmee Tajaajilaa":
         
         if selected_main:
             for g in selected_main:
-                # Key m_g akka wal hin makneef
                 subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
                 for s in subs:
                     details.append(f"{g}({s})")
-                    # Kafaltii tokko tokkoon galchuu
                     d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
                     if s == "TOT": 
                         is_tot = True
+
+        # 2. Uunka Odeeffannoo Abbaa Dhimmaa
+        with st.form("entry_form", clear_on_submit=True):
+            st.markdown("### 📋 Odeeffannoo Abbaa Dhimmaa")
+            
+            if is_tot:
+                col1, col2 = st.columns(2)
+                with col1:
+                    gurg_m = st.text_input("Maqaa Gurguraa")
+                    gurg_a = st.text_input("Araddaa Gurguraa")
+                    gurg_q = st.text_input("Qaxana Gurguraa")
+                with col2:
+                    bit_m = st.text_input("Maqaa Bitataa")
+                    bit_a = st.text_input("Araddaa Bitataa")
+                    bit_q = st.text_input("Qaxana Bitataa")
+                
+                maqaa_f = f"G: {gurg_m} / B: {bit_m}"
+                ara_f = f"G: {gurg_a} / B: {bit_a}"
+                qax_f = f"G: {gurg_q} / B: {bit_q}"
+            else:
+                c1, c2 = st.columns(2)
+                maqaa_f = c1.text_input("Maqaa Abbaa Dhimmaa")
+                ara_f = c2.text_input("Araddaa")
+                qax_f = c1.text_input("Qaxana")
+            
+            ogeessa = st.text_input("Maqaa Ogeessaa")
+            
+            # 3. Galmeessu
+            if st.form_submit_button("💾 Galmeessi"):
+                if maqaa_f and details and ogeessa:
+                    now_str = datetime.now().strftime('%d/%m/%Y')
+                    total_sum = sum(d_fees.values())
+                    
+                    new_row = [now_str, maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, total_sum]
+                    
+                    # Data galmeessu
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    st.success(f"✅ Tajaajilli {maqaa_f} galmeeffameera!")
+                    st.balloons()
+                else:
+                    st.error("⚠️ Maaloo odeeffannoo guutuu galchi!")
 
         # 2. Uunka Odeeffannoo Abbaa Dhimmaa
         with st.form("entry_form", clear_on_submit=True):
@@ -300,6 +340,7 @@ elif menu == "📝 Galmee Tajaajilaa":
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
