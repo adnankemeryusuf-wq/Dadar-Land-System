@@ -78,7 +78,7 @@ if not st.session_state.logged_in:
     
     with col_mid:
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
-        st.markdown("<h2 style='text-align:center; color:#2c3e50;'>🔐 Dadar Land Admin</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align:center; color:#2c3e50;'> Dadar Land Admin</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align:center; color:#7f8c8d;'>Maaloo seenuuf maqaa fi koodii guutaa</p>", unsafe_allow_html=True)
         
         with st.form("login_form"):
@@ -146,6 +146,7 @@ else:
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.table(res)
+
 
 
 
