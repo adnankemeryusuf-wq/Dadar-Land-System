@@ -126,4 +126,60 @@ else:
     df = load_data()
     with st.sidebar:
         st.markdown(f"Logged in as: **{st.session_state.role.upper()}**")
-        menu = st.radio("MENU", ["📊 Dashboard","📝 Galmee
+        menu = st.radio("MENU", ["📊 Dashboard","📝 Galmee Haaraa","🏆 Badhaasa","🔍 Barbaadi & Clearance"])
+        if st.button("Logout"): st.session_state.logged_in=False; st.rerun()
+
+    # --- DASHBOARD ---
+    if menu=="📊 Dashboard" and not df.empty:
+        c1,c2,c3=st.columns(3)
+        c1.metric("Waliigala Galii",f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+        c2.metric("Maamiltoota",len(df))
+        c3.metric("Ogeeyyii",df['Maqaa_Ogeessa'].nunique())
+        fig1=px.pie(df, values='Kafaltii_Taj', names='Araddaa', hole=0.5)
+        st.plotly_chart(fig1,use_container_width=True)
+        fig2=px.bar(df, x='Maqaa_Ogeessa', y='Kafaltii_Taj', color='Gosa_Tajajjilaa')
+        st.plotly_chart(fig2,use_container_width=True)
+        st.download_button("📥 Gabaasa CSV", df.to_csv(index=False).encode('utf-8'),"Gabaasa_Dadar.csv","text/csv")
+
+    # --- REGISTRATION ---
+    elif menu=="📝 Galmee Haaraa":
+        with st.form("RegForm"):
+            c1,c2=st.columns(2)
+            name=c1.text_input("Maqaa Abbaa Dhimmaa")
+            ara=c1.text_input("Araddaa")
+            gosa=c2.selectbox("Gosa Tajaajilaa", sum(SERVICE_STRUCTURE.values(),[]))
+            fee=c2.number_input("Kaffaltii (ETB)", min_value=0.0)
+            og=c1.text_input("Maqaa Ogeessaa")
+            nagahee=st.file_uploader("Nagahee Scan", type=['jpg','png'])
+            if st.form_submit_button("💾 GALMEESSI"):
+                if name and og:
+                    final_fee = fee*0.02 if 'TOT' in gosa else fee
+                    path=""
+                    if nagahee: path=os.path.join(NAGAHEE_DIR,f"{name}_{datetime.now().strftime('%H%M%S')}.jpg"); open(path,'wb').write(nagahee.getbuffer())
+                    save_row([datetime.now().strftime('%d/%m/%Y'),name,ara,'-',gosa,og,final_fee,path])
+                    st.success(f"Galmeeffameera! Kaffaltii: {final_fee:,.2f} ETB")
+
+    # --- SEARCH & CLEARANCE ---
+    elif menu=="🔍 Barbaadi & Clearance":
+        search=st.text_input("Maqaa ykn Araddaa")
+        if search and not df.empty:
+            res=df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(search,case=False)|df['Araddaa'].str.contains(search,case=False)]
+            if not res.empty:
+                for idx,row in res.iterrows():
+                    st.markdown(f"<div class='card'><h4>{row['Maqaa_Abbaa_Dhimmaa']}</h4><p>{row['Gosa_Tajajjilaa']} | {row['Kafaltii_Taj']} ETB</p></div>",unsafe_allow_html=True)
+                    pdf_data=generate_pro_pdf('Clearance',row['Maqaa_Abbaa_Dhimmaa'],row)
+                    st.download_button(f"📥 Clearance PDF",pdf_data,f"Clearance_{row['Maqaa_Abbaa_Dhimmaa']}.pdf")
+                    if st.session_state.role=='admin':
+                        if st.button("🗑 Haqi",key=f"del_{idx}"):
+                            conn=get_conn(); conn.execute("DELETE FROM galmee WHERE id=?",(row['id'],)); conn.commit(); conn.close(); st.rerun()
+
+    # --- AWARDS ---
+    elif menu=="🏆 Badhaasa" and not df.empty:
+        logo_up=st.file_uploader("Logo Upload", type=['png','jpg'])
+        top3=df['Maqaa_Ogeessa'].value_counts().head(3)
+        cols=st.columns(3)
+        for i,(og_name,count) in enumerate(top3.items()):
+            with cols[i]:
+                st.markdown(f"<div class='card'><h2>#{i+1}</h2><h3>{og_name}</h3><p>Tajaajila: {count}</p></div>",unsafe_allow_html=True)
+                cert=generate_pro_pdf('Cert',og_name,{'TotalClients':count},logo_up)
+                st.download_button(f"📥 Certificate",cert,f"Cert_{og_name}.pdf")
