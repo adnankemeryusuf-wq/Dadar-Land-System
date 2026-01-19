@@ -157,6 +157,90 @@ if not st.session_state.logged_in:
         if u == "DAD" and p == "2026": 
             st.session_state.logged_in = True
             st.rerun()
+# ================= 4. NAVIGATION & PAGES =================
+if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    _, col_mid, _ = st.columns([1, 1, 1])
+    with col_mid:
+        st.header("🏢 Admin Login")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.button("Seeni"):
+            if u == "admin" and p == "123":
+                st.session_state.logged_in = True
+                st.rerun()
+            else:
+                st.error("Username ykn Password dogoggora!")
+else:
+    df = load_data()
+    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa", "🏆 Badhaasa", "🔍 Barbaadi", "Ba'i"])
+
+    if menu == "📊 Dashboard":
+        st.header("📊 Dashboard Overview")
+        if not df.empty:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("💰 Galii Waliigalaa", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+            c2.metric("👥 Maamiltoota", len(df))
+            c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
+            st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0))
+
+    elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Tajaajilaa")
+        GATII_DICT = {
+            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Gibira Manaa"],
+            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "TOT"],
+            "Kaartaa": ["Kaartaa Haaraa", "Kaartaa Haaromsuu"]
+        }
+        
+        selected_main = st.multiselect("Gosa Tajaajilaa:", list(GATII_DICT.keys()))
+        details, fees = [], 0
+        
+        if selected_main:
+            for g in selected_main:
+                subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g])
+                for s in subs:
+                    details.append(f"{g}-{s}")
+                    f_val = st.number_input(f"Kaffaltii {s}:", min_value=0.0)
+                    fees += f_val
+
+        with st.form("main_form"):
+            name = st.text_input("Maqaa Maamilaa")
+            ara = st.text_input("Araddaa")
+            ogeessa = st.text_input("Maqaa Ogeessaa")
+            nagahee = st.file_uploader("Nagahee (Scan)", type=['jpg','png'])
+            
+            if st.form_submit_button("💾 Galmeessi"):
+                if name and details and ogeessa:
+                    if nagahee:
+                        f_name = f"{name}_{datetime.now().strftime('%H%M%S')}.jpg"
+                        with open(os.path.join(NAGAHEE_DIR, f_name), "wb") as f:
+                            f.write(nagahee.getbuffer())
+                    
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, "-", ", ".join(details), ogeessa, fees]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    st.success("Galmeeffameera!")
+                else:
+                    st.error("Odeeffannoo guuti!")
+
+    elif menu == "🏆 Badhaasa":
+        st.header("🏆 Beekamtii Ogeeyyii")
+        l_l = st.file_uploader("Logo Bitaa", type=['png','jpg'])
+        l_r = st.file_uploader("Logo Mirgaa", type=['png','jpg'])
+        
+        if not df.empty:
+            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            for i, (name, count) in enumerate(top_3.items(), 1):
+                st.write(f"**{i}. {name}** - {count} Hojii")
+                pdf_bytes = create_advanced_pdf(name, count, i, l_l, l_r)
+                st.download_button(f"📥 PDF {name}", pdf_bytes, f"Cert_{name}.pdf")
+
+    elif menu == "Ba'i":
+        st.session_state.logged_in = False
+        st.rerun()
+
+
 
 
 
