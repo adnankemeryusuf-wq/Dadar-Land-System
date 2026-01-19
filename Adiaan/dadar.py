@@ -26,18 +26,83 @@ DATA_FILE = "dadar_final_report.txt"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
 MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
+import streamlit as st
 
+# CSS Style Halluu #1b5e20 irratti hundaa'e
 st.markdown("""
     <style>
-    .stApp { background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%); }
-    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
-    [data-testid="stSidebar"] * { color: #ffffff !important; }
-    div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; margin-bottom: 10px; }
-    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; border: none; }
+    /* 1. Background appii guutuu */
+    .stApp {
+        background-color: #f4f7f6;
+    }
+
+    /* 2. Sidebar (Bitaa) - Halluu #1b5e20 guutuu */
+    [data-testid="stSidebar"] {
+        background-color: #1b5e20 !important;
+    }
+    
+    /* Barreeffama Sidebar adii gochuuf */
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
+
+    /* 3. Mata duree (Headers) */
+    h1, h2, h3 {
+        color: #1b5e20 !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* 4. Buttoonii (Buttons) */
+    .stButton>button {
+        background-color: #1b5e20;
+        color: white;
+        border-radius: 20px;
+        border: none;
+        padding: 10px 24px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    
+    .stButton>button:hover {
+        background-color: #2e7d32; /* Yeroo tuqamu xiqqoo ifa */
+        color: #ffd700; /* Halluu Warqee (Gold) */
+        border: 1px solid #ffd700;
+    }
+
+    /* 5. Kaardiiwwan Gabaasaa (Metric Cards) */
+    [data-testid="stMetricValue"] {
+        color: #1b5e20 !important;
+        font-weight: bold;
+    }
+
+    /* 6. Formiiwwan (Input Fields) */
+    div.stForm {
+        border: 2px solid #1b5e20;
+        border-radius: 15px;
+        padding: 20px;
+        background-color: white;
+    }
+    
+    /* 7. Progress Bar fi Checkbox */
+    .stProgress > div > div > div > div {
+        background-color: #1b5e20;
+    }
     </style>
     """, unsafe_allow_html=True)
 
+# Fakkeenya itti fayyadamaa
+st.title("🏢 Bulchiinsa Lafa Magaalaa")
+st.sidebar.header("Dadar Admin")
+st.sidebar.button("Galmee Haaraa")
+
+col1, col2 = st.columns(2)
+col1.metric("Waliigala Galii", "500,000 ETB")
+col2.metric("Maamiltoota", "1,240")
+
+with st.form("my_form"):
+    st.write("Odeeffannoo asitti galchi")
+    st.text_input("Maqaa")
+    st.form_submit_button("💾 Save")
 # ================= 2. CORE FUNCTIONS =================
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
@@ -390,6 +455,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
