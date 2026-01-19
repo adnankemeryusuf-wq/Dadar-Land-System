@@ -297,11 +297,11 @@ def create_certificate(name, count, rank, l_l, l_r, sig):
     # Logo
     if l_l: 
         with open("tmp_l.png", "wb") as f: f.write(l_l.getbuffer())
-        pdf.image("tmp_l.png", 20, 15, 30)
+        pdf.image("tmp_l.png", 20, 15, 30)}
     
     pdf.set_y(50); pdf.set_font('Arial', 'B', 30); pdf.cell(0, 10, "SARTIIFIKEETA BEEKAMTII", 0, 1, 'C')
     pdf.set_font('Arial', '', 20); pdf.cell(0, 20, f"Obbo/Adde: {name}", 0, 1, 'C')
-    pdf.set_font('Arial', '', 14); pdf.multi_cell(0, 10, f"Waggaa 2026 keessatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru.", align='C')
+    pdf.set_font('Arial', '', 14); pdf.multi_cell(0, 10, f"Waggaa 2026 keessatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru.", align='C')}
     
     # Signature
     if sig:
@@ -309,7 +309,7 @@ def create_certificate(name, count, rank, l_l, l_r, sig):
         pdf.image("tmp_sig.png", 50, 160, 30)
     
     pdf.line(40, 180, 100, 180); pdf.set_xy(40, 182); pdf.cell(60, 10, "Itti Gaafatamaa", align='C')
-    return pdf.output(dest='S').encode('latin-1', 'replace')
+    return pdf.output(dest='S').encode('latin-1', 'replace')}
 
 # ================= 4. MAIN NAVIGATION =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
@@ -409,7 +409,7 @@ else:
 
 # --- GALMEE & CLEARANCE ---
 elif menu == "📝 Galmee & Clearance":
-    st.header("📝 Galmee fi Qophii Clearance")
+    st.header("📝 Galmee fi Qophii Clearance")}
     
     # Logo Configuration in Sidebar
     st.sidebar.subheader("⚙️ Qindaa'ina Mallattoo")
@@ -468,6 +468,7 @@ elif menu == "🏆 Badhaasa":
     st.header("🏆 Ogeeyyii Baay'ee Hojjetan")
     if not df.empty:
         st.bar_chart(df['Maqaa_Ogeessa'].value_counts())
+
 
 
 
