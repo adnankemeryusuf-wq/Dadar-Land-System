@@ -138,7 +138,7 @@ else:
         
         with st.form("reg_form"):
             c1, c2 = st.columns(2)
-            name = c1.text_input("Maqaa Maamilaa")
+            name = c1.text_input("Maqaa Abbaa Dhimmaa")
             ara = c2.text_input("Araddaa")
             qax = c1.text_input("Qaxana")
             ogeessa = c2.text_input("Ogeessa Raawwate")
@@ -173,4 +173,5 @@ else:
             st.subheader("Trendii Kaffaltii")
             fig = px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa')
             st.plotly_chart(fig, use_container_width=True)
+
 
