@@ -78,7 +78,7 @@ if 'role' not in st.session_state: st.session_state.role = None
 if not st.session_state.logged_in:
     if os.path.exists(LOGO_PATH):
         st.image(LOGO_PATH, width=120)
-    st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+    st.title("Dadar Land Administration Customer Registration System")
     with st.form("Login"):
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
@@ -180,5 +180,6 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
 
 
