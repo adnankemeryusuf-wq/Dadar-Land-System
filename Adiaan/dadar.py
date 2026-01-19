@@ -55,11 +55,9 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.add_page()
     rank_color = (255, 215, 0) if rank == 1 else (192, 192, 192) if rank == 2 else (205, 127, 50)
     
-    # Border & Design
     pdf.set_draw_color(0, 80, 0); pdf.set_line_width(3); pdf.rect(10, 10, 277, 190)
     pdf.set_draw_color(*rank_color); pdf.set_line_width(1.5); pdf.rect(13, 13, 271, 184)
     
-    # Title
     pdf.set_y(50); pdf.set_font('Arial', 'B', 35); pdf.set_text_color(*rank_color)
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     pdf.set_font('Arial', 'B', 25); pdf.set_text_color(0, 80, 0)
@@ -96,59 +94,57 @@ else:
             c1, c2, c3 = st.columns(3)
             c1.markdown(f"<div class='card'><p>💰 Galii</p><p class='metric-value'>{df['Kafaltii_Taj'].sum():,.2f}</p></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
+        else:
+            st.info("Ragaan galmeeffame hin jiru.")
 
- # --- REGISTRATION ---
-    if menu == "📝 Galmee Haaraa":
+    # --- REGISTRATION ---
+    elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa Haaraa")
-SERVICE_STRUCTURE = {
-    "🏷 Gibira & Kaffaltii": [
-        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
-        "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
-    ],
-    "📜 Kaartaa & Qabiyyee": [
-        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
-        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"
-    ],
-    "🏗 Pilaanii & Ijaarsa": [
-        "Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
-        "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"
-    ],
-    "⚖️ Dhimma Seeraa": [
-        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
-        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
-    ],
-    "📂 Tajaajila Biroo": [
-        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
-    ]
-}
-
-
-        # 1. Filannoo Gosa Tajaajilaa (Dirqama akka filatamuuf)
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu (Dirqama)", list(GATII_DICT.keys()))
         
+        SERVICE_STRUCTURE = {
+            "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "TOT"],
+            "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa"],
+            "🏗 Pilaanii & Ijaarsa": ["Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Humna Mahandisummaa"],
+            "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
+            "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"]
+        }
+
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(SERVICE_STRUCTURE.keys()))
         details, d_fees = [], {}
+        
         if selected_main:
             for g in selected_main:
-                subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
+                subs = st.multiselect(f"Tajaajila {g}:", SERVICE_STRUCTURE[g], key=f"m_{g}")
                 for s in subs:
                     details.append(f"{g}({s})")
                     d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
 
-        # 2. Form Galmee
         with st.form("entry_form", clear_on_submit=True):
             st.markdown("##### Odeeffannoo Maamilaa")
             c1, c2 = st.columns(2)
-            
-            # Form validation: placeholder fi label irratti "Required" dabalameera
-            maqaa_f = c1.text_input("Maqaa Abbaa Dhimmaa *", placeholder="Maqaa guutuu barreessi")
-            ara_f = c2.text_input("Araddaa *", placeholder="Araddaa  Dhimma")
-            qax_f = c1.text_input("Qaxana *", placeholder="Qaxana Abbaa Dhimma")
-            ogeessa = c2.text_input("Maqaa Ogeessaa *", placeholder="Maqaa Ogeessa")
-            
+            maqaa_f = c1.text_input("Maqaa Abbaa Dhimmaa *")
+            ara_f = c2.text_input("Araddaa *")
+            qax_f = c1.text_input("Qaxana *")
+            ogeessa = c2.text_input("Maqaa Ogeessaa *")
             nagahee_file = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png','jpeg'])
 
-            # Button submit
-            submit = st.form_submit_button("💾 Galmeessi")
+            if st.form_submit_button("💾 Galmeessi"):
+                if maqaa_f and details and ogeessa:
+                    # Save receipt if exists
+                    if nagahee_file:
+                        f_name = f"{maqaa_f.replace(' ','_')}_{datetime.now().strftime('%H%M%S')}.jpg"
+                        with open(os.path.join(NAGAHEE_DIR, f_name), "wb") as f:
+                            f.write(nagahee_file.getbuffer())
+                    
+                    # Update Data
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values())]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    st.success("✅ Galmeeffameera!")
+                    st.rerun()
+                else:
+                    st.warning("Maaloo odeeffannoo dirqamaa (*) guutaa.")
+
     # --- BADHAASA OGEEYYII ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Sadarkaa Ogeeyyii")
@@ -159,7 +155,14 @@ SERVICE_STRUCTURE = {
                 with cols[i]:
                     st.markdown(f"<div class='card'><h3>{name}</h3><p>Hojii: {count}</p></div>", unsafe_allow_html=True)
                     pdf = create_advanced_pdf(name, count, i+1)
-                    st.download_button(f"📥 Sartiifiketa", pdf, f"{name}.pdf", "application/pdf")
+                    st.download_button(f"📥 Sartiifiketa", pdf, f"{name}.pdf", "application/pdf", key=f"btn_{i}")
+        else:
+            st.info("Ragaan ogeeyyii hin jiru.")
 
-
-
+    # --- BARBAADI / EDIT ---
+    elif menu == "🔍 Barbaadi/Edit":
+        st.header("🔍 Barbaadi fi Sirreessi")
+        q = st.text_input("Maqaa Abbaa Dhimmaa Barbaadi...")
+        if q and not df.empty:
+            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            st.dataframe(res[COL_NAMES])
