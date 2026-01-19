@@ -94,7 +94,7 @@ def create_pdf_cert(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1','replace')
 
 # ================= STYLING =================
-st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="Wide")
+st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="wide")
 st.markdown("""
 <style>
 .stApp { background-color: #f4f7f9; }
@@ -111,7 +111,7 @@ if 'role' not in st.session_state: st.session_state.role=None
 USER_CREDENTIALS = {"admin":"1234","staff":"1234"}
 
 if not st.session_state.logged_in:
-    if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=70)
+    if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
     st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
     with st.form("Login"):
         u = st.text_input("Username")
@@ -212,5 +212,3 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
-
-
