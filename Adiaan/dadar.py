@@ -24,7 +24,7 @@ st.set_page_config(
 # Halluu fi Style
 st.markdown("""
     <style>
-    .stApp { background: #f4f7f6; }
+    .stApp { background: #f4f7f9; }
     div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
     .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
     </style>
@@ -184,3 +184,4 @@ else:
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
+
