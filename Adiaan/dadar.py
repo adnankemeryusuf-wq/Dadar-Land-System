@@ -1,5 +1,11 @@
-
-
+import streamlit as st
+import pandas as pd
+import os
+import io
+import requests
+from datetime import datetime
+from fpdf import FPDF
+import plotly.express as px
 
 # --- LOGIN LOGIC ---
 if 'logged_in' not in st.session_state:
@@ -38,14 +44,6 @@ else:
         st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
 
 
-import streamlit as st
-import pandas as pd
-import os
-import io
-import requests
-from datetime import datetime
-from fpdf import FPDF
-import plotly.express as px
 
 # ================= 1. CONFIGURATION & STYLE =================
 LOGO_PATH = "Adiaan/logo.png"
@@ -359,6 +357,7 @@ else:
             st.image(LOGO_PATH, width=80)
     with col2:
         st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+
 
 
 
