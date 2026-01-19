@@ -8,18 +8,23 @@ from fpdf import FPDF
 import plotly.express as px
 
 # ================= 1. CONFIGURATION & STYLE =================
-LOGO_PATH = "Adiaan/logo.png"
+LLOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
 
+# Folderoota barbaachisoo uumuu
 if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
 
 st.set_page_config(
-    page_title="Dadar Land Admin Pro", 
+    page_title="Dadar Land Administration System", 
     page_icon="🏢", 
     layout="wide"
 )
+
+
 
 # Halluu fi Style
 st.markdown("""
@@ -185,4 +190,5 @@ else:
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
+
 
