@@ -50,7 +50,7 @@ SERVICE_STRUCTURE = {
         "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
     ],
     "📂 Tajaajila Biroo": [
-        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
+        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo)"
     ]
 }
 
@@ -184,4 +184,5 @@ else:
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
+
 
