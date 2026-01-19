@@ -97,19 +97,30 @@ else:
             c1.markdown(f"<div class='card'><p>💰 Galii</p><p class='metric-value'>{df['Kafaltii_Taj'].sum():,.2f}</p></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
 
-    # REGISTRATION
-    elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa")
-        
-        # Gosa tajaajilaa filachuuf
-        GATII_DICT = {
-            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
-            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
-            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
-            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa"],
-            "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
-            "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
-        }
+ # ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
+# Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
+SERVICE_STRUCTURE = {
+    "🏷 Gibira & Kaffaltii": [
+        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
+        "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
+    ],
+    "📜 Kaartaa & Qabiyyee": [
+        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
+        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"
+    ],
+    "🏗 Pilaanii & Ijaarsa": [
+        "Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+        "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"
+    ],
+    "⚖️ Dhimma Seeraa": [
+        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
+        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
+    ],
+    "📂 Tajaajila Biroo": [
+        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
+    ]
+}
+
 
         # 1. Filannoo Gosa Tajaajilaa (Dirqama akka filatamuuf)
         selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu (Dirqama)", list(GATII_DICT.keys()))
@@ -148,4 +159,5 @@ else:
                     st.markdown(f"<div class='card'><h3>{name}</h3><p>Hojii: {count}</p></div>", unsafe_allow_html=True)
                     pdf = create_advanced_pdf(name, count, i+1)
                     st.download_button(f"📥 Sartiifiketa", pdf, f"{name}.pdf", "application/pdf")
+
 
