@@ -194,27 +194,98 @@ if menu == "📈 Gabaasa Bal'aa":
             st.metric("Galii Filtarii", f"{filtered['Kafaltii_Taj'].sum():,.2f} ETB")
 
     # --- 4. BADHAASA OGEEYYII (PDF) ---
-    elif menu == "🏆 Badhaasa Ogeeyyii":
-        st.header("🏆 Sartiifiikeeta Ogeeyyii Cimaa")
-        if not df.empty:
-            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-            cols = st.columns(3)
-            medals = ["🥇 1FFAA", "🥈 2FFAA", "🥉 3FFAA"]
-            for i, (name, count) in enumerate(top_3.items()):
-                with cols[i]:
-                    st.markdown(f"<div class='card'><h2>{medals[i]}</h2><h3>{name}</h3><p>Abbootii Dhimmaa: {count}</p></div>", unsafe_allow_html=True)
-                    pdf_data = create_pdf_cert(name, count, i+1)
-                    st.download_button(f"📥 Download PDF {i+1}", pdf_data, f"Cert_{name}.pdf", "application/pdf")
-        else: st.warning("Data'n hin jiru.")
+elif menu == "🏆 Badhaasa Ogeeyyii":
+    st.header("🏆 Sartiifiikeeta Ogeeyyii Cimaa")
 
-    # --- 5. SEARCH / EDIT ---
-    elif menu == "🔍 Barbaadi/Edit":
-        q = st.text_input("Maqaa Barbaadi...")
-        if q:
-            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+    if df.empty:
+        st.warning("Ragaan hin jiru.")
+    else:
+        top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+        medals = ["🥇 1FFAA", "🥈 2FFAA", "🥉 3FFAA"]
+        cols = st.columns(len(top_3))
+
+        for i, (name, count) in enumerate(top_3.items()):
+            with cols[i]:
+                # Display card
+                st.markdown(
+                    f"""
+                    <div class='card' style='padding:15px; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.15); text-align:center;'>
+                        <h2>{medals[i]}</h2>
+                        <h3>{name}</h3>
+                        <p>Abbootii Dhimmaa: {count}</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                # Generate PDF certificate
+                def create_pdf_cert(name, count, rank):
+                    pdf = FPDF('P', 'mm', 'A4')
+                    pdf.add_page()
+
+                    # Add border
+                    pdf.set_line_width(0.5)
+                    pdf.rect(10, 10, 190, 277)
+
+                    # Add logo (optional)
+                    logo_path = "logo.png"  # place your logo here
+                    if os.path.exists(logo_path):
+                        pdf.image(logo_path, 80, 15, 50)
+
+                    pdf.ln(40)
+                    pdf.set_font("Times", 'B', 22)
+                    pdf.cell(0, 10, "🏆 Sartiifiikeeta Ogeeyyii", ln=True, align="C")
+
+                    pdf.ln(10)
+                    pdf.set_font("Times", '', 16)
+                    pdf.multi_cell(
+                        0, 10,
+                        f"Maqaa Ogeessaa: {name}\n"
+                        f"Baay'ina Abbootii Dhimmaa: {count}\n"
+                        f"Sadarkaa: {rank}"
+                    )
+                    pdf.ln(15)
+                    pdf.cell(0, 10, "Bakka: Waajjira Lafoo Dadar", ln=True, align="C")
+                    pdf.cell(0, 10, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align="C")
+
+                    return pdf.output(dest="S").encode("latin-1")
+
+                pdf_data = create_pdf_cert(name, count, i+1)
+                st.download_button(
+                    f"📥 Download PDF {i+1}",
+                    pdf_data,
+                    f"Cert_{name.replace(' ','_')}.pdf",
+                    "application/pdf"
+                )
+
+# --- 5. SEARCH / EDIT ---
+elif menu == "🔍 Barbaadi/Edit":
+    st.header("🔍 Barbaadi / Edit Galmee")
+    q = st.text_input("Maqaa Barbaadi...")
+
+    if q:
+        res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+        if res.empty:
+            st.info("Ragaan hin argamne.")
+        else:
             for idx, row in res.iterrows():
                 with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']}"):
+                    st.write(f"Araddaa: {row['Araddaa']}")
+                    st.write(f"Qaxana: {row['Qaxana']}")
+                    st.write(f"Tajaajila: {row['Gosa_Tajajjilaa']}")
+                    st.write(f"Ogeessa: {row['Maqaa_Ogeessa']}")
+                    st.write(f"Kafaltii: {row['Kafaltii_Taj']}")
+                    
+                    # Delete confirmation
                     if st.button("🗑 Haqi", key=f"del_{idx}"):
-                        df = df.drop(idx); save_data(df); st.rerun()
+                        confirm = st.checkbox(f"Dhugaa haquu barbaaddaa {row['Maqaa_Abbaa_Dhimmaa']}?")
+                        if confirm:
+                            df = df.drop(idx)
+                            save_data(df)
+                            st.success(f"{row['Maqaa_Abbaa_Dhimmaa']} haqameera")
+                            st.experimental_rerun()
 
-    elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+# --- 6. LOGOUT ---
+elif menu == "Ba'i":
+    st.session_state.logged_in = False
+    st.experimental_rerun()
