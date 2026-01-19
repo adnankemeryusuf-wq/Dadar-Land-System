@@ -877,27 +877,49 @@ if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    _, col_mid, _ = st.columns([1, 1.2, 1])
-    with col_mid:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=100)
-        st.markdown("<h2 style='text-align:center; color: #1b5e20;'>Dadar Land Administration Customer Registration System</h2>", unsafe_allow_html=True)
-        with st.form("login_form"):
-            st.markdown("####  Login")
-            u = st.text_input("Username", placeholder="admin")
-            p = st.text_input("Password", type="password", placeholder="••••••••")
-            if st.form_submit_button("Seeni"):
-                if u == "DAD" and p == "2026":
-                    st.session_state.logged_in = True
-                    st.rerun()
-                else:
-                    st.error("Maqaan ykn Koodiin dogoggora!")
+  # --- 1. SESSION STATE INITIALIZATION ---
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# --- 2. LOGIN LOGIC ---
+if not st.session_state.logged_in:
+    st.title("🔐 Login: Dadar Land Admin")
+    
+    # Key 'main_app_login' jedhu kenneera, akka 'login_form' isa kaan waliin hin makiin
+    with st.form(key="main_app_login"):
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        submit = st.form_submit_button("Seeni")
+        
+        if submit:
+            if u == "DAD" and p == "2026":
+                st.session_state.logged_in = True
+                # Rerun gochuun Login Form akka dhabamu godha
+                st.rerun() 
+            else:
+                st.error("Username ykn Password sirrii miti!")
+
+# --- 3. MAIN APPLICATION (ERGA LOGIN MILKAA'EE BOODA) ---
 else:
+    # Sidebar fi menuwwan hundi 'else' kana jala galu
+    st.sidebar.title("🏢 Dadar Land Pro")
+    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
+    
+    # Data Load gochuu
     df = load_data()
-    with st.sidebar:
-        if os.path.exists(LOGO_PATH): 
-            st.image(LOGO_PATH, width=100)
-        st.success("Deder City Land Office")
+
+    if menu == "📊 Dashboard":
+        # Dashboard hojii kee as galchi
+        st.write("Dashboard ammaa jira...")
+        
+    elif menu == "📝 Galmee Haaraa":
+        # Registration hojii kee as galchi
+        st.write("Galmee haaraa...")
+
+    # Log Out Button
+    if st.sidebar.button("🚪 Log Out"):
+        st.session_state.logged_in = False
+        st.rerun()
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit"])
         if st.button("Log Out"):
             st.session_state.logged_in = False
@@ -1617,6 +1639,7 @@ else:
     if st.sidebar.button("Log Out"):
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
