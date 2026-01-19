@@ -204,7 +204,7 @@ if not st.session_state.logged_in:
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
-            if u == USER_NAME and p == PASS_WORD:
+            if u == admin and p == 1234:
                 st.session_state.logged_in = True
                 st.rerun()
             else:
@@ -226,6 +226,7 @@ else:
             st.image(LOGO_PATH, width=80)
     with col2:
         st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+
 
 
 
