@@ -102,22 +102,6 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    # --- 1. DASHBOARD ---
-    if menu == "📊 Dashboard":
-        st.header("📊 Dashboard Herregaa fi Gali")
-        if not df.empty:
-            df_tot = df[df['Gosa_Tajajjilaa'].str.contains('TOT', case=False, na=False)]
-            c1, c2, c3 = st.columns(3)
-            c1.metric("💰 Waliigala Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
-            c2.metric("📈 Galii TOT (2%)", f"{df_tot['Kafaltii_Taj'].sum():,.2f} ETB")
-            c3.metric("👥 Maamiltoota", len(df))
-            
-            st.plotly_chart(px.pie(df, values='Kafaltii_Taj', names='Araddaa', hole=0.4, title="Galii Araddaa dhaan"), use_container_width=True)
-            
-            output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                df.to_excel(writer, index=False)
-            st.download_button("📥 Excel Download", output.getvalue(), "Gabaasa_Full.xlsx")
 
     # --- 2. REGISTRATION ---
     elif menu == "📝 Galmee Haaraa":
@@ -451,6 +435,7 @@ elif menu == "🔍 Barbaadi/Edit":
 elif menu == "Ba'i":
     st.session_state.logged_in = False
     st.experimental_rerun()
+
 
 
 
