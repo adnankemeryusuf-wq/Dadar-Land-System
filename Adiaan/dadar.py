@@ -14,13 +14,83 @@ st.set_page_config(
 )
 
 # ================= 2. STYLE (HALLUU OROMIYAA) =================
-st.markdown(f"""
+import streamlit as st
+
+# CSS Style Halluu #1b5e20 irratti hundaa'e
+st.markdown("""
     <style>
-    /* Sidebar style */
-    [data-testid="stSidebar"] {{
+    /* 1. Background appii guutuu */
+    .stApp {
+        background-color: #f4f7f6;
+    }
+
+    /* 2. Sidebar (Bitaa) - Halluu #1b5e20 guutuu */
+    [data-testid="stSidebar"] {
         background-color: #1b5e20 !important;
-        border-right: 5px solid #ff0000;
-    }}
+    }
+    
+    /* Barreeffama Sidebar adii gochuuf */
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
+
+    /* 3. Mata duree (Headers) */
+    h1, h2, h3 {
+        color: #1b5e20 !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* 4. Buttoonii (Buttons) */
+    .stButton>button {
+        background-color: #1b5e20;
+        color: white;
+        border-radius: 20px;
+        border: none;
+        padding: 10px 24px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    
+    .stButton>button:hover {
+        background-color: #2e7d32; /* Yeroo tuqamu xiqqoo ifa */
+        color: #ffd700; /* Halluu Warqee (Gold) */
+        border: 1px solid #ffd700;
+    }
+
+    /* 5. Kaardiiwwan Gabaasaa (Metric Cards) */
+    [data-testid="stMetricValue"] {
+        color: #1b5e20 !important;
+        font-weight: bold;
+    }
+
+    /* 6. Formiiwwan (Input Fields) */
+    div.stForm {
+        border: 2px solid #1b5e20;
+        border-radius: 15px;
+        padding: 20px;
+        background-color: white;
+    }
+    
+    /* 7. Progress Bar fi Checkbox */
+    .stProgress > div > div > div > div {
+        background-color: #1b5e20;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+# Fakkeenya itti fayyadamaa
+st.title("🏢 Bulchiinsa Lafa Magaalaa")
+st.sidebar.header("Dadar Admin")
+st.sidebar.button("Galmee Haaraa")
+
+col1, col2 = st.columns(2)
+col1.metric("Waliigala Galii", "500,000 ETB")
+col2.metric("Maamiltoota", "1,240")
+
+with st.form("my_form"):
+    st.write("Odeeffannoo asitti galchi")
+    st.text_input("Maqaa")
+    st.form_submit_button("💾 Save")
     [data-testid="stSidebar"] * {{ color: white !important; }}
     
     /* Header Style */
@@ -86,3 +156,4 @@ else:
     elif menu == "📝 Galmee & Scan":
         st.header("📝 Galmee fi Scan Sanadaa")
         # Koodii galmee asitti itti fufa...
+
