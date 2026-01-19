@@ -182,7 +182,7 @@ else:
 
    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
-        st.markdown("<h2 style='color: #1b5e20;'>📊 Dashboard Waliigalaa</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: #2e7d32;'>📊 Dashboard Waliigalaa</h2>", unsafe_allow_html=True)
         if not df.empty:
             c1, c2, c3 = st.columns(3)
             with c1:
@@ -390,6 +390,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
