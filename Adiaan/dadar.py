@@ -408,26 +408,33 @@ else:
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
 
 # --- GALMEE & CLEARANCE ---
-elif menu == "📝 Galmee & Clearance":
+elif menu == "📝 Galmee & Clearance":  # Sararri kun hiriira 'if' isa jalqabaa waliin tokko ta'uu qaba
     st.header("📝 Galmee fi Qophii Clearance")
     
-    # Logo Configuration in Sidebar
+    # Sidebar Configuration
     st.sidebar.subheader("⚙️ Qindaa'ina Mallattoo")
     up_bitta = st.sidebar.file_uploader("Logo Bittaa", type=['png', 'jpg'])
     if up_bitta:
-        img_b = Image.open(up_bitta).convert("RGB").save("logo_bitta.jpg")
+        # 'Image' import gochuu hin dagatin: from PIL import Image
+        img_b = Image.open(up_bitta).convert("RGB")
+        img_b.save("logo_bitta.jpg")
     
     up_mirga = st.sidebar.file_uploader("Logo Mirgaa", type=['png', 'jpg'])
     if up_mirga:
-        img_m = Image.open(up_mirga).convert("RGB").save("logo_mirga.jpg")
+        img_m = Image.open(up_mirga).convert("RGB")
+        img_m.save("logo_mirga.jpg")
 
-    if st.session_state.pdf_to_download:
+    # Display and Actions
+    if st.session_state.get('pdf_to_download'):
         st.success("📄 Clearance qophaa'eera!")
-        st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, st.session_state.pdf_name)
+        st.download_button(
+            label="📥 PDF BUUFADHU",
+            data=st.session_state.pdf_to_download,
+            file_name=st.session_state.pdf_name
+        )
         if st.button("Galmee Haaraa"): 
             st.session_state.pdf_to_download = None
             st.rerun()
-
     with st.form("clearance_form"):
         c1, c2 = st.columns(2)
         m_maqaa = c1.text_input("Maqaa Maamilaa *")
@@ -468,6 +475,7 @@ elif menu == "🏆 Badhaasa":
     st.header("🏆 Ogeeyyii Baay'ee Hojjetan")
     if not df.empty:
         st.bar_chart(df['Maqaa_Ogeessa'].value_counts())
+
 
 
 
