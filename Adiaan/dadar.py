@@ -13,18 +13,19 @@ if not os.path.exists(NAGAHEE_DIR):
 
 st.set_page_config(
     page_title="Dadar Land Administration",
-    layout="wide" # Dashboard-if 'wide' nu barbaachisa
+    page_icon="🏢",
+    layout="wide"
 )
 
 # ================= 2. STYLE (CSS) =================
+# Integrated Pink (#f06292) and Clean White Theme
 st.markdown(f"""
     <style>
-    /* Halluu background isa haaraa #f06292*/
     .stApp {{
         background-color: #f4f7f6;
     }}
     
-    /* Login Box Styling */
+    /* Login Box */
     .login-box {{
         background-color: white;
         padding: 35px;
@@ -34,7 +35,7 @@ st.markdown(f"""
         margin-top: 50px;
     }}
     
-    /* Sidebar Styling */
+    /* Sidebar */
     [data-testid="stSidebar"] {{
         background-color: #2c3e50 !important;
     }}
@@ -42,14 +43,21 @@ st.markdown(f"""
         color: white !important;
     }}
 
-    /* Card styling for Dashboard */
+    /* Pink Themed Cards */
     .card {{
         background: white;
         padding: 20px;
         border-radius: 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         text-align: center;
-        border-top: 5px solid #16a085;
+        border-top: 5px solid #f06292; /* Pink Accent */
+    }}
+    
+    /* Custom Button Style */
+    div.stButton > button:first-child {{
+        background-color: #f06292;
+        color: white;
+        border-radius: 8px;
     }}
     </style>
 """, unsafe_allow_html=True)
@@ -71,14 +79,12 @@ def save_data(df_to_save):
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-# --- LOGIN PAGE (CENTERED) ---
+# --- LOGIN PAGE ---
 if not st.session_state.logged_in:
-    # Iddoo login gidduu galchuuf columns fayyadamna
     _, col_mid, _ = st.columns([1, 1.5, 1])
     with col_mid:
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
         st.markdown("<h2 style='text-align:center; color:#2c3e50;'> Dadar Land Admin</h2>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align:center; color:#7f8c8d;'>Maaloo seenuuf maqaa fi koodii guutaa</p>", unsafe_allow_html=True)
         with st.form("login_form"):
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
@@ -102,19 +108,21 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
-    i# --- DASHBOARD UPDATED ---
+    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
         st.header("📊 Gabaasa Dashboard")
         if not df.empty:
-            c1, c2, c3 = st.columns(3) # C3 daballee jirra
+            c1, c2, c3 = st.columns(3)
+            # Ensure payments are numbers
+            df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0)
             
-            total_money = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum()
+            total_money = df['Kafaltii_Taj'].sum()
             total_users = len(df)
             avg_pay = total_money / total_users if total_users > 0 else 0
             
-            c1.markdown(f"<div class='card'><h3>💰 Galii Waliigalaa</h3><h2 style='color:#16a085;'>{total_money:,.2f}</h2></div>", unsafe_allow_html=True)
-            c2.markdown(f"<div class='card'><h3>👥 Maamiltoota</h3><h2 style='color:#16a085;'>{total_users}</h2></div>", unsafe_allow_html=True)
-            c3.markdown(f"<div class='card'><h3>📊 Giddu-galeessa</h3><h2 style='color:#16a085;'>{avg_pay:,.2f}</h2></div>", unsafe_allow_html=True)
+            c1.markdown(f"<div class='card'><h3>💰 Galii Waliigalaa</h3><h2 style='color:#f06292;'>{total_money:,.2f}</h2></div>", unsafe_allow_html=True)
+            c2.markdown(f"<div class='card'><h3>👥 Maamiltoota</h3><h2 style='color:#f06292;'>{total_users}</h2></div>", unsafe_allow_html=True)
+            c3.markdown(f"<div class='card'><h3>📊 Giddu-galeessa</h3><h2 style='color:#f06292;'>{avg_pay:,.2f}</h2></div>", unsafe_allow_html=True)
             
             st.markdown("---")
             st.subheader("Ragaa Galmeeffame (10 dhiyoo)")
@@ -122,7 +130,27 @@ else:
         else:
             st.info("Ragaan galmeeffame hin jiru.")
 
-    # --- SEARCH UPDATED ---
+    # --- REGISTRATION ---
+    elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Haaraa Galmeessi")
+        with st.form("reg_form", clear_on_submit=True):
+            col1, col2 = st.columns(2)
+            name = col1.text_input("Maqaa Abbaa Dhimmaa *")
+            araddaa = col2.text_input("Araddaa *")
+            ogeessa = col1.text_input("Maqaa Ogeessaa *")
+            kaffaltii = col2.number_input("Kaffaltii (ETB)", min_value=0.0)
+            tajaajila = st.text_area("Gosa Tajaajilaa")
+            
+            if st.form_submit_button("Galmeessi"):
+                if name and araddaa and ogeessa:
+                    new_data = [datetime.now().strftime('%d/%m/%Y'), name, araddaa, "-", tajaajila, ogeessa, kaffaltii]
+                    df = pd.concat([df, pd.DataFrame([new_data], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    st.success(f"Galmeen {name} milkaa'inaan kuusameera!")
+                else:
+                    st.warning("Maaloo odeeffannoo guutaa!")
+
+    # --- SEARCH & EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi fi Sakatta'i")
         q = st.text_input("Maqaa maamilaa barreessi...", placeholder="Fakkeenya: Alii...")
@@ -130,23 +158,6 @@ else:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             if not res.empty:
                 st.success(f"Ragaa {len(res)} argameera.")
-                st.dataframe(res, use_container_width=True) # Table irra dataframe wayya
+                st.dataframe(res, use_container_width=True)
             else:
                 st.warning("Maqaa kanaan ragaan argame hin jiru.")
-
-    elif menu == "🔍 Barbaadi/Edit":
-        st.header("🔍 Barbaadi")
-        q = st.text_input("Maqaa maamilaa barreessi...")
-        if q:
-            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-            st.table(res)
-
-
-
-
-
-
-
-
-
-
