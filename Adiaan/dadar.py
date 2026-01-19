@@ -147,7 +147,6 @@ else:
         st.session_state.logged_in = False
         st.rerun()
 
-Adnan Kemer Yusuf, [1/19/2026 3:18 PM]
 import streamlit as st
 import pandas as pd
 import os
@@ -255,7 +254,6 @@ else:
     df = load_data()
     menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
 
-Adnan Kemer Yusuf, [1/19/2026 3:18 PM]
 # --- REGISTRATION ---
     if menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa Haaraa")
@@ -335,3 +333,4 @@ Adnan Kemer Yusuf, [1/19/2026 3:18 PM]
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
+
