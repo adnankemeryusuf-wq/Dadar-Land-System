@@ -24,7 +24,7 @@ st.set_page_config(
 st.markdown("""
     <style>
     .stApp { background: linear-gradient(135deg,#f1f8e9 0%, #ffffff 100%); }
-    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
+    [data-testid="stSidebar"] { background-color: #c5e1a5!important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
     div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
     .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; margin-bottom: 10px; }
@@ -180,6 +180,7 @@ else:
         if q and not df.empty:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.dataframe(res[COL_NAMES])
+
 
 
 
