@@ -197,4 +197,154 @@ else:
                 with cols[i]:
                     st.markdown(f"### {name}\n**Hojii: {count}**")
         else:
-            st.info("Ragaan ogeeyyii hin jiru.")
+            st.info("Ragaan ogeeyyii hin jiru.")import streamlit as st
+import pandas as pd
+import os, io, requests
+from datetime import datetime
+from fpdf import FPDF
+from ethiopian_date import EthiopianDateConverter
+
+# ================= CONFIG =================
+st.set_page_config(page_title="Dadar Land System", layout="wide")
+
+DATA_FILE = "dadar_final_report.txt"
+BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+CHAT_ID_MANAGER = "YOUR_CHAT_ID"
+
+COL_NAMES = [
+    'Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa',
+    'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj'
+]
+
+# ================= SESSION =================
+if 'pdf_bytes' not in st.session_state:
+    st.session_state.pdf_bytes = None
+if 'pdf_name' not in st.session_state:
+    st.session_state.pdf_name = ""
+
+# ================= HELPERS =================
+def get_ethiopian_date():
+    now = datetime.now()
+    ec = EthiopianDateConverter.to_ethiopian(now.year, now.month, now.day)
+    return f"{ec.day:02d}/{ec.month:02d}/{ec.year}"
+
+# ================= CLEARANCE PDF =================
+def create_clearance_pdf(data):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Times", size=12)
+
+    pdf.cell(0,10,"MOOTUMMAA NAANNOO OROMIYAA",ln=True,align="C")
+    pdf.cell(0,10,"WAAJJIRA LAFAA - BULCHIINSA MAGAALAA DADAR",ln=True,align="C")
+    pdf.ln(10)
+
+    pdf.multi_cell(0,8,
+        f"Waraqaan ragaa kun Obbo/Adde {data['maqaa']} "
+        f"Araddaa {data['araddaa']} Qaxana {data['qaxana']} "
+        f"Lakk. Kaartaa {data['kaartaa']} irratti kennama.\n\n"
+        f"Bara Gibiraa: {data['bara']}\n"
+        f"Dhimma: {data['dhimma']}\n\n"
+        f"Itti Gaafatamaa: {data['head']}\n"
+        f"Guyyaa: {get_ethiopian_date()}"
+    )
+
+    return pdf.output(dest="S").encode("latin-1")
+
+# ================= DATA =================
+def load_data():
+    if not os.path.exists(DATA_FILE):
+        return pd.DataFrame(columns=COL_NAMES)
+    return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None)
+
+# ================= TELEGRAM =================
+def send_excel_to_telegram(file_bytes, filename, caption):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
+    files = {"document": (filename, file_bytes)}
+    data = {"chat_id": CHAT_ID_MANAGER, "caption": caption}
+    requests.post(url, files=files, data=data)
+
+# ================= EXCEL =================
+def create_excel_report(df, mode):
+    df['Date'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
+
+    if mode == "daily":
+        df = df[df['Date'].dt.date == datetime.now().date()]
+        fname = "Daily_Report.xlsx"
+    else:
+        df = df[
+            (df['Date'].dt.month == datetime.now().month) &
+            (df['Date'].dt.year == datetime.now().year)
+        ]
+        fname = "Monthly_Report.xlsx"
+
+    if df.empty:
+        return None
+
+    out = io.BytesIO()
+    with pd.ExcelWriter(out, engine="xlsxwriter") as writer:
+        df[COL_NAMES].to_excel(writer, index=False)
+    out.seek(0)
+    return out, fname
+
+# ================= UI =================
+st.title("🏛 Dadar Land Administration System")
+
+tab1, tab2 = st.tabs(["📝 Clearance PDF", "📊 Reports"])
+
+# -------- TAB 1 --------
+with tab1:
+    with st.form("clearance_form"):
+        m1, m2 = st.columns(2)
+        maqaa = m1.text_input("Maqaa Maamilaa *")
+        araddaa = m2.text_input("Araddaa *")
+        qaxana = m1.text_input("Qaxana *")
+        kaartaa = m2.text_input("Lakk. Kaartaa *")
+        bara = m1.text_input("Bara Gibiraa")
+        dhimma = m2.selectbox("Dhimma", ["Gurgurtaa","Liqii","Kennaa"])
+        head = st.text_input("Maqaa Itti Gaafatamaa *")
+
+        if st.form_submit_button("📄 PDF UUMI"):
+            if maqaa and kaartaa and head:
+                st.session_state.pdf_bytes = create_clearance_pdf({
+                    "maqaa": maqaa,
+                    "araddaa": araddaa,
+                    "qaxana": qaxana,
+                    "kaartaa": kaartaa,
+                    "bara": bara,
+                    "dhimma": dhimma,
+                    "head": head
+                })
+                st.session_state.pdf_name = f"Clearance_{maqaa}.pdf"
+                st.success("PDF qophaa'eera")
+
+    if st.session_state.pdf_bytes:
+        st.download_button(
+            "⬇️ PDF Buusi",
+            st.session_state.pdf_bytes,
+            file_name=st.session_state.pdf_name,
+            mime="application/pdf"
+        )
+
+# -------- TAB 2 --------
+with tab2:
+    df = load_data()
+
+    if st.button("📊 Daily Excel → Telegram"):
+        res = create_excel_report(df,"daily")
+        if res:
+            send_excel_to_telegram(*res,"📊 Gabaasa Guyyaa")
+            st.success("Ergameera")
+        else:
+            st.warning("Ragaan hin jiru")
+
+    if st.button("📈 Monthly Excel → Telegram"):
+        res = create_excel_report(df,"monthly")
+        if res:
+            send_excel_to_telegram(*res,"📈 Gabaasa Ji'aa")
+            st.success("Ergameera")
+        else:
+            st.warning("Ragaan hin jiru")
+
+    st.dataframe(df)
+
+
