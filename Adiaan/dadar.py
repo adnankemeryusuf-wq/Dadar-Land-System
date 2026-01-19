@@ -278,13 +278,25 @@ if 'pdf_bytes' not in st.session_state: st.session_state.pdf_bytes=None
 if 'pdf_name' not in st.session_state: st.session_state.pdf_name=""
 
 # ================= LOGIN =================
-if not st.session_state.logged:
-    st.title("🔐 Login")
-    u = st.text_input("Username"); p=st.text_input("Password", type="password")
-    if st.button("Seeni"):
-        if u=="admin" and p=="2026": st.session_state.logged=True; st.rerun()
-        elif u=="staff" and p=="2026": st.session_state.logged=True; st.session_state.staff=True; st.rerun()
-        else: st.error("Dogoggora login")
+if not st.session_state.logged_in:
+    if os.path.exists(LOGO_PATH):
+        st.image(LOGO_PATH, width=70)
+        st.title("Dadar Land Administration Customer Registration System")    
+    with st.form("Login"):
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.form_submit_button("Login"):
+            if u=="admin" and p=="1234":
+                st.session_state.logged_in=True
+                st.session_state.role="admin"
+                st.rerun()
+            elif u=="admin" and p=="1234":
+                st.session_state.logged_in=True
+                st.session_state.role="staff"
+                st.rerun()
+            else:
+                st.error("Login Dogoggora!")
+else:
 
 # ================= MAIN =================
 else:
@@ -343,3 +355,4 @@ else:
             res=create_excel_report(df,"monthly")
             if res: send_excel_to_telegram(*res,"Monthly Report"); st.success("Ergameera")
             else: st.warning("Ragaan hin jiru")
+
