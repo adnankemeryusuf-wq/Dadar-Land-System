@@ -6,10 +6,6 @@ import requests
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
-
-
-
-
 # ================= 1. CONFIGURATION & STYLE =================
 LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
@@ -24,7 +20,7 @@ if not os.path.exists(NAGAHEE_DIR):
 st.set_page_config(
     page_title=" Dadar Land Administration Customer Registration System ", 
     page_icon="🏢", 
-    layout="wide"
+    layout=""
 )
 
 # Halluu fi Style
@@ -322,6 +318,7 @@ else:
             st.image(LOGO_PATH, width=80)
     with col2:
         st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+
 
 
 
