@@ -112,7 +112,7 @@ else:
             c2.metric("📈 Galii TOT (2%)", f"{df_tot['Kafaltii_Taj'].sum():,.2f} ETB")
             c3.metric("👥 Maamiltoota", len(df))
             
-            st.plotly_chart(px.pie(df, values='Kafaltii_Taj', names='Araddaa', hole=0.4, title="Galii Araddaadhaan"), use_container_width=True)
+            st.plotly_chart(px.pie(df, values='Kafaltii_Taj', names='Araddaa', hole=0.4, title="Galii Araddaa dhaan"), use_container_width=True)
             
             output = io.BytesIO()
             with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
@@ -170,3 +170,4 @@ else:
                     if st.session_state.role == "admin":
                         if st.button("🗑 Haqi", key=f"del_{idx}"):
                             df = df.drop(idx); save_data(df); st.rerun()
+
