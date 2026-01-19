@@ -20,7 +20,7 @@ st.set_page_config(
 # ================= 2. STYLE (CSS) =================
 st.markdown(f"""
     <style>
-    /* Halluu background isa haaraa #2c3e50 */
+    /* Halluu background isa haaraa #f4f7f6 */
     .stApp {{
         background-color: #f4f7f6;
     }}
@@ -147,4 +147,5 @@ else:
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.table(res)
+
 
