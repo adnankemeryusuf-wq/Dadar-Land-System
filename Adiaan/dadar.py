@@ -409,7 +409,7 @@ else:
 
 # --- GALMEE & CLEARANCE ---
 elif menu == "📝 Galmee & Clearance":
-    st.header("📝 Galmee fi Qophii Clearance")}
+    st.header("📝 Galmee fi Qophii Clearance")
     
     # Logo Configuration in Sidebar
     st.sidebar.subheader("⚙️ Qindaa'ina Mallattoo")
@@ -468,6 +468,7 @@ elif menu == "🏆 Badhaasa":
     st.header("🏆 Ogeeyyii Baay'ee Hojjetan")
     if not df.empty:
         st.bar_chart(df['Maqaa_Ogeessa'].value_counts())
+
 
 
 
