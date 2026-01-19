@@ -1,13 +1,10 @@
-
 import streamlit as st
 import pandas as pd
-import os
-import io
-import requests
+import os, io
 from datetime import datetime
 from fpdf import FPDF
-import plotly.express as px
-
+# Library kana 'pip install ethiopian-date' godhii fe'adhu
+from ethiopian_date import EthiopianDateConverter
 # ================= 1. CONFIGURATION & STYLE =================
 LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
@@ -104,7 +101,7 @@ if not st.session_state.logged_in:
             st.rerun()
 else:
     df = load_data()
-    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
+    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "🏆 Badhaasa", "📈 Gabaasa"])
 
 # --- REGISTRATION ---
     if menu == "📝 Galmee Haaraa":
@@ -190,13 +187,7 @@ else:
         st.session_state.logged_in = False
         st.rerun()
 
-import streamlit as st
-import pandas as pd
-import os, io
-from datetime import datetime
-from fpdf import FPDF
-# Library kana 'pip install ethiopian-date' godhii fe'adhu
-from ethiopian_date import EthiopianDateConverter
+
 
 # ================= 1. SETUP =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide", page_icon="🏢")
@@ -364,5 +355,6 @@ with st.form("clearance_form", clear_on_submit=False):
                 st.error(f"Dogoggora: {e}")
         else:
             st.warning("Maaloo, dirree '*' qaban hunda guuti, akkasumas mirkaneessi.")
+
 
 
