@@ -45,6 +45,29 @@ def show_advanced_analytics(df):
                            color_discrete_sequence=['#1b5e20'])
     
         st.plotly_chart(fig_line, use_container_width=True)
+# ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
+# Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
+SERVICE_STRUCTURE = {
+    "🏷 Gibira & Kaffaltii": [
+        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
+        "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
+    ],
+    "📜 Kaartaa & Qabiyyee": [
+        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
+        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"
+    ],
+    "🏗 Pilaanii & Ijaarsa": [
+        "Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+        "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"
+    ],
+    "⚖️ Dhimma Seeraa": [
+        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
+        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
+    ],
+    "📂 Tajaajila Biroo": [
+        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
+    ]
+}
 
 # ================= 3. REGISTRATION WITH SCAN =================
 def registration_page():
@@ -106,3 +129,4 @@ if st.session_state.get('logged_in'):
         # Download Button
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Gabaasa CSV Buusi", csv, "gabaasa.csv")
+
