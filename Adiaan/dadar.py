@@ -111,7 +111,6 @@ if menu == "📊 Dashboard":
     else:
         st.info("Data'n hojii hin jiru.")
 
-# --- GALMEE HAARAA ---
 elif menu == "📝 Galmee Haaraa":
     st.header("📝 Galmee Tajaajilaa Haaraa")
     
@@ -186,3 +185,4 @@ elif menu == "🏆 Badhaasa":
     if not df.empty:
         top = df['Maqaa_Ogeessa'].value_counts().head(3)
         st.table(top)
+
