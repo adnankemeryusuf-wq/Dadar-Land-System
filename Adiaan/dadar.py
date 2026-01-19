@@ -5,18 +5,21 @@ import io
 import requests
 from datetime import datetime
 from fpdf import FPDF
+import plotly.express as px
 
-# ================= 1. CONFIGURATION & DIRECTORIES =================
+# ================= 1. CONFIGURATION & STYLE =================
+LOGO_PATH = "Adiaan/logo.png"
+NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
-NAGAHEE_DIR = "nagaheewwan"
 
 if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
 
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
-
-st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
+st.set_page_config(
+    page_title="Dadar Land Admin Pro", 
+    page_icon="🏢", 
+    layout="wide"
+)
 
 # Halluu fi Style
 st.markdown("""
@@ -73,28 +76,6 @@ SERVICE_STRUCTURE = {
         "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
     ]
 }
-import streamlit as st
-import pandas as pd
-import os
-import io
-import requests
-from datetime import datetime
-from fpdf import FPDF
-import plotly.express as px
-
-# ================= 1. CONFIGURATION & STYLE =================
-LOGO_PATH = "Adiaan/logo.png"
-NAGAHEE_DIR = "nagahee_scan"
-DATA_FILE = "dadar_final_report.txt"
-
-if not os.path.exists(NAGAHEE_DIR):
-    os.makedirs(NAGAHEE_DIR)
-
-st.set_page_config(
-    page_title="Dadar Land Admin Pro", 
-    page_icon="🏢", 
-    layout="wide"
-)
 
 # Halluu fi Style
 st.markdown("""
@@ -310,6 +291,7 @@ else:
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
