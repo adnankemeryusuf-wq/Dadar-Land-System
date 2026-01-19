@@ -1,12 +1,130 @@
 import streamlit as st
 import pandas as pd
 import os
-import io
-import requests
 from datetime import datetime
-from fpdf import FPDF
-import plotly.express as px
 
+# ================= 1. CONFIGURATION =================
+DATA_FILE = "dadar_final_report.txt"
+st.set_page_config(page_title="Dadar Land System", layout="wide")
+
+# Streamlit Menu fi Deploy button dhoksuuf (Icciitii)
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .stApp { background-color: #f4f7f6; }
+    </style>
+""", unsafe_allow_html=True)
+
+# ================= 2. CORE FUNCTIONS =================
+COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
+
+def load_data():
+    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+        return pd.DataFrame(columns=COL_NAMES)
+    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+    df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0)
+    return df
+
+def save_data(df_to_save):
+    df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+
+# ================= 3. LOGIN LOGIC =================
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+    st.session_state.role = None
+
+if not st.session_state.logged_in:
+    _, col_mid, _ = st.columns([1, 1.2, 1])
+    with col_mid:
+        st.markdown("<h2 style='text-align:center;'>🔐 Dadar Land System</h2>", unsafe_allow_html=True)
+        with st.form("login_form"):
+            u = st.text_input("Username")
+            p = st.text_input("Password", type="password")
+            if st.form_submit_button("SEENI", use_container_width=True):
+                if u == "DAD" and p == "2026": # Admin
+                    st.session_state.logged_in = True
+                    st.session_state.role = "admin"
+                    st.rerun()
+                elif u == "ogeessa" and p == "1234": # User idilee
+                    st.session_state.logged_in = True
+                    st.session_state.role = "user"
+                    st.rerun()
+                else:
+                    st.error("Username ykn Password dogoggora!")
+else:
+    df = load_data()
+    
+    # --- SIDEBAR MENU (Admin vs User) ---
+    with st.sidebar:
+        st.title("Deder Land")
+        st.write(f"Logged as: **{st.session_state.role.upper()}**")
+        
+        # Admin qofatu Dashboard fi Edit arguun danda'a
+        if st.session_state.role == "admin":
+            menu_options = ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi/Edit", "⚙️ Manage App"]
+        else:
+            menu_options = ["📝 Galmee Haaraa", "🔍 Barbaadi"] # User-f Dashboard hin jiru
+            
+        menu = st.radio("FILANNOO", menu_options)
+        
+        if st.button("Log Out"):
+            st.session_state.logged_in = False
+            st.rerun()
+
+    # ================= 4. PAGES =================
+    
+    # --- DASHBOARD (ADMIN ONLY) ---
+    if menu == "📊 Dashboard":
+        st.header("📊 Gabaasa Galiifi TOT")
+        df_tot = df[df['Gosa_Tajajjilaa'].str.contains('TOT', case=False, na=False)]
+        galii_tot = df_tot['Kafaltii_Taj'].sum()
+        galii_waliigala = df['Kafaltii_Taj'].sum()
+
+        c1, c2 = st.columns(2)
+        c1.metric("Waliigala Galii", f"{galii_waliigala:,.2f} ETB")
+        c2.metric("Galii TOT", f"{galii_tot:,.2f} ETB")
+        st.bar_chart(df.set_index('Araddaa')['Kafaltii_Taj'])
+
+    # --- REGISTRATION (ADMIN & USER) ---
+    elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Gurgurtaa fi TOT")
+        with st.form("sale_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                gurguraa = st.text_input("Maqaa Gurguraa")
+                bittaa = st.text_input("Maqaa Bittaa")
+                ara = st.text_input("Araddaa")
+            with col2:
+                gatii = st.number_input("Gatii Gurgurtaa", min_value=0.0)
+                ogeessa = st.text_input("Ogeessa Galmeesse")
+            
+            # TOT Automatic Herreguu
+            tot = gatii * 0.02
+            st.write(f"TOT (2%): **{tot:,.2f} ETB**")
+            
+            if st.form_submit_button("Galmeessi"):
+                new_row = [datetime.now().strftime('%d/%m/%Y'), bittaa, ara, "-", f"TOT Sale: {gurguraa}->{bittaa}", ogeessa, tot]
+                df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                save_data(df)
+                st.success("Milkaa'inaan galmeeffameera!")
+
+    # --- MANAGE / DELETE (ADMIN ONLY) ---
+    elif menu == "🔍 Barbaadi/Edit":
+        st.header("🔍 Barbaadi fi Haqquu")
+        q = st.text_input("Maqaa Barbaadi...")
+        if q:
+            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            st.dataframe(res)
+            
+            if st.session_state.role == "admin":
+                target_idx = st.number_input("Index Haqamu (ID)", min_value=0, max_value=len(df)-1, step=1)
+                if st.button("🗑 Sarara kana Haqi"):
+                    df = df.drop(target_idx)
+                    save_data(df)
+                    st.success("Ragaan haqameera!")
+                    st.rerun()
 # ================= 1. CONFIGURATION & STYLE =================
 LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
@@ -42,7 +160,7 @@ SERVICE_STRUCTURE = {
     ],
     "📜 Kaartaa & Qabiyyee": [
         "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
-        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
+       "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
     ],
     "🏗 Pilaanii & Ijaarsa": [
       "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
@@ -275,5 +393,6 @@ elif menu == "🔍 Barbaadi/Edit":
 elif menu == "Ba'i":
     st.session_state.logged_in = False
     st.experimental_rerun()
+
 
 
