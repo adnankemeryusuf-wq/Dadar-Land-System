@@ -193,70 +193,56 @@ if menu == "📈 Gabaasa Bal'aa":
             st.dataframe(filtered[COL_NAMES], use_container_width=True)
             st.metric("Galii Filtarii", f"{filtered['Kafaltii_Taj'].sum():,.2f} ETB")
 
-    # --- 4. BADHAASA OGEEYYII (PDF) ---
+  # --- BADHAASA OGEEYYII (PDF) ---
 elif menu == "🏆 Badhaasa Ogeeyyii":
     st.header("🏆 Sartiifiikeeta Ogeeyyii Cimaa")
 
-    if df.empty:
-        st.warning("Ragaan hin jiru.")
-    else:
+    if not df.empty:
         top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
         medals = ["🥇 1FFAA", "🥈 2FFAA", "🥉 3FFAA"]
-        cols = st.columns(len(top_3))
 
-        for i, (name, count) in enumerate(top_3.items()):
-            with cols[i]:
-                # Display card
-                st.markdown(
-                    f"""
-                    <div class='card' style='padding:15px; border-radius:12px; box-shadow:0 3px 10px rgba(0,0,0,0.15); text-align:center;'>
-                        <h2>{medals[i]}</h2>
-                        <h3>{name}</h3>
-                        <p>Abbootii Dhimmaa: {count}</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+        # Upload both logos once
+        with st.form("logo_upload_form"):
+            logo_bita = st.file_uploader("Upload Logo Bita (Left)", type=["png","jpg","jpeg"])
+            logo_mirga = st.file_uploader("Upload Logo Mirga (Right)", type=["png","jpg","jpeg"])
+            submit_logos = st.form_submit_button("✅ Upload Logos")
 
-                # Generate PDF certificate
-                def create_pdf_cert(name, count, rank):
-                    pdf = FPDF('P', 'mm', 'A4')
-                    pdf.add_page()
+        if submit_logos:
+            cols = st.columns(3)
 
-                    # Add border
-                    pdf.set_line_width(0.5)
-                    pdf.rect(10, 10, 190, 277)
-
-                    # Add logo (optional)
-                    logo_path = "logo.png"  # place your logo here
-                    if os.path.exists(logo_path):
-                        pdf.image(logo_path, 80, 15, 50)
-
-                    pdf.ln(40)
-                    pdf.set_font("Times", 'B', 22)
-                    pdf.cell(0, 10, "🏆 Sartiifiikeeta Ogeeyyii", ln=True, align="C")
-
-                    pdf.ln(10)
-                    pdf.set_font("Times", '', 16)
-                    pdf.multi_cell(
-                        0, 10,
-                        f"Maqaa Ogeessaa: {name}\n"
-                        f"Baay'ina Abbootii Dhimmaa: {count}\n"
-                        f"Sadarkaa: {rank}"
+            for i, (name, count) in enumerate(top_3.items()):
+                with cols[i]:
+                    # Card display
+                    st.markdown(
+                        f"<div class='card'><h2>{medals[i]}</h2>"
+                        f"<h3>{name}</h3>"
+                        f"<p>Abbootii Dhimmaa: {count}</p></div>", 
+                        unsafe_allow_html=True
                     )
-                    pdf.ln(15)
-                    pdf.cell(0, 10, "Bakka: Waajjira Lafoo Dadar", ln=True, align="C")
-                    pdf.cell(0, 10, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')}", ln=True, align="C")
 
-                    return pdf.output(dest="S").encode("latin-1")
+                    # Generate PDF certificate
+                    pdf_bytes = create_pdf_cert(
+                        name=name,
+                        count=count,
+                        rank=i+1,
+                        logo_left=logo_bita,
+                        logo_right=logo_mirga
+                    )
 
-                pdf_data = create_pdf_cert(name, count, i+1)
-                st.download_button(
-                    f"📥 Download PDF {i+1}",
-                    pdf_data,
-                    f"Cert_{name.replace(' ','_')}.pdf",
-                    "application/pdf"
-                )
+                    # Dynamic filename
+                    safe_name = name.replace(" ", "_")
+                    medal_icon = ["1FFAA", "2FFAA", "3FFAA"][i]
+                    file_name = f"Certificate_{medal_icon}_{safe_name}.pdf"
+
+                    # Individual download button
+                    st.download_button(
+                        f"📥 Download {name} PDF",
+                        pdf_bytes,
+                        file_name,
+                        mime="application/pdf"
+                    )
+    else:
+        st.warning("Data'n hin jiru.")
 
 # --- 5. SEARCH / EDIT ---
 elif menu == "🔍 Barbaadi/Edit":
@@ -289,3 +275,4 @@ elif menu == "🔍 Barbaadi/Edit":
 elif menu == "Ba'i":
     st.session_state.logged_in = False
     st.experimental_rerun()
+
