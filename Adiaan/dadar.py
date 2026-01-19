@@ -18,7 +18,7 @@ if not os.path.exists(NAGAHEE_DIR):
 COL_NAMES = ['Guyyaa','Maqaa_Abbaa_Dhimmaa','Araddaa','Qaxana','Gosa_Tajajjilaa','Maqaa_Ogeessa','Kafaltii_Taj']
 
 # ================= STYLING =================
-st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="wide")
+st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="Compact & Wide Version")
 st.markdown("""
 <style>
 .stApp { background-color: #f4f7f9; }
@@ -180,3 +180,4 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
