@@ -95,7 +95,7 @@ else:
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🔍 Barbaadi", "Ba'i"])
 
     df = load_data()
-Adnan Kemer Yusuf, [1/13/2026 11:58 PM]
+
 if menu == "📝 Galmee Haaraa":
         st.markdown("<h2 style='color: #2e7d32;'>📝 Galmee Tajaajilaa</h2>", unsafe_allow_html=True)
         main_options = sorted(list(GATII_DICT.keys()))
@@ -187,3 +187,4 @@ st.divider()
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
