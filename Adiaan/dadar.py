@@ -2,263 +2,181 @@ import streamlit as st
 import pandas as pd
 import os
 import io
-import requests
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
 
-# ================= 1. CONFIGURATION & STYLE =================
+# ================= CONFIG =================
 LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
 
 if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
 
-st.set_page_config(
-    page_title="Dadar Land Administration Customer Registration System", 
-    page_icon="🏢", 
-    layout="centered"
-)
+# Columns for CSV storage
+COL_NAMES = ['Guyyaa','Maqaa_Abbaa_Dhimmaa','Araddaa','Qaxana','Gosa_Tajajjilaa','Maqaa_Ogeessa','Kafaltii_Taj']
 
-# ================== STYLING ==================
+# ================= STYLING =================
+st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="wide")
 st.markdown("""
-    <style>
-    .stApp { background: #f4f7f9; }
-    div.stForm { 
-        background: white; 
-        border-radius: 12px; 
-        padding: 20px; 
-        border: 1px solid #ddd; 
-    }
-    .card { 
-        background: white; 
-        padding: 15px; 
-        border-radius: 10px; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
-        text-align: center; 
-    }
-    </style>
+<style>
+.stApp { background-color: #f4f7f9; }
+div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
+.card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+</style>
 """, unsafe_allow_html=True)
 
-
-# ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
-# Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
-SERVICE_STRUCTURE = {
-    "🏷 Gibira & Kaffaltii": [
-        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
-        "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
-    ],
-    "📜 Kaartaa & Qabiyyee": [
-        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
-        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
-    ],
-    "🏗 Pilaanii & Ijaarsa": [
-      "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
-       "Humna Mahandisummaa"
-    ],
-    "⚖️ Dhimma Seeraa": [
-        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
-        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
-    ],
-    "📂 Tajaajila Biroo": [
-        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo)"
-    ],
-    "⚖️ Adabbii & Seeressuu": [
-        "Adabbii Ijaarsa Seeraan Alaa",
-        "Kaffaltii Seeressuu (Regularization)",
-        "Adabbii Faallaa Pilaanii"
-    ],
-}
-COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
-
-# ================= 3. CORE FUNCTIONS =================
+# ================= DATA FUNCTIONS =================
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
-    return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+    df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0)
+    df['Guyyaa'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y')
+    df['Waggaa'] = df['Guyyaa'].dt.year
+    df['Ji_a'] = df['Guyyaa'].dt.month
+    df['Torbee'] = df['Guyyaa'].dt.isocalendar().week
+    return df
 
-def save_data(df_to_save):
-    df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+def save_data(df):
+    df[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-def create_certificate(name, count, rank, l_l, l_r, sig):
+# ================= PDF CERTIFICATE =================
+def create_pdf_cert(name, count, rank, logo_left=None, logo_right=None):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     
     # Border
-    pdf.set_draw_color(0, 100, 0); pdf.set_line_width(2); pdf.rect(10, 10, 277, 190)
+    pdf.set_draw_color(0,100,0)
+    pdf.set_line_width(2)
+    pdf.rect(10,10,277,190)
     
-    # Logo
-    if l_l: 
-        with open("tmp_l.png", "wb") as f: f.write(l_l.getbuffer())
-        pdf.image("tmp_l.png", 20, 15, 30)
+    # Logos
+    if logo_left: pdf.image(logo_left, 20, 15, 30)
+    if logo_right: pdf.image(logo_right, 230, 15, 30)
     
-    pdf.set_y(50); pdf.set_font('Arial', 'B', 30); pdf.cell(0, 10, "SARTIIFIKEETA BEEKAMTII", 0, 1, 'C')
-    pdf.set_font('Arial', '', 20); pdf.cell(0, 20, f"Obbo/Adde: {name}", 0, 1, 'C')
-    pdf.set_font('Arial', '', 14); pdf.multi_cell(0, 10, f"Waggaa 2026 keessatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru.", align='C')
+    pdf.set_y(50)
+    pdf.set_font('Arial','B',30)
+    pdf.cell(0,10,"SARTIIFIKEETA BEEKAMTII",0,1,'C')
+    pdf.set_font('Arial','',20)
+    pdf.cell(0,20,f"Obbo/Adde: {name}",0,1,'C')
+    pdf.set_font('Arial','',14)
+    pdf.multi_cell(0,10,f"Waggaa 2026 keessatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru.", align='C')
     
-    # Signature
-    if sig:
-        with open("tmp_sig.png", "wb") as f: f.write(sig.getbuffer())
-        pdf.image("tmp_sig.png", 50, 160, 30)
+    pdf.line(40,180,100,180)
+    pdf.set_xy(40,182)
+    pdf.cell(60,10,"Itti Gaafatamaa",align='C')
     
-    pdf.line(40, 180, 100, 180); pdf.set_xy(40, 182); pdf.cell(60, 10, "Itti Gaafatamaa", align='C')
-    return pdf.output(dest='S').encode('latin-1', 'replace')
+    return pdf.output(dest='S').encode('latin-1','replace')
 
- ================= LOGIN LOGIC =================
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
+# ================= SESSION =================
+if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+if 'role' not in st.session_state: st.session_state.role = None
 
+# ================= LOGIN =================
 if not st.session_state.logged_in:
-    # Display logo if exists
     if os.path.exists(LOGO_PATH):
         st.image(LOGO_PATH, width=120)
-    
     st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
     with st.form("Login"):
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
-            if u == admin and p == 1234:
-                st.session_state.logged_in = True
+            if u=="admin" and p=="1234":
+                st.session_state.logged_in=True
+                st.session_state.role="admin"
+                st.rerun()
+            elif u=="staff" and p=="1234":
+                st.session_state.logged_in=True
+                st.session_state.role="staff"
                 st.rerun()
             else:
                 st.error("Login Dogoggora!")
-
 else:
     # ================= SIDEBAR =================
     if os.path.exists(LOGO_PATH):
         st.sidebar.image(LOGO_PATH, use_container_width=True)
-    
     st.sidebar.title("Main Menu")
-    menu_options = ["Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"]
+    menu_options = ["📝 Galmee Haaraa","📊 Dashboard","📈 Gabaasa Bal'aa","🏆 Badhaasa Ogeeyyii","🔍 Barbaadi/Edit","Ba'i"]
     menu = st.sidebar.selectbox("Filannoo", menu_options)
-
-    # ================= MAIN HEADER =================
-    col1, col2 = st.columns([1, 5])
-    with col1:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=80)
-    with col2:
-        st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
-
-
-else:
+    
+    if st.sidebar.button("Logout"):
+        st.session_state.logged_in=False
+        st.rerun()
+    
     df = load_data()
-    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
-
-# --- REGISTRATION ---
-    if menu == "📝 Galmee Haaraa":
-       
-        
-        # Filannoo Tajaajilaa
-        st.subheader("🟢 Gosa Tajaajilaa Filadhu")
-        selected_cats = st.multiselect("Ramaddii Tajaajilaa:", list(SERVICE_STRUCTURE.keys()))
-        
-        final_services = []
-        total_fee = 0
-        
-        if selected_cats:
-            cols = st.columns(len(selected_cats))
-            for i, cat in enumerate(selected_cats):
-                with cols[i]:
-                    st.write(f"{cat}")
-                    subs = st.multiselect(f"Tajaajiloota {cat}:", SERVICE_STRUCTURE[cat], key=cat)
-                    for s in subs:
-                        fee = st.number_input(f"Kaffaltii {s}:", min_value=0.0, key=f"fee_{s}")
-                        final_services.append(s)
-                        total_fee += fee
-
-        st.divider()
-        
-        with st.form("reg_form"):
-            c1, c2 = st.columns(2)
-            name = c1.text_input("Maqaa Abbaa Dhimmaa")
-            ara = c2.text_input("Araddaa")
-            qax = c1.text_input("Qaxana")
-            ogeessa = c2.text_input("Ogeessa Raawwate")
-            
-            # Nagahee Upload
-            nagahee = st.file_uploader("Nagahee Scan (Image)", type=['jpg','png','jpeg'])
-            
-            if st.form_submit_button("💾 Galmeessi"):
-                if name and final_services:
-                    # Save Image
-                    if nagahee:
-                        f_path = os.path.join(NAGAHEE_DIR, f"{name}_{datetime.now().strftime('%H%M%S')}.jpg")
-                        with open(f_path, "wb") as f: f.write(nagahee.getbuffer())
-                    
-                    # Save Data
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, ", ".join(final_services), ogeessa, total_fee]
-                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df)
-                    st.success(f"✅ Galmeeffameera! Waliigala: {total_fee} ETB")
-                else:
-                    st.error("Maaloo odeeffannoo guutuu galchi!")
-
-     # --- 1. DASHBOARD ---
-    if menu == "📊 Dashboard":
-        st.header("📊 Dashboard Herregaa fi Gali")
+    
+    # ================= DASHBOARD =================
+    if menu=="📊 Dashboard":
+        st.title("📊 Dashboard")
         if not df.empty:
-            df_tot = df[df['Gosa_Tajajjilaa'].str.contains('TOT', case=False, na=False)]
-            c1, c2, c3 = st.columns(3)
-            c1.metric("💰 Waliigala Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
-            c2.metric("📈 Galii TOT (2%)", f"{df_tot['Kafaltii_Taj'].sum():,.2f} ETB")
-            c3.metric("👥 Maamiltoota", len(df))
+            c1,c2,c3=st.columns(3)
+            c1.metric("💰 Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+            c2.metric("👥 Maamiltoota", len(df))
+            c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
             
-            st.plotly_chart(px.pie(df, values='Kafaltii_Taj', names='Araddaa', hole=0.4, title="Galii Araddaa dhaan"), use_container_width=True)
-            
-            output = io.BytesIO()
-            with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-                df.to_excel(writer, index=False)
-            st.download_button("📥 Excel Download", output.getvalue(), "Gabaasa_Full.xlsx")
-
-# ================= LOGIN LOGIC =================
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    # Display logo if exists
-    if os.path.exists(LOGO_PATH):
-        st.image(LOGO_PATH, width=120)
+            fig=px.bar(df.groupby("Maqaa_Ogeessa")['Kafaltii_Taj'].sum().reset_index(), x="Maqaa_Ogeessa", y="Kafaltii_Taj", color='Maqaa_Ogeessa')
+            st.plotly_chart(fig,use_container_width=True)
     
-    st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
-    with st.form("Login"):
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.form_submit_button("Login"):
-            if u == admin and p == 1234:
-                st.session_state.logged_in = True
-                st.rerun()
-            else:
-                st.error("Login Dogoggora!")
-
-else:
-    # ================= SIDEBAR =================
-    if os.path.exists(LOGO_PATH):
-        st.sidebar.image(LOGO_PATH, use_container_width=True)
+    # ================= REGISTRATION =================
+    elif menu=="📝 Galmee Haaraa":
+        st.title("📝 Galmee Tajaajilaa Haaraa")
+        with st.form("RegForm"):
+            c1,c2 = st.columns(2)
+            name = c1.text_input("Maqaa Abbaa Dhimmaa")
+            ara = c1.text_input("Araddaa")
+            gosa = c2.selectbox("Gosa Tajaajilaa", ["Jijjiirraa Maqaa (Sale)","Kaartaa Haaraa","Waraqaa Qulqullummaa","TOT 2%","Adabbii"])
+            fee = c2.number_input("Kaffaltii (ETB)", min_value=0.0)
+            og = c1.text_input("Maqaa Ogeessaa")
+            if st.form_submit_button("💾 GALMEESSI"):
+                if name and og:
+                    final_fee = fee*0.02 if "TOT" in gosa else fee
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, "-", gosa, og, final_fee]
+                    df = pd.concat([df,pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    st.success(f"Milkaa'inaan Galmeeffameera! Kaffaltii: {final_fee:,.2f} ETB")
     
-    st.sidebar.title("Main Menu")
-    menu_options = ["Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"]
-    menu = st.sidebar.selectbox("Filannoo", menu_options)
-
-    # ================= MAIN HEADER =================
-    col1, col2 = st.columns([1, 5])
-    with col1:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=80)
-    with col2:
-        st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
-
-
-
-
-
-
-
-
-
-
-
+    # ================= ADVANCED REPORT =================
+    elif menu=="📈 Gabaasa Bal'aa":
+        st.header("📈 Gabaasa & Calaltuu")
+        if not df.empty:
+            st.dataframe(df[COL_NAMES], use_container_width=True)
+            st.metric("Galii Waliigala", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+    
+    # ================= AWARDS =================
+    elif menu=="🏆 Badhaasa Ogeeyyii":
+        st.header("🏆 Sartiifiikeeta Ogeeyyii")
+        if not df.empty:
+            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            medals = ["🥇 1FFAA","🥈 2FFAA","🥉 3FFAA"]
+            logo_left=st.file_uploader("Logo Bita", type=["png","jpg"])
+            logo_right=st.file_uploader("Logo Mirga", type=["png","jpg"])
+            for i,(name,count) in enumerate(top_3.items()):
+                st.markdown(f"<div class='card'><h2>{medals[i]}</h2><h3>{name}</h3><p>Abbootii Dhimmaa: {count}</p></div>", unsafe_allow_html=True)
+                pdf_bytes = create_pdf_cert(name,count,i+1,logo_left,logo_right)
+                st.download_button(f"📥 Download {name} PDF", pdf_bytes, f"Cert_{name.replace(' ','_')}.pdf")
+    
+    # ================= SEARCH / EDIT =================
+    elif menu=="🔍 Barbaadi/Edit":
+        st.header("🔍 Barbaadi / Edit Galmee")
+        q = st.text_input("Maqaa Barbaadi...")
+        if q:
+            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            if not res.empty:
+                for idx,row in res.iterrows():
+                    with st.expander(f"{row['Maqaa_Abbaa_Dhimmaa']}"):
+                        st.write(f"Araddaa: {row['Araddaa']} | Qaxana: {row['Qaxana']}")
+                        st.write(f"Tajaajila: {row['Gosa_Tajajjilaa']} | Ogeessa: {row['Maqaa_Ogeessa']} | Kaffaltii: {row['Kafaltii_Taj']}")
+                        if st.session_state.role=="admin":
+                            confirm = st.checkbox(f"Dhugaa haquu barbaaddaa {row['Maqaa_Abbaa_Dhimmaa']}?", key=f"chk_{idx}")
+                            if confirm and st.button("🗑 Haqi", key=f"del_{idx}"):
+                                df = df.drop(idx)
+                                save_data(df)
+                                st.success(f"{row['Maqaa_Abbaa_Dhimmaa']} haqameera")
+                                st.experimental_rerun()
+    
+    # ================= LOGOUT =================
+    elif menu=="Ba'i":
+        st.session_state.logged_in=False
+        st.experimental_rerun()
