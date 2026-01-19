@@ -148,9 +148,22 @@ SERVICE_STRUCTURE = {
     ]
 }
         
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
-        details, d_fees, is_tot = [], {}, False
+elif menu == "📝 Galmee Tajaajilaa":
+        st.header("📝 Galmee Tajaajilaa Haaraa")
         
+        # Sararri kun hiriira kana irratti argamuu qaba (spaces 8 margin irraa)
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
+        
+        final_services = []
+        total_fee = 0
+        
+        if selected_main:
+            for cat in selected_main:
+                subs = st.multiselect(f"Tajaajiloota {cat} keessaa:", GATII_DICT[cat], key=cat)
+                for s in subs:
+                    final_services.append(s)
+                    # Gatii ofumaan herreguuf (Yoo gatiin jiraate)
+                    # total_fee += GATII_VALUE_DICT.get(s, 0)
         if selected_main:
             for g in selected_main:
                 subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
@@ -254,5 +267,6 @@ SERVICE_STRUCTURE = {
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
