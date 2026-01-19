@@ -23,7 +23,7 @@ st.set_page_config(
 # --- CSS Styling ---
 st.markdown("""
     <style>
-    .stApp { background: linear-gradient(135deg, #556b2f 0%, #ffffff 100%); }
+    .stApp { background: linear-gradient(135deg, #e9967a 0%, #ffffff 100%); }
     [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
     div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
@@ -180,6 +180,7 @@ else:
         if q and not df.empty:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.dataframe(res[COL_NAMES])
+
 
 
 
