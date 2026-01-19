@@ -211,32 +211,3 @@ logo_r = st.sidebar.file_uploader("Logo Mirgaa (Right)", type=['jpg', 'png', 'jp
 
 if logo_l: st.sidebar.image(logo_l, caption="Logo Bittaa", width=100)
 if logo_r: st.sidebar.image(logo_r, caption="Logo Mirgaa", width=100)
-
-st.header("📜 Qophii Waraqaa Qulqullinaa")
-
-with st.form("clear_form"):
-    c1, c2 = st.columns(2)
-    m_maqaa = c1.text_input("Maqaa Maamilaa *")
-    m_kaartaa = c2.text_input("Lakk. Kaartaa *")
-    m_araddaa = c1.text_input("Araddaa")
-    m_bara = c2.text_input("Bara Gibiraa")
-    m_head = c1.text_input("Itti Gaafatamaa *")
-    m_dhimma = c2.selectbox("Dhimma", ["Gurgurtaa", "Liqii Bankii", "Kennaa"])
-
-    submit = st.form_submit_button("💾 PDF UUMI")
-    
-    if submit:
-        if m_maqaa and m_kaartaa:
-            data_map = {
-                'maqaa': m_maqaa, 'kaartaa': m_kaartaa, 
-                'araddaa': m_araddaa, 'bara_gibiraa': m_bara,
-                'head_name': m_head, 'dhimma': m_dhimma
-            }
-            # Logo-wwan upload ta'an koodii PDF-tti erga
-            pdf_bytes = create_clearance_pdf(data_map, logo_l, logo_r)
-            st.session_state.pdf_final = pdf_bytes
-            st.success("✅ PDF Qophaa'eera!")
-
-if 'pdf_final' in st.session_state:
-    st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_final, "Clearance_Dadar.pdf")
-        
