@@ -151,29 +151,28 @@ SERVICE_STRUCTURE = {
 elif menu == "📝 Galmee Tajaajilaa":
         st.header("📝 Galmee Tajaajilaa Haaraa")
         
-        # Sararri kun hiriira kana irratti argamuu qaba (spaces 8 margin irraa)
+        # 1. Filannoo tajaajilaa (Gatii herreguuf)
         selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
         
-        final_services = []
-        total_fee = 0
+        details = []
+        d_fees = {}
+        is_tot = False
         
         if selected_main:
-            for cat in selected_main:
-                subs = st.multiselect(f"Tajaajiloota {cat} keessaa:", GATII_DICT[cat], key=cat)
-                for s in subs:
-                    final_services.append(s)
-                    # Gatii ofumaan herreguuf (Yoo gatiin jiraate)
-                    # total_fee += GATII_VALUE_DICT.get(s, 0)
-        if selected_main:
             for g in selected_main:
+                # Key m_g akka wal hin makneef
                 subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
                 for s in subs:
                     details.append(f"{g}({s})")
+                    # Kafaltii tokko tokkoon galchuu
                     d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
-                    if s == "TOT": is_tot = True
+                    if s == "TOT": 
+                        is_tot = True
 
+        # 2. Uunka Odeeffannoo Abbaa Dhimmaa
         with st.form("entry_form", clear_on_submit=True):
             st.markdown("### 📋 Odeeffannoo Abbaa Dhimmaa")
+            
             if is_tot:
                 col1, col2 = st.columns(2)
                 maqaa_f = f"G: {col1.text_input('Maqaa Gurguraa')} / B: {col2.text_input('Maqaa Bitataa')}"
@@ -186,13 +185,23 @@ elif menu == "📝 Galmee Tajaajilaa":
                 qax_f = c1.text_input("Qaxana")
             
             ogeessa = st.text_input("Maqaa Ogeessaa")
+            
+            # 3. Galmeessu
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa_f and details and ogeessa:
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, sum(d_fees.values())]
+                    # Guyyaa har'aa
+                    now_str = datetime.now().strftime('%d/%m/%Y')
+                    total_sum = sum(d_fees.values())
+                    
+                    new_row = [now_str, maqaa_f, ara_f, qax_f, ", ".join(details), ogeessa, total_sum]
+                    
+                    # Dataframe haaraa waliin walitti makuu
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
                     st.success("✅ Galmeeffameera!")
-                else: st.error("⚠️ Odeeffannoo guuti!")
+                    st.rerun() # Data haaraa mul'isuuf
+                else:
+                    st.error("⚠️ Odeeffannoo guuti!")
 
     # --- GABAASA BAL'AA ---
     elif menu == "📈 Gabaasa Bal'aa":
@@ -267,6 +276,7 @@ elif menu == "📝 Galmee Tajaajilaa":
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
