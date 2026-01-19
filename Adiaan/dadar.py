@@ -87,7 +87,7 @@ if not st.session_state.logged_in:
                 st.session_state.logged_in=True
                 st.session_state.role="admin"
                 st.rerun()
-            elif u=="staff" and p=="1234":
+            elif u=="admin" and p=="1234":
                 st.session_state.logged_in=True
                 st.session_state.role="staff"
                 st.rerun()
@@ -180,6 +180,7 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
 
 
 
