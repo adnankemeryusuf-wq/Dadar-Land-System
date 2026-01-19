@@ -19,7 +19,7 @@ if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
 
 st.set_page_config(
-    page_title="Dadar Land Admin Pro", 
+    page_title=" Dadar Land Administration Customer Registration System ", 
     page_icon="🏢", 
     layout="wide"
 )
@@ -173,5 +173,6 @@ else:
             st.subheader("Trendii Kaffaltii")
             fig = px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa')
             st.plotly_chart(fig, use_container_width=True)
+
 
 
