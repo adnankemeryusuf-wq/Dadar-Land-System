@@ -876,7 +876,11 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-if not st.session_state.logged_in:
+# Line 879 irratti 'else' ykn 'if' yoo jiraate, koodiin itti aanu gadi siquu qaba
+if True: # Fakkeenyaaf line 879 irratti kan jiru
+    # Line 881 asirraa jalqabuu qaba (siriiba sadii ykn afur fageessi)
+    if 'logged_in' not in st.session_state:
+        st.session_state.logged_in = False
   # --- 1. SESSION STATE INITIALIZATION ---
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
@@ -1639,6 +1643,7 @@ else:
     if st.sidebar.button("Log Out"):
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
