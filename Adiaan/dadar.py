@@ -114,7 +114,7 @@ else:
 
 # --- REGISTRATION ---
     if menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa Haaraa")
+       
         
         # Filannoo Tajaajilaa
         st.subheader("🟢 Gosa Tajaajilaa Filadhu")
@@ -173,6 +173,7 @@ else:
             st.subheader("Trendii Kaffaltii")
             fig = px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa')
             st.plotly_chart(fig, use_container_width=True)
+
 
 
 
