@@ -102,40 +102,37 @@ else:
             st.session_state.logged_in = False
             st.rerun()
 
+    i# --- DASHBOARD UPDATED ---
     if menu == "📊 Dashboard":
         st.header("📊 Gabaasa Dashboard")
         if not df.empty:
-            c1, c2 = st.columns(2)
-            # Calculations
+            c1, c2, c3 = st.columns(3) # C3 daballee jirra
+            
             total_money = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').sum()
             total_users = len(df)
+            avg_pay = total_money / total_users if total_users > 0 else 0
             
-            c1.markdown(f"<div class='card'><h3>💰 Galii</h3><h2 style='color:#16a085;'>{total_money:,.2f} ETB</h2></div>", unsafe_allow_html=True)
+            c1.markdown(f"<div class='card'><h3>💰 Galii Waliigalaa</h3><h2 style='color:#16a085;'>{total_money:,.2f}</h2></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='card'><h3>👥 Maamiltoota</h3><h2 style='color:#16a085;'>{total_users}</h2></div>", unsafe_allow_html=True)
+            c3.markdown(f"<div class='card'><h3>📊 Giddu-galeessa</h3><h2 style='color:#16a085;'>{avg_pay:,.2f}</h2></div>", unsafe_allow_html=True)
             
-            st.markdown("### Ragaa Galmeeffame")
-            st.dataframe(df.tail(10), use_container_width=True)
+            st.markdown("---")
+            st.subheader("Ragaa Galmeeffame (10 dhiyoo)")
+            st.dataframe(df.tail(10), use_container_width=True, hide_index=True)
         else:
             st.info("Ragaan galmeeffame hin jiru.")
 
-    elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Haaraa Galmeessi")
-        with st.form("reg_form", clear_on_submit=True):
-            col1, col2 = st.columns(2)
-            name = col1.text_input("Maqaa Abbaa Dhimmaa *")
-            araddaa = col2.text_input("Araddaa *")
-            ogeessa = col1.text_input("Maqaa Ogeessaa *")
-            kaffaltii = col2.number_input("Kaffaltii (ETB)", min_value=0.0)
-            tajaajila = st.text_area("Gosa Tajaajilaa")
-            
-            if st.form_submit_button("Galmeessi"):
-                if name and araddaa and ogeessa:
-                    new_data = [datetime.now().strftime('%d/%m/%Y'), name, araddaa, "-", tajaajila, ogeessa, kaffaltii]
-                    df = pd.concat([df, pd.DataFrame([new_data], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df)
-                    st.success(f"Galmeen {name} milkaa'inaan kuusameera!")
-                else:
-                    st.warning("Maaloo odeeffannoo guutaa!")
+    # --- SEARCH UPDATED ---
+    elif menu == "🔍 Barbaadi/Edit":
+        st.header("🔍 Barbaadi fi Sakatta'i")
+        q = st.text_input("Maqaa maamilaa barreessi...", placeholder="Fakkeenya: Alii...")
+        if q:
+            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            if not res.empty:
+                st.success(f"Ragaa {len(res)} argameera.")
+                st.dataframe(res, use_container_width=True) # Table irra dataframe wayya
+            else:
+                st.warning("Maqaa kanaan ragaan argame hin jiru.")
 
     elif menu == "🔍 Barbaadi/Edit":
         st.header("🔍 Barbaadi")
@@ -143,6 +140,7 @@ else:
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.table(res)
+
 
 
 
