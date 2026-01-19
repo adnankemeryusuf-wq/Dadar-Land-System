@@ -18,35 +18,38 @@ CHAT_ID_MANAGER = "7329587700"
 
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
-# Custom CSS
+# Halluu fi Style
 st.markdown("""
     <style>
-    .stApp { background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%); }
-    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
-    [data-testid="stSidebar"] * { color: #ffffff !important; }
-    div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; margin-bottom: 10px; }
-    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; }
+    .stApp { background: #f4f7f6; }
+    div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
+    .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATA MANAGEMENT =================
-COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
-MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
-MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
-
-def load_data():
-    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
-        return pd.DataFrame(columns=COL_NAMES)
-    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
-    df['Waggaa'] = df['Date_Obj'].dt.year
-    df['Ji\'a'] = df['Date_Obj'].dt.month.map(MONTH_MAP)
-    return df
-
-def save_data(df_to_save):
-    df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
-
+# ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
+# Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
+SERVICE_STRUCTURE = {
+    "🏷️ Gibira & Kaffaltii": [
+        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
+        "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
+    ],
+    "📜 Kaartaa & Qabiyyee": [
+        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
+        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"
+    ],
+    "🏗️ Pilaanii & Ijaarsa": [
+        "Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+        "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"
+    ],
+    "⚖️ Dhimma Seeraa": [
+        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
+        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
+    ],
+    "📂 Tajaajila Biroo": [
+        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
+    ]
+}
 # ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
 # Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
 SERVICE_STRUCTURE = {
@@ -122,6 +125,7 @@ else:
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
