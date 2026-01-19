@@ -20,17 +20,51 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- CSS Styling ---
+# # --- CSS Styling ---
 st.markdown("""
     <style>
-    .stApp { background: linear-gradient(135deg,#f1f8e9 0%, #ffffff 100%); }
-    [data-testid="stSidebar"] { background-color:#33691e important; }
-    [data-testid="stSidebar"] * { color: #ffffff !important; }
-    div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; margin-bottom: 10px; }
-    .metric-value { font-size: 24px; font-weight: bold; color: #1b5e20; }
+    /* Main app background */
+    .stApp {
+        background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%);
+    }
+
+    /* Sidebar styling */
+    [data-testid="stSidebar"] {
+        background-color: #33691e !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: #ffffff !important;
+    }
+
+    /* Form container */
+    div.stForm {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        border: 2px solid #2e7d32;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Cards */
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        border-top: 5px solid #2e7d32;
+        margin-bottom: 10px;
+    }
+
+    /* Metric values */
+    .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1b5e20;
+    }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
 
 # ================= 2. CORE FUNCTIONS =================
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
@@ -180,6 +214,7 @@ else:
         if q and not df.empty:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.dataframe(res[COL_NAMES])
+
 
 
 
