@@ -75,17 +75,14 @@ if 'logged_in' not in st.session_state:
 if not st.session_state.logged_in:
     # Iddoo login gidduu galchuuf columns fayyadamna
     _, col_mid, _ = st.columns([1, 1.5, 1])
-    
     with col_mid:
         st.markdown('<div class="login-box">', unsafe_allow_html=True)
         st.markdown("<h2 style='text-align:center; color:#2c3e50;'> Dadar Land Admin</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align:center; color:#7f8c8d;'>Maaloo seenuuf maqaa fi koodii guutaa</p>", unsafe_allow_html=True)
-        
         with st.form("login_form"):
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
             btn = st.form_submit_button("SEENI", use_container_width=True)
-            
             if btn:
                 if u == "DAD" and p == "2026":
                     st.session_state.logged_in = True
@@ -146,6 +143,7 @@ else:
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.table(res)
+
 
 
 
