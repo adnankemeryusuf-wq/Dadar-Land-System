@@ -11,8 +11,8 @@ import plotly.express as px
 st.set_page_config("Dadar Land Admin", "🏢", layout="wide")
 DB_FILE = "dadar_land.db"
 NAGAHEE_DIR = "nagahee_scan"
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
+BOT_TOKEN = "8586015354:AAEliISf-RtoeJ8anbVLapY3NBm7hz8dZWI"
+CHAT_ID_MANAGER = "568248052"
 
 if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
@@ -160,4 +160,5 @@ else:
             res=create_excel_report(df,"monthly")
             if res: send_excel_to_telegram(*res,"Monthly Report"); st.success("Ergameera")
             else: st.warning("Ragaan hin jiru")
+
 
