@@ -27,16 +27,102 @@ COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajji
 MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
 MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
 
+ ================= STYLE =================
 st.markdown("""
-    <style>
-    .stApp { background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%); }
-    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
-    [data-testid="stSidebar"] * { color: #ffffff !important; }
-    div.stForm { background: white; border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; box-shadow: 0px 4px 15px rgba(0,0,0,0.1); }
-    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; margin-bottom: 10px; }
-    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; height: 45px; border: none; }
-    </style>
-    """, unsafe_allow_html=True)
+<style>
+/* ---------- APP BACKGROUND ---------- */
+.stApp { 
+    background: linear-gradient(135deg, #f1f8e9 0%, #ffffff 100%);
+}
+
+/* ---------- SIDEBAR ---------- */
+[data-testid="stSidebar"] { background-color: #1b5e20 !important; }
+[data-testid="stSidebar"] * { color: #ffffff !important; }
+
+/* ---------- FORMS ---------- */
+div.stForm { 
+    background: white; 
+    border-radius: 15px; 
+    padding: 25px; 
+    border: 2px solid #2e7d32; 
+    box-shadow: 0px 4px 15px rgba(0,0,0,0.1); 
+}
+
+/* ---------- CARDS ---------- */
+.card { 
+    background: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+    text-align: center; 
+    border-top: 5px solid #2e7d32; 
+    margin-bottom: 15px; 
+}
+
+/* ---------- BUTTONS ---------- */
+.stButton>button { 
+    background: linear-gradient(90deg, #4caf50, #2e7d32); 
+    color: white; 
+    border-radius: 8px; 
+    font-weight: bold; 
+    width: 100%; 
+    height: 45px; 
+    border: none; 
+    transition: 0.3s;
+}
+.stButton>button:hover { 
+    background: linear-gradient(90deg, #66bb6a, #2e7d32); 
+    cursor: pointer;
+}
+
+/* ---------- CHARTS ---------- */
+.css-1d391kg svg { background: white !important; border-radius: 10px; }
+</style>
+""", unsafe_allow_html=True)
+
+# ================= DUMMY DATA =================
+data = {
+    "Maqaa_Ogeessa": ["Ali", "Biru", "Cali", "Ali", "Biru", "Ali"],
+    "Kafaltii": [5000, 7000, 3000, 4500, 2000, 3500]
+}
+df = pd.DataFrame(data)
+
+# ================= DASHBOARD =================
+st.title("📊 Dadar Land Admin Dashboard")
+
+# Cards
+c1, c2, c3 = st.columns(3)
+c1.markdown(f"<div class='card'><h3>💰 Galii Waliigalaa</h3><h2>{df['Kafaltii'].sum():,.2f} ETB</h2></div>", unsafe_allow_html=True)
+c2.markdown(f"<div class='card'><h3>👥 Tajaajilamtoota</h3><h2>{len(df)}</h2></div>", unsafe_allow_html=True)
+c3.markdown(f"<div class='card'><h3>👷 Ogeeyyii</h3><h2>{df['Maqaa_Ogeessa'].nunique()}</h2></div>", unsafe_allow_html=True)
+
+st.divider()
+
+# Chart
+st.subheader("📈 Galii Ogeeyyii")
+fig, ax = plt.subplots(figsize=(8,4))
+df.groupby("Maqaa_Ogeessa")["Kafaltii"].sum().plot(kind="bar", color="#4caf50", ax=ax)
+ax.set_ylabel("ETB")
+ax.set_xlabel("Ogeessa")
+ax.set_title("Galii Hojjettoota")
+plt.xticks(rotation=0)
+plt.tight_layout()
+
+buf = BytesIO()
+plt.savefig(buf, format="png")
+buf.seek(0)
+st.image(buf)
+
+st.divider()
+
+# Example Form
+st.subheader("📝 Galmee Haaraa")
+with st.form("entry_form"):
+    name = st.text_input("Maqaa Maamilaa")
+    ogeessa = st.text_input("Ogeessa Raawwate")
+    kafaltii = st.number_input("Kafaltii (ETB)", min_value=0.0)
+    if st.form_submit_button("💾 Galmeessi"):
+        st.success(f"{name} galmeeffameera! ✅")
 
 # ================= 2. CORE FUNCTIONS =================
 def load_data():
@@ -390,4 +476,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
