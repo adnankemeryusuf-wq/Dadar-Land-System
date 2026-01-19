@@ -53,7 +53,15 @@ SERVICE_STRUCTURE = {
         "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo)"
     ]
 }
-
+# Gosa Tajaajilaa keessatti 'Adabbii' itti dabali
+SERVICE_STRUCTURE = {
+    "⚖️ Adabbii & Seeressuu": [
+        "Adabbii Ijaarsa Seeraan Alaa",
+        "Kaffaltii Seeressuu (Regularization)",
+        "Adabbii Faallaa Pilaanii"
+    ],
+    # Gosoota tajaajilaa kaan...
+}
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 # ================= 3. CORE FUNCTIONS =================
@@ -184,6 +192,7 @@ else:
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
+
 
 
 
