@@ -2,13 +2,22 @@ import streamlit as st
 import pandas as pd
 import os
 import io
+import requests
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
 
-# ================= 1. CONFIGURATION =================
-DATA_FILE = "dadar_land_data.csv"
+# ================= 1. CONFIGURATION & STYLE =================
+LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
+DATA_FILE = "dadar_final_report.txt"
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
+
+# Folderoota barbaachisoo uumuu
+if not os.path.exists(NAGAHEE_DIR):
+    os.makedirs(NAGAHEE_DIR)
+
 if not os.path.exists(NAGAHEE_DIR): os.makedirs(NAGAHEE_DIR)
 
 # Columns hunda haala bareedaan qindeeffame
@@ -134,3 +143,4 @@ elif menu == "📈 Gabaasa":
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
         filtered_df.to_excel(writer, index=False, sheet_name='Gabaasa_Dadar')
     st.download_button("📥 Gabaasa Excel Buusi", output.getvalue(), "Gabaasa_Dadar_Lafa.xlsx")
+
