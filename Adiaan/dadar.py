@@ -124,11 +124,10 @@ else:
         else:
             st.info("Data'n galmeeffame hin jiru.")
 
-    # --- GALMEE HAARAA ---
-    elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa Haaraa")
-        GATII_DICT = {
-            "🏷️ Gibira & Kaffaltii": [
+   # ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
+# Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
+SERVICE_STRUCTURE = {
+    "🏷️ Gibira & Kaffaltii": [
         "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
         "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
     ],
@@ -255,4 +254,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
