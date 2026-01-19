@@ -122,19 +122,7 @@ else:
                     save_data(df)
                     st.success(f"Galmeeffameera! Kaffaltii: {final_fee} ETB")
 
-    # --- 3. BADHAASA ---
-    elif menu == "🏆 Badhaasa":
-        st.header("🏆 Sartifiikeeta Ogeeyyii")
-        logo = st.file_uploader("Logo Upload", type=['png','jpg','jpeg'])
-        if not df.empty:
-            top_og = df['Maqaa_Ogeessa'].value_counts().head(3)
-            cols = st.columns(3)
-            for i, (og_name, count) in enumerate(top_og.items()):
-                with cols[i]:
-                    st.markdown(f"<div class='card'><h3>{og_name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
-                    txt = f"Waggaa 2026 keessatti tajaajila {count} kennuun beekamtii argataniiru."
-                    cert_pdf = create_pdf_report("Cert", og_name, txt, logo)
-                    st.download_button(f"📥 Download Cert", cert_pdf, f"Cert_{og_name}.pdf")
+
 
     # --- 4. SEARCH / EDIT / CLEARANCE ---
     elif menu == "🔍 Barbaadi/Edit":
@@ -435,6 +423,7 @@ elif menu == "🔍 Barbaadi/Edit":
 elif menu == "Ba'i":
     st.session_state.logged_in = False
     st.experimental_rerun()
+
 
 
 
