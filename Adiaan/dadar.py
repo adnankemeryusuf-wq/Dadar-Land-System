@@ -161,28 +161,7 @@ else:
     df = load_data()
     menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
 
-    # --- REGISTRATION ---
-    if menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa Haaraa")
-        
-        # Filannoo Tajaajilaa
-        st.subheader("🟢 Gosa Tajaajilaa Filadhu")
-        selected_cats = st.multiselect("Ramaddii Tajaajilaa:", list(SERVICE_STRUCTURE.keys()))
-        
-        final_services = []
-        total_fee = 0
-        
-        if selected_cats:
-            cols = st.columns(len(selected_cats))
-            for i, cat in enumerate(selected_cats):
-                with cols[i]:
-                    st.write(f"**{cat}**")
-                    subs = st.multiselect(f"Tajaajiloota {cat}:", SERVICE_STRUCTURE[cat], key=cat)
-                    for s in subs:
-                        fee = st.number_input(f"Kaffaltii {s}:", min_value=0.0, key=f"fee_{s}")
-                        final_services.append(s)
-                        total_fee += fee
-
+ 
         st.divider()
         
         with st.form("reg_form"):
@@ -291,6 +270,7 @@ else:
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
