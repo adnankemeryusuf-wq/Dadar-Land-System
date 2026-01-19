@@ -170,27 +170,3 @@ else:
             st.subheader("Trendii Kaffaltii")
             fig = px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa')
             st.plotly_chart(fig, use_container_width=True)
-
-    # --- BADHAASA ---
-    elif menu == "🏆 Badhaasa":
-        st.header("🏆 Beekamtii Ogeeyyii")
-        sig = st.file_uploader("Mallattoo Itti Gaafatamaa (PNG)", type=['png'])
-        if not df.empty:
-            top = df['Maqaa_Ogeessa'].value_counts().head(3)
-            for i, (n, c) in enumerate(top.items(), 1):
-                st.write(f"{i}. {n} ({c} tajaajila)")
-                pdf = create_certificate(n, c, i, None, None, sig)
-                st.download_button(f"📥 Sartiifikeeta {n}", pdf, f"Cert_{n}.pdf")
-
-    # --- GABAASA ---
-    elif menu == "📈 Gabaasa":
-        st.header("📋 Galmeewwan Hundi")
-        st.dataframe(df, use_container_width=True)
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
-
-
-
-
-
-
