@@ -118,7 +118,32 @@ def create_clearance_pdf(data):
     pdf.cell(70, 8, "(Chaappaa Waajjiraa)", ln=True, align='R')
 
     return pdf.output(dest='S').encode('latin-1')
+    
+ ================= 3. STREAMLIT UI =================
+st.header("📝 Sirna Qophii Waraqaa Qulqullinaa (Clearance)")
+with st.form("clearance_form", clear_on_submit=True):
+    c1, c2 = st.columns(2)
+    m_maqaa = c1.text_input("Maqaa Maamilaa *")
+    m_araddaa = c2.text_input("Araddaa *")
+    m_qaxana = c1.text_input("Lakk. Qaxana *")
+    m_kaartaa = c2.text_input("Lakk. Kaartaa *")
+    m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
+    m_bara = c2.text_input("Bara Gibiraa Xumurame (Fkn: 2017)")
+    m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+    st.markdown("---")
+    m_head = st.text_input("Maqaa Itti Gaafatamaa *")
+    m_dhorkaa_bilisa = st.checkbox("Qabiyyeen kun dhorkaa irraa bilisa ta'uu nan mirkaneessa.")
 
+    if st.form_submit_button("💾 PDF UUMI"):
+        if all([m_maqaa, m_kaartaa, m_head, m_dhorkaa_bilisa]):
+            data_map = {
+                'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana, 
+                'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 
+                'gosa_qabiyyee': m_gosa, 'head_name': m_head
+            }
+            st.session_state.pdf_to_download = create_clearance_pdf(data_map)
+            st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
+            st.rerun()
 # ================= 2. CONFIGURATION & DATA =================
 DATA_FILE = "dadar_final_report.txt"
 
@@ -242,6 +267,7 @@ with st.form("clearance_form", clear_on_submit=True):
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
