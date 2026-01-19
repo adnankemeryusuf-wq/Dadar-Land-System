@@ -11,11 +11,7 @@ import plotly.express as px
 st.set_page_config("Dadar Land Admin", "🏢", layout="wide")
 DB_FILE = "dadar_land.db"
 NAGAHEE_DIR = "nagahee_scan"
-BOT_TOKEN = "Adnan Kemer Yusuf, [1/19/2026 10:17 PM]
-568248052
-
-Adnan Kemer Yusuf, [1/19/2026 10:17 PM]
-8580122508:AAEY8nbhJMWZCR5g3Ar44i-tcESUugS5Hs4"
+BOT_TOKEN = "8580122508:AAEY8nbhJMWZCR5g3Ar44i-tcESUugS5Hs4"
 CHAT_ID_MANAGER = "568248052"
 
 if not os.path.exists(NAGAHEE_DIR):
@@ -164,6 +160,7 @@ else:
             res=create_excel_report(df,"monthly")
             if res: send_excel_to_telegram(*res,"Monthly Report"); st.success("Ergameera")
             else: st.warning("Ragaan hin jiru")
+
 
 
 
