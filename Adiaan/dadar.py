@@ -190,117 +190,12 @@ else:
                 df.to_excel(writer, index=False)
             st.download_button("📥 Excel Download", output.getvalue(), "Gabaasa_Full.xlsx")
 
-if menu == "📈 Gabaasa Bal'aa":
-        st.header("📈 Gabaasa & Calaltuu")
-        if not df.empty:
-            with st.sidebar:
-                st.markdown("---")
-                f_type = st.radio("Filtarii:", ["Waggaa", "Kurmaana", "Ji'a", "Torbee", "Guyyaa"])
-                sel_y = st.selectbox("Waggaa", sorted(df['Waggaa'].dropna().unique(), reverse=True))
-                filtered = df[df['Waggaa'] == sel_y]
-                if f_type == "Kurmaana": filtered = filtered[filtered['Kurmaana'] == st.selectbox("Q", [1,2,3,4])]
-                elif f_type == "Ji'a": filtered = filtered[filtered['Ji\'a'] == st.selectbox("Ji'a", MONTH_ORDER)]
-                elif f_type == "Torbee":
-                    sel_m, sel_w = st.selectbox("Ji'a", MONTH_ORDER), st.selectbox("Torbee", [1,2,3,4])
-                    filtered = filtered[(filtered['Ji\'a'] == sel_m) & (filtered['Torbee'] == sel_w)]
-                elif f_type == "Guyyaa": filtered = filtered[filtered['Guyyaa_Torbee'] == st.selectbox("Guyyaa", list(WEEKDAY_MAP.values()))]
-
-            st.dataframe(filtered[COL_NAMES], use_container_width=True)
-            st.metric("Galii Filtarii", f"{filtered['Kafaltii_Taj'].sum():,.2f} ETB")
-
-  # --- BADHAASA OGEEYYII (PDF) ---
-elif menu == "🏆 Badhaasa Ogeeyyii":
-    st.header("🏆 Sartiifiikeeta Ogeeyyii Cimaa")
-
-    if not df.empty:
-        top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-        medals = ["🥇 1FFAA", "🥈 2FFAA", "🥉 3FFAA"]
-
-        # Upload both logos once
-        with st.form("logo_upload_form"):
-            logo_bita = st.file_uploader("Upload Logo Bita (Left)", type=["png","jpg","jpeg"])
-            logo_mirga = st.file_uploader("Upload Logo Mirga (Right)", type=["png","jpg","jpeg"])
-            submit_logos = st.form_submit_button("✅ Upload Logos")
-
-        if submit_logos:
-            cols = st.columns(3)
-
-            for i, (name, count) in enumerate(top_3.items()):
-                with cols[i]:
-                    # Card display
-                    st.markdown(
-                        f"<div class='card'><h2>{medals[i]}</h2>"
-                        f"<h3>{name}</h3>"
-                        f"<p>Abbootii Dhimmaa: {count}</p></div>", 
-                        unsafe_allow_html=True
-                    )
-
-                    # Generate PDF certificate
-                    pdf_bytes = create_pdf_cert(
-                        name=name,
-                        count=count,
-                        rank=i+1,
-                        logo_left=logo_bita,
-                        logo_right=logo_mirga
-                    )
-
-                    # Dynamic filename
-                    safe_name = name.replace(" ", "_")
-                    medal_icon = ["1FFAA", "2FFAA", "3FFAA"][i]
-                    file_name = f"Certificate_{medal_icon}_{safe_name}.pdf"
-
-                    # Individual download button
-                    st.download_button(
-                        f"📥 Download {name} PDF",
-                        pdf_bytes,
-                        file_name,
-                        mime="application/pdf"
-                    )
-    else:
-        st.warning("Data'n hin jiru.")
-
-# --- 5. SEARCH / EDIT ---
-elif menu == "🔍 Barbaadi/Edit":
-    st.header("🔍 Barbaadi / Edit Galmee")
-    q = st.text_input("Maqaa Barbaadi...")
-
-    if q:
-        res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-        if res.empty:
-            st.info("Ragaan hin argamne.")
-        else:
-            for idx, row in res.iterrows():
-                with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']}"):
-                    st.write(f"Araddaa: {row['Araddaa']}")
-                    st.write(f"Qaxana: {row['Qaxana']}")
-                    st.write(f"Tajaajila: {row['Gosa_Tajajjilaa']}")
-                    st.write(f"Ogeessa: {row['Maqaa_Ogeessa']}")
-                    st.write(f"Kafaltii: {row['Kafaltii_Taj']}")
-                    
-                    # Delete confirmation
-                    if st.button("🗑 Haqi", key=f"del_{idx}"):
-                        confirm = st.checkbox(f"Dhugaa haquu barbaaddaa {row['Maqaa_Abbaa_Dhimmaa']}?")
-                        if confirm:
-                            df = df.drop(idx)
-                            save_data(df)
-                            st.success(f"{row['Maqaa_Abbaa_Dhimmaa']} haqameera")
-                            st.experimental_rerun()
-
-# --- 6. LOGOUT ---
-elif menu == "Ba'i":
-    st.session_state.logged_in = False
-    st.experimental_rerun()
-
-
-
-
-
-# --- LOGIN LOGIC ---
+# ================= LOGIN LOGIC =================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    # Fuula Login irratti logo agarsiisuuf
+    # Display logo if exists
     if os.path.exists(LOGO_PATH):
         st.image(LOGO_PATH, width=120)
     
@@ -314,23 +209,23 @@ if not st.session_state.logged_in:
                 st.rerun()
             else:
                 st.error("Login Dogoggora!")
+
 else:
-    # --- SIDEBAR (Logo & Menu) ---
+    # ================= SIDEBAR =================
     if os.path.exists(LOGO_PATH):
         st.sidebar.image(LOGO_PATH, use_container_width=True)
     
     st.sidebar.title("Main Menu")
-    menu = ["Galmee Haaraa", "Gabaasa Excel (Telegram)", "Barbaadi (Search)", "Logout"]
-    choice = st.sidebar.selectbox("Filannoo", menu)
+    menu_options = ["Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"]
+    menu = st.sidebar.selectbox("Filannoo", menu_options)
 
-    # --- MAIN HEADER (Logo & Title) ---
+    # ================= MAIN HEADER =================
     col1, col2 = st.columns([1, 5])
     with col1:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=80)
     with col2:
         st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
-
 
 
 
