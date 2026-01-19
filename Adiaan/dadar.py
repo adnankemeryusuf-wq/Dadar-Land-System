@@ -13,7 +13,6 @@ if not os.path.exists(NAGAHEE_DIR):
 
 st.set_page_config(
     page_title="Dadar Land Administration",
-    page_icon="🏢",
     layout="wide" # Dashboard-if 'wide' nu barbaachisa
 )
 
@@ -147,5 +146,6 @@ else:
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.table(res)
+
 
 
