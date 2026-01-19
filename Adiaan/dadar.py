@@ -94,7 +94,7 @@ def create_pdf_cert(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1','replace')
 
 # ================= STYLING =================
-st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="wide")
+st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="Centere")
 st.markdown("""
 <style>
 .stApp { background-color: #f4f7f9; }
@@ -212,3 +212,4 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
