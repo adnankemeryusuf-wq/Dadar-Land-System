@@ -96,38 +96,47 @@ else:
             c1, c2, c3 = st.columns(3)
             c1.markdown(f"<div class='card'><p>💰 Galii</p><p class='metric-value'>{df['Kafaltii_Taj'].sum():,.2f}</p></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
-            st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0))
 
-    # --- REGISTRATION ---
+    # REGISTRATION
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
+        
+        # Gosa tajaajilaa filachuuf
         GATII_DICT = {
             "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
-            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "TOT"],
-            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara"]
+            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
+            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
+            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara", "Kaartaa Lafa Qonnaa"],
+            "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
+            "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kaasuu"]
         }
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa", list(GATII_DICT.keys()))
+
+        # 1. Filannoo Gosa Tajaajilaa (Dirqama akka filatamuuf)
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu (Dirqama)", list(GATII_DICT.keys()))
+        
         details, d_fees = [], {}
-        for g in selected_main:
-            subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
-            for s in subs:
-                details.append(f"{g}({s})")
-                d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s}", min_value=0.0, key=f"f_{g}_{s}")
+        if selected_main:
+            for g in selected_main:
+                subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
+                for s in subs:
+                    details.append(f"{g}({s})")
+                    d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
 
-        with st.form("reg_form", clear_on_submit=True):
-            maqaa = st.text_input("Maqaa Abbaa Dhimmaa")
-            ara, qax = st.text_input("Araddaa"), st.text_input("Qaxana")
-            ogeessa = st.text_input("Maqaa Ogeessaa")
-            nagahee = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png'])
-            if st.form_submit_button("💾 Galmeessi"):
-                if maqaa and details and ogeessa:
-                    if nagahee:
-                        with open(os.path.join(NAGAHEE_DIR, f"{maqaa}_{datetime.now().second}.jpg"), "wb") as f:
-                            f.write(nagahee.getbuffer())
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, ara, qax, ", ".join(details), ogeessa, sum(d_fees.values())]
-                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("✅ Galmeeffameera!"); st.rerun()
+        # 2. Form Galmee
+        with st.form("entry_form", clear_on_submit=True):
+            st.markdown("##### Odeeffannoo Maamilaa")
+            c1, c2 = st.columns(2)
+            
+            # Form validation: placeholder fi label irratti "Required" dabalameera
+            maqaa_f = c1.text_input("Maqaa Abbaa Dhimmaa *", placeholder="Maqaa guutuu barreessi")
+            ara_f = c2.text_input("Araddaa *", placeholder="Araddaa  Dhimma")
+            qax_f = c1.text_input("Qaxana *", placeholder="Qaxana Abbaa Dhimma")
+            ogeessa = c2.text_input("Maqaa Ogeessaa *", placeholder="Maqaa Ogeessa")
+            
+            nagahee_file = st.file_uploader("Nagahee Scan (JPG/PNG)", type=['jpg','png','jpeg'])
 
+            # Button submit
+            submit = st.form_submit_button("💾 Galmeessi")
     # --- BADHAASA OGEEYYII ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Sadarkaa Ogeeyyii")
@@ -139,3 +148,4 @@ else:
                     st.markdown(f"<div class='card'><h3>{name}</h3><p>Hojii: {count}</p></div>", unsafe_allow_html=True)
                     pdf = create_advanced_pdf(name, count, i+1)
                     st.download_button(f"📥 Sartiifiketa", pdf, f"{name}.pdf", "application/pdf")
+
