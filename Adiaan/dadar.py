@@ -148,3 +148,64 @@ elif menu=="🔍 Barbaadi/Edit":
     if q:
         res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
         st.dataframe(res, use_container_width=True)
+
+# ================= MULTI-SERVICE REGISTRATION =================
+GATII_DICT = {
+    "Gibira": ["Gibira Baaxii", "Gibira Qonnaa"],
+    "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "TOT"],
+    "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
+    "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara"],
+    "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
+    "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kaasuu"],
+    "Liqii Bankii": ["Dorkka Liqii Bankii"]
+}
+
+# Multi-service Form
+elif menu=="📝 Galmee Haaraa":
+    st.header("📝 Galmee Tajaajilaa")
+    selected_main = st.multiselect("Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
+    details, d_fees, is_tot = [], {}, False
+    if selected_main:
+        for g in selected_main:
+            subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=f"m_{g}")
+            for s in subs:
+                details.append(f"{g}({s})")
+                d_fees[f"{g}_{s}"] = st.number_input(f"Kafaltii {s} (ETB)", min_value=0.0, key=f"f_{g}_{s}")
+                if s == "TOT": is_tot = True
+
+    name = st.text_input("Maqaa Abbaa Dhimmaa")
+    ogeessa = st.text_input("Maqaa Ogeessaa")
+
+    if st.button("💾 Galmeessi") and name and details and ogeessa:
+        new_row = [datetime.now().strftime('%d/%m/%Y'), name, "", "", ", ".join(details), ogeessa, sum(d_fees.values())]
+        df = pd.concat([df,pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+        save_data(df)
+        st.success("✅ Galmeeffameera!")
+
+# ================= PDF CERTIFICATES =================
+def create_pdf_certificate(name, count, rank):
+    pdf = FPDF(orientation='L', unit='mm', format='A4')
+    pdf.add_page()
+    colors = [(255,215,0),(192,192,192),(205,127,50)]
+    rank_color = colors[rank-1] if rank<=3 else (0,80,0)
+    pdf.set_draw_color(*rank_color)
+    pdf.set_line_width(3)
+    pdf.rect(10,10,277,190)
+    pdf.set_font("Arial","B",30)
+    pdf.cell(0,30,"SARTIIFIKETA BEEKAMTII",ln=True,align="C")
+    pdf.set_font("Arial","B",22)
+    pdf.cell(0,20,name.upper(),ln=True,align="C")
+    pdf.set_font("Arial","",16)
+    pdf.multi_cell(0,10,f"Waggaa 2026 tajaajila {count} kennuun sadarkaa {rank}ffaa argateera.", align="C")
+    return pdf.output(dest="S").encode("latin-1")
+
+# PDF for top 3 employees
+elif menu=="🏆 Badhaasa Ogeeyyii":
+    st.header("🏆 Sadarkaa Ogeeyyii")
+    if not df.empty:
+        top3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+        colors = ["#FFD700","#C0C0C0","#CD7F32"]
+        for i,(name,count) in enumerate(top3.items()):
+            st.markdown(f"<div class='card' style='border-top:5px solid {colors[i]};'><h3>{name}</h3><p>Hojii Raawwatame: {count}</p></div>", unsafe_allow_html=True)
+            pdf_file = create_pdf_certificate(name,count,i+1)
+            st.download_button(label=f"📥 Sartiifiketa {i+1}", data=pdf_file, file_name=f"{name}_certificate.pdf", mime="application/pdf")
