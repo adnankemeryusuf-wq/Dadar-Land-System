@@ -4,13 +4,6 @@ import os
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
-import streamlit as st
-import pandas as pd
-import os, io, requests
-from datetime import datetime
-from fpdf import FPDF
-import plotly.express as px
-from ethiopian_date import EthiopianDateConverter
 
 # ================= CONFIG =================
 st.set_page_config(
@@ -190,6 +183,13 @@ else:
             if res:
                 send_excel_to_telegram(*res,"Monthly Report")
                 st.success("Ergameera")
+import streamlit as st
+import pandas as pd
+import os, io, requests
+from datetime import datetime
+from fpdf import FPDF
+import plotly.express as px
+from ethiopian_date import EthiopianDateConverter
 
 
 # ================= 1. CONFIGURATION & STYLE =================
@@ -533,6 +533,7 @@ with tab2:
             st.warning("Ragaan hin jiru")
 
     st.dataframe(df)
+
 
 
 
