@@ -52,7 +52,34 @@ st.markdown("""
     #MainMenu, footer, header {visibility: hidden;}
     </style>
 """, unsafe_allow_html=True)
-
+# ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
+# Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
+SERVICE_STRUCTURE = {
+    "🏷 Gibira & Kaffaltii": [
+        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
+        "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
+    ],
+    "📜 Kaartaa & Qabiyyee": [
+        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
+        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
+    ],
+    "🏗 Pilaanii & Ijaarsa": [
+      "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+       "Humna Mahandisummaa"
+    ],
+    "⚖️ Dhimma Seeraa": [
+        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
+        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
+    ],
+    "📂 Tajaajila Biroo": [
+        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo)"
+    ],
+    "⚖️ Adabbii & Seeressuu": [
+        "Adabbii Ijaarsa Seeraan Alaa",
+        "Kaffaltii Seeressuu (Regularization)",
+        "Adabbii Faallaa Pilaanii"
+    ],
+}
 # ================= 2. CORE LOGIC =================
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
@@ -233,3 +260,4 @@ else:
                     st.markdown(f"<div class='card'><h2># {i+1}</h2><h3>{og_name}</h3><p>Tajaajila: {count}</p></div>", unsafe_allow_html=True)
                     cert = generate_pro_pdf("Cert", og_name, {}, logo_up)
                     st.download_button(f"📥 Download Certificate", cert, f"Cert_{og_name}.pdf")
+
