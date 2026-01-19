@@ -71,7 +71,6 @@ SERVICE_STRUCTURE = {
     ]
 }
 
-}
 
 # ================= 4. MAIN APP =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
@@ -123,4 +122,5 @@ else:
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
