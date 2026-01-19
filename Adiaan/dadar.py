@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -12,6 +11,7 @@ import plotly.express as px
 st.set_page_config("Dadar Land Admin", "🏢", layout="wide")
 DB_FILE = "dadar_land.db"
 NAGAHEE_DIR = "nagahee_scan"
+LOGO_PATH = "Adiaan/logo.png"
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
 
@@ -48,6 +48,11 @@ def load_data():
     conn = get_conn()
     df = pd.read_sql("SELECT * FROM galmee", conn)
     conn.close()
+    if not df.empty:
+        df['guyyaa'] = pd.to_datetime(df['guyyaa'], format='%d/%m/%Y', errors='coerce')
+        df['year'] = df['guyyaa'].dt.year
+        df['month'] = df['guyyaa'].dt.month
+        df['week'] = df['guyyaa'].dt.isocalendar().week
     return df
 
 def save_row(row):
@@ -91,37 +96,31 @@ def send_excel_to_telegram(file_bytes, filename, caption):
     requests.post(url, files={"document":(filename,file_bytes)}, data={"chat_id":CHAT_ID_MANAGER,"caption":caption})
 
 # ================= SESSION =================
-if 'logged' not in st.session_state: st.session_state.logged=False
+if 'logged_in' not in st.session_state: st.session_state.logged_in=False
+if 'role' not in st.session_state: st.session_state.role=None
 if 'pdf_bytes' not in st.session_state: st.session_state.pdf_bytes=None
 if 'pdf_name' not in st.session_state: st.session_state.pdf_name=""
 
 # ================= LOGIN =================
 if not st.session_state.logged_in:
-    if os.path.exists(LOGO_PATH):
-        st.image(LOGO_PATH, width=70)
-        st.title("Dadar Land Administration Customer Registration System")    
+    if os.path.exists(LOGO_PATH): st.image(LOGO_PATH,width=70)
+    st.title("Dadar Land Administration Customer Registration System")    
     with st.form("Login"):
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
             if u=="admin" and p=="1234":
-                st.session_state.logged_in=True
-                st.session_state.role="admin"
-                st.rerun()
-            elif u=="admin" and p=="1234":
-                st.session_state.logged_in=True
-                st.session_state.role="staff"
-                st.rerun()
-            else:
-                st.error("Login Dogoggora!")
-else:
+                st.session_state.logged_in=True; st.session_state.role="admin"; st.rerun()
+            elif u=="staff" and p=="1234":
+                st.session_state.logged_in=True; st.session_state.role="staff"; st.rerun()
+            else: st.error("Login Dogoggora!")
 
-# ================= MAIN =================
+# ================= MAIN APP =================
 else:
     df = load_data()
-    menu = st.sidebar.radio("MENU", ["📊 Dashboard","📝 Galmee Haaraa","📄 Clearance","📤 Telegram Report"])
+    menu = st.sidebar.radio("MENU", ["📊 Dashboard","📝 Galmee Haaraa","📄 Clearance","📤 Telegram Report","Ba'i"])
 
-# ---------- DASHBOARD ----------
+    # ---------- DASHBOARD ----------
     if menu=="📊 Dashboard":
         st.header("📊 Dashboard")
         if df.empty: st.info("Ragaan hin jiru")
@@ -144,8 +143,10 @@ else:
             kafaltii=st.number_input("Kafaltii (ETB)", min_value=0.0)
             nagahee=st.file_uploader("Nagahee Scan (JPG/PNG)",type=["jpg","png"])
             if st.form_submit_button("💾 Galmeessi"):
-                path=""; 
-                if nagahee: path=os.path.join(NAGAHEE_DIR,f"{maqaa}_{datetime.now().strftime('%H%M%S')}.jpg"); open(path,"wb").write(nagahee.getbuffer())
+                path="" 
+                if nagahee: 
+                    path=os.path.join(NAGAHEE_DIR,f"{maqaa}_{datetime.now().strftime('%H%M%S')}.jpg")
+                    open(path,"wb").write(nagahee.getbuffer())
                 save_row([datetime.now().strftime('%d/%m/%Y'),maqaa,araddaa,qaxana,",".join(services),ogeessa,kafaltii,path])
                 st.success("✅ Galmeeffameera!"); st.balloons()
 
@@ -174,4 +175,8 @@ else:
             if res: send_excel_to_telegram(*res,"Monthly Report"); st.success("Ergameera")
             else: st.warning("Ragaan hin jiru")
 
-
+    # ---------- LOGOUT ----------
+    elif menu=="Ba'i":
+        st.session_state.logged_in=False
+        st.session_state.role=None
+        st.experimental_rerun()
