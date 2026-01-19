@@ -7,7 +7,7 @@ from fpdf import FPDF
 import plotly.express as px
 
 # ================= CONFIG =================
-LOGO_PATH = "Adiaan/logo.png"
+LOGO_PATH = centered "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
 
@@ -180,3 +180,4 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
