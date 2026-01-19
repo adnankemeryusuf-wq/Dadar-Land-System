@@ -97,8 +97,9 @@ else:
             c1.markdown(f"<div class='card'><p>💰 Galii</p><p class='metric-value'>{df['Kafaltii_Taj'].sum():,.2f}</p></div>", unsafe_allow_html=True)
             c2.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
 
- # ================= 2. SERVICE LIST (GOSA TAJAAJILAA) =================
-# Gosa tajaajilaa hunda akka gosa gurguddaatti addaan baasuu
+ # --- REGISTRATION ---
+    if menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Tajaajilaa Haaraa")
 SERVICE_STRUCTURE = {
     "🏷 Gibira & Kaffaltii": [
         "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
@@ -159,5 +160,6 @@ SERVICE_STRUCTURE = {
                     st.markdown(f"<div class='card'><h3>{name}</h3><p>Hojii: {count}</p></div>", unsafe_allow_html=True)
                     pdf = create_advanced_pdf(name, count, i+1)
                     st.download_button(f"📥 Sartiifiketa", pdf, f"{name}.pdf", "application/pdf")
+
 
 
