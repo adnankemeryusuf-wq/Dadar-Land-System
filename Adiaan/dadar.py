@@ -97,8 +97,8 @@ else:
         else:
             st.info("Ragaan galmeeffame hin jiru.")
 
-    # --- REGISTRATION ---
-        elif menu == "📝 Galmee Haaraa":
+      # --- REGISTRATION ---
+    elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa Haaraa")
         
         SERVICE_STRUCTURE = {
@@ -123,7 +123,7 @@ else:
             ]
         }
 
-   selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(SERVICE_STRUCTURE.keys()))
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(SERVICE_STRUCTURE.keys()))
         details, d_fees = [], {}
         
         if selected_main:
@@ -159,6 +159,7 @@ else:
                 else:
                     st.warning("Maaloo odeeffannoo dirqamaa (*) guutaa.")
 
+
     # --- BADHAASA OGEEYYII ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Sadarkaa Ogeeyyii")
@@ -180,6 +181,7 @@ else:
         if q and not df.empty:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.dataframe(res[COL_NAMES])
+
 
 
 
