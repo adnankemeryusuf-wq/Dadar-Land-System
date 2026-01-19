@@ -7,12 +7,7 @@ from fpdf import FPDF
 import plotly.express as px
 from PIL import Image
 
-import streamlit as st
-import os
-from datetime import datetime
-from fpdf import FPDF
-
-# ================= 1. FUNCTIONS =================
+# ================= 1. FUNCTIONS & PDF LOGIC =================
 
 def get_ethiopian_date_str():
     # Herrega salphaa (Approximate for 2018 E.C)
@@ -31,11 +26,8 @@ def create_clearance_pdf(data):
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
     # --- LOGOS (BITTAA FI MIRGA) ---
-    # Logo Bittaa (Fkn: Mallattoo Oromiyaa)
     if os.path.exists("logo_bitta.jpg"): 
         pdf.image("logo_bitta.jpg", 15, 18, 23)
-    
-    # Logo Mirgaa (Fkn: Mallattoo Bulchiinsa Magaalaa)
     if os.path.exists("logo_mirga.jpg"): 
         pdf.image("logo_mirga.jpg", 172, 18, 23)
 
@@ -80,12 +72,12 @@ def create_clearance_pdf(data):
     pdf.set_font('Arial', '', 12)
     
     if data['haala_dhorkaa'] == "Dhorkaa qaba":
-        pdf.set_text_color(200, 0, 0) # Halluu Diimaa (Warning)
+        pdf.set_text_color(200, 0, 0) # Halluu Diimaa
         pdf.write(9, "Qabiyyeen kun DHORKAA MANA MURTII waan qabuuf tajaajilli kamiyyuu akka hin kennamne ni hubachiifna.")
     else:
         pdf.write(9, "Lafni/Manni kun dhorkaa mana murtii ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa mirkaneessineera.")
     
-    pdf.set_text_color(0, 0, 0) # Deebisii gurraacha godhi
+    pdf.set_text_color(0, 0, 0) 
     pdf.ln(12)
     pdf.write(9, f"Kanaafuu, dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan ni mirkaneessina.")
 
@@ -97,47 +89,8 @@ def create_clearance_pdf(data):
 
     return pdf.output(dest='S').encode('latin-1', 'ignore')
 
-# ================= 2. STREAMLIT UI =================
-st.set_page_config(page_title="Dadar Land Admin", layout="wide")
-st.header("📝 Sirna Qophii Waraqaa Qulqullinaa")
-
-if 'pdf_to_download' not in st.session_state:
-    st.session_state.pdf_to_download = None
-
-if st.session_state.pdf_to_download:
-    st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, "Clearance.pdf")
-    if st.button("🔄 Galmee Haaraa"):
-        st.session_state.pdf_to_download = None
-        st.rerun()
-
-with st.form("clearance_form"):
-    c1, c2 = st.columns(2)
-    m_maqaa = c1.text_input("Maqaa Maamilaa *")
-    m_kaartaa = c2.text_input("Lakk. Kaartaa *")
-    m_araddaa = c1.text_input("Araddaa")
-    m_bara = c2.text_input("Bara Gibiraa (Fkn: 2017)")
-    m_dhorkaa = c1.selectbox("Haala Dhorkaa Mana Murtii *", ["Bilisa", "Dhorkaa qaba"])
-    m_dhimma = c2.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
-    m_head = st.text_input("Maqaa Itti Gaafatamaa *")
-    
-    if st.form_submit_button("💾 PDF UUMI"):
-        if m_maqaa and m_kaartaa and m_head:
-            data_map = {
-                'maqaa': m_maqaa, 'araddaa': m_araddaa, 'kaartaa': m_kaartaa,
-                'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 'head_name': m_head,
-                'haala_dhorkaa': m_dhorkaa
-            }
-            st.session_state.pdf_to_download = create_clearance_pdf(data_map)
-            st.rerun()
-        else:
-            st.warning("Maaloo, odeeffannoo mallattoo (*) qabu guuti.")
-
 # ================= 2. CONFIGURATION & DATA =================
-LOGO_PATH = "Adiaan/logo.png"
-NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
-
-if not os.path.exists(NAGAHEE_DIR): os.makedirs(NAGAHEE_DIR)
 
 st.set_page_config(page_title="Dadar Land Admin Pro", page_icon="🏢", layout="wide")
 
@@ -152,7 +105,8 @@ SERVICE_STRUCTURE = {
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 def load_data():
-    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0: return pd.DataFrame(columns=COL_NAMES)
+    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0: 
+        return pd.DataFrame(columns=COL_NAMES)
     return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
 
 def save_data(df_to_save):
@@ -172,9 +126,11 @@ if not st.session_state.logged_in:
             if u == "admin" and p == "123":
                 st.session_state.logged_in = True
                 st.rerun()
+            else:
+                st.error("Dogoggora! Maaloo irra deebi'ii yaali.")
 else:
     df = load_data()
-    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📝 Galmee & Clearance", "🏆 Badhaasa", "📈 Gabaasa", "Ba'i"])
+    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📜 Qophii Clearance", "📈 Gabaasa", "Ba'i"])
 
     if menu == "📊 Dashboard":
         st.header("📊 Dashboard Overview")
@@ -182,12 +138,14 @@ else:
             c1, c2, c3 = st.columns(3)
             c1.metric("💰 Galii Waliigalaa", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
             c2.metric("👥 Maamiltoota", len(df))
-            st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa'))
+            c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
+            st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa', title="Trendii Kaffaltii"))
 
     elif menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa")
-        selected_cats = st.multiselect("Gosa Tajaajilaa:", list(SERVICE_STRUCTURE.keys()))
+        st.header("📝 Galmee Tajaajilaa Haaraa")
+        selected_cats = st.multiselect("Gosa Tajaajilaa Filadhu:", list(SERVICE_STRUCTURE.keys()))
         final_services, total_fee = [], 0
+        
         if selected_cats:
             for cat in selected_cats:
                 subs = st.multiselect(f"Tajaajiloota {cat}:", SERVICE_STRUCTURE[cat], key=cat)
@@ -196,38 +154,56 @@ else:
                     total_fee += st.number_input(f"Kaffaltii {s}:", min_value=0.0, key=f"f_{s}")
 
         with st.form("reg_form"):
-            name, ara, qax, ogeessa = st.text_input("Maqaa"), st.text_input("Araddaa"), st.text_input("Qaxana"), st.text_input("Ogeessa")
+            c1, c2 = st.columns(2)
+            name = c1.text_input("Maqaa Maamilaa")
+            ara = c2.text_input("Araddaa")
+            qax = c1.text_input("Qaxana")
+            ogeessa = c2.text_input("Ogeessa Raawwate")
+            
             if st.form_submit_button("💾 Galmeessi"):
                 if name and final_services:
                     new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, ", ".join(final_services), ogeessa, total_fee]
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("✅ Galmeeffameera!")
+                    save_data(df)
+                    st.success("✅ Galmeeffameera!")
+                else:
+                    st.error("Maaloo odeeffannoo guutuu galchi.")
 
-    elif menu == "📝 Galmee & Clearance":
-        st.header("📝 Galmee fi Qophii Clearance")
+    elif menu == "📜 Qophii Clearance":
+        st.header("📜 Qophii Waraqaa Qulqullinaa")
+        
         if st.session_state.pdf_to_download:
             st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, "Clearance.pdf")
-            if st.button("🔄 Galmee Haaraa"): st.session_state.pdf_to_download = None; st.rerun()
+            if st.button("🔄 Galmee Haaraa"): 
+                st.session_state.pdf_to_download = None
+                st.rerun()
         
         with st.form("clear_form"):
             c1, c2 = st.columns(2)
             m_maqaa = c1.text_input("Maqaa Maamilaa *")
-            m_araddaa = c2.text_input("Araddaa *")
-            m_kaartaa = c1.text_input("Lakk. Kaartaa *")
-            m_head = c2.text_input("Itti Gaafatamaa *")
-            m_bara = c1.text_input("Bara Gibiraa (Fkn: 2017)")
-            m_dhimma = c2.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa"])
+            m_kaartaa = c2.text_input("Lakk. Kaartaa *")
+            m_araddaa = c1.text_input("Araddaa")
+            m_bara = c2.text_input("Bara Gibiraa (Fkn: 2017)")
+            m_dhorkaa = c1.selectbox("Haala Dhorkaa Mana Murtii *", ["Bilisa", "Dhorkaa qaba"])
+            m_dhimma = c2.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+            m_head = st.text_input("Maqaa Itti Gaafatamaa *")
+            
             if st.form_submit_button("💾 PDF UUMI"):
-                if m_maqaa and m_kaartaa:
-                    data = {'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': "1", 'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 'head_name': m_head}
+                if m_maqaa and m_kaartaa and m_head:
+                    data = {
+                        'maqaa': m_maqaa, 'araddaa': m_araddaa, 'kaartaa': m_kaartaa,
+                        'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 'head_name': m_head,
+                        'haala_dhorkaa': m_dhorkaa
+                    }
                     st.session_state.pdf_to_download = create_clearance_pdf(data)
                     st.rerun()
 
     elif menu == "📈 Gabaasa":
+        st.header("📈 Gabaasa Waliigalaa")
         st.dataframe(df, use_container_width=True)
-        st.download_button("📥 CSV Buusi", df.to_csv(index=False).encode('utf-8'), "Gabaasa.csv")
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 CSV Buusi", csv, "Gabaasa_Dadar.csv", "text/csv")
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
-
