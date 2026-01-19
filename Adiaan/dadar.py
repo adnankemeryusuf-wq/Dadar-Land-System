@@ -7,7 +7,7 @@ from fpdf import FPDF
 import plotly.express as px
 
 # ================= CONFIG =================
-LOGO_PATH = centered "Adiaan/logo.png"
+LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
 
@@ -18,7 +18,7 @@ if not os.path.exists(NAGAHEE_DIR):
 COL_NAMES = ['Guyyaa','Maqaa_Abbaa_Dhimmaa','Araddaa','Qaxana','Gosa_Tajajjilaa','Maqaa_Ogeessa','Kafaltii_Taj']
 
 # ================= STYLING =================
-st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="centered")
+st.set_page_config(page_title="Dadar Land Administration", page_icon="🏢", layout="centered")
 st.markdown("""
 <style>
 .stApp { background-color: #f4f7f9; }
@@ -78,7 +78,7 @@ if 'role' not in st.session_state: st.session_state.role = None
 if not st.session_state.logged_in:
     if os.path.exists(LOGO_PATH):
         st.image(LOGO_PATH, width=70)
-        st.title("Dadar Land Administration Customer Registration System")    
+        st.title(" Customer Registration System")    
     with st.form("Login"):
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
@@ -180,4 +180,5 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
 
