@@ -23,62 +23,40 @@ COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajji
 MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
 MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
 
-# --- STYLE CSS (HALLUU #1b5e20) ---
-st.markdown(f"""
+st.markdown("""
     <style>
-    /* Background guutuu */
-    .stApp {{
-        background-color: #f4f7f6;
-    }}
+    .stApp { background-color: #f4f7f6; }
+    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
+    [data-testid="stSidebar"] * { color: white !important; }
+    h1, h2, h3 { color: #1b5e20 !important; }
     
-    /* Header fi Mata Duree */
-    .stHeader, h1, h2, h3 {{
-        color: #1b5e20 !important;
-    }}
-    
-    /* Sidebar (Bitaa) */
-    [data-testid="stSidebar"] {{
-        background-color: #1b5e20 !important;
-    }}
-    [data-testid="stSidebar"] * {{
-        color: white !important;
-    }}
-    
-    /* Buttooniwwan */
-    .stButton>button {{
-        background-color: #1b5e20;
-        color: white;
-        border-radius: 10px;
-        border: none;
-        font-weight: bold;
-        transition: 0.3s;
-    }}
-    .stButton>button:hover {{
-        background-color: #2e7d32;
-        color: #ffd700;
-    }}
-    
-    /* Card Style Dashboard-iif */
-    .card {{
+    /* Card Styles for Dashboard */
+    .card {
         background-color: white;
         padding: 20px;
         border-radius: 15px;
-        border-top: 5px solid #1b5e20;
-        box-shadow: 2px 2px 12px rgba(0,0,0,0.1);
+        border-left: 5px solid #1b5e20;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
         text-align: center;
-    }}
-    .metric-value {{
-        font-size: 28px;
+        margin-bottom: 10px;
+    }
+    .metric-value {
+        font-size: 24px;
         font-weight: bold;
         color: #1b5e20;
-    }}
+    }
     
-    /* Formii keessa */
-    div.stForm {{
+    .stButton>button {
+        background-color: #1b5e20;
+        color: white;
+        border-radius: 20px;
+        font-weight: bold;
+    }
+    div.stForm {
         border: 2px solid #1b5e20;
         border-radius: 15px;
         background-color: white;
-    }}
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -96,29 +74,40 @@ def load_data():
 def save_data(df_to_save):
     df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-def create_advanced_pdf(name, count, rank):
+def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    rank_colors = {1: (255, 215, 0), 2: (192, 192, 192), 3: (205, 127, 50)}
-    r_color = rank_colors.get(rank, (0, 80, 0))
     
-    pdf.set_draw_color(27, 94, 32) # #1b5e20
+    rank_colors = {1: (255, 215, 0), 2: (192, 192, 192), 3: (205, 127, 50)}
+    rank_labels = {1: "1FFAA", 2: "2FFAA", 3: "3FFAA"}
+    
+    r_color = rank_colors.get(rank, (0, 80, 0))
+    r_label = rank_labels.get(rank, "BEEKAMTII")
+
+    # Border
+    pdf.set_draw_color(0, 80, 0)
     pdf.set_line_width(3)
     pdf.rect(10, 10, 277, 190)
     
-    pdf.set_y(50)
+    # Header
+    pdf.set_y(45)
     pdf.set_text_color(*r_color)
     pdf.set_font('Arial', 'B', 35) 
     pdf.cell(0, 15, "SARTIIFIKETA BEEKAMTII", ln=True, align='C')
     
-    pdf.set_text_color(27, 94, 32)
-    pdf.set_font('Arial', 'B', 20)
-    pdf.cell(0, 15, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
-    
-    pdf.set_y(110)
-    pdf.set_font('Arial', 'B', 30)
-    pdf.cell(0, 15, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
-    
+    pdf.set_text_color(0, 80, 0)
+    pdf.set_font('Arial', 'B', 22)
+    pdf.cell(0, 12, "Waajjira Lafaa Bulchiinsa Magaalaa Dadar", ln=True, align='C')
+
+    pdf.set_y(90)
+    pdf.set_text_color(50, 50, 50)
+    pdf.set_font('Arial', 'I', 18)
+    pdf.cell(0, 10, f"Badhaasa Sadarkaa {r_label} Waggaa 2026", ln=True, align='C')
+
+    pdf.ln(10)
+    pdf.set_font('Arial', 'B', 30) 
+    pdf.cell(0, 25, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
+
     return pdf.output(dest='S').encode('latin-1', 'ignore')
 
 # ================= 3. MAIN APP =================
@@ -129,7 +118,7 @@ if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
         st.markdown("<h2 style='text-align:center;'>🏢 Admin Login</h2>", unsafe_allow_html=True)
-        with st.form("login"):
+        with st.form("login_form"):
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
             if st.form_submit_button("Seeni"):
@@ -140,55 +129,58 @@ if not st.session_state.logged_in:
 else:
     df = load_data()
     with st.sidebar:
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=100)
-        st.markdown("### Deder Land Office")
+        st.success("Deder City Land Office")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit"])
         if st.button("Log Out"):
             st.session_state.logged_in = False
             st.rerun()
 
-    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
         st.header("📊 Dashboard Waliigalaa")
         if not df.empty:
             c1, c2, c3 = st.columns(3)
-            with c1: st.markdown(f"<div class='card'><p>💰 Galii Waliigalaa</p><p class='metric-value'>{df['Kafaltii_Taj'].sum():,.2f} ETB</p></div>", unsafe_allow_html=True)
+            with c1: st.markdown(f"<div class='card'><p>💰 Galii</p><p class='metric-value'>{df['Kafaltii_Taj'].sum():,.2f} ETB</p></div>", unsafe_allow_html=True)
             with c2: st.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
             with c3:
                 top = df['Maqaa_Ogeessa'].mode()[0] if not df['Maqaa_Ogeessa'].empty else "-"
-                st.markdown(f"<div class='card'><p>🏆 Ogeessa Filatamaa</p><p class='metric-value'>{top}</p></div>", unsafe_allow_html=True)
-            st.markdown("---")
-            st.subheader("Trendii Galii Ji'aan")
-            st.area_chart(df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0))
+                st.markdown(f"<div class='card'><p>🏆 Ogeessa</p><p class='metric-value'>{top}</p></div>", unsafe_allow_html=True)
         else: st.info("Data'n hin jiru.")
 
-    # --- REGISTRATION ---
     elif menu == "📝 Galmee Haaraa":
         st.header("📝 Galmee Tajaajilaa")
-        with st.form("entry_form"):
+        GATII_DICT = {
+            "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
+            "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "TOT"],
+            "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa"],
+            "Kaartaa": ["Kaartaa Lafa", "Kaartaa Kadastaara"]
+        }
+        selected = st.multiselect("Gosa Tajaajilaa:", list(GATII_DICT.keys()))
+        details, fees = [], {}
+        if selected:
+            for g in selected:
+                subs = st.multiselect(f"Tajaajila {g}:", GATII_DICT[g], key=g)
+                for s in subs:
+                    details.append(f"{g}({s})")
+                    fees[s] = st.number_input(f"Kafaltii {s}", min_value=0.0)
+
+        with st.form("reg_form"):
             maqaa = st.text_input("Maqaa Abbaa Dhimmaa")
             ara = st.text_input("Araddaa")
             qax = st.text_input("Qaxana")
-            gosa = st.selectbox("Gosa Tajaajilaa", ["Gibira", "Liizii", "Kaartaa", "Dhimma Mana Murtii"])
             og = st.text_input("Maqaa Ogeessaa")
-            kaf = st.number_input("Kafaltii (ETB)", min_value=0.0)
             if st.form_submit_button("💾 Galmeessi"):
                 if maqaa and og:
-                    new = [datetime.now().strftime('%d/%m/%Y'), maqaa, ara, qax, gosa, og, kaf]
+                    new = [datetime.now().strftime('%d/%m/%Y'), maqaa, ara, qax, ", ".join(details), og, sum(fees.values())]
                     df = pd.concat([df, pd.DataFrame([new], columns=COL_NAMES)], ignore_index=True)
                     save_data(df); st.success("Galmeeffameera!"); st.rerun()
 
-    # --- REPORT ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa Galii")
         if not df.empty:
             st.dataframe(df[COL_NAMES], use_container_width=True)
-            buf = io.BytesIO()
-            with pd.ExcelWriter(buf, engine='xlsxwriter') as writer:
-                df[COL_NAMES].to_excel(writer, index=False)
-            st.download_button("📥 Excel Buufadhu", buf.getvalue(), "Gabaasa.xlsx")
+            st.metric("Waliigala", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+        else: st.warning("Data'n hin jiru.")
 
-    # --- AWARDS ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Sadarkaa Ogeeyyii")
         if not df.empty:
@@ -198,9 +190,8 @@ else:
                 with cols[i]:
                     st.markdown(f"<div class='card'><h3>{name}</h3><p>Hojii: {count}</p></div>", unsafe_allow_html=True)
                     pdf = create_advanced_pdf(name, count, i+1)
-                    st.download_button(f"📥 PDF {i+1}", data=pdf, file_name=f"Badhaasa_{name}.pdf")
-
-    # --- SEARCH/EDIT ---
+                    st.download_button(f"📥 Sartiifiketa {i+1}", data=pdf, file_name=f"Badhaasa_{name}.pdf", mime="application/pdf")
+    
     elif menu == "🔍 Barbaadi/Edit":
         q = st.text_input("Maqaa Barbaadi")
         if q and not df.empty:
