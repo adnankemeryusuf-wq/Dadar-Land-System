@@ -5,23 +5,14 @@ import io
 import requests
 from datetime import datetime
 from fpdf import FPDF
-import plotly.express as px
 
-# ================= 1. CONFIGURATION & STYLE =================
-LOGO_PATH = "Adiaan/logo.png"
-NAGAHEE_DIR = "nagahee_scan"
-DATA_FILE = "dadar_final_report.txt"
+# --- CONFIGURATION TELEGRAM ---
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
 
-if not os.path.exists(NAGAHEE_DIR):
-    os.makedirs(NAGAHEE_DIR)
+# ================= 1. CONFIG & STYLING =================
+st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
-st.set_page_config(
-    page_title="Dadar Land Admin Pro", 
-    page_icon="🏢", 
-    layout="wide"
-)
-
-# Halluu fi Style
 st.markdown("""
     <style>
     .stApp { background: #f4f7f6; }
@@ -430,3 +421,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
