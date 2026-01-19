@@ -508,9 +508,6 @@ if not st.session_state.logged_in:
         if u == "DAD" and p == "2026": 
             st.session_state.logged_in = True
             st.rerun()
-else:
-    df = load_data()
-    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📜CLEARANCE", "🏆 Badhaasa", "📈 Gabaasa"])
 
 # --- REGISTRATION ---
     if menu == "📝 Galmee Haaraa":
@@ -760,6 +757,7 @@ with st.form("clearance_form", clear_on_submit=False):
                 st.error(f"Dogoggora: {e}")
         else:
             st.warning("Maaloo, dirree '*' qaban hunda guuti, akkasumas mirkaneessi.")
+
 
 
 
