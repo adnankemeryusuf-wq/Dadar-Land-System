@@ -242,3 +242,177 @@ else:
         st.session_state.logged_in = False
         st.rerun()
 
+import streamlit as st
+import pandas as pd
+import os, io
+from datetime import datetime
+from fpdf import FPDF
+# Library kana 'pip install ethiopian-date' godhii fe'adhu
+from ethiopian_date import EthiopianDateConverter
+
+# ================= 1. SETUP =================
+st.set_page_config(page_title="Dadar Land Admin", layout="wide", page_icon="🏢")
+
+if 'pdf_to_download' not in st.session_state:
+    st.session_state.pdf_to_download = None
+if 'pdf_name' not in st.session_state:
+    st.session_state.pdf_name = ""
+
+# ================= 2. FUNCTIONS =================
+
+def get_ethiopian_date_str():
+    """Guyyaa har'aa gara Itoophiyaatti jijjiiruuf"""
+    now = datetime.now()
+    # Tooftaa sirrii library ethiopian-date itti fayyadaman
+    e_date = EthiopianDateConverter.to_ethiopian(now.year, now.month, now.day)
+    return f"{e_date[2]:02d}/{e_date[1]:02d}/{e_date[0]}"
+
+def create_clearance_pdf(data):
+    # 'latin-1' bakka 'Arial' ykn 'Times' itti fayyadamnuuf 'FPDF' qofaan gahaa dha
+    pdf = FPDF(orientation='P', unit='mm', format='A4')
+    pdf.add_page()
+    
+    # Border (Double line)
+    pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
+    pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
+
+    # Logos (Checking if they exist before drawing)
+    if os.path.exists("logo_bitta.jpg"): 
+        pdf.image("logo_bitta.jpg", 15, 18, 23)
+    if os.path.exists("logo_mirga.jpg"): 
+        pdf.image("logo_mirga.jpg", 172, 18, 23)
+
+    # --- Header Section ---
+    pdf.set_y(22)
+    pdf.set_font('Arial', 'B', 15)
+    pdf.cell(0, 10, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
+    
+    pdf.set_font('Arial', 'B', 14)
+    pdf.cell(0, 8, "WAAJJIRA LAFAA", ln=True, align='C')
+    pdf.cell(0, 8, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
+    
+    # Header Underline
+    pdf.ln(3); pdf.set_line_width(0.5); pdf.line(20, 50, 190, 50)
+
+    # Date and Ref No
+    pdf.ln(12); pdf.set_font('Arial', '', 12)
+    guyyaa_ec = get_ethiopian_date_str()
+    
+    # Lakk Galmee (Year calculation in EC)
+    now = datetime.now()
+    e_year = EthiopianDateConverter.to_ethiopian(now.year, now.month, now.day)[0]
+
+    pdf.set_x(20)
+    pdf.write(5, "Lakk. Galmee: ")
+    pdf.set_font('Arial', 'B', 12) 
+    pdf.write(5, f"DAD/WL/{e_year}/____")
+    
+    pdf.set_font('Arial', '', 12)
+    pdf.set_x(140)
+    pdf.write(5, f"Guyyaa: {guyyaa_ec}")
+    pdf.ln(18)
+
+    # Subject
+    pdf.set_font('Arial', 'B', 14)
+    pdf.cell(0, 10, "DHIMMA: WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C')
+    pdf.ln(8)
+
+    # Body
+    pdf.set_font('Arial', '', 12)
+    pdf.set_x(20)
+    
+    # Multi-cell or writing for better flow
+    body_text = (
+        f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} "
+        f"Araddaa {data['araddaa']} Qaxana {data['qaxana']} keessatti mana/lafa Lakk. Kaartaa "
+        f"{data['kaartaa']} qabaniif kan kennameedha.\n\n"
+        f"Maamilli kun hanga guyyaa har'aatti tajaajiloota waajjira keenya irraa argachaa turaniif:\n\n"
+    )
+    pdf.set_x(20)
+    pdf.multi_cell(170, 8, body_text)
+
+    # Items
+    pdf.set_x(20)
+    pdf.write(8, "1. Kaffaltii Gibira waggaa hanga bara ")
+    pdf.set_font('Arial', 'B', 12); pdf.write(8, f"{data['bara_gibiraa']} E.C"); pdf.set_font('Arial', '', 12)
+    pdf.write(8, " guutummaatti kaffalaniiru.\n")
+
+    pdf.set_x(20)
+    if data.get('gosa_qabiyyee') == "Liizii":
+        pdf.write(8, "2. Kaffaltii ")
+        pdf.set_font('Arial', 'B', 12); pdf.write(8, "Liizii"); pdf.set_font('Arial', '', 12)
+        pdf.write(8, " waggaa/duraa kan kaffalamuu qabu hunda kaffalanii kan xumuran ta'uu isaanii ni mirkaneessina.\n")
+    else:
+        pdf.write(8, "2. Kaffaltii tajaajilaa fi kaffaltiiwwan adda addaa qabiyyee durii kanaan wal qabatan hunda raawwatanii kan xumuran ta'uu isaanii ni mirkaneessina.\n")
+
+    pdf.set_x(20)
+    pdf.write(8, "3. Lafni/Manni kun ")
+    pdf.set_font('Arial', 'B', 12); pdf.write(8, "DHORKAA MANA MURTII"); pdf.set_font('Arial', '', 12)
+    pdf.write(8, " ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.\n\n")
+
+    pdf.set_x(20)
+    pdf.multi_cell(170, 8, f"Kanaafuu, maamilli kun dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan beekamee, waajjirri keenyas dhimma kana irratti mormii kan hin qabne ta'uu ni mirkaneessina.")
+
+    # --- SIGNATURE SECTION ---
+    pdf.set_y(235); pdf.set_x(20)
+    pdf.set_font('Arial', '', 12); pdf.write(8, "Maqaa Itti Gaafatamaa: ")
+    pdf.set_font('Arial', 'B', 12); pdf.write(8, f"{data['head_name']}")
+    
+    pdf.ln(8); pdf.set_x(20)
+    pdf.set_font('Arial', '', 12); pdf.write(8, "Mallattoo: _________________")
+    
+    # Stamp (Right)
+    pdf.set_y(243); pdf.set_x(120)
+    pdf.set_font('Arial', 'B', 11)
+    pdf.cell(70, 8, "(Chaappaa Waajjiraa)", ln=True, align='R')
+
+    return pdf.output(dest='S').encode('latin-1')
+
+# ================= 3. STREAMLIT UI =================
+st.header("📝 Sirna Qophii Waraqaa Qulqullinaa (Clearance)")
+
+# To show download button if PDF is ready
+if st.session_state.pdf_to_download:
+    st.success(f"✅ PDF'n {st.session_state.pdf_name} qophaa'eera!")
+    st.download_button(
+        label="📥 PDF Buufadhu",
+        data=st.session_state.pdf_to_download,
+        file_name=st.session_state.pdf_name,
+        mime="application/pdf"
+    )
+    if st.button("🔄 Haaraa Jalqabi"):
+        st.session_state.pdf_to_download = None
+        st.rerun()
+
+with st.form("clearance_form", clear_on_submit=False):
+    st.info("Odeeffannoo maamilaa guuti")
+    c1, c2 = st.columns(2)
+    m_maqaa = c1.text_input("Maqaa Maamilaa *")
+    m_araddaa = c2.text_input("Araddaa *")
+    m_qaxana = c1.text_input("Lakk. Qaxana *")
+    m_kaartaa = c2.text_input("Lakk. Kaartaa *")
+    m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
+    m_bara = c2.text_input("Bara Gibiraa Xumurame (E.C)")
+    m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+    
+    st.markdown("---")
+    m_head = st.text_input("Maqaa Itti Gaafatamaa *")
+    m_dhorkaa_bilisa = st.checkbox("Qabiyyeen kun dhorkaa irraa bilisa ta'uu nan mirkaneessa.")
+
+    submit = st.form_submit_button("💾 PDF UUMI")
+    
+    if submit:
+        if m_maqaa and m_kaartaa and m_head and m_dhorkaa_bilisa:
+            data_map = {
+                'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana, 
+                'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 
+                'gosa_qabiyyee': m_gosa, 'head_name': m_head
+            }
+            try:
+                st.session_state.pdf_to_download = create_clearance_pdf(data_map)
+                st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
+                st.rerun()
+            except Exception as e:
+                st.error(f"Dogoggora: {e}")
+        else:
+            st.warning("Maaloo, dirree '*' qaban hunda guuti, akkasumas mirkaneessi.")
