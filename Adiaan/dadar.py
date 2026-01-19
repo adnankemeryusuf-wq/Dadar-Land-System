@@ -21,7 +21,7 @@ if not os.path.exists(NAGAHEE_DIR):
 st.set_page_config(
     page_title="Dadar Land Administration System", 
     page_icon="🏢", 
-    layout="wide"
+    layout="centered"
 )
 
 
@@ -190,6 +190,7 @@ else:
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
+
 
 
 
