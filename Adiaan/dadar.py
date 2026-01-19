@@ -20,7 +20,7 @@ if not os.path.exists(NAGAHEE_DIR):
 st.set_page_config(
     page_title=" Dadar Land Administration Customer Registration System ", 
     page_icon="🏢", 
-    layout=""
+    layout="CENTERED"
 )
 
 # Halluu fi Style
@@ -318,6 +318,7 @@ else:
             st.image(LOGO_PATH, width=80)
     with col2:
         st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+
 
 
 
