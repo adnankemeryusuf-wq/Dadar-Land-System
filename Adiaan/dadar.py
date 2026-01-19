@@ -1,3 +1,17 @@
+import streamlit as st
+import pandas as pd
+import os
+import io
+import requests
+from datetime import datetime
+from fpdf import FPDF
+
+# --- CONFIGURATION TELEGRAM ---
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
+
+
+
 def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     # Orientation 'L' (Landscape), Unit 'mm'
     pdf = FPDF(orientation='L', unit='mm', format='A4')
@@ -67,3 +81,4 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
 
     # Output as bytes
     return pdf.output(dest='S').encode('latin-1', 'replace') # 'replace' filannoo gaariidha
+
