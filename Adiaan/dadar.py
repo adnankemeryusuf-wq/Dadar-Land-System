@@ -65,22 +65,20 @@ def create_clearance_pdf(data):
 
     pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n")
     pdf.write(9, "2. Kaffaltii tajaajilaa hunda raawwatanii kan xumuran ta'uu ni mirkaneessina.\n")
-
-    # --- DHORKAA MANA MURTII ---
-    pdf.set_font('Arial', 'B', 12)
+# --- 3. DHORKAA MANA MURTII LOGIC ---
+    pdf.set_font('Times', 'B', 12)
     pdf.write(9, "3. DHORKAA MANA MURTII: ")
-    pdf.set_font('Arial', '', 12)
+    pdf.set_font('Times', '', 12)
     
-    if data['haala_dhorkaa'] == "Dhorkaa qaba":
-        pdf.set_text_color(200, 0, 0) # Halluu Diimaa
+    # Yoo 'Dhorkaa qaba' jedhame halluu diimaan barreeffama
+    if data.get('haala_dhorkaa') == "Dhorkaa qaba":
+        pdf.set_text_color(200, 0, 0)  # Red color for warning
         pdf.write(9, "Qabiyyeen kun DHORKAA MANA MURTII waan qabuuf tajaajilli kamiyyuu akka hin kennamne ni hubachiifna.")
+        pdf.set_text_color(0, 0, 0)    # Reset to black
     else:
-        pdf.write(9, "Lafni/Manni kun dhorkaa mana murtii ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa mirkaneessineera.")
+        pdf.write(9, "Lafni/Manni kun dhorkaa mana murtii ykn dhimma seeraa biroo kamirrayyuu bilisa ta'uu isaa qulqulleessinee mirkaneessineera.")
     
-    pdf.set_text_color(0, 0, 0) 
     pdf.ln(12)
-    pdf.write(9, f"Kanaafuu, dhimma {data['dhimma']} raawwachuuf ragaa qulqullinaa kana akka dhiyeeffatan ni mirkaneessina.")
-
     # --- Signature ---
     pdf.set_y(240); pdf.set_x(20)
     pdf.write(8, f"Maqaa Itti Gaafatamaa: {data['head_name']}\nMallattoo: _________________")
@@ -207,3 +205,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
