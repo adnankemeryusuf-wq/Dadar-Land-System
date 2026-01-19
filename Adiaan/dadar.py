@@ -175,3 +175,46 @@ else:
             fig = px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa')
             st.plotly_chart(fig, use_container_width=True)
 
+if menu == "📈 Gabaasa Bal'aa":
+        st.header("📈 Gabaasa & Calaltuu")
+        if not df.empty:
+            with st.sidebar:
+                st.markdown("---")
+                f_type = st.radio("Filtarii:", ["Waggaa", "Kurmaana", "Ji'a", "Torbee", "Guyyaa"])
+                sel_y = st.selectbox("Waggaa", sorted(df['Waggaa'].dropna().unique(), reverse=True))
+                filtered = df[df['Waggaa'] == sel_y]
+                if f_type == "Kurmaana": filtered = filtered[filtered['Kurmaana'] == st.selectbox("Q", [1,2,3,4])]
+                elif f_type == "Ji'a": filtered = filtered[filtered['Ji\'a'] == st.selectbox("Ji'a", MONTH_ORDER)]
+                elif f_type == "Torbee":
+                    sel_m, sel_w = st.selectbox("Ji'a", MONTH_ORDER), st.selectbox("Torbee", [1,2,3,4])
+                    filtered = filtered[(filtered['Ji\'a'] == sel_m) & (filtered['Torbee'] == sel_w)]
+                elif f_type == "Guyyaa": filtered = filtered[filtered['Guyyaa_Torbee'] == st.selectbox("Guyyaa", list(WEEKDAY_MAP.values()))]
+
+            st.dataframe(filtered[COL_NAMES], use_container_width=True)
+            st.metric("Galii Filtarii", f"{filtered['Kafaltii_Taj'].sum():,.2f} ETB")
+
+    # --- 4. BADHAASA OGEEYYII (PDF) ---
+    elif menu == "🏆 Badhaasa Ogeeyyii":
+        st.header("🏆 Sartiifiikeeta Ogeeyyii Cimaa")
+        if not df.empty:
+            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            cols = st.columns(3)
+            medals = ["🥇 1FFAA", "🥈 2FFAA", "🥉 3FFAA"]
+            for i, (name, count) in enumerate(top_3.items()):
+                with cols[i]:
+                    st.markdown(f"<div class='card'><h2>{medals[i]}</h2><h3>{name}</h3><p>Abbootii Dhimmaa: {count}</p></div>", unsafe_allow_html=True)
+                    pdf_data = create_pdf_cert(name, count, i+1)
+                    st.download_button(f"📥 Download PDF {i+1}", pdf_data, f"Cert_{name}.pdf", "application/pdf")
+        else: st.warning("Data'n hin jiru.")
+
+    # --- 5. SEARCH / EDIT ---
+    elif menu == "🔍 Barbaadi/Edit":
+        q = st.text_input("Maqaa Barbaadi...")
+        if q:
+            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            for idx, row in res.iterrows():
+                with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']}"):
+                    if st.button("🗑 Haqi", key=f"del_{idx}"):
+                        df = df.drop(idx); save_data(df); st.rerun()
+
+    elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
