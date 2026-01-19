@@ -122,16 +122,30 @@ else:
     elif menu == "📜 Qophii Clearance":
         st.header("📜 Qophii Waraqaa Qulqullinaa")
         with st.form("clear_form"):
-            c1, c2 = st.columns(2)
-            m_maqaa = c1.text_input("Maqaa Maamilaa *")
-            m_kaartaa = c2.text_input("Lakk. Kaartaa *")
-            m_bara = c1.text_input("Bara Gibiraa (Fkn: 2017)")
-            m_head = c2.text_input("Itti Gaafatamaa *")
-            m_dhimma = st.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa"])
-            if st.form_submit_button("💾 PDF UUMI"):
-                data = {'maqaa': m_maqaa, 'araddaa': "01", 'qaxana': "1", 'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 'head_name': m_head, 'gosa_qabiyyee': 'Liizii'}
-                st.session_state.pdf_to_download = create_clearance_pdf(data)
-                st.rerun()
+               c1, c2 = st.columns(2)
+    m_maqaa = c1.text_input("Maqaa Maamilaa *")
+    m_araddaa = c2.text_input("Araddaa *")
+    m_qaxana = c1.text_input("Lakk. Qaxana *")
+    m_kaartaa = c2.text_input("Lakk. Kaartaa *")
+    m_gosa = c1.selectbox("Gosa Qabiyyee", ["Liizii", "Qabiyyee Durii (Permit)"])
+    m_bara = c2.text_input("Bara Gibiraa Xumurame (Fkn: 2017)")
+    m_dhimma = c1.selectbox("Dhimma Maaliif?", ["Gurgurtaa", "Liqii Bankii", "Kennaa", "Waliigaltee"])
+    st.markdown("---")
+    m_head = st.text_input("Maqaa Itti Gaafatamaa *")
+    m_dhorkaa_bilisa = st.checkbox("Qabiyyeen kun dhorkaa irraa bilisa ta'uu nan mirkaneessa.")
+
+    if st.form_submit_button("💾 PDF UUMI"):
+        if all([m_maqaa, m_kaartaa, m_head, m_dhorkaa_bilisa]):
+            data_map = {
+                'maqaa': m_maqaa, 'araddaa': m_araddaa, 'qaxana': m_qaxana, 
+                'kaartaa': m_kaartaa, 'bara_gibiraa': m_bara, 'dhimma': m_dhimma, 
+                'gosa_qabiyyee': m_gosa, 'head_name': m_head
+            }
+            st.session_state.pdf_to_download = create_clearance_pdf(data_map)
+            st.session_state.pdf_name = f"Clearance_{m_maqaa.replace(' ', '_')}.pdf"
+            st.rerun()
+
+
         
         if st.session_state.pdf_to_download:
             st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, "Clearance.pdf")
@@ -211,3 +225,4 @@ logo_r = st.sidebar.file_uploader("Logo Mirgaa (Right)", type=['jpg', 'png', 'jp
 
 if logo_l: st.sidebar.image(logo_l, caption="Logo Bittaa", width=100)
 if logo_r: st.sidebar.image(logo_r, caption="Logo Mirgaa", width=100)
+
