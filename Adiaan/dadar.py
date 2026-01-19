@@ -178,19 +178,13 @@ else:
                 st.write(f"{i}. {n} ({c} tajaajila)")
                 pdf = create_certificate(n, c, i, None, None, sig)
                 st.download_button(f"📥 Sartiifikeeta {n}", pdf, f"Cert_{n}.pdf")
-
+                
     # --- GABAASA ---
     elif menu == "📈 Gabaasa":
         st.header("📋 Galmeewwan Hundi")
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")mport pandas as pd']
-import os, io
-from datetime import datetime
-from fpdf import FPDF
-from PIL import Image
-from ethiopian_date import EthiopianDateConverter
-
+        st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
 # ================= 1. SETUP =================
 st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
@@ -1869,6 +1863,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
