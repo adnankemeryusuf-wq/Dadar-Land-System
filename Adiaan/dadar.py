@@ -107,19 +107,44 @@ def create_certificate(name, count, rank, l_l, l_r, sig):
     pdf.line(40, 180, 100, 180); pdf.set_xy(40, 182); pdf.cell(60, 10, "Itti Gaafatamaa", align='C')
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
-# ================= 4. MAIN NAVIGATION =================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
-
+ ================= LOGIN LOGIC =================
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    # Login Section
-    st.title("🔐 Dadar Land Admin Login")
-    u = st.text_input("Username")
-    p = st.text_input("Password", type="password")
-    if st.button("Seeni"):
-        if u == "DAD" and p == "2026": 
-            st.session_state.logged_in = True
-            st.rerun()
+    # Display logo if exists
+    if os.path.exists(LOGO_PATH):
+        st.image(LOGO_PATH, width=120)
+    
+    st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+    with st.form("Login"):
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.form_submit_button("Login"):
+            if u == admin and p == 1234:
+                st.session_state.logged_in = True
+                st.rerun()
+            else:
+                st.error("Login Dogoggora!")
+
+else:
+    # ================= SIDEBAR =================
+    if os.path.exists(LOGO_PATH):
+        st.sidebar.image(LOGO_PATH, use_container_width=True)
+    
+    st.sidebar.title("Main Menu")
+    menu_options = ["Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"]
+    menu = st.sidebar.selectbox("Filannoo", menu_options)
+
+    # ================= MAIN HEADER =================
+    col1, col2 = st.columns([1, 5])
+    with col1:
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=80)
+    with col2:
+        st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+
+
 else:
     df = load_data()
     menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🏆 Badhaasa", "📈 Gabaasa"])
@@ -226,6 +251,7 @@ else:
             st.image(LOGO_PATH, width=80)
     with col2:
         st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
+
 
 
 
