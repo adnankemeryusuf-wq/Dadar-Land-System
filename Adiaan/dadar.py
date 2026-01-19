@@ -1,58 +1,79 @@
 import streamlit as st
 import pandas as pd
+import sqlite3
 import os
-import io
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
 
 # ================= CONFIG =================
-LOGO_PATH = "Adiaan/logo.png"
+DB_FILE = "dadar_land.db"
 NAGAHEE_DIR = "nagahee_scan"
-DATA_FILE = "dadar_final_report.txt"
+LOGO_PATH = "Adiaan/logo.png"
 
 if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
 
-# Columns for CSV storage
-COL_NAMES = ['Guyyaa','Maqaa_Abbaa_Dhimmaa','Araddaa','Qaxana','Gosa_Tajajjilaa','Maqaa_Ogeessa','Kafaltii_Taj']
+COL_NAMES = ['id','date','customer_name','araddaa','qaxana','service_type','staff_name','payment','nagahee_path']
 
-# ================= STYLING =================
-st.set_page_config(page_title="Dadar Land Administration", page_icon="🏢", layout="centered")
-st.markdown("""
-<style>
-.stApp { background-color: #f4f7f9; }
-div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
-.card { background: white; padding: 15px; border-radius: 7px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-</style>
-""", unsafe_allow_html=True)
+# ================= DATABASE =================
+def get_conn():
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS records (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            date TEXT,
+            customer_name TEXT,
+            araddaa TEXT,
+            qaxana TEXT,
+            service_type TEXT,
+            staff_name TEXT,
+            payment REAL,
+            nagahee_path TEXT
+        )
+    """)
+    conn.commit()
+    return conn
 
-# ================= DATA FUNCTIONS =================
 def load_data():
-    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
-        return pd.DataFrame(columns=COL_NAMES)
-    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0)
-    df['Guyyaa'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y')
-    df['Waggaa'] = df['Guyyaa'].dt.year
-    df['Ji_a'] = df['Guyyaa'].dt.month
-    df['Torbee'] = df['Guyyaa'].dt.isocalendar().week
+    conn = get_conn()
+    df = pd.read_sql("SELECT * FROM records", conn)
+    conn.close()
+    if not df.empty:
+        # Safely convert to datetime; invalid dates become NaT
+        df['date'] = pd.to_datetime(df['date'], format='%d/%m/%Y', errors='coerce')
+        df['year'] = df['date'].dt.year
+        df['month'] = df['date'].dt.month
+        df['week'] = df['date'].dt.isocalendar().week
     return df
 
-def save_data(df):
-    df[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+def save_row(row):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("""
+        INSERT INTO records
+        (date, customer_name, araddaa, qaxana, service_type, staff_name, payment, nagahee_path)
+        VALUES (?,?,?,?,?,?,?,?)
+    """, row)
+    conn.commit()
+    conn.close()
+
+def delete_row(record_id):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("DELETE FROM records WHERE id=?", (record_id,))
+    conn.commit()
+    conn.close()
 
 # ================= PDF CERTIFICATE =================
 def create_pdf_cert(name, count, rank, logo_left=None, logo_right=None):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    
-    # Border
     pdf.set_draw_color(0,100,0)
     pdf.set_line_width(2)
     pdf.rect(10,10,277,190)
     
-    # Logos
     if logo_left: pdf.image(logo_left, 20, 15, 30)
     if logo_right: pdf.image(logo_right, 230, 15, 30)
     
@@ -63,44 +84,47 @@ def create_pdf_cert(name, count, rank, logo_left=None, logo_right=None):
     pdf.cell(0,20,f"Obbo/Adde: {name}",0,1,'C')
     pdf.set_font('Arial','',14)
     pdf.multi_cell(0,10,f"Waggaa 2026 keessatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru.", align='C')
-    
     pdf.line(40,180,100,180)
     pdf.set_xy(40,182)
     pdf.cell(60,10,"Itti Gaafatamaa",align='C')
-    
     return pdf.output(dest='S').encode('latin-1','replace')
 
+# ================= STYLING =================
+st.set_page_config(page_title="Dadar Land System", page_icon="🏢", layout="wide")
+st.markdown("""
+<style>
+.stApp { background-color: #f4f7f9; }
+div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
+.card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; }
+</style>
+""", unsafe_allow_html=True)
+
 # ================= SESSION =================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
-if 'role' not in st.session_state: st.session_state.role = None
+if 'logged_in' not in st.session_state: st.session_state.logged_in=False
+if 'role' not in st.session_state: st.session_state.role=None
 
 # ================= LOGIN =================
+USER_CREDENTIALS = {"admin":"1234","staff":"1234"}
+
 if not st.session_state.logged_in:
-    if os.path.exists(LOGO_PATH):
-        st.image(LOGO_PATH, width=70)
-        st.title(" Customer Registration System")    
+    if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
+    st.title("W/Bulchiinsa Lafaa Magaalaa Dadar")
     with st.form("Login"):
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         if st.form_submit_button("Login"):
-            if u=="admin" and p=="1234":
+            if u in USER_CREDENTIALS and p==USER_CREDENTIALS[u]:
                 st.session_state.logged_in=True
-                st.session_state.role="admin"
-                st.rerun()
-            elif u=="admin" and p=="1234":
-                st.session_state.logged_in=True
-                st.session_state.role="staff"
+                st.session_state.role=u
                 st.rerun()
             else:
                 st.error("Login Dogoggora!")
 else:
     # ================= SIDEBAR =================
-    if os.path.exists(LOGO_PATH):
-        st.sidebar.image(LOGO_PATH, use_container_width=True)
+    if os.path.exists(LOGO_PATH): st.sidebar.image(LOGO_PATH, use_container_width=True)
     st.sidebar.title("Main Menu")
     menu_options = ["📝 Galmee Haaraa","📊 Dashboard","📈 Gabaasa Bal'aa","🏆 Badhaasa Ogeeyyii","🔍 Barbaadi/Edit","Ba'i"]
     menu = st.sidebar.selectbox("Filannoo", menu_options)
-    
     if st.sidebar.button("Logout"):
         st.session_state.logged_in=False
         st.rerun()
@@ -112,11 +136,11 @@ else:
         st.title("📊 Dashboard")
         if not df.empty:
             c1,c2,c3=st.columns(3)
-            c1.metric("💰 Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+            c1.metric("💰 Galii", f"{df['payment'].sum():,.2f} ETB")
             c2.metric("👥 Maamiltoota", len(df))
-            c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
+            c3.metric("👷 Ogeeyyii", df['staff_name'].nunique())
             
-            fig=px.bar(df.groupby("Maqaa_Ogeessa")['Kafaltii_Taj'].sum().reset_index(), x="Maqaa_Ogeessa", y="Kafaltii_Taj", color='Maqaa_Ogeessa')
+            fig=px.bar(df.groupby("staff_name")['payment'].sum().reset_index(), x="staff_name", y="payment", color='staff_name', title="Raawwii Ogeeyyii")
             st.plotly_chart(fig,use_container_width=True)
     
     # ================= REGISTRATION =================
@@ -126,29 +150,34 @@ else:
             c1,c2 = st.columns(2)
             name = c1.text_input("Maqaa Abbaa Dhimmaa")
             ara = c1.text_input("Araddaa")
+            qax = c1.text_input("Qaxana")
             gosa = c2.selectbox("Gosa Tajaajilaa", ["Jijjiirraa Maqaa (Sale)","Kaartaa Haaraa","Waraqaa Qulqullummaa","TOT 2%","Adabbii"])
             fee = c2.number_input("Kaffaltii (ETB)", min_value=0.0)
             og = c1.text_input("Maqaa Ogeessaa")
-            if st.form_submit_button("💾 GALMEESSI"):
+            nagahee = st.file_uploader("Nagahee Scan (JPG/PNG)", type=["jpg","png","jpeg"])
+            
+            if st.form_submit_button("💾 Galmeessi"):
                 if name and og:
+                    path=""
+                    if nagahee:
+                        path=os.path.join(NAGAHEE_DIR,f"{name}_{datetime.now().strftime('%H%M%S')}.jpg")
+                        with open(path,"wb") as f: f.write(nagahee.getbuffer())
                     final_fee = fee*0.02 if "TOT" in gosa else fee
-                    new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, "-", gosa, og, final_fee]
-                    df = pd.concat([df,pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df)
-                    st.success(f"Milkaa'inaan Galmeeffameera! Kaffaltii: {final_fee:,.2f} ETB")
+                    save_row([datetime.now().strftime('%d/%m/%Y'), name, ara, qax, gosa, og, final_fee, path])
+                    st.success(f"✅ Galmeeffameera! Kaffaltii: {final_fee:,.2f} ETB")
     
     # ================= ADVANCED REPORT =================
     elif menu=="📈 Gabaasa Bal'aa":
         st.header("📈 Gabaasa & Calaltuu")
         if not df.empty:
-            st.dataframe(df[COL_NAMES], use_container_width=True)
-            st.metric("Galii Waliigala", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+            st.dataframe(df[COL_NAMES[1:]], use_container_width=True)
+            st.metric("Galii Waliigala", f"{df['payment'].sum():,.2f} ETB")
     
     # ================= AWARDS =================
     elif menu=="🏆 Badhaasa Ogeeyyii":
         st.header("🏆 Sartiifiikeeta Ogeeyyii")
         if not df.empty:
-            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            top_3 = df['staff_name'].value_counts().head(3)
             medals = ["🥇 1FFAA","🥈 2FFAA","🥉 3FFAA"]
             logo_left=st.file_uploader("Logo Bita", type=["png","jpg"])
             logo_right=st.file_uploader("Logo Mirga", type=["png","jpg"])
@@ -162,23 +191,20 @@ else:
         st.header("🔍 Barbaadi / Edit Galmee")
         q = st.text_input("Maqaa Barbaadi...")
         if q:
-            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            res = df[df['customer_name'].str.contains(q, case=False, na=False)]
             if not res.empty:
                 for idx,row in res.iterrows():
-                    with st.expander(f"{row['Maqaa_Abbaa_Dhimmaa']}"):
-                        st.write(f"Araddaa: {row['Araddaa']} | Qaxana: {row['Qaxana']}")
-                        st.write(f"Tajaajila: {row['Gosa_Tajajjilaa']} | Ogeessa: {row['Maqaa_Ogeessa']} | Kaffaltii: {row['Kafaltii_Taj']}")
+                    with st.expander(f"{row['customer_name']}"):
+                        st.write(f"Araddaa: {row['araddaa']} | Qaxana: {row['qaxana']}")
+                        st.write(f"Tajaajila: {row['service_type']} | Ogeessa: {row['staff_name']} | Kaffaltii: {row['payment']}")
                         if st.session_state.role=="admin":
-                            confirm = st.checkbox(f"Dhugaa haquu barbaaddaa {row['Maqaa_Abbaa_Dhimmaa']}?", key=f"chk_{idx}")
+                            confirm = st.checkbox(f"Dhugaa haquu barbaaddaa {row['customer_name']}?", key=f"chk_{idx}")
                             if confirm and st.button("🗑 Haqi", key=f"del_{idx}"):
-                                df = df.drop(idx)
-                                save_data(df)
-                                st.success(f"{row['Maqaa_Abbaa_Dhimmaa']} haqameera")
+                                delete_row(row['id'])
+                                st.success(f"{row['customer_name']} haqameera")
                                 st.experimental_rerun()
     
     # ================= LOGOUT =================
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
-
-
