@@ -301,7 +301,7 @@ def create_certificate(name, count, rank, l_l, l_r, sig):
     
     pdf.set_y(50); pdf.set_font('Arial', 'B', 30); pdf.cell(0, 10, "SARTIIFIKEETA BEEKAMTII", 0, 1, 'C')
     pdf.set_font('Arial', '', 20); pdf.cell(0, 20, f"Obbo/Adde: {name}", 0, 1, 'C')
-    pdf.set_font('Arial', '', 14); pdf.multi_cell(0, 10, f"Waggaa 2026 keessatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru.", align='C')}
+    pdf.multi_cell(0, 10, f"Waggaa 2026 keessatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru.", align='C')
     
     # Signature
     if sig:
@@ -468,6 +468,7 @@ elif menu == "🏆 Badhaasa":
     st.header("🏆 Ogeeyyii Baay'ee Hojjetan")
     if not df.empty:
         st.bar_chart(df['Maqaa_Ogeessa'].value_counts())
+
 
 
 
