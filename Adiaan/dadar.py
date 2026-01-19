@@ -1,4 +1,4 @@
-Adnan Kemer Yusuf, [1/14/2026 12:10 AM]
+
 import streamlit as st
 import pandas as pd
 import os
@@ -72,7 +72,7 @@ def send_to_telegram(file_data, file_name, caption):
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
 
-Adnan Kemer Yusuf, [1/14/2026 12:10 AM]
+
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
@@ -138,7 +138,7 @@ else:
             sel_year = st.sidebar.selectbox("Waggaa", sorted(df['Waggaa'].dropna().unique(), reverse=True))
             filtered_df = df[df['Waggaa'] == sel_year]
 
-Adnan Kemer Yusuf, [1/14/2026 12:10 AM]
+
 if f_type == "Kurmaana":
                 sel_q = st.sidebar.selectbox("Kurmaana", [1, 2, 3, 4])
                 filtered_df = filtered_df[filtered_df['Kurmaana'] == sel_q]
@@ -194,3 +194,4 @@ if f_type == "Kurmaana":
 
     elif menu == "Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
