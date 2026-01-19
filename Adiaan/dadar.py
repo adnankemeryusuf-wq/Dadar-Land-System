@@ -122,9 +122,7 @@ else:
         "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
     ]
 }
-
-
-        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(SERVICE_STRUCTURE.keys()))
+   selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(SERVICE_STRUCTURE.keys()))
         details, d_fees = [], {}
         
         if selected_main:
@@ -181,4 +179,5 @@ else:
         if q and not df.empty:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
             st.dataframe(res[COL_NAMES])
+
 
