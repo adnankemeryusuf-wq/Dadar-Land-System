@@ -309,7 +309,7 @@ def create_certificate(name, count, rank, l_l, l_r, sig):
         pdf.image("tmp_sig.png", 50, 160, 30)
     
     pdf.line(40, 180, 100, 180); pdf.set_xy(40, 182); pdf.cell(60, 10, "Itti Gaafatamaa", align='C')
-    return pdf.output(dest='S').encode('latin-1', 'replace')}
+    return pdf.output(dest='S').encode('latin-1', 'replace')
 
 # ================= 4. MAIN NAVIGATION =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
@@ -468,6 +468,7 @@ elif menu == "🏆 Badhaasa":
     st.header("🏆 Ogeeyyii Baay'ee Hojjetan")
     if not df.empty:
         st.bar_chart(df['Maqaa_Ogeessa'].value_counts())
+
 
 
 
