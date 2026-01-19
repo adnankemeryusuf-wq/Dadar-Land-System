@@ -21,4 +21,4 @@ st.set_page_config(
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
 LOGO_PATH = "Adiaan/logo.png"
-DATA_FILE = "dadar_final_report.txt"import streamlit as st
+
