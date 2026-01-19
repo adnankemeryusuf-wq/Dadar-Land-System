@@ -93,23 +93,47 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
 # ================= 4. MAIN APP =================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+if 'logged_in' not in st.session_state: 
+    st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
     _, col_mid, _ = st.columns([1, 1.2, 1])
     with col_mid:
         st.markdown("<h2 style='text-align:center;'>🏢 Admin Login</h2>", unsafe_allow_html=True)
-        u, p = st.text_input("Username"), st.text_input("Password", type="password")
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
         if st.button("Seeni"):
-            if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
-            else: st.error("Username ykn Password dogoggora!")
+            if u == "admin" and p == "123": 
+                st.session_state.logged_in = True
+                st.rerun()
+            else: 
+                st.error("Username ykn Password dogoggora!")
 else:
     df = load_data()
     
     with st.sidebar:
         st.title("Dadar Admin")
+        # Menu filannoo
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Ba'i"])
 
+    # --- KANAA GADITTI MENU-WWAN HIRIIRA TOKKOON DHUFU ---
+    if menu == "📊 Dashboard":
+        st.header("📊 Dashboard Overview")
+        # Dashboard logic as jala dhufa...
+
+    elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Tajaajilaa Haaraa")
+        # Line 151: Amma hiriirni isaa 'if menu == "📊 Dashboard":' waliin tokko
+        selected_main = st.multiselect("🟢 Gosa Tajaajilaa Filadhu", list(GATII_DICT.keys()))
+        # Logic biroo as jala dhufa...
+
+    elif menu == "📈 Gabaasa Bal'aa":
+        st.header("📈 Gabaasa Bal'aa")
+        st.dataframe(df)
+
+    elif menu == "Ba'i":
+        st.session_state.logged_in = False
+        st.rerun()
     # --- DASHBOARD ---
     if menu == "📊 Dashboard":
         st.header("📊 Dashboard")
@@ -276,6 +300,7 @@ elif menu == "📝 Galmee Tajaajilaa":
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
