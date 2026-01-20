@@ -101,7 +101,7 @@ else:
         st.divider()
 
         # Metrics Row (Top cards from image 1)
-        st.markdown("#### 📂 All Applications / Transactions")
+        st.markdown("#### 📂Dashboard Waliigalaa / Transactions")
         m1, m2, m3, m4 = st.columns(4)
         m1.markdown(f"<div class='card'><h3>Applications</h3><h2>{len(df) + 100}</h2></div>", unsafe_allow_html=True)
         m2.markdown(f"<div class='card'><h3>All Tasks</h3><h2>56</h2></div>", unsafe_allow_html=True)
@@ -182,3 +182,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
