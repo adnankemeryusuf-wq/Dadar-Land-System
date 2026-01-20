@@ -110,27 +110,66 @@ else:
     df = load_data()
     menu = st.sidebar.radio("FILANNOO:", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa", "🔍 Barbaadi/Edit", "Ba'i"])
 
-    if menu == "📊 Dashboard":
-        st.title("📊 Dashboard Waliigalaa")
-        if not df.empty:
-            m1, m2, m3, m4 = st.columns(4)
-            m1.markdown(f"<div class='card'><h3>💰 Galii</h3><h2>{df['Kafaltii_Taj'].sum():,.0f}</h2></div>", unsafe_allow_html=True)
-            m2.markdown(f"<div class='card'><h3>👥 Maamiltoota</h3><h2>{len(df)}</h2></div>", unsafe_allow_html=True)
-            m3.markdown(f"<div class='card'><h3>🏆 Ogeessa</h3><h2>{df['Maqaa_Ogeessa'].mode()[0] if not df['Maqaa_Ogeessa'].empty else '-'}</h2></div>", unsafe_allow_html=True)
-            m4.markdown(f"<div class='card'><h3>📅 Ji'a</h3><h2>{datetime.now().strftime('%B')}</h2></div>", unsafe_allow_html=True)
+# --- DASHBOARD ---
+if menu == "📊 Dashboard":
+    st.markdown("<h2 style='color: #1b5e20;'>📊 Dashboard Waliigalaa</h2>", unsafe_allow_html=True)
+    
+    if not df.empty:
+        # 1. Kutaa Lakkoofsotaa (Cards) - Akkuma isa duraatti
+        c1, c2, c3 = st.columns(3)
+        
+        with c1:
+            rev = float(df['Kafaltii_Taj'].sum())
+            st.markdown(f"""
+                <div class='card'>
+                    <p style='font-size: 18px; color: #555;'>💰 Galii Waliigalaa</p>
+                    <p class='metric-value'>{rev:,.2f} ETB</p>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with c2:
+            st.markdown(f"""
+                <div class='card'>
+                    <p style='font-size: 18px; color: #555;'>👥 Maamiltoota</p>
+                    <p class='metric-value'>{len(df)}</p>
+                </div>
+            """, unsafe_allow_html=True)
             
-            st.divider()
-            c_l, c_r = st.columns([2, 1])
-            with c_l:
-                st.subheader("📈 Trendii Galii")
-                trend = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
-                st.area_chart(trend)
-            with c_r:
-                st.subheader("📊 Qoodinsa Tajaajilaa")
-                fig = px.pie(df, names='Gosa_Tajajjilaa', hole=0.4)
-                st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("Data'n hin jiru.")
+        with c3:
+            # Ogeessa baay'ee tajaajile
+            top_og = df['Maqaa_Ogeessa'].mode()[0] if not df['Maqaa_Ogeessa'].empty else "-"
+            st.markdown(f"""
+                <div class='card'>
+                    <p style='font-size: 18px; color: #555;'>🏆 Ogeessa Filatamaa</p>
+                    <p class='metric-value'>{top_og}</p>
+                </div>
+            """, unsafe_allow_html=True)
+            
+        st.markdown("---")
+        
+        # 2. Kutaa Giraafii (Charts)
+        st.subheader("📈 Trendii Galii Ji'aan")
+        # MONTH_ORDER tartiba ji'aa sirreessuuf gargaara
+        trend_data = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
+        st.area_chart(trend_data)
+        
+        st.markdown("---")
+        
+        # 3. Qoodinsa Tajaajilaa (Pie Chart)
+        st.subheader("📊 Qoodinsa Gosa Tajaajilaa")
+        service_counts = df['Gosa_Tajajjilaa'].value_counts().reset_index()
+        service_counts.columns = ['Tajaajila', 'Baay\'ina']
+        
+        fig = px.pie(service_counts, 
+                     values='Baay\'ina', 
+                     names='Tajaajila', 
+                     hole=0.4,
+                     color_discrete_sequence=px.colors.qualitative.Dark2)
+        
+        st.plotly_chart(fig, use_container_width=True)
+
+    else:
+        st.info("Data'n galmeeffame hin jiru. Maaloo dura 'Galmee Haaraa' irra deemaa.")
 
     elif menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa")
@@ -191,3 +230,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
