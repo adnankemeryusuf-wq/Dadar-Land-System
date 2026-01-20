@@ -114,19 +114,103 @@ else:
     st.sidebar.title("🏢 DADAR LAND ADMIN")
     menu = st.sidebar.radio("FILANNOO:", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa", "🔍 Barbaadi/Edit", "Ba'i"])
 
-    # --- DASHBOARD ---
-    if menu == "📊 Dashboard":
-        st.title("📊 Dashboard")
-        if not df.empty:
-            c1, c2, c3 = st.columns(3)
-            c1.metric("💰 Waliigala Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
-            c2.metric("👥 Maamiltoota", len(df))
-            c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
-            
-            fig = px.bar(df.groupby("Maqaa_Ogeessa")['Kafaltii_Taj'].sum().reset_index(), 
-                         x="Maqaa_Ogeessa", y="Kafaltii_Taj", color='Maqaa_Ogeessa', title="Galii Per Ogeessa")
-            st.plotly_chart(fig, use_container_width=True)
+  import streamlit as st
+import pandas as pd
+import plotly.express as px
+from datetime import datetime
 
+# --- 1. SETUP & STYLE ---
+# Layout "wide" gochuun akkuma fakkii kee sanaatti skiriinii guutuu akka fayyadamu taasisa
+st.set_page_config(page_title="Dadar Land Dashboard", layout="wide")
+
+st.markdown("""
+    <style>
+    .stApp { background-color: #f0f2f5; }
+    .card {
+        background-color: white;
+        padding: 25px;
+        border-radius: 12px;
+        border-top: 10px solid #006400;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: transform 0.3s;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card h3 { margin: 0; color: #444; font-size: 16px; font-weight: bold; }
+    .card h2 { margin: 10px 0 0 0; color: #006400; font-size: 36px; }
+    </style>
+""", unsafe_allow_html=True)
+
+# --- 2. DATA SIMULATION ---
+stats = {
+    "Applications": 109,
+    "All Tasks": 56,
+    "Migrated Parcels": 169,
+    "Migrated Buildings": 0,
+    "Certificates": 32,
+    "Condominiums": 0
+}
+
+graph_data = pd.DataFrame({
+    "Status": ["Submitted", "Finished", "Attachment Ready", "Inprogress", "Attachment Starting", "Attachment Finished", "Document Rejected", "Ready For Receipt"],
+    "Count": [49, 31, 16, 6, 3, 2, 1, 1]
+})
+
+# --- 3. FILTER SECTION ---
+st.markdown("### 🔍 Calaltuu Guyyaa (Date Filter)")
+c1, c2, c3 = st.columns([2, 2, 1])
+with c1:
+    start_date = st.date_input("Irraa:", datetime(2018, 4, 1))
+with c2:
+    end_date = st.date_input("Hanga:", datetime(2018, 9, 5))
+with c3:
+    st.write("##")
+    if st.button("Filter"):
+        st.toast("Data'n calalameera!")
+
+st.divider()
+
+# --- 4. METRICS SECTION ---
+# Akkuma fakkii 1ffaa irratti mul'atutti (All Applications/Transactions)
+st.markdown("#### 📂 All Applications / Transactions")
+m1, m2, m3, m4, m5, m6 = st.columns(6)
+
+with m1:
+    st.markdown(f"<div class='card'><h3>Applications</h3><h2>{stats['Applications']}</h2></div>", unsafe_allow_html=True)
+with m2:
+    st.markdown(f"<div class='card'><h3>All Tasks</h3><h2>{stats['All Tasks']}</h2></div>", unsafe_allow_html=True)
+with m3:
+    st.markdown(f"<div class='card'><h3>Parcels</h3><h2>{stats['Migrated Parcels']}</h2></div>", unsafe_allow_html=True)
+with m4:
+    st.markdown(f"<div class='card'><h3>Certificates</h3><h2>{stats['Certificates']}</h2></div>", unsafe_allow_html=True)
+with m5:
+    st.markdown(f"<div class='card'><h3>Buildings</h3><h2>{stats['Migrated Buildings']}</h2></div>", unsafe_allow_html=True)
+with m6:
+    st.markdown(f"<div class='card'><h3>Condos</h3><h2>{stats['Condominiums']}</h2></div>", unsafe_allow_html=True)
+
+st.write("##")
+
+# --- 5. REPORTS SECTION ---
+# Akkuma fakkii 2ffaa irratti mul'atutti (Graphical & Tabular Report)
+col_left, col_right = st.columns([3, 2])
+
+with col_left:
+    st.subheader("📈 Graphical Report")
+    fig = px.pie(graph_data, values='Count', names='Status', hole=0.6,
+                 color_discrete_sequence=px.colors.qualitative.Dark2)
+    fig.update_traces(textposition='inside', textinfo='percent+label')
+    fig.update_layout(showlegend=False, height=450)
+    st.plotly_chart(fig, use_container_width=True)
+
+with col_right:
+    st.subheader("📑 Tabular Report")
+    # Table bifa qulqulluun akka mul'atuuf
+    st.dataframe(graph_data.rename(columns={"Status": "Gosa Hojii", "Count": "Baay'ina"}), 
+                 use_container_width=True, hide_index=True)
+    
+    # Button gabaasa PDF uumuuf
+    if st.button("📥 Generate Report (PDF)"):
+        st.info("Gabaasni qophaa'aa jira...")
     # --- GALMEE HAARAA ---
     elif menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa Haaraa")
@@ -206,5 +290,6 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
