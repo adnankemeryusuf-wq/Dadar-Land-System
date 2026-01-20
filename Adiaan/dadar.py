@@ -1,18 +1,23 @@
 import streamlit as st
 
-# 1. Jalqaba kana galchi (Hunda dura)
+# 1. Page Config (Sarara hunda dura galuu qaba)
 st.set_page_config(page_title="Dadar Land Admin", layout="centered")
 
-# 2. CSS dhokstuu (Toolbar fi Footer haquuf)
+# 2. CSS Dhokstuu (Toolbar fi Footer dhabamsiisuuf)
 st.markdown("""
     <style>
+    /* Header fi Toolbar dhoksuuf */
     [data-testid="stHeader"] { display: none !important; }
-    .stDeployButton, .stAppDeployButton { display: none !important; }
+    /* Button 'Manage app' fi 'Deploy' dhoksuuf */
+    .stDeployButton, .stAppDeployButton { display: none !important; visibility: hidden !important; }
+    /* Footer dhuma jiru dhoksuuf */
     footer { display: none !important; }
+    /* Menu sarara sadii dhoksuuf */
     #MainMenu { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
-import streamlit as st
+
+# 3. Library-wwan biroo (Si'a tokko qofa asitti walitti qabi)
 import pandas as pd
 import sqlite3
 import os, io, requests
@@ -217,6 +222,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
