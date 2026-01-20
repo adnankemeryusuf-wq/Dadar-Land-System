@@ -12,7 +12,6 @@ st.markdown("""
     #MainMenu { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
-
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -218,6 +217,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
