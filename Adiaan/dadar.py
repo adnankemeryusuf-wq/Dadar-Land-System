@@ -115,9 +115,9 @@ else:
             total_rev = df['Kafaltii_Taj'].sum()
             top_og = df['Maqaa_Ogeessa'].mode()[0] if not df['Maqaa_Ogeessa'].empty else "-"
             
-            m1.markdown(f"<div class='card'><h3>Applications</h3><h2>{total_apps}</h2></div>", unsafe_allow_html=True)
+            m1.markdown(f"<div class='card'><h3> Maamiltoota</h3><h2>{total_apps}</h2></div>", unsafe_allow_html=True)
             m2.markdown(f"<div class='card'><h3>Galii (ETB)</h3><h2>{total_rev:,.0f}</h2></div>", unsafe_allow_html=True)
-            m3.markdown(f"<div class='card'><h3>Ogeessa</h3><h2 style='font-size:18px;'>{top_og}</h2></div>", unsafe_allow_html=True)
+            m3.markdown(f"<div class='card'><h3> Ogeessa Filatamaa</h3><h2 style='font-size:18px;'>{top_og}</h2></div>", unsafe_allow_html=True)
             m4.markdown(f"<div class='card'><h3>Certificates</h3><h2>32</h2></div>", unsafe_allow_html=True)
             
             st.write("##")
@@ -202,3 +202,4 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
