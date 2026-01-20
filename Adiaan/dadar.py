@@ -1,19 +1,20 @@
 import streamlit as st
 
-# Mallattoo Share fi Manage App dhoksuuf koodii kana dabaladhu
-st.markdown("""
+# Mallattoo "Hosted with Streamlit" fi Toolbar dhoksuuf
+hide_footer_style = """
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    [data-testid="stToolbar"] {visibility: hidden !important;}
-    button[title="Manage app"] {display: none !important;}
-    section[data-testid="stSidebar"] {display: none !important;}
+    /* Barreeffama diimaa jala jiru sana dhoksuuf */
+    .viewerBadge_container__1QS1n {display: none !important;}
+    .stAppDeployButton {display: none !important;}
     </style>
-    """, unsafe_allow_html=True)
+    """
+st.markdown(hide_footer_style, unsafe_allow_html=True)
 
-# Koodiin kee inni duraan jiru asii gadiitti itti fufa...
-import streamlit as st
+# Koodiin kee inni kaan asitti itti fufa...
+
 import pandas as pd
 import os
 import plotly.express as px
@@ -217,4 +218,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
