@@ -1,16 +1,17 @@
 import streamlit as st
 
-st.set_page_config(menu_items=None) # Mallattoo sadii (≡) dhoksuuf
+# 1. Sarara duraa irratti kana qofa galchi
+st.set_page_config(page_title="Dadar Land Admin", layout="centered")
 
-# Toolbar (Share) dhoksuuf CSS fayyadami:
-hide_style = """
+# 2. CSS dhokstuu sana dabaladhu
+st.markdown("""
     <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
+    [data-testid="stHeader"] { display: none !important; }
+    .stDeployButton, .stAppDeployButton { display: none !important; }
+    footer { display: none !important; }
+    #MainMenu { display: none !important; }
     </style>
-    """
-st.markdown(hide_style, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 import streamlit as st
 import pandas as pd
@@ -217,6 +218,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
