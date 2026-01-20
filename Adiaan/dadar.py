@@ -8,7 +8,7 @@ from ethiopian_date import EthiopianDateConverter
 import plotly.express as px
 
 # ================= CONFIG =================
-st.set_page_config("Dadar Land Admin", "🏢", layout="center")
+st.set_page_config("Dadar Land Admin", "🏢", layout="Centered:")
 DB_FILE = "dadar_land.db"
 NAGAHEE_DIR = "nagahee_scan"
 LOGO_PATH = "Adiaan/logo.png"
@@ -180,4 +180,5 @@ else:
         st.session_state.logged_in=False
         st.session_state.role=None
         st.experimental_rerun()
+
 
