@@ -1,23 +1,22 @@
-import streamlit as st
-
-# Mallattoo "Hosted with Streamlit" fi Toolbar dhoksuuf
-hide_footer_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    /* Barreeffama diimaa jala jiru sana dhoksuuf */
-    .viewerBadge_container__1QS1n {display: none !important;}
-    .stAppDeployButton {display: none !important;}
-    </style>
-    """
-st.markdown(hide_footer_style, unsafe_allow_html=True)
-# Koodiin kee inni kaan asitti itti fufa...
 import pandas as pd
 import os
 import plotly.express as px
 from datetime import datetime
 from fpdf import FPDF
+import streamlit as st # Streamlit import gochuu hin dagatin
+
+# Mallattolee hunda dhoksuuf koodii kana asitti dabaladhu
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    [data-testid="stToolbar"] {visibility: hidden !important;}
+    button[title="Manage app"] {display: none !important;}
+    .viewerBadge_container__1QS1n {display: none !important;}
+    </style>
+    """, unsafe_allow_html=True)
+
 
 # ================= 1. CONFIGURATION & STYLE =================
 LOGO_PATH = "Adiaan/logo.png"
@@ -216,6 +215,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
