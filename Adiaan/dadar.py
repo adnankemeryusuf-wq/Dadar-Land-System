@@ -1,9 +1,9 @@
 import streamlit as st
 
-# 1. Sarara duraa irratti kana qofa galchi
+# 1. Jalqaba kana galchi (Hunda dura)
 st.set_page_config(page_title="Dadar Land Admin", layout="centered")
 
-# 2. CSS dhokstuu sana dabaladhu
+# 2. CSS dhokstuu (Toolbar fi Footer haquuf)
 st.markdown("""
     <style>
     [data-testid="stHeader"] { display: none !important; }
@@ -217,6 +217,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
