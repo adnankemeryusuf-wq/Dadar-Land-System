@@ -202,3 +202,149 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+import streamlit as st
+import pandas as pd
+import os
+import plotly.express as px
+from datetime import datetime
+from fpdf import FPDF
+
+# ================= 1. CONFIGURATION & STYLE =================
+LOGO_PATH = "Adiaan/logo.png"
+NAGAHEE_DIR = "nagahee_scan"
+DATA_FILE = "dadar_final_report.txt"
+MONTH_ORDER = ['January', 'February', 'March', 'April', 'May', 'June', 
+               'July', 'August', 'September', 'October', 'November', 'December']
+
+if not os.path.exists(NAGAHEE_DIR):
+    os.makedirs(NAGAHEE_DIR)
+
+st.set_page_config(page_title="Dadar Land Admin", layout="wide")
+
+# CSS for styling
+st.markdown("""
+    <style>
+    .stApp { background-color: #f0f2f5; }
+    .card {
+        background-color: white; padding: 25px; border-radius: 12px;
+        border-top: 10px solid #006400; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-align: center; margin-bottom: 20px;
+    }
+    .metric-value { font-size: 24px; font-weight: bold; color: #1b5e20; }
+    </style>
+""", unsafe_allow_html=True)
+
+# Columns updated: Added 'Nagahee_Scan'
+COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj', 'Ji\'a', 'Nagahee_Scan']
+
+SERVICE_STRUCTURE = {
+    "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax)"],
+    "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Sirreeffama Daangaa"],
+    "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", "Humna Mahandisummaa"],
+    "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", "Dhimma Dhala (Inheritance)"],
+    "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu (Regularization)"],
+    "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"]
+}
+
+# ================= 2. CORE FUNCTIONS =================
+def load_data():
+    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+        return pd.DataFrame(columns=COL_NAMES)
+    try:
+        df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+        df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0)
+        return df
+    except:
+        return pd.DataFrame(columns=COL_NAMES)
+
+def save_data(df_to_save):
+    df_to_save.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+
+# ================= 3. APP LOGIC =================
+if 'logged_in' not in st.session_state: 
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    # Login Code... (simplified for brevity)
+    st.title("🔐 Login")
+    if st.button("Seeni (Admin)"): st.session_state.logged_in = True; st.rerun()
+else:
+    df = load_data()
+    menu = st.sidebar.radio("FILANNOO:", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa", "🏆 Badhaasa", "Ba'i"])
+
+    if menu == "📊 Dashboard":
+        st.title("📊 Dashboard")
+        # Dashboard metrics here...
+        st.write("Dashboard metrics display...")
+
+    elif menu == "📝 Galmee Haaraa":
+        st.title("📝 Galmee Tajaajilaa Haaraa")
+        
+        # Service Selection
+        selected_cats = st.multiselect("Ramaddii Tajaajilaa:", list(SERVICE_STRUCTURE.keys()))
+        final_services, total_fee = [], 0
+        if selected_cats:
+            cols = st.columns(len(selected_cats))
+            for i, cat in enumerate(selected_cats):
+                with cols[i]:
+                    subs = st.multiselect(f"{cat}:", SERVICE_STRUCTURE[cat], key=cat)
+                    for s in subs:
+                        fee = st.number_input(f"Kaffaltii {s}:", min_value=0.0, key=f"f_{s}")
+                        final_services.append(s); total_fee += fee
+
+        st.divider()
+        
+        # Information Form
+        with st.form("reg_form"):
+            c1, c2, c3 = st.columns(3)
+            name = c1.text_input("Maqaa Abbaa Dhimmaa")
+            ara = c2.text_input("Araddaa")
+            qaxana = c3.text_input("Qaxana (Sector)") # QAXANA ADDED
+            ogeessa = c1.text_input("Ogeessa Raawwate")
+            
+            st.write("---")
+            st.write("📷 **Iskan Nagahee Upload Godhi**")
+            scan_file = st.file_uploader("Nagahee (JPG/PNG/PDF)", type=["jpg", "png", "pdf"])
+            
+            if st.form_submit_button("💾 Galmeessi"):
+                if name and final_services:
+                    now = datetime.now()
+                    scan_path = "Hin_Jiru"
+                    
+                    # Nagahee Save Gochuu
+                    if scan_file is not None:
+                        file_name = f"{now.strftime('%Y%m%d_%H%M%S')}_{name.replace(' ', '_')}.{scan_file.name.split('.')[-1]}"
+                        scan_path = os.path.join(NAGAHEE_DIR, file_name)
+                        with open(scan_path, "wb") as f:
+                            f.write(scan_file.getbuffer())
+
+                    new_row = [
+                        now.strftime('%d/%m/%Y'), name, ara, qaxana, 
+                        ", ".join(final_services), ogeessa, total_fee, 
+                        now.strftime('%B'), scan_path
+                    ]
+                    
+                    new_df = pd.DataFrame([new_row], columns=COL_NAMES)
+                    df = pd.concat([df, new_df], ignore_index=True)
+                    save_data(df)
+                    st.success(f"Milkaa'inaan Galmeeffameera! Nagaheen asitti kuufame: {scan_path}")
+                else:
+                    st.error("Maaloo odeeffannoo guuti!")
+
+    elif menu == "📈 Gabaasa":
+        st.title("📈 Gabaasa Bal'aa")
+        # Agarsiisuu fi Nagahee Scan godhame download gochuu
+        st.dataframe(df)
+        
+        st.write("### 🔍 Nagahee Ilaaluu")
+        search_name = st.selectbox("Maqaa Maamilaa Filadhu:", df['Maqaa_Abbaa_Dhimmaa'].unique())
+        if st.button("Ilaali"):
+            row = df[df['Maqaa_Abbaa_Dhimmaa'] == search_name].iloc[0]
+            if row['Nagahee_Scan'] != "Hin_Jiru":
+                st.image(row['Nagahee_Scan'], caption=f"Nagahee: {search_name}")
+            else:
+                st.warning("Maamila kanaaf nagaheen upload hin taane.")
+
+    elif menu == "Ba'i":
+        st.session_state.logged_in = False
+        st.rerun()
