@@ -1,31 +1,25 @@
 import streamlit as st
 
-# Mallattoo "Manage app" fi "Share" guutummaatti dhoksuuf
-st.markdown("""
+st.set_page_config(menu_items=None) # Mallattoo sadii (≡) dhoksuuf
+
+# Toolbar (Share) dhoksuuf CSS fayyadami:
+hide_style = """
     <style>
-    /* 1. Header (Toolbar fi Share) guutummaatti dhoksuuf */
-    [data-testid="stHeader"] {
-        display: none !important;
-    }
-    
-    /* 2. Button Manage App (Gubbaa fi Jala) gonkumaa akka hin mul'anne */
-    .stDeployButton, .stAppDeployButton {
-        display: none !important;
-        visibility: hidden !important;
-    }
-
-    /* 3. Footer (Hosted with Streamlit) dhoksuuf */
-    footer {
-        display: none !important;
-    }
-
-    /* 4. Menu (Sarara sadii) dhoksuuf */
-    #MainMenu {
-        display: none !important;
-    }
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
-    """, unsafe_allow_html=True)
+    """
+st.markdown(hide_style, unsafe_allow_html=True)
 
+import streamlit as st
+import pandas as pd
+import sqlite3
+import os, io, requests
+from datetime import datetime
+from fpdf import FPDF
+from ethiopian_date import EthiopianDateConverter
+import plotly.express as px
 # ================= 1. CONFIGURATION & STYLE =================
 LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
@@ -223,6 +217,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
