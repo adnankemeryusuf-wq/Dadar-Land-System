@@ -1,19 +1,15 @@
-import pandas as pd
-import os
-import plotly.express as px
-from datetime import datetime
-from fpdf import FPDF
-import streamlit as st # Streamlit import gochuu hin dagatin
+import streamlit as st  # 1. Jalqaba Streamlit import godhi
 
-# Mallattolee hunda dhoksuuf koodii kana asitti dabaladhu
+# 2. Configuration (Gubbaatti dabaladhu, CSS dura)
+st.set_page_config(page_title="Dadar Land Admin", layout="centered")
+
+# 3. CSS (Amma kanaan mallattoon hundi ni dhokata)
 st.markdown("""
     <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    [data-testid="stToolbar"] {visibility: hidden !important;}
-    button[title="Manage app"] {display: none !important;}
-    .viewerBadge_container__1QS1n {display: none !important;}
+    [data-testid="stHeader"] { display: none !important; }
+    .stDeployButton, .stAppDeployButton { display: none !important; visibility: hidden !important; }
+    footer { display: none !important; }
+    #MainMenu { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -215,6 +211,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
