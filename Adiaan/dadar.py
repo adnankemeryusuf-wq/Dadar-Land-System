@@ -12,9 +12,7 @@ hide_footer_style = """
     </style>
     """
 st.markdown(hide_footer_style, unsafe_allow_html=True)
-
 # Koodiin kee inni kaan asitti itti fufa...
-
 import pandas as pd
 import os
 import plotly.express as px
@@ -218,5 +216,6 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
