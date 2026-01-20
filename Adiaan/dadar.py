@@ -1,21 +1,53 @@
 import streamlit as st
+import pandas as pd
+import sqlite3
+import os, io, requests
+from datetime import datetime
+from fpdf import FPDF
+from ethiopian_date import EthiopianDateConverter
+import plotly.express as px
 
-# 1. Page Config (Sarara hunda dura galuu qaba)
-st.set_page_config(page_title="Dadar Land Admin", layout="centered")
+# ================= 1. CONFIGURATION (Si'a tokko qofa) =================
+# Wide layout yoo barbaadde "wide" godhi, yoo kaardii qofa ta'e "centered" filadhu
+st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
-# 2. CSS Dhokstuu (Toolbar fi Footer dhabamsiisuuf)
+# ================= 2. STYLE & HIDING ELEMENTS =================
 st.markdown("""
     <style>
-    /* Header fi Toolbar dhoksuuf */
+    /* 1. Background Kaalara */
+    .stApp { background-color: #f0f2f5; }
+    
+    /* 2. Dhokstuu (Header, Footer, Menu, Deploy) */
     [data-testid="stHeader"] { display: none !important; }
-    /* Button 'Manage app' fi 'Deploy' dhoksuuf */
+    footer { display: none !important; visibility: hidden !important; }
     .stDeployButton, .stAppDeployButton { display: none !important; visibility: hidden !important; }
-    /* Footer dhuma jiru dhoksuuf */
-    footer { display: none !important; }
-    /* Menu sarara sadii dhoksuuf */
-    #MainMenu { display: none !important; }
+    #MainMenu { display: none !important; visibility: hidden !important; }
+    div[data-testid="stFooterContainer"] { display: none !important; }
+
+    /* 3. Metric Cards Style */
+    .card {
+        background-color: white;
+        padding: 25px;
+        border-radius: 12px;
+        border-top: 10px solid #006400;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .card h3 { margin: 0; color: #444; font-size: 16px; font-weight: bold; }
+    .card h2 { margin: 10px 0 0 0; color: #006400; font-size: 32px; }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
+# ================= 3. PATHS & VARIABLES =================
+LOGO_PATH = "Adiaan/logo.png"
+NAGAHEE_DIR = "nagahee_scan"
+DATA_FILE = "dadar_final_report.txt"
+MONTH_ORDER = ['January', 'February', 'March', 'April', 'May', 'June', 
+               'July', 'August', 'September', 'October', 'November', 'December']
+
+if not os.path.exists(NAGAHEE_DIR):
+    os.makedirs(NAGAHEE_DIR)
 
 # 3. Library-wwan biroo (Si'a tokko qofa asitti walitti qabi)
 import pandas as pd
@@ -40,22 +72,15 @@ st.set_page_config(page_title="Dadar Land Admin", layout="wide")
 
 st.markdown("""
     <style>
+    /* 1. Koodii CSS kan ati duraan qabdu (Background & Cards) */
     .stApp { background-color: #f0f2f5; }
-    .card {
-        background-color: white;
-        padding: 25px;
-        border-radius: 12px;
-        border-top: 10px solid #006400;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        text-align: center;
-        transition: transform 0.3s;
-        margin-bottom: 20px;
-    }
-    .card:hover { transform: translateY(-5px); }
-    .card h3 { margin: 0; color: #444; font-size: 16px; font-weight: bold; }
-    .card h2 { margin: 10px 0 0 0; color: #006400; font-size: 32px; }
-    .metric-value { font-size: 24px; font-weight: bold; color: #1b5e20; }
-    div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
+    
+    /* 2. Sararoota dhokstuu (Isan amma siif ibse) */
+    [data-testid="stHeader"] { display: none !important; }
+    footer { display: none !important; visibility: hidden !important; }
+    .stDeployButton, .stAppDeployButton { display: none !important; }
+    #MainMenu { visibility: hidden; }
+    div[data-testid="stFooterContainer"] { display: none !important; }
     </style>
 """, unsafe_allow_html=True)
 
@@ -222,6 +247,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
