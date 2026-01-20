@@ -13,7 +13,114 @@ from ethiopian_date import EthiopianDateConverter
 LOGO_PATH = "Adiaan/logo.png"
 
 # 2. Page config irratti variable sana fayyadami (Waraabbii malee)
+st.set_page_config(import streamlit as st
+import pandas as pd
+import os
+import requests
+from datetime import datetime, timedelta
+from fpdf import FPDF
+import plotly.express as px
+
+# ================= 1. CONFIGURATION & STYLE =================
+LOGO_PATH = "Adiaan/logo.png"
+
 st.set_page_config(
+    page_title="Dadar Land Customer Registration System", 
+    page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢", 
+    layout="wide"
+)
+
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
+DATA_FILE = "dadar_final_report.txt"
+COL_NAMES = ['Guyyaa', 'Maqaa_Maamilaa', 'Araddaa', 'Gosa_Tajaajilaa', 'Ogeessa', 'Kaffaltii']
+
+# ================= 2. CORE FUNCTIONS =================
+def load_data():
+    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+        return pd.DataFrame(columns=COL_NAMES)
+    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+    df['Guyyaa'] = pd.to_datetime(df['Guyyaa'], dayfirst=True)
+    df['Kaffaltii'] = pd.to_numeric(df['Kaffaltii'], errors='coerce').fillna(0)
+    return df
+
+def save_data(df_to_save):
+    df_to_save.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+
+def send_telegram_msg(message):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+    try:
+        requests.post(url, data={"chat_id": CHAT_ID_MANAGER, "text": message, "parse_mode": "Markdown"})
+    except:
+        st.error("Gabaasa Telegram irratti erguun hin danda'amne.")
+
+# ================= 3. UI LAYOUT =================
+# Header with Logo
+col_logo, col_title = st.columns([1, 6])
+with col_logo:
+    if os.path.exists(LOGO_PATH):
+        st.image(LOGO_PATH, width=100)
+with col_title:
+    st.title("Dadar Land Customer Registration System")
+
+df = load_data()
+
+with st.sidebar:
+    st.header("🏢 Admin Menu")
+    menu = st.radio("Filannoo:", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi", "📤 Gabaasa Telegram"])
+
+# --- 1. DASHBOARD ---
+if menu == "📊 Dashboard":
+    st.subheader("Raawwii Waliigalaa")
+    c1, c2, c3 = st.columns(3)
+    c1.metric("Waliigala Galii", f"{df['Kaffaltii'].sum():,.2f} ETB")
+    c2.metric("Baay'ina Maamiltootaa", len(df))
+    c3.metric("Ogeeyyii", df['Ogeessa'].nunique())
+    
+    st.divider()
+    st.dataframe(df.sort_values(by='Guyyaa', ascending=False), use_container_width=True)
+
+# --- 2. GALMEE HAARAA ---
+elif menu == "📝 Galmee Haaraa":
+    st.subheader("Galmee Maamilaa Haaraa")
+    with st.form("reg_form", clear_on_submit=True):
+        c1, c2 = st.columns(2)
+        name = c1.text_input("Maqaa Maamilaa")
+        ara = c2.text_input("Araddaa")
+        gosa = st.selectbox("Gosa Tajaajilaa", ["Jijjiirraa Maqaa", "Kaartaa Haaraa", "Waraqaa Qulqullummaa", "Adabbii"])
+        fee = st.number_input("Kaffaltii (ETB)", min_value=0.0)
+        ogeessa = st.text_input("Ogeessa Raawwate")
+        
+        if st.form_submit_button("Galmeessi"):
+            if name and ogeessa:
+                new_row = [[datetime.now().strftime('%d/%m/%Y'), name, ara, gosa, ogeessa, fee]]
+                df = pd.concat([df, pd.DataFrame(new_row, columns=COL_NAMES)], ignore_index=True)
+                save_data(df)
+                st.success(f"Maamilli {name} milkaa'inaan galmeeffameera!")
+            else:
+                st.warning("Maaloo odeeffannoo guutuu galchi.")
+
+# --- 3. GABAASA TELEGRAM ---
+elif menu == "📤 Gabaasa Telegram":
+    st.subheader("Gabaasa Gara Telegram Ergi")
+    g_type = st.selectbox("Gosa Gabaasaa:", ["Guyyaa", "Torbee", "Ji'a", "Kurmaana", "Waggaa"])
+    
+    if st.button("🚀 Gabaasa Ergi"):
+        now = datetime.now()
+        # Filtering logic
+        if g_type == "Guyyaa": f = df[df['Guyyaa'].dt.date == now.date()]
+        elif g_type == "Torbee": f = df[df['Guyyaa'] > (now - timedelta(days=7))]
+        elif g_type == "Ji'a": f = df[df['Guyyaa'].dt.month == now.month]
+        else: f = df[df['Guyyaa'].dt.year == now.year]
+
+        if not f.empty:
+            total = f['Kaffaltii'].sum()
+            details = "".join([f"• {r['Maqaa_Maamilaa']}: {r['Kaffaltii']} ETB\n" for _, r in f.iterrows()])
+            report_msg = f"📊 *GABAASA {g_type.upper()}*\n📅 Guyyaa: {now.strftime('%d/%m/%Y')}\n💰 Galii: {total:,.2f} ETB\n\n📝 *TARREEFFAMA:*\n{details}"
+            send_telegram_msg(report_msg)
+            st.success("Gabaasni Telegram irratti ergameera!")
+        else:
+            st.warning("Data'n hin argamne.")
     page_title="Dadar Land Customer Registration System", 
     page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢", 
     layout="wide"
@@ -458,6 +565,7 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
 
 
 
