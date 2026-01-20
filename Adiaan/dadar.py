@@ -6,23 +6,22 @@ import requests
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
+from ethiopian_date import EthiopianDateConverter
 
 # ================= 1. CONFIGURATION & STYLE =================
+# 1. Jalqaba variable kana qopheessi
 LOGO_PATH = "Adiaan/logo.png"
-NAGAHEE_DIR = "nagahee_scan"
-DATA_FILE = "dadar_final_report.txt"
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
 
-
-if not os.path.exists(NAGAHEE_DIR):
-    os.makedirs(NAGAHEE_DIR)
-
+# 2. Page config irratti variable sana fayyadami (Waraabbii malee)
 st.set_page_config(
-    page_title=" Dadar Land Administration Customer Registration System ", 
-    page_icon="🏢", 
+    page_title="Dadar Land Customer Registration System", 
+    page_icon=LOGO_PATH if os.path.exists(LOGO_PATH) else "🏢", 
     layout="wide"
 )
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
+LOGO_PATH = "Adiaan/logo.png"
+DATA_FILE = "dadar_final_report.tx
 
 # Halluu fi Style
 st.markdown("""
@@ -459,6 +458,7 @@ else:
     elif menu=="Ba'i":
         st.session_state.logged_in=False
         st.experimental_rerun()
+
 
 
 
