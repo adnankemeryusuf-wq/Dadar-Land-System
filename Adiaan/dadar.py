@@ -88,43 +88,74 @@ else:
     df = load_data()
     menu = st.sidebar.radio("FILANNOO:", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa", "🔍 Barbaadi/Edit", "Ba'i"])
 
-    # --- DASHBOARD (Matching Uploaded Images) ---
-    if menu == "📊 Dashboard":
-        st.title("📊 Dashboard Raawwii Hojii")
-        
-        # Date Filter Row
-        st.markdown("### 🔍 Calaltuu Guyyaa")
+ # --- DASHBOARD KA'UMSAA ---
+if menu == "📊 Dashboard":
+    st.markdown("<h2 style='color: #1b5e20;'>📊 Dashboard Raawwii Hojii</h2>", unsafe_allow_html=True)
+    
+    # 1. Kutaa Calaltuu (Date Filter Row)
+    st.markdown("### 🔍 Calaltuu Guyyaa")
+    with st.container():
         c1, c2, c3 = st.columns([2, 2, 1])
-        c1.date_input("Irraa:", datetime(2018, 4, 1))
-        c2.date_input("Hanga:", datetime(2018, 9, 5))
-        c3.write("##"); c3.button("Filter")
-        st.divider()
+        # Default dates (akka fakkeenyaatti)
+        start_date = c1.date_input("Irraa:", datetime(2018, 4, 1))
+        end_date = c2.date_input("Hanga:", datetime(2018, 9, 5))
+        if c3.button("Filter"):
+            st.success("Data'n calalameera!") # Asitti logic calaltuu itti gubbaatti hojjettu
+    
+    st.divider()
 
-        # Metrics Row (Top cards from image 1)
-        st.markdown("#### 📂Dashboard Waliigalaa / Transactions")
+    # 2. Kutaa Lakkoofsotaa (Metrics/Cards Row)
+    if not df.empty:
+        st.markdown("#### 📂 Dashboard Waliigalaa")
         m1, m2, m3, m4 = st.columns(4)
-        m1.markdown(f"<div class='card'><h3>Applications</h3><h2>{len(df) + 100}</h2></div>", unsafe_allow_html=True)
-        m2.markdown(f"<div class='card'><h3>All Tasks</h3><h2>56</h2></div>", unsafe_allow_html=True)
-        m3.markdown(f"<div class='card'><h3>Migrated Parcels</h3><h2>169</h2></div>", unsafe_allow_html=True)
+        
+        # Data dhugaa irraa fudhatame
+        total_apps = len(df)
+        total_revenue = df['Kafaltii_Taj'].sum()
+        top_expert = df['Maqaa_Ogeessa'].mode()[0] if not df['Maqaa_Ogeessa'].empty else "-"
+        
+        # Kadiiwwan (Cards)
+        m1.markdown(f"<div class='card'><h3>Applications</h3><h2>{total_apps}</h2></div>", unsafe_allow_html=True)
+        m2.markdown(f"<div class='card'><h3>Galii (ETB)</h3><h2>{total_revenue:,.0f}</h2></div>", unsafe_allow_html=True)
+        m3.markdown(f"<div class='card'><h3>Ogeessa</h3><h2 style='font-size:18px;'>{top_expert}</h2></div>", unsafe_allow_html=True)
         m4.markdown(f"<div class='card'><h3>Certificates</h3><h2>32</h2></div>", unsafe_allow_html=True)
         
         st.write("##")
 
-        # Report Row (Charts from image 2)
+        # 3. Kutaa Gabaasa Giraafii fi Gabatee (Report Row)
         col_left, col_right = st.columns([3, 2])
+        
         with col_left:
             st.subheader("📈 Graphical Report")
-            graph_data = pd.DataFrame({
-                "Status": ["Submitted", "Finished", "Inprogress", "Rejected"],
-                "Count": [49, 31, 6, 1]
-            })
-            fig = px.pie(graph_data, values='Count', names='Status', hole=0.6, color_discrete_sequence=px.colors.qualitative.Dark2)
+            # Giraafii 'Donut Chart' Status hojiin qoodame
+            # Hubachiisa: Column 'Status' jedhamu yoo jiraate
+            if 'Status' in df.columns:
+                graph_data = df['Status'].value_counts().reset_index()
+                graph_data.columns = ['Status', 'Count']
+            else:
+                # Fakkeenyaaf yoo data hin jirre
+                graph_data = pd.DataFrame({
+                    "Status": ["Submitted", "Finished", "Inprogress", "Rejected"],
+                    "Count": [49, 31, 6, 1]
+                })
+            
+            fig = px.pie(graph_data, values='Count', names='Status', hole=0.6, 
+                         color_discrete_sequence=px.colors.qualitative.Dark2)
+            fig.update_layout(margin=dict(t=0, b=0, l=0, r=0))
             st.plotly_chart(fig, use_container_width=True)
         
         with col_right:
             st.subheader("📑 Tabular Report")
             st.dataframe(graph_data, use_container_width=True, hide_index=True)
+            
+            # Trendii Galii (Trend Chart)
+            st.markdown("---")
+            st.caption("Trendii Galii Ji'aan")
+            trend_data = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
+            st.line_chart(trend_data)
 
+    else:
+        st.info("Data'n galmeeffame hin jiru. Maaloo dura data galchaa.")
     # --- GALMEE HAARAA ---
     elif menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa Haaraa")
@@ -182,4 +213,5 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
