@@ -126,9 +126,7 @@ if 'logged_in' not in st.session_state:
 if not st.session_state.logged_in:
     _, center_col, _ = st.columns([1, 1, 1])
     with center_col:
-        st.title("🔐
-        Dadar Land Customer
-        Registration system")
+        st.title("🔐 Dadar Land Customer Administration Registration System")
         u = st.text_input("Username")
         p = st.text_input("Password", type="password")
         if st.button("Seeni"):
@@ -249,6 +247,7 @@ else:
     elif menu == "Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
