@@ -1,155 +1,72 @@
 import streamlit as st
 import pandas as pd
 import os
-import hashlib
+import io
+import requests
 from datetime import datetime
-from fpdf import FPDF
-from PIL import Image, ImageDraw, ImageOps
 
-# ================= CONFIG =================
+# --- CONFIGURATION TELEGRAM ---
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
+
+# ================= 1. CONFIG & STYLING =================
 st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
 
+st.markdown("""
+    <style>
+    .stApp { background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); }
+    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
+    [data-testid="stSidebar"] * { color: #ffffff !important; }
+    div[data-baseweb="multiselect"] { border: 2px solid #2e7d32 !important; background-color: #ffffff !important; border-radius: 8px !important; }
+    span[data-baseweb="tag"] { background-color: #2e7d32 !important; color: white !important; }
+    div.stForm { background: rgba(255, 255, 255, 0.9); border-radius: 15px; padding: 25px; border: 2px solid #2e7d32; }
+    .stButton>button { background: linear-gradient(90deg, #4caf50, #2e7d32); color: white; border-radius: 8px; font-weight: bold; width: 100%; }
+    </style>
+    """, unsafe_allow_html=True)
+
+# ================= 2. DATA & SETTINGS =================
 DATA_FILE = "dadar_final_report.txt"
-USERS_FILE = "users.csv"
-LOGO_PATH = next((p for p in ["logo.png", "Adiaan/logo.png"] if os.path.exists(p)), None)
+COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
-COL_NAMES = ['Yeroo', 'Maqaa', 'Araddaa', 'Qaxana', 'Gosa', 'Ogeessa', 'Kafaltii_Taj', 'Kafaltii_Wal', 'C1', 'C2', 'C3']
+GATII_DICT = {
+    "Gibira": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa"],
+    "Liizii": ["Liizii Waggaa", "Jijjiirraa Maqaa", "Kafaltii Liizii Duraa", "TOT"],
+    "Ittii Fayyaddam": ["Hayyama Itti Fayyadama Lafaa", "Humna Mahandiisaa"],
+    "Kaartaa": ["Kaartaa mana", "Kartaa Kadastaara", "Kaartaa lafa qonna magaalaa"],
+    "Dhimma Dangaa": ["Kafaltii Humna Mandisaa"],
+    "Dhimma Mana Murtii": ["Ugura Mana Murtii", "Uguraa Mana Murtii Kasuu"],
+    "Liqii Bankii": ["Dorkka Liqii Bankii", "Dorkkaa Liqii Bankii Kasuu"]
+}
 
-# ================= SECURITY =================
-def hash_password(pwd):
-    return hashlib.sha256(pwd.encode()).hexdigest()
+MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
+WEEKDAY_MAP = {0: "Wixata", 1: "Filatama", 2: "Roobii", 3: "Kamisa", 4: "Jimmata", 5: "Sanbata", 6: "Dilbata"}
 
-# ================= USERS =================
-def load_users():
-    if not os.path.exists(USERS_FILE):
-        df = pd.DataFrame([["admin", hash_password("admin123"), "admin"]], columns=["username", "password", "role"])
-        df.to_csv(USERS_FILE, index=False)
-    return pd.read_csv(USERS_FILE)
-
-def save_users(df):
-    df.to_csv(USERS_FILE, index=False)
-
-# ================= DATA =================
 def load_data():
-    if not os.path.exists(DATA_FILE):
+    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
-    return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES)
+    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+    # Pre-processing for reports
+    df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
+    df['Waggaa'] = df['Date_Obj'].dt.year
+    df['Ji\'a_Lakk'] = df['Date_Obj'].dt.month
+    df['Ji\'a'] = df['Ji\'a_Lakk'].map(MONTH_MAP)
+    df['Torbee'] = (df['Date_Obj'].dt.day - 1) // 7 + 1
+    df['Guyyaa_Torbee'] = df['Date_Obj'].dt.dayofweek.map(WEEKDAY_MAP)
+    df['Kurmaana'] = df['Ji\'a_Lakk'].apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
+    return df
 
-def save_data(df):
-    df.to_csv(DATA_FILE, sep="|", index=False, header=False)
+def save_data(df_to_save):
+    df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-# ================= PDF REPORT =================
-def create_pdf_report(df):
-    pdf = FPDF()
-    pdf.add_page()
+def send_to_telegram(file_data, file_name, caption):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
+    files = {'document': (file_name, file_data)}
+    data = {'chat_id': CHAT_ID_MANAGER, 'caption': caption}
+    try:
+        response = requests.post(url, files=files, data=data)
+        return response.status_code == 200
+    except: return False
 
-    if LOGO_PATH:
-        pdf.image(LOGO_PATH, 10, 8, 18)
-
-    pdf.set_font("Arial", "B", 14)
-    pdf.cell(0, 10, "WAAJJIRA LAFEE MAGAALAA DADAR", ln=True, align="C")
-    pdf.ln(5)
-
-    pdf.set_font("Arial", "B", 9)
-    headers = ["Maqaa", "Araddaa", "Gosa", "Kaf. Taj", "Kaf. Wal"]
-    widths = [45, 35, 35, 35, 35]
-
-    pdf.set_fill_color(30, 58, 138)
-    pdf.set_text_color(255, 255, 255)
-    for h, w in zip(headers, widths):
-        pdf.cell(w, 8, h, 1, 0, 'C', True)
-    pdf.ln()
-
-    pdf.set_text_color(0, 0, 0)
-    pdf.set_font("Arial", "", 9)
-    fill = False
-    for _, r in df.iterrows():
-        pdf.set_fill_color(245, 247, 250) if fill else pdf.set_fill_color(255, 255, 255)
-        pdf.cell(widths[0], 7, str(r['Maqaa']), 1, fill=fill)
-        pdf.cell(widths[1], 7, str(r['Araddaa']), 1, fill=fill)
-        pdf.cell(widths[2], 7, str(r['Gosa']), 1, fill=fill)
-        pdf.cell(widths[3], 7, str(r['Kafaltii_Taj']), 1, fill=fill)
-        pdf.cell(widths[4], 7, str(r['Kafaltii_Wal']), 1, ln=1, fill=fill)
-        fill = not fill
-
-    return pdf.output(dest='S').encode('latin-1')
-
-# ================= LOGIN =================
-def login_page():
-    st.title("🔐 Seensa Sirna")
-    u = st.text_input("Username")
-    p = st.text_input("Password", type="password")
-
-    if st.button("Seeni"):
-        users = load_users()
-        h = hash_password(p)
-        user = users[(users.username == u) & (users.password == h)]
-
-        if not user.empty:
-            st.session_state.logged_in = True
-            st.session_state.user = u
-            st.session_state.role = user.iloc[0]['role']
-            st.rerun()
-        else:
-            st.error("Seensa hin milkaa'in")
-
-# ================= SESSION =================
+# ================= 3. MAIN APP =================
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
-
-if not st.session_state.logged_in:
-    login_page()
-    st.stop()
-
-# ================= SIDEBAR =================
-st.sidebar.success(f"👤 {st.session_state.user}")
-st.sidebar.info(f"Role: {st.session_state.role}")
-if st.sidebar.button("🚪 Ba'i"):
-    st.session_state.clear()
-    st.rerun()
-
-menu = st.sidebar.radio("Menu", ["Galmee", "Data", "PDF", "Users"])
-
-# ================= PAGES =================
-if menu == "Galmee":
-    st.header("📝 Galmee Tajaajilaa")
-    with st.form("entry"):
-        maqaa = st.text_input("Maqaa")
-        araddaa = st.text_input("Araddaa")
-        gosa = st.text_input("Gosa")
-        ogeessa = st.text_input("Ogeessa")
-        k_taj = st.number_input("Kafaltii Taj")
-        k_wal = st.number_input("Kafaltii Wal")
-        if st.form_submit_button("💾 Galmeessi"):
-            df = load_data()
-            new = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, '', gosa, ogeessa, k_taj, k_wal, '', '', '']
-            df.loc[len(df)] = new
-            save_data(df)
-            st.success("Galmeeffame")
-
-elif menu == "Data":
-    st.header("📊 Odeeffannoo")
-    df = load_data()
-    st.dataframe(df, use_container_width=True)
-
-elif menu == "PDF":
-    st.header("📄 Gabaasa PDF")
-    df = load_data()
-    if st.button("PDF Uumi"):
-        pdf = create_pdf_report(df)
-        st.download_button("Buusi PDF", pdf, "Gabaasa_Dadar.pdf", "application/pdf")
-
-elif menu == "Users" and st.session_state.role == "admin":
-    st.header("🧑‍💼 Bulchiinsa Users")
-    users = load_users()
-    st.dataframe(users[["username", "role"]])
-
-    with st.form("add_user"):
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        r = st.selectbox("Role", ["admin", "user"])
-        if st.form_submit_button("➕ Dabaluu"):
-            users.loc[len(users)] = [u, hash_password(p), r]
-            save_users(users)
-            st.success("User dabalame")
-
