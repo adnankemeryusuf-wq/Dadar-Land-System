@@ -1,123 +1,112 @@
-import streamlit as st
-import pandas as pd
 import os
-import io
+import requests
+import qrcode
+import openpyxl
 from datetime import datetime
-from fpdf import FPDF
+from openpyxl.styles import Font, Alignment, PatternFill
 
-# ================= 1. CONFIG & STYLING =================
-st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
-
-st.markdown("""
-    <style>
-    .stApp { background: #f8f9fa; }
-    [data-testid="stSidebar"] { background-color: #1b5e20 !important; }
-    div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
-    .metric-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; border-top: 5px solid #1b5e20; }
-    </style>
-    """, unsafe_allow_html=True)
-
-# ================= 2. DATA MANAGEMENT =================
+# --- QINDAA'INA (CONFIG) ---
+USER_NAME = "admin"
+PASS_WORD = "1234"
+BOT_TOKEN = "8586015354:AAEliISf-RtoeJ8anbVLapY3NBm7hz8dZWI"
+CHAT_ID_MANAGER = "568248052"
 DATA_FILE = "dadar_final_report.txt"
-COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
-# ... (GATII_DICT fi MONTH_MAP koodii kee isa duraa irraa fudhatama)
+# --- FUNKSHIINIIWWAN ERGAA ---
+def send_telegram(file_path, file_type="doc", caption=""):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/"
+    url += "sendDocument" if file_type == "doc" else "sendPhoto"
+    try:
+        with open(file_path, 'rb') as f:
+            payload = {'chat_id': CHAT_ID_MANAGER, 'caption': caption}
+            files = {'document' if file_type == "doc" else 'photo': f}
+            requests.post(url, data=payload, files=files, timeout=20)
+    except: 
+        print(f"[!] Ergaan Telegram hin darbine. Internet kee itti fufi.")
 
-def load_data():
-    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
-        return pd.DataFrame(columns=COL_NAMES)
-    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0)
-    return df
-
-def save_data(df_to_save):
-    df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
-
-# ================= 3. PDF CERTIFICATE GENERATOR =================
-def create_pdf_cert(name, count, rank):
-    pdf = FPDF(orientation='L', unit='mm', format='A4')
-    pdf.add_page()
+# --- GALMEESSI (NEW ENTRY) ---
+def galmeessi():
+    print("\n" + "="*20 + " GALMEE HAARAA " + "="*20)
+    ad = input("Maqaa AD: "); bad = input("Bilbila AD: ")
+    gs = input("Gosa Tajaajilaa: "); og = input("Maqaa Ogeessa: ")
+    bog = input("Bilbila Ogeessa: "); gb = input("Beellama (YYYY-MM-DD): "); sb = input("Sa'aatii: ")
     
-    # Rank Colors: Gold, Silver, Bronze
-    colors = {1: (212, 175, 55), 2: (192, 192, 192), 3: (205, 127, 50)}
-    r, g, b = colors.get(rank, (27, 94, 32))
-
-    # Border
-    pdf.set_draw_color(r, g, b); pdf.set_line_width(3); pdf.rect(10, 10, 277, 190)
-    pdf.set_line_width(1); pdf.rect(13, 13, 271, 184)
-
-    # Text
-    pdf.set_y(40); pdf.set_text_color(r, g, b); pdf.set_font('Arial', 'B', 40)
-    pdf.cell(0, 20, "SARTIIFIKEETA BEEKAMTII", ln=True, align='C')
+    k_vals = []
+    for kt in ["Kartaa", "User", "Jij_Maqaa", "Lizio", "TOT", "Gibira"]:
+        while True:
+            v = input(f"{kt}: ") or "0"
+            try: k_vals.append(float(v)); break
+            except: print("[!] Maaloo lakkoofsa galchi!")
+            
+    waligala = sum(k_vals)
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
     
-    pdf.ln(10); pdf.set_text_color(40, 40, 40); pdf.set_font('Arial', 'B', 25)
-    pdf.cell(0, 20, f"Obbo/Adde: {name.upper()}", ln=True, align='C')
+    # Save & QR
+    qr_file = f"QR_{ad.replace(' ', '_')}.png"
+    qrcode.make(f"AD: {ad}\nKafaltii: {waligala}\nBeellama: {gb}").save(qr_file)
+    send_telegram(qr_file, "photo", f"✅ QR Haaraa: {ad}\n💰 Waligala: {waligala} ETB")
     
-    pdf.ln(10); pdf.set_font('Arial', '', 16)
-    msg = f"Waggaa 2026 keessatti abbootii dhimmaa {count} tajaajiluun sadarkaa {rank}ffaa argataniiru."
-    pdf.multi_cell(0, 10, msg, align='C')
+    # Line format: 16 columns (indices up to 15) to match your Excel logic
+    k_str = "|".join(map(str, k_vals))
+    line = f"{now_str}|{ad}|{bad}|-|-|{gs}|{og}|{bog}|{gb} {sb}|{k_str}|{waligala}\n"
+    with open(DATA_FILE, "a", encoding="utf-8") as f: f.write(line)
+    print(f"\n[✓] Galmeeffameera! Waligala: {waligala} ETB")
+
+# --- FUNKSHIINII GABAASAA (EXCEL) ---
+def uumi_excel(days, label):
+    if not os.path.exists(DATA_FILE):
+        print("[!] Ragaan kuufame hin jiru."); return
     
-    return pdf.output(dest='S').encode('latin-1')
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = label
+    headers = ["Guyyaa", "Abbaa Dhimmaa", "Gosa Tajaajilaa", "Ogeessa", "Beellama", "Waligala"]
+    ws.append(headers)
+    
+    for cell in ws[1]:
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = PatternFill(start_color="1F4E78", end_color="1F4E78", fill_type="solid")
+    
+    now = datetime.now()
+    count = 0
+    total_revenue = 0
+    
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        for line in f:
+            p = line.strip().split("|")
+            try:
+                dt = datetime.strptime(p[0], "%Y-%m-%d %H:%M")
+                if (now - dt).days <= days:
+                    # Index 15 refers to the last element (Waligala)
+                    ws.append([p[0], p[1], p[5], p[6], p[8], p[-1]])
+                    total_revenue += float(p[-1])
+                    count += 1
+            except: continue
+            
+    if count == 0:
+        print(f"[!] Gabaasa {label} irratti ragaan argame hin jiru."); return
 
-# ================= 4. APP INTERFACE =================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+    file_name = f"Gabaasa_{label}.xlsx"
+    wb.save(file_name)
+    send_telegram(file_name, "doc", f"📊 Gabaasa {label}\n💰 Waligala Galii: {total_revenue} ETB")
+    print(f"[✓] Gabaasni {label} hoggantatti ergameera.")
 
-if not st.session_state.logged_in:
-    # --- Login ---
-    _, mid, _ = st.columns([1,1,1])
-    with mid:
-        st.title("🔐 Login")
-        u, p = st.text_input("User"), st.text_input("Pass", type="password")
-        if st.button("Seeni"):
-            if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
-else:
-    df = load_data()
-    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa", "🏆 Badhaasa", "🔍 Barbaadi/Edit", "Ba'i"])
-
-    if menu == "📊 Dashboard":
-        st.title("📊 Raawwii Waliigalaa")
-        c1, c2 = st.columns(2)
-        c1.markdown(f"<div class='metric-card'><h3>Galii</h3><h2>{df['Kafaltii_Taj'].sum():,.2f} ETB</h2></div>", unsafe_allow_html=True)
-        c2.markdown(f"<div class='metric-card'><h3>Maamiltoota</h3><h2>{len(df)}</h2></div>", unsafe_allow_html=True)
-        
-        # Simple Chart
-        if not df.empty:
-            st.bar_chart(df.groupby('Maqaa_Ogeessa')['Kafaltii_Taj'].sum())
-
-    elif menu == "📝 Galmee Haaraa":
-        # ... (Koodii galmee kee isa duraa asitti itti fufa)
-        st.header("📝 Galmee Haaraa")
-        with st.form("reg"):
-            m = st.text_input("Maqaa")
-            a = st.text_input("Araddaa")
-            o = st.text_input("Ogeessa")
-            k = st.number_input("Kafaltii", min_value=0.0)
-            if st.form_submit_button("💾 Save"):
-                new = [datetime.now().strftime('%d/%m/%Y'), m, a, "-", "Tajaajila", o, k]
-                df = pd.concat([df, pd.DataFrame([new], columns=COL_NAMES)], ignore_index=True)
-                save_data(df); st.success("Galmeeffameera!")
-
-    elif menu == "🏆 Badhaasa":
-        st.header("🏆 Ogeeyyii Cimoos")
-        top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-        cols = st.columns(3)
-        for i, (name, count) in enumerate(top_3.items()):
-            with cols[i]:
-                st.info(f"Sadarkaa {i+1}: {name}")
-                pdf_bytes = create_pdf_cert(name, count, i+1)
-                st.download_button(f"📥 PDF {name}", pdf_bytes, f"Cert_{name}.pdf")
-
-    elif menu == "🔍 Barbaadi/Edit":
-        st.header("🔍 Search & Management")
-        q = st.text_input("Maqaa Barbaadi")
-        if q:
-            res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-            st.write(f"Bu'aa {len(res)} argameera.")
-            for i, row in res.iterrows():
-                with st.expander(f"{row['Maqaa_Abbaa_Dhimmaa']} - {row['Guyyaa']}"):
-                    st.write(row)
-                    if st.button("Haqi", key=f"del_{i}"):
-                        df = df.drop(i)
-                        save_data(df); st.rerun()
-
-    elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+# --- MAIN MENU ---
+if __name__ == "__main__":
+    print("\n" + "*"*35 + "\n W/BULCHINSA LAFAA MAGAALAA DADAR\n" + "*"*35)
+    u, p = input("User: "), input("Pass: ")
+    if u == USER_NAME and p == PASS_WORD:
+        while True:
+            print("\n1. Galmee Haaraa\n2. Gabaasa Excel (Telegram)\n3. Barbaadi (Search)\n4. Exit")
+            c = input("\nFilannoo kee: ")
+            if c == '1': galmeessi()
+            elif c == '2':
+                print("\n1.Guyyaa | 2.Torbee | 3.Ji'aa")
+                f = input("Filadhu: ")
+                days = {'1':1, '2':7, '3':30}.get(f, 0)
+                if days: uumi_excel(days, "Gabaasa")
+            elif c == '3':
+                # Asitti function barbaadi_galmee() waami
+                pass
+            elif c == '4': break
+    else: print("[!] Login Dogoggora!")
