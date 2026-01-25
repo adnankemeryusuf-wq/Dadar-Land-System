@@ -1,4 +1,4 @@
-Adnan Kemer Yusuf, [1/16/2026 10:50 PM]
+
 import streamlit as st
 import pandas as pd
 import os
@@ -82,7 +82,6 @@ def create_advanced_pdf(name, count, rank, logo_left=None, logo_right=None):
     pdf.set_draw_color(0, 80, 0); pdf.set_line_width(3.0); pdf.rect(10, 10, 277, 190)
     pdf.set_draw_color(*r_color); pdf.set_line_width(1.5); pdf.rect(13, 13, 271, 184)
 
-Adnan Kemer Yusuf, [1/16/2026 10:50 PM]
 # Logo Handling
     if os.path.exists(LOGO_PATH):
         pdf.image(LOGO_PATH, x=20, y=18, w=25)
@@ -135,3 +134,4 @@ else:
             c3.markdown(f"<div class='card'><h4>👷 Ogeeyyii</h4><h2>{df['Maqaa_Ogeessa'].nunique()}</h2><p>Aktiiwii</p></div>", unsafe_allow_html=True)
             st.subheader("Galmee dhiyoo")
             st.dataframe(df.tail(10), use_container_width=True)
+
