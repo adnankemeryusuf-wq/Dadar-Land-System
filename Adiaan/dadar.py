@@ -79,7 +79,7 @@ def create_pdf_cert(name, count, rank, logo_left=None, logo_right=None):
     return pdf.output(dest='S').encode('latin-1', 'replace')
 
 # ================= 4. UI & LOGIN =================
-st.set_page_config(page_title="Dadar Land Admin", page_icon="🏢", layout="wide")
+st.set_page_config(page_title="Dadar Land Admin", page_icon="🏢", layout=centared")
 
 if 'logged_in' not in st.session_state:
     st.session_state.logged_in = False
@@ -192,3 +192,4 @@ else:
                     st.rerun()
             else:
                 st.info("Ragaan hin argamne.")
+
