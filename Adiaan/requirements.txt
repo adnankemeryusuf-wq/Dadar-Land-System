@@ -9,3 +9,4 @@ psycopg2-binary
 plotly
 xlsxwriter
 python-pptx
+qrcode
