@@ -1,83 +1,54 @@
-import streamlit as st
-import pandas as pd
-import os, io, requests
-from datetime import datetime
-from fpdf import FPDF
-import plotly.express as px
+elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Tajaajilaa Guutuu")
+        
+        # Tajaajiloota hunda iddoo tokkotti (Dropdown menu)
+        TAJAAJILA_HUNDA = [
+            "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Gibira Manaa",
+            "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "Kaffaltii Kiiraa Manaa",
+            "TOT (Turnover Tax)", "Jijjiirraa Maqaa (Gift/Sale)",
+            "Kaartaa Haaraa (Liizii)", "Kaartaa Haaraa (Kiiraa)", "Kaartaa Bakka Bu'aa",
+            "Kaartaa Kadastaaraa", "Sirreeffama Daangaa", "Kaartaa Lafa Qonnaa",
+            "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", "Humna Mahandisummaa",
+            "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii",
+            "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)",
+            "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo",
+            "Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu (Regularization)", 
+            "Adabbii Faallaa Pilaanii"
+        ]
 
-# --- CONFIG ---
-DATA_FILE = "dadar_land_data.txt"
-CLR_FILE = "clearance_history.txt"
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID = "7329587700"
-COL_NAMES = ['Guyyaa', 'Maqaa', 'Araddaa', 'Qaxana', 'Tajaajila', 'Ogeessa', 'Kafaltii']
+        with st.form("galmee_guutuu", clear_on_submit=True):
+            col1, col2 = st.columns(2)
+            with col1:
+                m_maqaa = st.text_input("👤 Maqaa Maamilaa")
+                m_ara = st.text_input("📍 Araddaa")
+            with col2:
+                m_qaxana = st.text_input("🧭 Qaxana")
+                m_ogeessa = st.text_input("👷 Maqaa Ogeessaa")
 
-# --- DATA FUNCTIONS ---
-def load_data(f, cols):
-    if not os.path.exists(f) or os.stat(f).st_size == 0: return pd.DataFrame(columns=cols)
-    return pd.read_csv(f, sep="|", names=cols, header=None)
+            st.markdown("---")
+            # Tajaajila hunda bakka tokkotti filachuuf
+            t_filatame = st.selectbox("🎯 Tajaajila Barbaadame Filadhu", TAJAAJILA_HUNDA)
+            
+            m_fee = st.number_input("💸 Kaffaltii Tajaajilaa (ETB)", min_value=0.0, step=10.0)
+            
+            submit = st.form_submit_button("💾 GALMEESSI")
 
-def save_data(df, f): df.to_csv(f, sep="|", index=False, header=False)
-
-# --- PDF GENERATOR (ITEMIZED RECEIPT) ---
-def create_receipt(data, items):
-    pdf = FPDF(unit='mm', format=(100, 160))
-    pdf.add_page()
-    pdf.rect(5, 5, 90, 150)
-    pdf.set_font('Arial', 'B', 12); pdf.cell(0, 10, "NAGAHEE KAFFALTII", ln=True, align='C')
-    pdf.set_font('Arial', '', 8); pdf.cell(0, 5, f"Maqaa: {data['maqaa']}", ln=True)
-    pdf.cell(0, 5, f"Guyyaa: {data['guyyaa']}", ln=True); pdf.ln(5)
-    # Table
-    pdf.set_fill_color(200); pdf.cell(55, 7, " Tajaajila", 1, 0, 'L', True); pdf.cell(25, 7, " ETB", 1, 1, 'C', True)
-    for k, v in items.items():
-        pdf.cell(55, 7, f" {k[:25]}", 1); pdf.cell(25, 7, f" {v:,.2f}", 1, 1, 'R')
-    pdf.set_font('Arial', 'B', 9); pdf.cell(55, 8, " Total", 1); pdf.cell(25, 8, f" {data['total']:,.2f}", 1, 1, 'R')
-    return pdf.output(dest='S').encode('latin-1')
-
-# --- MAIN APP ---
-st.set_page_config(page_title="Dadar Land System", layout="wide")
-if 'auth' not in st.session_state: st.session_state.auth = False
-
-if not st.session_state.auth:
-    st.title("🔐 Login")
-    if st.text_input("Username") == "admin" and st.text_input("Password", type="password") == "123":
-        if st.button("Seeni"): st.session_state.auth = True; st.rerun()
-else:
-    menu = st.sidebar.radio("MENU", ["📊 Dashboard", "📝 Galmee", "📄 Clearance", "🏆 Badhaasa"])
-    
-    if menu == "📊 Dashboard":
-        df = load_data(DATA_FILE, COL_NAMES)
-        if not df.empty:
-            df['Kafaltii'] = pd.to_numeric(df['Kafaltii'])
-            st.metric("💰 Waliigala Galii", f"{df['Kafaltii'].sum():,.2f} ETB")
-            # Top 5 Analytics
-            top5 = df.groupby('Tajaajila')['Kafaltii'].sum().sort_values(ascending=False).head(5).reset_index()
-            st.plotly_chart(px.bar(top5, x='Kafaltii', y='Tajaajila', orientation='h', title="Top 5 Services"))
-            st.dataframe(df)
-
-    elif menu == "📝 Galmee":
-        GATII_DICT = {"Gibira": ["Gibira Manaa", "Gibira Lafa"], "Liizii": ["Liizii Waggaa", "TOT"]}
-        with st.form("reg"):
-            m, a, q = st.text_input("Maqaa"), st.text_input("Araddaa"), st.text_input("Qaxana")
-            sel = st.multiselect("Gosa Tajaajilaa", list(GATII_DICT.keys()))
-            items = {}
-            if sel:
-                for g in sel:
-                    subs = st.multiselect(f"Tajaajila {g}", GATII_DICT[g])
-                    for s in subs: items[s] = st.number_input(f"Kafaltii {s}", min_value=0.0)
-            if st.form_submit_button("💾 Galmeessi"):
-                total = sum(items.values())
-                new = [datetime.now().strftime('%d/%m/%Y'), m, a, q, ", ".join(items.keys()), "Admin", total]
-                df = load_data(DATA_FILE, COL_NAMES)
-                save_data(pd.concat([df, pd.DataFrame([new], columns=COL_NAMES)]), DATA_FILE)
-                pdf = create_receipt({"maqaa": m, "guyyaa": new[0], "total": total, "ogeessa": "Admin"}, items)
-                st.download_button("📥 Nagahee Buufadhu", pdf, f"Nagahee_{m}.pdf")
-
-    # (Clearance fi Badhaasa kutaalee duraan uumne itti dabaluu dandeessa)
-
-    if st.sidebar.button("🚀 Gabaasa Telegram"):
-        df = load_data(DATA_FILE, COL_NAMES)
-        out = io.BytesIO()
-        with pd.ExcelWriter(out) as wr: df.to_excel(wr, index=False)
-        requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument", data={'chat_id': CHAT_ID}, files={'document': out.getvalue()})
-        st.sidebar.success("Ergameera!")
+            if submit:
+                if m_maqaa and t_filatame:
+                    curr_date = datetime.now().strftime('%d/%m/%Y')
+                    
+                    # Data galmeessuu
+                    new_entry = [curr_date, m_maqaa, m_ara, m_qaxana, t_filatame, m_ogeessa, m_fee]
+                    df = load_data(DATA_FILE, COL_NAMES)
+                    df = pd.concat([df, pd.DataFrame([new_entry], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df, DATA_FILE)
+                    
+                    # Nagahee uumuu
+                    receipt_meta = {"guyyaa": curr_date, "maqaa": m_maqaa, "total": m_fee, "ogeessa": m_ogeessa}
+                    item_dict = {t_filatame: m_fee}
+                    pdf_bytes = create_itemized_receipt(receipt_meta, item_dict)
+                    
+                    st.success(f"✅ Tajaajilli '{t_filatame}' maamila {m_maqaa}f galmaa'eera!")
+                    st.download_button("📥 Nagahee Buufadhu", pdf_bytes, f"Nagahee_{m_maqaa}.pdf")
+                else:
+                    st.error("Maaloo, maqaa maamilaa galchi!")
