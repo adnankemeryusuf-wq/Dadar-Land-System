@@ -1,4 +1,4 @@
-5import streamlit as st
+import streamlit as st
 import pandas as pd
 import os
 import io
@@ -584,5 +584,6 @@ def create_clearance_pdf(data):
 
     # Items
     pdf.write(9, "1. Kaffaltii Gibira waggaa hanga bara "
+
 
 
