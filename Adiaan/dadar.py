@@ -11,12 +11,15 @@ import plotly.express as px
 LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
+
 
 if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
 
 st.set_page_config(
-    page_title="Dadar Land Admin Pro", 
+    page_title=" Dadar Land Administration Customer Registration System ", 
     page_icon="🏢", 
     layout="wide"
 )
@@ -24,7 +27,7 @@ st.set_page_config(
 # Halluu fi Style
 st.markdown("""
     <style>
-    .stApp { background: #f4f7f6; }
+    .stApp { background: #f4f7f9; }
     div.stForm { background: white; border-radius: 12px; padding: 20px; border: 1px solid #ddd; }
     .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
     </style>
@@ -35,25 +38,29 @@ st.markdown("""
 SERVICE_STRUCTURE = {
     "🏷 Gibira & Kaffaltii": [
         "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
-        "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
+        "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
     ],
     "📜 Kaartaa & Qabiyyee": [
         "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
-        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"
+        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
     ],
     "🏗 Pilaanii & Ijaarsa": [
-        "Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
-        "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"
+      "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+       "Humna Mahandisummaa"
     ],
     "⚖️ Dhimma Seeraa": [
         "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
         "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
     ],
     "📂 Tajaajila Biroo": [
-        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
-    ]
+        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo)"
+    ],
+    "⚖️ Adabbii & Seeressuu": [
+        "Adabbii Ijaarsa Seeraan Alaa",
+        "Kaffaltii Seeressuu (Regularization)",
+        "Adabbii Faallaa Pilaanii"
+    ],
 }
-
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 # ================= 3. CORE FUNCTIONS =================
@@ -107,7 +114,7 @@ else:
 
 # --- REGISTRATION ---
     if menu == "📝 Galmee Haaraa":
-        st.header("📝 Galmee Tajaajilaa Haaraa")
+       
         
         # Filannoo Tajaajilaa
         st.subheader("🟢 Gosa Tajaajilaa Filadhu")
@@ -131,7 +138,7 @@ else:
         
         with st.form("reg_form"):
             c1, c2 = st.columns(2)
-            name = c1.text_input("Maqaa Maamilaa")
+            name = c1.text_input("Maqaa Abbaa Dhimmaa")
             ara = c2.text_input("Araddaa")
             qax = c1.text_input("Qaxana")
             ogeessa = c2.text_input("Ogeessa Raawwate")
@@ -166,21 +173,3 @@ else:
             st.subheader("Trendii Kaffaltii")
             fig = px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa')
             st.plotly_chart(fig, use_container_width=True)
-
-    # --- BADHAASA ---
-    elif menu == "🏆 Badhaasa":
-        st.header("🏆 Beekamtii Ogeeyyii")
-        sig = st.file_uploader("Mallattoo Itti Gaafatamaa (PNG)", type=['png'])
-        if not df.empty:
-            top = df['Maqaa_Ogeessa'].value_counts().head(3)
-            for i, (n, c) in enumerate(top.items(), 1):
-                st.write(f"{i}. {n} ({c} tajaajila)")
-                pdf = create_certificate(n, c, i, None, None, sig)
-                st.download_button(f"📥 Sartiifikeeta {n}", pdf, f"Cert_{n}.pdf")
-
-    # --- GABAASA ---
-    elif menu == "📈 Gabaasa":
-        st.header("📋 Galmeewwan Hundi")
-        st.dataframe(df, use_container_width=True)
-        csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
