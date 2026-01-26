@@ -1,39 +1,117 @@
 import streamlit as st
 import pandas as pd
-import sqlite3
-import os, io, requests
+import os
+import io
 from datetime import datetime
 from fpdf import FPDF
-from ethiopian_date import EthiopianDateConverter
-import plotly.express as px
 
-# ================= CONFIG =================
-st.set_page_config("Dadar Land Admin", "🏢", layout="wide")
-DB_FILE = "dadar_land.db"
+# ================= 1. CONFIGURATION & MODELS =================
+# Simple Ethiopian Date Mock (Replace with real 'ethiopian-date' library if available)
+class EthiopianDateConverter:
+    def to_ethiopian(self, y, m, d):
+        class EDate:
+            def __init__(self): self.day, self.month, self.year = d, m-8 if m > 8 else m+4, y-8
+        return EDate()
+
+LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
+DATA_FILE = "dadar_final_report.txt"
 
-if not os.path.exists(NAGAHEE_DIR):
-    os.makedirs(NAGAHEE_DIR)
+# Ensure directories exist
+if not os.path.exists(NAGAHEE_DIR): os.makedirs(NAGAHEE_DIR)
 
-SERVICE_STRUCTURE = {
-    "🏷 Gibira & Kaffaltii": ["Gibira Baaxii", "Gibira Qonnaa", "Kaffaltii Liizii Waggaa"],
-    "📂 Tajaajila Biroo": ["Clearance PDF", "Deebii Iyyannoo"]
-}
+st.set_page_config(page_title="Dadar Land Admin", page_icon="🏢", layout="wide")
 
-COL_NAMES = ['id','guyyaa','maqaa','araddaa','qaxana','gosa_taj','ogeessa','kafaltii','nagahee_path']
+# ================= 2. STYLING =================
+st.markdown("""
+    <style>
+    .stApp { background: #f9fbf9; }
+    div.stForm { background: white; border-radius: 10px; border: 1px solid #ddd; padding: 20px; }
+    .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+    </style>
+    """, unsafe_allow_html=True)
 
-# ================= HELPERS =================
-def get_ec_date(g=None):
-    if g is None: g=datetime.now()
-    ec = EthiopianDateConverter.to_ethiopian(g.year,g.month,g.day)
-    return f"{ec.day:02d}/{ec.month:02d}/{ec.year}"
+# ================= 3. CORE FUNCTIONS =================
+COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
+MONTH_ORDER = ["Fulbaana", "Onkololeessa", "Sadaasa", "Muddee", "Amajjii", "Guraandhala", "Bitootessa", "Eebila", "Caamsaa", "Waxabajjii", "Adooleessa", "Hagayya"]
+MONTH_MAP = {9: "Fulbaana", 10: "Onkololeessa", 11: "Sadaasa", 12: "Muddee", 1: "Amajjii", 2: "Guraandhala", 3: "Bitootessa", 4: "Eebila", 5: "Caamsaa", 6: "Waxabajjii", 7: "Adooleessa", 8: "Hagayya"}
 
-def get_conn():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute(f"""
+def load_data():
+    if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+        return pd.DataFrame(columns=COL_NAMES)
+    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+    df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
+    df['Waggaa'] = df['Date_Obj'].dt.year
+    df['Ji\'a'] = df['Date_Obj'].dt.month.map(MONTH_MAP)
+    df['Kurmaana'] = df['Date_Obj'].dt.month.apply(lambda x: 1 if x in [9,10,11,12] else (2 if x in [1,2,3] else (3 if x in [4,5,6] else 4)))
+    return df
+
+def save_data(df_to_save):
+    df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+
+def get_ethiopian_date_str():
+    now = datetime.now()
+    e_date = EthiopianDateConverter().to_ethiopian(now.year, now.month, now.day)
+    return f"{e_date.day:02d}/{e_date.month:02d}/{e_date.year}"
+
+# ================= 4. MAIN APP LOGIC =================
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+if not st.session_state.logged_in:
+    _, col_mid, _ = st.columns([1, 1.2, 1])
+    with col_mid:
+        st.header("🏢 Login")
+        with st.form("login_form"):
+            u = st.text_input("Username")
+            p = st.text_input("Password", type="password")
+            if st.form_submit_button("Seeni"):
+                if u == "DAD" and p == "2026":
+                    st.session_state.logged_in = True
+                    st.rerun()
+                else: st.error("Dogoggora!")
+else:
+    df = load_data()
+    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa", "🏆 Badhaasa", "📝 CLEARANCE", "🔍 Edit"])
+
+    # --- REGISTRATION LOGIC ---
+    if menu == "📝 Galmee Haaraa":
+        st.subheader("Galmee Tajaajilaa")
+        with st.form("entry_form"):
+            maqaa = st.text_input("Maqaa Abbaa Dhimmaa *")
+            araddaa = st.text_input("Araddaa *")
+            qaxana = st.text_input("Qaxana *")
+            ogeessa = st.text_input("Maqaa Ogeessaa *")
+            gosa = st.selectbox("Gosa Tajaajilaa", ["Gibira", "Liizii", "Kaartaa"])
+            kaffaltii = st.number_input("Kaffaltii", min_value=0.0)
+            
+            if st.form_submit_button("💾 Galmeessi"):
+                if maqaa and araddaa and ogeessa:
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, qaxana, gosa, ogeessa, kaffaltii]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    st.success("Galmeeffameera!")
+                else:
+                    st.error("Maaloo hunda guuti!")
+
+    # --- CLEARANCE LOGIC ---
+    elif menu == "📝 CLEARANCE":
+        st.subheader("Waraqaa Ragaa Qulqullinaa")
+        with st.form("clearance_form"):
+            c_data = {
+                "maqaa": st.text_input("Maqaa Guutuu"),
+                "araddaa": st.text_input("Araddaa"),
+                "qaxana": st.text_input("Qaxana"),
+                "kaartaa": st.text_input("Lakk. Kaartaa")
+            }
+            if st.form_submit_button("Generate PDF"):
+                st.info(f"Generating Clearance for {c_data['maqaa']}...")
+                # PDF Generation logic would go here
+
+    # --- LOGOUT ---
+    if st.sidebar.button("Log Out"):
+        st.session_state.logged_in = False
+        st.rerun()
         CREATE TABLE IF NOT EXISTS galmee (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             guyyaa TEXT, maqaa TEXT, araddaa TEXT, qaxana TEXT,
@@ -967,6 +1045,7 @@ else:
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
 
 
 
