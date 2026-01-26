@@ -192,7 +192,7 @@ if submit:
                 df[COL_NAMES].to_excel(writer, index=False, sheet_name='Gabaasa')
             st.download_button("📥 Excel Buusi", output.getvalue(), "Gabaasa_Dadar.xlsx")
             if st.button("✈️ Gabaasa Telegramitti Ergi"):
-                st.success("Gabaasa telegramitti ergameera!") # Logic erguu armaan olitti jira
+                st.success("Gabaasa telegramitti ergameera!") # Logic erguu armaan olitti jira")
 
    
  # --- GABAASA BAL'AA (MODERN UI) ---
@@ -428,3 +428,4 @@ def create_clearance_pdf(data):
 
     # Items
     pdf.write(9, "1. Kaffaltii Gibira waggaa hanga bara "
+
