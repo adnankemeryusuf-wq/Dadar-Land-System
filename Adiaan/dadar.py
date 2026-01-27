@@ -60,7 +60,7 @@ if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if not st.session_state.logged_in:
     _, center_col, _ = st.columns([1, 1, 1])
     with center_col:
-        st.markdown("<br><br>", unsafe_allow_html=True)
+       ue)
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=130)
@@ -191,6 +191,7 @@ else:
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
 
 
 
