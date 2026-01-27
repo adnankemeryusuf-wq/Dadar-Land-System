@@ -1,4 +1,3 @@
-Adnan Kemer Yusuf, [1/19/2026 3:18 PM]
 import streamlit as st
 import pandas as pd
 import os
@@ -186,3 +185,4 @@ Adnan Kemer Yusuf, [1/19/2026 3:18 PM]
         st.dataframe(df, use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
         st.download_button("📥 Excel/CSV Buusi", csv, "Gabaasa.csv", "text/csv")
+
