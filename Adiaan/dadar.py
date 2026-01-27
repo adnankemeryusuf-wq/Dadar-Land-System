@@ -4,13 +4,15 @@ import os
 import requests
 from datetime import datetime
 from fpdf import FPDF
-import plotly.express as px
+import plotly.express as 
 
+# --- CONFIGURATION TELEGRAM ---
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
 # ================= 1. CONFIGURATION & LOGO =================
 LOGO_PATH = "Adiaan/logo.png"  # Maqaa logo keetii kanaan save godhi
 DATA_FILE = "dadar_final_report.txt"
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID_MANAGER = "7329587700"
+
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 # Folder nagahee fi kkf uumuu
@@ -190,6 +192,7 @@ else:
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
 
 
 
