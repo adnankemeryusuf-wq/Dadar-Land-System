@@ -88,26 +88,18 @@ else:
         st.session_state.logged_in = False
         st.rerun()
 
+   # --- DASHBOARD ---
     elif menu == "📊 Dashboard":
         st.title("📊 Dashboard Waliigalaa")
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=80)
+        if not df.empty:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("💰 Galii Waliigalaa", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+            c2.metric("👥 Maamiltoota", len(df))
+            c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
             
-        today = datetime.now().strftime('%d/%m/%Y')
-        today_df = df[df['Guyyaa'] == today]
-        
-        c1, c2, c3 = st.columns(3)
-        c1.metric("💰 Galii Har'aa", f"{today_df['Kafaltii_Taj'].sum():,.2f} ETB")
-        c2.metric("👥 Maamiltoota Har'aa", len(today_df))
-        c3.metric("👷 Ogeeyyii", today_df['Maqaa_Ogeessa'].nunique())
-
-        st.subheader("Gabaasa Guyyaa Telegramitti Ergi")
-        if st.button("🚀 Gabaasa Har'aa Telegramitti Ergi"):
-            if not today_df.empty:
-                msg = f"📅 *GABAASA GUYYAA: {today}*\n\n💰 Galii: {today_df['Kafaltii_Taj'].sum():,.2f} ETB\n👥 Maamiltoota: {len(today_df)}\n👷 Ogeeyyii: {today_df['Maqaa_Ogeessa'].nunique()}\n\n🏢 *Wajjira Lafa Dadar*"
-                send_telegram(msg)
-                st.success("Gabaasni ergameera!")
-
+            st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa', title="Trendii Kaffaltii Guyyaatti"))
+            st.plotly_chart(px.pie(df, names='Gosa_Tajajjilaa', values='Kafaltii_Taj', title="Qoodinsa Galii Gosa Tajaajilaan"))
+        else: st.info("Hanga ammaatti ragaan galmeeffame hin jiru.")
     if menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa Haaraa")
         
@@ -157,4 +149,5 @@ else:
     elif menu == "📈 Gabaasa":
         st.title("📈 Gabaasa Hojii")
         st.dataframe(df, use_container_width=True)
+
 
