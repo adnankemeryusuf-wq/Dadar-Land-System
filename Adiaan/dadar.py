@@ -7,9 +7,6 @@ from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
 
-# ================= 1. CONFIGURATION & STYLE =================# Telegram Credentials
-BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
-CHAT_ID = "7329587700"
 
 # ================= 2. CORE FUNCTIONS =================
 def send_telegram(msg):
@@ -181,4 +178,5 @@ else:
             st.subheader("Trendii Kaffaltii")
             fig = px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa')
             st.plotly_chart(fig, use_container_width=True)
+
 
