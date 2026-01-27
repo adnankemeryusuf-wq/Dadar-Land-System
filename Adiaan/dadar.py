@@ -5,7 +5,7 @@ import requests
 from datetime import datetime
 import plotly.express as px
 
-# ================= 1. CONFIGURATION & STYLE =================
+# ================= 1. CONFIGURATION =================
 LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
@@ -20,11 +20,11 @@ if not os.path.exists(NAGAHEE_DIR):
 
 st.set_page_config(page_title="Dadar Land Admin", page_icon="🏢", layout="wide")
 
-# Styling Professional UI
+# UI Style
 st.markdown("""
     <style>
     .stMetric { background-color: #ffffff; padding: 15px; border-radius: 10px; border-bottom: 4px solid #007bff; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
-    .stButton>button { width: 100%; border-radius: 5px; font-weight: bold; }
+    .stButton>button { width: 100%; border-radius: 5px; font-weight: bold; background-color: #007bff; color: white; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -87,7 +87,7 @@ else:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
         st.title("Dadar Admin")
         menu = st.radio("MENU", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi & Haqii", "📈 Gabaasa", "Logout"])
-    
+
     # --- DASHBOARD ---
     if menu == "📊 Dashboard":
         st.title("📊 Analysis Dashboard")
@@ -96,11 +96,10 @@ else:
             c1.metric("💰 Galii Waliigalaa", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
             c2.metric("👥 Maamiltoota", len(df))
             c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
-            
             st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa', barmode='group'))
         else: st.info("Ragaan galmeeffame hin jiru.")
 
-    # --- REGISTRATION ---
+    # --- REGISTRATION (FIXED FEE LOGIC) ---
     elif menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Haaraa")
         cats = st.multiselect("Tajaajila Filadhu:", list(SERVICE_STRUCTURE.keys()))
@@ -113,23 +112,27 @@ else:
             nagahee = st.file_uploader("Nagahee (Suuraa)", type=['jpg','png','jpeg'])
             
             final_services = []
-            total_fee = 0
+            total_fee = 0.0 # Herregni float akka ta'u
+            
             for cat in cats:
-                st.write(f"--- {cat} ---")
-                subs = st.multiselect(f"Gosa {cat}:", SERVICE_STRUCTURE[cat])
+                st.write(f"**--- {cat} ---**")
+                subs = st.multiselect(f"Gosa {cat}:", SERVICE_STRUCTURE[cat], key=f"sub_{cat}")
                 for s in subs:
                     if "TOT" in s:
-                        gurg = st.text_input(f"Maqaa Gurguraa ({s})")
-                        bit = st.text_input(f"Maqaa Bitaa ({s})")
-                        gatii = st.number_input(f"Gatii Waliigaltee ({s})", min_value=0.0)
+                        col_t1, col_t2 = st.columns(2)
+                        gurg = col_t1.text_input(f"Maqaa Gurguraa", key=f"gurg_{s}")
+                        bit = col_t2.text_input(f"Maqaa Bitaa", key=f"bit_{s}")
+                        gatii = st.number_input(f"Gatii Waliigaltee ({s})", min_value=0.0, key=f"val_{s}")
                         fee = gatii * 0.02
                         final_services.append(f"{s} [{gurg} -> {bit}]")
                     else:
-                        fee = st.number_input(f"Kaffaltii {s}:", min_value=0.0)
+                        fee = st.number_input(f"Kaffaltii {s}:", min_value=0.0, key=f"fee_{s}")
                         final_services.append(s)
-                    total_fee += fee
+                    total_fee += fee # Kaffaltiin itti fufiinsaan ida'ama
             
-            if st.form_submit_button("💾 GALMEESSI"):
+            st.write(f"### Waliigala: **{total_fee:,.2f} ETB**")
+
+            if st.form_submit_button("💾 GALMEESSI FI ERGI"):
                 if name and final_services:
                     f_path = None
                     if nagahee:
@@ -140,49 +143,34 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
                     
-                    msg = f"✅ *GALMEE HAARAA*\n👤 Maamila: {name}\n📍 Bakka: {ara}\n💰 Kaffaltii: {total_fee:,.2f} ETB\n👷 Ogeessa: {ogeessa}"
+                    msg = f"🚀 *GALMEE HAARAA*\n👤 Maamila: {name}\n📍 Araddaa: {ara}\n🛠 Tajaajila: {', '.join(final_services)}\n💰 *Kaffaltii: {total_fee:,.2f} ETB*\n👷 Ogeessa: {ogeessa}"
                     send_telegram_msg(msg, f_path)
-                    st.success("Milkaa'inaan galmeeffameera!")
-                else: st.error("Ragaa guutuu galchi!")
+                    st.success("✅ Galmeeffamee Hoogganaatti ergameera!")
+                else: st.error("Maaloo ragaa guutuu galchi!")
 
-    # --- SEARCH & DELETE (UPDATED) ---
+    # --- SEARCH & DELETE ---
     elif menu == "🔍 Barbaadi & Haqii":
         st.title("🔍 To'annoo Ragaalee")
-        col_s1, col_s2 = st.columns([2, 1])
-        q_name = col_s1.text_input("Maqaa maamilaa...")
-        q_ara = col_s2.selectbox("Araddaa", ["Hunda"] + ["01", "02", "03", "04", "Baadiyyaa"])
-        
-        filtered = df.copy()
-        if q_name: filtered = filtered[filtered['Maqaa_Abbaa_Dhimmaa'].str.contains(q_name, case=False, na=False)]
-        if q_ara != "Hunda": filtered = filtered[filtered['Araddaa'] == q_ara]
-        
-        if not filtered.empty:
-            st.dataframe(filtered, use_container_width=True)
-            st.divider()
-            
-            # Delete Logic
-            target_id = st.selectbox("Ragaa haquu barbaaddu filadhu:", filtered.index, format_func=lambda x: f"{filtered.loc[x, 'Maqaa_Abbaa_Dhimmaa']} - {filtered.loc[x, 'Guyyaa']}")
-            if st.button("🚨 Ragaa Kana Haqii"):
-                df = df.drop(target_id)
-                save_data(df)
-                st.success("Ragaan haqameera!")
-                st.rerun()
-        else: st.warning("Ragaan argame hin jiru.")
+        q_name = st.text_input("Maqaa maamilaa...")
+        if q_name:
+            filtered = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q_name, case=False, na=False)]
+            if not filtered.empty:
+                st.dataframe(filtered)
+                target_id = st.selectbox("ID Haquuf:", filtered.index)
+                if st.button("🚨 Haqii"):
+                    df = df.drop(target_id)
+                    save_data(df)
+                    st.success("Haqameera!")
+                    st.rerun()
+            else: st.warning("Ragaan hin jiru.")
 
-    # --- REPORT & TELEGRAM ---
+    # --- REPORT ---
     elif menu == "📈 Gabaasa":
         st.title("📈 Gabaasa Waliigalaa")
         if not df.empty:
-            st.dataframe(df, use_container_width=True)
+            st.dataframe(df)
             report_name = f"Report_{datetime.now().strftime('%d_%m_%Y')}.csv"
-            
-            c1, c2 = st.columns(2)
-            c1.download_button("📥 Buufadhu (CSV)", df.to_csv(index=False), report_name)
-            if c2.button("📤 Gabaasa Gara Telegramitti Ergi"):
-                df.to_csv(report_name, index=False)
-                if send_telegram_doc(report_name):
-                    st.success("Gabaasni Hoogganaatti ergameera!")
-                os.remove(report_name)
+            st.download_button("📥 CSV Buufadhu", df.to_csv(index=False), report_name)
         else: st.info("Ragaan hin jiru.")
 
     elif menu == "Logout":
