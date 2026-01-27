@@ -1,4 +1,3 @@
-Adnan Kemer Yusuf, [1/11/2026 9:57 PM]
 import os
 import requests
 from datetime import datetime
@@ -109,7 +108,7 @@ def uumi_sartifiketii(ogeessa, rank, waggaa):
         pdf.set_text_color(0, 0, 0); pdf.set_font('Arial', '', 16)
         pdf.cell(0, 15, f"Sartifiketiin kun Ogeessa kabajamaa {ogeessa.upper()}f", ln=True, align='C')
 
-Adnan Kemer Yusuf, [1/11/2026 9:57 PM]
+
 txt = (f"tajaajila mamiilaa haala bareedaa fi quubsaa ta'een waggaa {waggaa} "
                f"kennaa turaniif badhaasa {rank} ta'uun qophaa'eef.")
         pdf.set_font('Arial', '', 14); pdf.multi_cell(0, 8, txt, align='C')
@@ -205,7 +204,6 @@ def galmeessi():
 
 # --- NAVIGATION ---
 
-Adnan Kemer Yusuf, [1/11/2026 9:57 PM]
 if name == "main":
     if not os.path.exists(DATA_FILE):
         with open(DATA_FILE, "w") as f: pass
@@ -236,3 +234,4 @@ if name == "main":
                 except: print("[!] Dogoggora!")
             elif c == '5': break
     else: print("[!] Login Dogoggora!")
+
