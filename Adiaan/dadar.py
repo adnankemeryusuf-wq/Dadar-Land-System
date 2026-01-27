@@ -136,17 +136,6 @@ else:
             st.dataframe(filtered[COL_NAMES], use_container_width=True)
             st.metric("Waliigala Galii Waggaa", f"{filtered['Kafaltii_Taj'].sum():,.2f} ETB")
 
-    # --- BADHAASA ---
-    elif menu == "🏆 Badhaasa":
-        st.title("🏆 Sartiifiikeeta Ogeeyyii")
-        if not df.empty:
-            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-            cols = st.columns(3)
-            for i, (name, count) in enumerate(top_3.items()):
-                with cols[i]:
-                    st.markdown(f"<div class='card'><h3>🥇 Sadarkaa {i+1}</h3><h4>{name}</h4><p>Tajaajile: {count}</p></div>", unsafe_allow_html=True)
-                    cert = create_pdf_cert(name, count, i+1)
-                    st.download_button(f"📥 Download Cert {i+1}", cert, f"Cert_{name}.pdf")
 
     # --- SEARCH / EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
@@ -164,3 +153,4 @@ else:
     elif menu == "Logout":
         st.session_state.logged_in = False
         st.rerun()
+
