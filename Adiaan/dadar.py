@@ -2,12 +2,12 @@ import streamlit as st
 import pandas as pd
 import os
 import requests
+import io
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
 
 # ================= 1. CONFIGURATION =================
-LOGO_PATH = "Adiaan/logo.png"
 NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
@@ -43,10 +43,11 @@ st.markdown("""
     .stApp { background: #f4f7f9; }
     div.stForm { background: white; border-radius: 12px; padding: 25px; border: 1px solid #ddd; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
     .stMetric { background: white; padding: 15px; border-radius: 10px; border-top: 5px solid #2e7d32; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+    .stButton>button { background-color: #2e7d32; color: white; font-weight: bold; }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 4. SERVICE LIST =================
+# ================= 4. SERVICE STRUCTURE =================
 SERVICE_STRUCTURE = {
     "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax)"],
     "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa"],
@@ -56,7 +57,7 @@ SERVICE_STRUCTURE = {
     "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
 }
 
-# ================= 5. LOGIN LOGIC =================
+# ================= 5. MAIN APP =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
@@ -70,10 +71,10 @@ if not st.session_state.logged_in:
             if u == "DAD" and p == "2026":
                 st.session_state.logged_in = True
                 st.rerun()
-            else: st.error("Dogoggora!")
+            else: st.error("Dogoggora Username ykn Password!")
 else:
     df = load_data()
-    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa", "Logout"])
+    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "Logout"])
 
     if menu == "Logout":
         st.session_state.logged_in = False
@@ -85,7 +86,7 @@ else:
         
         selected_cats = st.multiselect("Duraan dursa Ramaddii Tajaajilaa filadhu:", list(SERVICE_STRUCTURE.keys()))
         
-        with st.form("reg_form", clear_on_submit=True):
+        with st.form("reg_form"):
             st.subheader("👤 Ragaa Abbaa Dhimmaa")
             c1, c2 = st.columns(2)
             name = c1.text_input("Maqaa Abbaa Dhimmaa")
@@ -95,43 +96,47 @@ else:
             nagahee = st.file_uploader("Nagahee Scan (Suuraa)", type=['jpg','png','jpeg'])
 
             st.divider()
-            st.subheader("🛠 Tajaajiloota Filataman")
+            st.subheader("🛠 Tajaajiloota fi Kaffaltii")
             
             final_services = []
             total_fee = 0
             
             if selected_cats:
-                cols = st.columns(len(selected_cats))
-                for i, cat in enumerate(selected_cats):
-                    with cols[i]:
-                        st.write(f"**{cat}**")
-                        subs = st.multiselect(f"Gosa {cat}:", SERVICE_STRUCTURE[cat], key=f"sub_{cat}")
-                        for s in subs:
-                            fee = st.number_input(f"Kaffaltii {s}:", min_value=0.0, key=f"fee_{s}")
-                            final_services.append(s)
-                            total_fee += fee
-            
-            st.info(f"💰 Waliigala Kaffaltii: **{total_fee:,.2f} ETB**")
+                for cat in selected_cats:
+                    st.write(f"**📍 {cat}**")
+                    subs = st.multiselect(f"Gosa {cat}:", SERVICE_STRUCTURE[cat], key=f"sub_{cat}")
+                    
+                    if subs:
+                        sub_cols = st.columns(len(subs))
+                        for idx, s in enumerate(subs):
+                            with sub_cols[idx]:
+                                # IDDOO KAFALTII - Asitti mul'ata
+                                fee = st.number_input(f"Kaffaltii {s}:", min_value=0.0, key=f"fee_{s}")
+                                final_services.append(s)
+                                total_fee += fee
+            else:
+                st.info("Maaloo, duraan dursa gubbaatti 'Ramaddii Tajaajilaa' filadhu.")
 
-            if st.form_submit_button("💾 Galmeessi FI Telegramitti Ergi", use_container_width=True):
+            st.markdown("---")
+            st.warning(f"💰 Waliigala Kaffaltii: **{total_fee:,.2f} ETB**")
+
+            if st.form_submit_button("💾 GALMEESSI FI TELEGRAMITTI ERGI", use_container_width=True):
                 if name and final_services and ogeessa:
-                    # Suuraa Nagahee Save gochuu
                     if nagahee:
                         f_path = os.path.join(NAGAHEE_DIR, f"{name}_{datetime.now().strftime('%H%M%S')}.jpg")
                         with open(f_path, "wb") as f: f.write(nagahee.getbuffer())
                     
-                    # Ragaa Galmeessuu
                     new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, ", ".join(final_services), ogeessa, total_fee]
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
                     
-                    # Beeksisa Telegram
-                    telegram_msg = f"🔔 *Galmee Haaraa*\n👤 Maqaa: {name}\n🛠 Tajaajila: {', '.join(final_services)}\n💰 Waliigala Kaffaltii: {total_fee} ETB\n👷 Ogeessa: {ogeessa}"
+                    telegram_msg = f"🔔 *GALMEE HAARAA*\n👤 Maqaa: {name}\n📍 Araddaa: {ara}\n🛠 Tajaajila: {', '.join(final_services)}\n💰 Kaffaltii: {total_fee:,.2f} ETB\n👷 Ogeessa: {ogeessa}"
                     send_telegram(telegram_msg)
                     
-                    st.success(f"✅ Maamilichi galmeeffameera! Gabaasni gara Telegramitti ergameera.")
+                    st.success(f"✅ Maamilichi galmeeffameera! Gabaasni Telegramitti ergameera.")
+                    st.balloons()
                 else:
-                    st.error("Maaloo! Maqaa, tajaajila fi ogeessa guutuu kee mirkaneeffadhu.")
+                    st.error("Maaloo! Ragaa hunda guuti.")
 
     # --- DASHBOARD ---
     elif menu == "📊 Dashboard":
@@ -143,12 +148,13 @@ else:
             c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
             
             st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa', title="Trendii Kaffaltii Guyyaatti"))
-            st.plotly_chart(px.pie(df, names='Gosa_Tajajjilaa', values='Kafaltii_Taj', title="Qoodinsa Galii Gosa Tajaajilaan"))
         else:
             st.info("Ragaan galmeeffame hin jiru.")
 
-    # --- GABAASA ---
-    elif menu == "📈 Gabaasa":
-        st.title("📈 Gabaasa Bal'aa")
+    # --- REPORT ---
+    elif menu == "📈 Gabaasa Bal'aa":
+        st.title("📈 Gabaasa Galii")
         st.dataframe(df, use_container_width=True)
-        st.download_button("📥 Gabaasa (CSV) Buufadhu", df.to_csv(index=False), "gabaasa_dadar.csv")
+        
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Excel/CSV Buufadhu", csv, "Gabaasa_Dadar.csv", "text/csv")
