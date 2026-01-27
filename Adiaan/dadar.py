@@ -3,11 +3,9 @@ import pandas as pd
 import os
 import requests
 from datetime import datetime
-from fpdf import FPDF
 import plotly.express as px
 
 # ================= 1. CONFIGURATION =================
-# Logoon kee folder "Adiaan" jedhu keessa jiraachuu qaba
 LOGO_PATH = "Adiaan/logo.png" 
 NAGAHEE_DIR = "nagahee_scan"
 DATA_FILE = "dadar_final_report.txt"
@@ -18,16 +16,26 @@ CHAT_ID_MANAGER = "7329587700"
 
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
-# Folder nagaheen itti save ta'u uumuu
 if not os.path.exists(NAGAHEE_DIR):
     os.makedirs(NAGAHEE_DIR)
 
 # ================= 2. CORE FUNCTIONS =================
-def send_telegram(msg):
+def send_telegram(msg, image_path=None):
     try:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        params = {"chat_id": CHAT_ID_MANAGER, "text": msg, "parse_mode": "Markdown"}
-        requests.get(url, params=params)
+        # Ergaa barreeffamaa erguu
+        base_url = f"https://api.telegram.org/bot{BOT_TOKEN}/"
+        requests.get(base_url + "sendMessage", params={
+            "chat_id": CHAT_ID_MANAGER, 
+            "text": msg, 
+            "parse_mode": "Markdown"
+        })
+        
+        # Yoo suuraan jiraate suuraa erguu
+        if image_path and os.path.exists(image_path):
+            with open(image_path, "rb") as photo:
+                requests.post(base_url + "sendPhoto", 
+                              data={"chat_id": CHAT_ID_MANAGER}, 
+                              files={"photo": photo})
     except:
         pass
 
@@ -54,7 +62,6 @@ SERVICE_STRUCTURE = {
 # ================= 4. UI SETUP & LOGIN =================
 st.set_page_config(page_title="Dadar Land Admin", page_icon="🏢", layout="wide")
 
-# CSS for better UI
 st.markdown("""
     <style>
     .stApp { background: #f4f7f9; }
@@ -70,8 +77,7 @@ if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 1.2, 1])
     with col:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=120)
+        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
         st.title("🔐 Login")
         with st.form("Login"):
             u = st.text_input("Username")
@@ -80,17 +86,15 @@ if not st.session_state.logged_in:
                 if u == "DAD" and p == "2026":
                     st.session_state.logged_in = True
                     st.rerun()
-                else:
-                    st.error("Username ykn Password dogoggora!")
+                else: st.error("Username ykn Password dogoggora!")
 else:
     # --- SIDEBAR ---
     with st.sidebar:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=100)
-        st.title("Main Menu")
+        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=100)
+        st.title("Dadar Admin")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa", "Logout"])
         st.divider()
-        st.info(f"📅 Guyyaa: {datetime.now().strftime('%d/%m/%Y')}")
+        st.info(f"📅 {datetime.now().strftime('%d/%m/%Y')}")
 
     df = load_data()
 
@@ -103,8 +107,8 @@ else:
             c2.metric("👥 Maamiltoota", len(df))
             c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
             
-            st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa', title="Trendii Kaffaltii Guyyaatti"))
-            st.plotly_chart(px.pie(df, names='Gosa_Tajajjilaa', values='Kafaltii_Taj', title="Qoodinsa Galii Gosa Tajaajilaan"))
+            st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa', title="Kaffaltii Guyyaatti"))
+            st.plotly_chart(px.pie(df, names='Gosa_Tajajjilaa', values='Kafaltii_Taj', title="Qoodinsa Galii"))
         else:
             st.info("Hanga ammaatti ragaan galmeeffame hin jiru.")
 
@@ -121,7 +125,7 @@ else:
             ara = c2.text_input("Araddaa")
             qax = c1.text_input("Qaxana")
             ogeessa = c2.text_input("Ogeessa Raawwate")
-            nagahee = st.file_uploader("Nagahee Scan (Image)", type=['jpg','png','jpeg'])
+            nagahee = st.file_uploader("Nagahee Scan (Suuraa)", type=['jpg','png','jpeg'])
 
             st.divider()
             final_services = []
@@ -138,37 +142,31 @@ else:
             
             st.markdown(f"### 💰 Waliigala: {total_fee:,.2f} ETB")
 
-            if st.form_submit_button("💾 GALMEESSI FI ERGI", use_container_width=True):
+            if st.form_submit_button("💾 GALMEESSI FI TELEGRAMITTI ERGI", use_container_width=True):
                 if name and final_services and ogeessa:
-                    # Save Scan if exists
+                    f_path = None
                     if nagahee:
                         f_path = os.path.join(NAGAHEE_DIR, f"{name}_{datetime.now().strftime('%H%M%S')}.jpg")
-                        with open(f_path, "wb") as f:
-                            f.write(nagahee.getbuffer())
+                        with open(f_path, "wb") as f: f.write(nagahee.getbuffer())
                     
-                    # Save Data
                     services_str = ", ".join(final_services)
                     new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, services_str, ogeessa, total_fee]
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
                     
-                    # Telegram Notification
-                    telegram_msg = f"🔔 *GALMEE HAARAA*\n👤 Maqaa: {name}\n📍 Araddaa: {ara}\n🛠 Tajaajila: {services_str}\n💰 Kaffaltii: {total_fee:,.2f} ETB\n👷 Ogeessa: {ogeessa}"
-                    send_telegram(telegram_msg)
+                    # Telegram Formatting
+                    t_msg = f"🚀 *GALMEE HAARAA*\n━━━━━━━━━━━━━━━\n👤 *Maamila:* {name}\n📍 *Araddaa:* {ara}\n🛠 *Tajaajila:* {services_str}\n💰 *Kaffaltii:* {total_fee:,.2f} ETB\n👷 *Ogeessa:* {ogeessa}\n━━━━━━━━━━━━━━━"
+                    send_telegram(t_msg, f_path)
                     
-                    st.success(f"✅ Maamilichi galmeeffameera! Gabaasni gara Telegramitti ergameera.")
+                    st.success(f"✅ Galmeeffameera! Telegram irrattis ergameera.")
                 else:
-                    st.error("Maaloo! Maqaa, tajaajila fi ogeessa guuti.")
+                    st.error("Maaloo! Ragaa hunda guuti.")
 
     # ================= 7. REPORT =================
     elif menu == "📈 Gabaasa":
         st.title("📈 Gabaasa Bal'aa")
-        if not df.empty:
-            st.dataframe(df, use_container_width=True)
-            csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button("📥 Gabaasa (CSV) Buufadhu", csv, "gabaasa_dadar.csv", "text/csv")
-        else:
-            st.info("Ragaan gabaasaaf ta'u hin jiru.")
+        st.dataframe(df, use_container_width=True)
+        st.download_button("📥 Gabaasa (CSV) Buufadhu", df.to_csv(index=False), "gabaasa_dadar.csv")
 
     elif menu == "Logout":
         st.session_state.logged_in = False
