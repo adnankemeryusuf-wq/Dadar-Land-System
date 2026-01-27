@@ -79,7 +79,8 @@ if not st.session_state.logged_in:
             u = st.text_input("Username")
             p = st.text_input("Password", type="password")
             if st.form_submit_button("SEENI", use_container_width=True):
-                if u == Lafa and p == 1234:
+                # ASITTI SIRREEFFAMEERA: Username fi Password bifa "Text" tiin
+                if u == "admin" and p == "1234": 
                     st.session_state.logged_in = True
                     st.rerun()
                 else: st.error("Maaloo sirriitti galchi!")
@@ -103,7 +104,7 @@ else:
         c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
         
         if not df.empty:
-            st.plotly_chart(px.line(df, x='dt', y='Kafaltii_Taj', title="Trendii Galii"))
+            st.plotly_chart(px.line(df, x='dt', y='Kafaltii_Taj', title="Trendii Galii Guyyaatti"))
             
     # --- GALMEE HAARAA ---
     elif menu == "📝 Galmee Haaraa":
@@ -136,7 +137,7 @@ else:
         st.title("📈 Gabaasa Bal'aa")
         st.dataframe(df[COL_NAMES], use_container_width=True)
         csv = df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Excel Download", csv, "gabaasa.csv", "text/csv")
+        st.download_button("📥 CSV Download", csv, "gabaasa.csv", "text/csv")
 
     # --- BADHAASA ---
     elif menu == "🏆 Badhaasa":
@@ -146,12 +147,12 @@ else:
             cols = st.columns(3)
             for i, (name, count) in enumerate(top_3.items()):
                 with cols[i]:
-                    st.subheader(f"Sadarkaa {i+1}")
-                    st.write(f"**{name}** ({count} tajaajila)")
+                    st.markdown(f"### Sadarkaa {i+1}")
+                    st.write(f"**{name}**")
+                    st.write(f"Tajaajile: {count}")
                     cert = create_pdf_cert(name, i+1)
-                    st.download_button(f"📥 PDF Cert {i+1}", cert, f"{name}.pdf")
+                    st.download_button(f"📥 Download PDF {i+1}", cert, f"{name}_cert.pdf")
 
     elif menu == "Logout":
         st.session_state.logged_in = False
         st.rerun()
-
