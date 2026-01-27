@@ -6,155 +6,153 @@ import plotly.express as px
 from datetime import datetime
 from fpdf import FPDF
 
-# ================= 1. LUXURY UI DESIGN =================
-st.set_page_config(page_title="Dadar Land Admin Pro", layout="wide", page_icon="🏢")
+# ================= 1. UI SETUP =================
+st.set_page_config(page_title="Dadar Land Admin Final", layout="wide", page_icon="🏢")
 
 st.markdown("""
     <style>
-    /* Background Gradient */
-    .stApp {
-        background: linear-gradient(135deg, #f8faf8 0%, #e1eee2 100%);
-    }
-    
-    /* Sidebar Luxury Style */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #051f13 0%, #0c3d26 100%) !important;
-        border-right: 3px solid #b8860b;
-    }
-    [data-testid="stSidebar"] * { color: #e0e0e0 !important; font-weight: 500; }
-
-    /* Glassmorphism Cards */
-    .luxury-card {
-        background: rgba(255, 255, 255, 0.9);
-        padding: 25px;
-        border-radius: 20px;
+    .stApp { background: #f8f9fa; }
+    [data-testid="stSidebar"] { background: #051f13 !important; }
+    .main-header { color: #1b5e20; text-align: center; padding: 20px; font-size: 30px; font-weight: bold; }
+    .card-stat {
+        background: white; padding: 20px; border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 5px solid #b8860b;
         text-align: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        border-bottom: 5px solid #b8860b;
-        transition: all 0.4s ease-in-out;
     }
-    .luxury-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 15px 40px rgba(27, 94, 32, 0.2);
-    }
-    .stat-val { color: #1b5e20; font-size: 35px; font-weight: 900; }
-    .stat-label { color: #666; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; }
-
-    /* Buttons */
-    .stButton>button {
-        background: linear-gradient(135deg, #b8860b 0%, #8c6a06 100%);
-        color: white !important;
-        border-radius: 12px;
-        border: none;
-        font-weight: bold;
-        height: 50px;
-        transition: 0.3s;
-    }
-    .stButton>button:hover {
-        background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
-        transform: translateY(-2px);
-    }
+    .stButton>button { border-radius: 10px; font-weight: bold; height: 45px; }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATA CORE =================
+# ================= 2. DATA ENGINE =================
 DATA_FILE = "dadar_final_report.txt"
-COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
+# Column haaraa: 'Ref_No' fi 'Audit_User' dabalameera
+COL_NAMES = ['Ref_No', 'Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
-    df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    df['Date_Obj'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
-    return df
+    return pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
 
 def save_data(df_to_save):
     df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
 
-# ================= 3. APP INTERFACE =================
+# ================= 3. SYSTEM LOGIC =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    _, col, _ = st.columns([1, 1.2, 1])
+    # --- LOGIN ---
+    _, col, _ = st.columns([1, 1, 1])
     with col:
-        st.write("<br><br><br>", unsafe_allow_html=True)
-        st.markdown("<div style='background: white; padding: 50px; border-radius: 30px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); border-top: 8px solid #b8860b;'>", unsafe_allow_html=True)
-        st.markdown("<h1 style='text-align: center; color: #0c3d26;'>🏢 DADAR LAND</h1>", unsafe_allow_html=True)
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.button("LOGIN SYSTEM"):
-            if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
-            else: st.error("Maaloo galmee kee sirreessi!")
-        st.markdown("</div>", unsafe_allow_html=True)
-
+        st.write("<br><br>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align:center;'>🏢 Deder Land</h1>", unsafe_allow_html=True)
+        with st.form("login"):
+            u = st.text_input("Username")
+            p = st.text_input("Password", type="password")
+            if st.form_submit_button("LOG IN"):
+                if u == "admin" and p == "123":
+                    st.session_state.logged_in = True
+                    st.session_state.user = u
+                    st.rerun()
+                else: st.error("Maaloo sirriitti galchi!")
 else:
     df = load_data()
     with st.sidebar:
-        st.markdown("<h2 style='text-align: center; color: #b8860b;'>💎 PREMIER</h2>", unsafe_allow_html=True)
-        menu = st.radio("MAIN MENU", ["📊 DASHBOARD", "📝 GALMEE HAARAA", "📈 GABAASA", "🔍 SEARCH/EDIT", "🚪 EXIT"])
+        st.title("Deder Land Admin")
+        st.write(f"👤 User: {st.session_state.user}")
+        menu = st.radio("MENU", ["📊 Analytics", "📝 Galmee Haaraa", "📂 Gabaasa Guutuu", "🔍 Search & Filter", "🚪 Ba'i"])
 
-    if menu == "📊 DASHBOARD":
-        st.markdown("<h2 style='color: #0c3d26;'>📊 System Analytics</h2>", unsafe_allow_html=True)
+    # --- 1. DASHBOARD ---
+    if menu == "📊 Analytics":
+        st.markdown("<div class='main-header'>📊 Dashboard & Analytics</div>", unsafe_allow_html=True)
         if not df.empty:
-            # Stats Cards
-            c1, c2, c3 = st.columns(3)
-            with c1: st.markdown(f"<div class='luxury-card'><div class='stat-label'>Galii Waliigalaa</div><div class='stat-val'>{df['Kafaltii_Taj'].sum():,.2f}</div><p>ETB</p></div>", unsafe_allow_html=True)
-            with c2: st.markdown(f"<div class='luxury-card'><div class='stat-label'>Tajaajilamtoota</div><div class='stat-val'>{len(df)}</div><p>Total Customers</p></div>", unsafe_allow_html=True)
-            with c3: st.markdown(f"<div class='luxury-card'><div class='stat-label'>Ogeeyyii Aktiiwii</div><div class='stat-val'>{df['Maqaa_Ogeessa'].nunique()}</div><p>Staff Count</p></div>", unsafe_allow_html=True)
-            
-            # Charts Section
-            st.write("<br>", unsafe_allow_html=True)
-            col_left, col_right = st.columns(2)
-            
-            with col_left:
-                st.markdown("### 📈 Trendii Galii")
-                line_fig = px.line(df, x='Guyyaa', y='Kafaltii_Taj', color_discrete_sequence=['#1b5e20'])
-                st.plotly_chart(line_fig, use_container_width=True)
-                
-            with col_right:
-                st.markdown("### 🍕 Gosa Tajaajilaa")
-                pie_fig = px.pie(df, names='Gosa_Tajajjilaa', hole=0.4, color_discrete_sequence=px.colors.sequential.Greens_r)
-                st.plotly_chart(pie_fig, use_container_width=True)
-        else: st.info("Data'n galmeeffame hin jiru.")
+            c1, c2, c3, c4 = st.columns(4)
+            c1.markdown(f"<div class='card-stat'>💰 Galii Waliigalaa<br><b>{df['Kafaltii_Taj'].sum():,.2f}</b></div>", unsafe_allow_html=True)
+            c2.markdown(f"<div class='card-stat'>👥 Maamiltoota<br><b>{len(df)}</b></div>", unsafe_allow_html=True)
+            c3.markdown(f"<div class='card-stat'>👷 Ogeeyyii<br><b>{df['Maqaa_Ogeessa'].nunique()}</b></div>", unsafe_allow_html=True)
+            c4.markdown(f"<div class='card-stat'>📍 Araddaa<br><b>{df['Araddaa'].nunique()}</b></div>", unsafe_allow_html=True)
 
-    elif menu == "📝 GALMEE HAARAA":
-        st.markdown("<h2 style='color: #0c3d26;'>📝 Galmee Haaraa Galchi</h2>", unsafe_allow_html=True)
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.subheader("Gosa Tajaajilaa")
+                fig_pie = px.pie(df, names='Gosa_Tajajjilaa', hole=0.3)
+                st.plotly_chart(fig_pie, use_container_width=True)
+            with col_b:
+                st.subheader("Hojii Ogeeyyii")
+                fig_bar = px.bar(df.groupby('Maqaa_Ogeessa').size().reset_index(name='Count'), x='Maqaa_Ogeessa', y='Count', color='Maqaa_Ogeessa')
+                st.plotly_chart(fig_bar, use_container_width=True)
+        else: st.info("Data'n hin jiru.")
+
+    # --- 2. REGISTRATION ---
+    elif menu == "📝 Galmee Haaraa":
+        st.header("📝 Galmee Tajaajilaa Haaraa")
         
         GATII_DICT = {
-            "💰 GIBIRA & LIIDII": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)"],
-            "📜 KAARTAA & RAGAA": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa"],
-            "🏗 PILAANII & IJAARSA": ["Pilaanii Magaalaa", "Hayyama Ijaarsaa", "Humna Mahandisummaa", "Itti Fayyadama Lafaa"],
-            "⚖️ SEERA & ADABBII": ["Ugura Mana Murtii", "Dhimma Dhala (Inheritance)", "Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"]
+            "Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Liizii Waggaa", "TOT"],
+            "Kaartaa & Ragaa": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Jijjiirraa Maqaa", "Sirreeffama"],
+            "Ijaarsa & Seera": ["Hayyama Ijaarsaa", "Ugura Kaasuu", "Waliigaltee Liqii", "Adabbii"]
         }
         
-        sel_cat = st.multiselect("Filannoo Ramaddii", list(GATII_DICT.keys()))
-        tajaajiloota, kaffaltii_hunda = [], 0
-        
-        if sel_cat:
-            cols = st.columns(len(sel_cat))
-            for i, cat in enumerate(sel_cat):
-                with cols[i]:
-                    selected = st.multiselect(f"{cat}", GATII_DICT[cat])
-                    for s in selected:
-                        tajaajiloota.append(s)
-                        gatii = st.number_input(f"Gatii {s}", min_value=0.0, key=f"p_{s}")
-                        kaffaltii_hunda += gatii
-
-        with st.form("luxury_form"):
+        with st.form("reg_form"):
             c1, c2 = st.columns(2)
-            maqaa = c1.text_input("Maqaa Maamilaa Full Name")
-            araddaa = c2.text_input("Araddaa / Qaxana")
-            ogeessa = c1.text_input("Ogeessa Raawwate")
-            guyyaa = c2.date_input("Guyyaa", datetime.now())
+            maqaa = c1.text_input("Maqaa Maamilaa")
+            araddaa = c2.text_input("Araddaa")
+            ogeessa = c1.text_input("Maqaa Ogeessaa")
             
-            if st.form_submit_button("💾 GALMEESSI FI NAGAHEE UUMI"):
-                if maqaa and tajaajiloota:
-                    new_data = [guyyaa.strftime('%d/%m/%Y'), maqaa, araddaa, "-", ", ".join(tajaajiloota), ogeessa, kaffaltii_hunda]
-                    df = pd.concat([df, pd.DataFrame([new_data], columns=COL_NAMES)], ignore_index=True)
+            # Tajaajila filachuu
+            sel_cat = st.multiselect("Ramaddii Tajaajilaa", list(GATII_DICT.keys()))
+            final_services = []
+            total_pay = 0
+            
+            if sel_cat:
+                for cat in sel_cat:
+                    subs = st.multiselect(f"Tajaajiloota {cat}", GATII_DICT[cat])
+                    for s in subs:
+                        final_services.append(s)
+                        gatii = st.number_input(f"Kaffaltii {s}", min_value=0.0)
+                        total_pay += gatii
+            
+            if st.form_submit_button("GALMEESSI"):
+                if maqaa and final_services:
+                    ref = f"DL-{datetime.now().strftime('%H%M%S')}" # Unique Ref No
+                    new_row = [ref, datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, ", ".join(final_services), ogeessa, total_pay]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
+                    st.success(f"Maamilli {maqaa} milkiin galmeeffameera! Ref: {ref}")
                     st.balloons()
-                    st.success(f"Maamilli {maqaa} galmeeffameera!")
-                else: st.error("Maaloo odeeffannoo guuti!")
+                else: st.warning("Maaloo odeeffannoo guuti!")
 
-    elif menu == "🚪 EXIT":
-        st.session_state.logged_in = False; st.rerun()
+    # --- 3. SEARCH & FILTER ---
+    elif menu == "🔍 Search & Filter":
+        st.header("🔍 Barbaadi fi Calali")
+        c1, c2, c3 = st.columns(3)
+        search_n = c1.text_input("Maqaa Maamilaa")
+        search_o = c2.text_input("Maqaa Ogeessaa")
+        search_a = c3.text_input("Araddaa")
+        
+        filtered = df.copy()
+        if search_n: filtered = filtered[filtered['Maqaa_Abbaa_Dhimmaa'].str.contains(search_n, case=False)]
+        if search_o: filtered = filtered[filtered['Maqaa_Ogeessa'].str.contains(search_o, case=False)]
+        if search_a: filtered = filtered[filtered['Araddaa'].str.contains(search_a, case=False)]
+        
+        st.table(filtered)
+
+    # --- 4. EXPORT / REPORT ---
+    elif menu == "📂 Gabaasa Guutuu":
+        st.header("📂 Gabaasa Galii fi Backup")
+        st.dataframe(df, use_container_width=True)
+        
+        # Download Excel
+        buf = io.BytesIO()
+        with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
+            df.to_excel(wr, index=False, sheet_name='Gabaasa')
+        
+        st.download_button("📥 Gabaasa Excel Buufadhu", buf.getvalue(), "Dadar_Land_Report.xlsx")
+        
+        if st.button("🗑️ Data hunda haqi (Danger)"):
+            if st.checkbox("Eeyyee, hunda haquu nan barbaada"):
+                os.remove(DATA_FILE)
+                st.rerun()
+
+    elif menu == "🚪 Ba'i":
+        st.session_state.logged_in = False
+        st.rerun()
