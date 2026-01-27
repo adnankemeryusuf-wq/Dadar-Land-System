@@ -103,16 +103,56 @@ else:
         else:
             st.info("Hanga ammaatti ragaan galmeeffame hin jiru.")
 
-    elif menu == "📝 Galmee Haaraa":
+ elif menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa Haaraa")
-       SERVICE_STRUCTURE = {
-    "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax)"],
-    "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa"],
-    "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa", "Humna Mahandisummaa"],
-    "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
-    "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"],
-    "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
-}
+        
+        # Caasaa Tajaajilaa Gareen adda ba'e
+        SERVICE_STRUCTURE = {
+            "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax)"],
+            "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa"],
+            "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa", "Humna Mahandisummaa"],
+            "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
+            "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"],
+            "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
+        }
+
+        with st.form("reg_form", clear_on_submit=True):
+            st.markdown("### 👤 Ragaa Abbaa Dhimmaa")
+            c1, c2 = st.columns(2)
+            name = c1.text_input("Maqaa Abbaa Dhimmaa")
+            ara = c2.text_input("Araddaa / Ganda")
+            bad = c1.text_input("Bilbila Maamilaa (+251...)")
+            og = c2.text_input("Maqaa Ogeessaa")
+
+            st.markdown("### 🛠 Ragaa Tajaajilaa")
+            # Jalqaba garee tajaajilaa filata
+            category = st.selectbox("Garee Tajaajilaa Filadhu", list(SERVICE_STRUCTURE.keys()))
+            
+            # Garee filatame sana keessaa tajaajila kallaattii filata
+            specific_service = st.selectbox("Gosa Tajaajilaa Kallaattii", SERVICE_STRUCTURE[category])
+            
+            fee = st.number_input("Kaffaltii (ETB)", min_value=0.0, step=10.0)
+            
+            st.markdown("---")
+            if st.form_submit_button("💾 GALMEESSI FI ERGI", use_container_width=True):
+                if name and og and bad:
+                    now = datetime.now().strftime('%d/%m/%Y')
+                    # Dataframe keessatti galmeessuu
+                    new_row = [now, name, ara, bad, f"{category} - {specific_service}", og, fee]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    
+                    # Beeksisa Telegram
+                    msg = f"🆕 *GALMEE HAARAA*\n👤 Maamila: {name}\n📍 Araddaa: {ara}\n🛠 Tajaajila: {specific_service}\n💰 Kaffaltii: {fee:,.2f} ETB\n👷 Ogeessa: {og}"
+                    send_telegram(msg)
+                    
+                    # Beeksisa SMS (Yoo Gateway hojjete)
+                    sms_txt = f"Kabajamaa {name}, tajaajila {specific_service}af galmeeffamtaniittu. Dadar Land."
+                    send_sms(bad, sms_txt)
+                    
+                    st.success(f"Maamilichi ({name}) milkaa'inaan galmeeffameera!")
+                else:
+                    st.error("Maaloo ragaa maamilaa, ogeessaa fi bilbila guuti!")
 
         with st.form("reg_form"):
             col1, col2 = st.columns(2)
@@ -445,4 +485,5 @@ else:
         st.title("📈 Gabaasa Bal'aa")
         st.dataframe(df, use_container_width=True)
         st.download_button("📥 Gabaasa Buufadhu (CSV)", df.to_csv(index=False), "gabaasa_dadar.csv")
+
 
