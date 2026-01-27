@@ -22,15 +22,12 @@ if not os.path.exists(NAGAHEE_DIR):
 # ================= 2. CORE FUNCTIONS =================
 def send_telegram(msg, image_path=None):
     try:
-        # Ergaa barreeffamaa erguu
         base_url = f"https://api.telegram.org/bot{BOT_TOKEN}/"
         requests.get(base_url + "sendMessage", params={
             "chat_id": CHAT_ID_MANAGER, 
             "text": msg, 
             "parse_mode": "Markdown"
         })
-        
-        # Yoo suuraan jiraate suuraa erguu
         if image_path and os.path.exists(image_path):
             with open(image_path, "rb") as photo:
                 requests.post(base_url + "sendPhoto", 
@@ -77,7 +74,7 @@ if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 1.2, 1])
     with col:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
+        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=150)
         st.title("🔐 Login")
         with st.form("Login"):
             u = st.text_input("Username")
@@ -88,15 +85,16 @@ if not st.session_state.logged_in:
                     st.rerun()
                 else: st.error("Username ykn Password dogoggora!")
 else:
-    # --- SIDEBAR ---
-    with st.sidebar:
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=100)
-        st.title("Dadar Admin")
-        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa", "Logout"])
-        st.divider()
-        st.info(f"📅 {datetime.now().strftime('%d/%m/%Y')}")
-
+    # --- SIDEBAR & SEARCH ---
     df = load_data()
+    with st.sidebar:
+        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
+        st.title("Dadar Admin")
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "🔍 Barbaadi & Haqii", "📈 Gabaasa", "Logout"])
+        st.divider()
+        st.subheader("🔎 Barbaacha Saffisaa")
+        quick_search = st.text_input("Maqaa Maamilaa...", placeholder="Barbaadi...")
+        st.info(f"📅 {datetime.now().strftime('%d/%m/%Y')}")
 
     # ================= 5. DASHBOARD =================
     if menu == "📊 Dashboard":
@@ -108,14 +106,12 @@ else:
             c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
             
             st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa', title="Kaffaltii Guyyaatti"))
-            st.plotly_chart(px.pie(df, names='Gosa_Tajajjilaa', values='Kafaltii_Taj', title="Qoodinsa Galii"))
         else:
             st.info("Hanga ammaatti ragaan galmeeffame hin jiru.")
 
     # ================= 6. REGISTRATION =================
     elif menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa Haaraa")
-        
         selected_cats = st.multiselect("Ramaddii Tajaajilaa Filadhu:", list(SERVICE_STRUCTURE.keys()))
         
         with st.form("reg_form", clear_on_submit=True):
@@ -127,11 +123,10 @@ else:
             ogeessa = c2.text_input("Ogeessa Raawwate")
             nagahee = st.file_uploader("Nagahee Scan (Suuraa)", type=['jpg','png','jpeg'])
 
-            st.divider()
             final_services = []
             total_fee = 0
-            
             if selected_cats:
+                st.divider()
                 st.subheader("🛠 Tajaajiloota & Kaffaltii")
                 for cat in selected_cats:
                     subs = st.multiselect(f"Gosa {cat}:", SERVICE_STRUCTURE[cat], key=f"sub_{cat}")
@@ -154,15 +149,31 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
                     
-                    # Telegram Formatting
                     t_msg = f"🚀 *GALMEE HAARAA*\n━━━━━━━━━━━━━━━\n👤 *Maamila:* {name}\n📍 *Araddaa:* {ara}\n🛠 *Tajaajila:* {services_str}\n💰 *Kaffaltii:* {total_fee:,.2f} ETB\n👷 *Ogeessa:* {ogeessa}\n━━━━━━━━━━━━━━━"
                     send_telegram(t_msg, f_path)
-                    
                     st.success(f"✅ Galmeeffameera! Telegram irrattis ergameera.")
                 else:
                     st.error("Maaloo! Ragaa hunda guuti.")
 
-    # ================= 7. REPORT =================
+    # ================= 7. SEARCH & DELETE =================
+    elif menu == "🔍 Barbaadi & Haqii":
+        st.title("🔍 Barbaadi fi Haqii")
+        q = st.text_input("Maqaa Abbaa Dhimmaa Barbaadi:", value=quick_search)
+        if q:
+            results = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+            if not results.empty:
+                st.dataframe(results, use_container_width=True)
+                st.divider()
+                target_idx = st.selectbox("ID Haquuf filadhu:", results.index)
+                if st.button("🗑 Ragaa Kana Haqii", use_container_width=True):
+                    df = df.drop(target_idx)
+                    save_data(df)
+                    st.success("Ragaan haqameera!")
+                    st.rerun()
+            else:
+                st.warning("Ragaan argame hin jiru.")
+
+    # ================= 8. REPORT =================
     elif menu == "📈 Gabaasa":
         st.title("📈 Gabaasa Bal'aa")
         st.dataframe(df, use_container_width=True)
