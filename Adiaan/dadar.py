@@ -54,17 +54,23 @@ SERVICE_STRUCTURE = {
     "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"],
     "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
 }
-# ================= 4. LOGIN SYSTEM =================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+## ================= 4. LOGIN SYSTEM =================
+if 'logged_in' not in st.session_state: 
+    st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
     _, center_col, _ = st.columns([1, 1, 1])
     with center_col:
-       ue) st.markdown("<br><br>", unsafe_allow_html=Tr
+        st.markdown("<br><br>", unsafe_allow_html=True)
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
+        
+        # Logo Login irratti akka mul'atu
         if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=130)
+            st.image(LOGO_PATH, width=150)
+            
         st.header("Wajjira Lafa Magaalaa Dadar")
+        st.subheader("Sirna Galmee Maamiltootaa")
+        
         with st.form("Login"):
             u = st.text_input("Fayyadamaa (Username)")
             p = st.text_input("Sanyi-darbituu (Password)", type="password")
@@ -72,9 +78,9 @@ if not st.session_state.logged_in:
                 if u == "DAD" and p == "2026":
                     st.session_state.logged_in = True
                     st.rerun()
-                else: st.error("Dogoggora! Maaloo irra deebi'ii yaali.")
+                else: 
+                    st.error("Dogoggora! Maaloo irra deebi'ii yaali.")
         st.markdown('</div>', unsafe_allow_html=True)
-
 # ================= 5. MAIN APP =================
 else:
     df = load_data()
@@ -191,6 +197,7 @@ else:
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
 
 
 
