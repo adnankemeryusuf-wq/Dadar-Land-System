@@ -108,35 +108,53 @@ else:
                 send_telegram(msg)
                 st.success("Gabaasni ergameera!")
 
-    elif menu == "📝 Galmee Haaraa":
+    if menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa Haaraa")
+        
+        selected_cats = st.multiselect("Ramaddii Tajaajilaa Filadhu:", list(SERVICE_STRUCTURE.keys()))
+        
+        final_services = []
+        total_fee = 0
+        
+        if selected_cats:
+            cols = st.columns(len(selected_cats))
+            for i, cat in enumerate(selected_cats):
+                with cols[i]:
+                    st.write(f"**{cat}**")
+                    subs = st.multiselect(f"Gosa {cat}:", SERVICE_STRUCTURE[cat], key=cat)
+                    for s in subs:
+                        fee = st.number_input(f"Kaffaltii {s}:", min_value=0.0, key=f"fee_{s}")
+                        final_services.append(s)
+                        total_fee += fee
+
+        st.divider()
         with st.form("reg_form"):
             c1, c2 = st.columns(2)
             name = c1.text_input("Maqaa Abbaa Dhimmaa")
             ara = c2.text_input("Araddaa")
-            og = c1.text_input("Maqaa Ogeessaa")
-            gosa = c2.selectbox("Gosa Tajaajilaa", ["Gibira", "Kaartaa", "Clearance", "Liizii"])
-            fee = st.number_input("Kaffaltii (ETB)", min_value=0.0)
+            qax = c1.text_input("Qaxana")
+            ogeessa = c2.text_input("Ogeessa Raawwate")
+            nagahee = st.file_uploader("Nagahee Scan (Image)", type=['jpg','png','jpeg'])
             
-            if st.form_submit_button("💾 GALMEESSI"):
-                if name and og:
-                    row = [datetime.now().strftime('%d/%m/%Y'), name, ara, "-", gosa, og, fee]
-                    df = pd.concat([df, pd.DataFrame([row], columns=COL_NAMES)], ignore_index=True)
+            if st.form_submit_button("💾 Galmeessi"):
+                if name and final_services and ogeessa:
+                    # Save Image
+                    if nagahee:
+                        f_path = os.path.join(NAGAHEE_DIR, f"{name}_{datetime.now().strftime('%H%M%S')}.jpg")
+                        with open(f_path, "wb") as f: f.write(nagahee.getbuffer())
+                    
+                    # Save Data
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, ", ".join(final_services), ogeessa, total_fee]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
-                    send_telegram(f"🆕 *Galmee Haaraa*\n👤: {name}\n🛠: {gosa}\n💰: {fee} ETB")
-                    st.success("Galmeeffameera!")
-
+                    
+                    # Telegram Notification
+                    telegram_msg = f"🔔 *Galmee Haaraa*\n👤 Maqaa: {name}\n🛠 Tajaajila: {', '.join(final_services)}\n💰 Kaffaltii: {total_fee} ETB\n👷 Ogeessa: {ogeessa}"
+                    send_telegram(telegram_msg)
+                    
+                    st.success(f"✅ Galmeeffameera! Gabaasni gara Telegramitti ergameera.")
+                else: st.error("Maaloo odeeffannoo guutuu galchi!")
     elif menu == "📈 Gabaasa":
         st.title("📈 Gabaasa Hojii")
         st.dataframe(df, use_container_width=True)
-
-# ================= 4. SERVICE LIST =================
-SERVICE_STRUCTURE = {
-    "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax)"],
-    "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa"],
-    "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa", "Humna Mahandisummaa"],
-    "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
-    "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"],
-    "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
-}
 
