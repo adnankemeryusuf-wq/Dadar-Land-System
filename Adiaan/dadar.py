@@ -25,7 +25,6 @@ st.markdown("""
 
 # ================= 2. DATA ENGINE =================
 DATA_FILE = "dadar_final_report.txt"
-# Column haaraa: 'Ref_No' fi 'Audit_User' dabalameera
 COL_NAMES = ['Ref_No', 'Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 def load_data():
@@ -98,7 +97,6 @@ else:
             araddaa = c2.text_input("Araddaa")
             ogeessa = c1.text_input("Maqaa Ogeessaa")
             
-            # Tajaajila filachuu
             sel_cat = st.multiselect("Ramaddii Tajaajilaa", list(GATII_DICT.keys()))
             final_services = []
             total_pay = 0
@@ -113,7 +111,7 @@ else:
             
             if st.form_submit_button("GALMEESSI"):
                 if maqaa and final_services:
-                    ref = f"DL-{datetime.now().strftime('%H%M%S')}" # Unique Ref No
+                    ref = f"DL-{datetime.now().strftime('%H%M%S')}"
                     new_row = [ref, datetime.now().strftime('%d/%m/%Y'), maqaa, araddaa, ", ".join(final_services), ogeessa, total_pay]
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
@@ -130,28 +128,22 @@ else:
         search_a = c3.text_input("Araddaa")
         
         filtered = df.copy()
-        if search_n: filtered = filtered[filtered['Maqaa_Abbaa_Dhimmaa'].str.contains(search_n, case=False)]
-        if search_o: filtered = filtered[filtered['Maqaa_Ogeessa'].str.contains(search_o, case=False)]
-        if search_a: filtered = filtered[filtered['Araddaa'].str.contains(search_a, case=False)]
+        if search_n: filtered = filtered[filtered['Maqaa_Abbaa_Dhimmaa'].str.contains(search_n, case=False, na=False)]
+        if search_o: filtered = filtered[filtered['Maqaa_Ogeessa'].str.contains(search_o, case=False, na=False)]
+        if search_a: filtered = filtered[filtered['Araddaa'].str.contains(search_a, case=False, na=False)]
         
-        st.table(filtered)
+        st.dataframe(filtered, use_container_width=True)
 
     # --- 4. EXPORT / REPORT ---
     elif menu == "📂 Gabaasa Guutuu":
         st.header("📂 Gabaasa Galii fi Backup")
         st.dataframe(df, use_container_width=True)
         
-        # Download Excel
         buf = io.BytesIO()
         with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
             df.to_excel(wr, index=False, sheet_name='Gabaasa')
         
         st.download_button("📥 Gabaasa Excel Buufadhu", buf.getvalue(), "Dadar_Land_Report.xlsx")
-        
-        if st.button("🗑️ Data hunda haqi (Danger)"):
-            if st.checkbox("Eeyyee, hunda haquu nan barbaada"):
-                os.remove(DATA_FILE)
-                st.rerun()
 
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
