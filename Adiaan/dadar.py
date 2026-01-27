@@ -17,26 +17,44 @@ if not os.path.exists(NAGAHEE_DIR):
 # ================= 2. SERVICE STRUCTURE (GOSA TAJAAJILAA) =================
 SERVICE_STRUCTURE = {
     "🏷 Gibira & Kaffaltii": [
-        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
-        "Kaffaltii Liizii Duraa", "TOT (Turnover Tax) 2%", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
+        "Gibira Baaxii Gooroo", 
+        "Gibira Lafa Qonnaa", 
+        "Kaffaltii Liizii Waggaa", 
+        "Kaffaltii Liizii Duraa", 
+        "TOT (Turnover Tax) 2%", 
+        "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
     ],
     "📜 Kaartaa & Qabiyyee": [
-        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
-        "Sirreeffama Daangaa", "Kaartaa Lafa Qonnaa", "Waraqaa Ragaa Qabiyyee"
+        "Kaartaa Haaraa (New Title Deed)", 
+        "Kaartaa Bakka Bu'aa (Replacement)", 
+        "Kaartaa Kadastaaraa (Cadastral Map)", 
+        "Sirreeffama Daangaa (Boundary Correction)", 
+        "Kaartaa Lafa Qonnaa",
+        "Waraqaa Ragaa Qabiyyee"
     ],
     "🏗 Pilaanii & Ijaarsa": [
-        "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
-        "Hayyama Ijaarsaa", "Humna Mahandisummaa"
+        "Pilaanii Magaalaa", 
+        "Itti Fayyadama Lafaa (Land Use)", 
+        "Hayyama Ijaarsaa (Building Permit)",
+        "Humna Mahandisummaa",
+        "Kalaaqinsa Pilaanii"
     ],
     "⚖️ Dhimma Seeraa": [
-        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
-        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
+        "Ugura Mana Murtii (Court Injunction)", 
+        "Ugura Kaasuu (Lifting Injunction)", 
+        "Waliigaltee Liqii Baankii (Bank Collateral)", 
+        "Waliigaltee Hiikuu", 
+        "Dhimma Dhala (Inheritance)"
     ],
     "📂 Tajaajila Biroo": [
-        "Waraqaa Qulqullummaa (Clearance)", "Deebii Iyyannoo", "Waraqaa Eenyummaa Lafa"
+        "Waraqaa Qulqullummaa (Clearance)", 
+        "Deebii Iyyannoo (Application Response)",
+        "Waraqaa Eenyummaa Lafa"
     ],
     "⚖️ Adabbii & Seeressuu": [
-        "Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu (Regularization)", "Adabbii Faallaa Pilaanii"
+        "Adabbii Ijaarsa Seeraan Alaa",
+        "Kaffaltii Seeressuu (Regularization)",
+        "Adabbii Faallaa Pilaanii"
     ],
 }
 
@@ -192,3 +210,4 @@ else:
                     st.rerun()
             else:
                 st.info("Ragaan hin argamne.")
+
