@@ -65,7 +65,6 @@ if not st.session_state.logged_in:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=130)
         st.header("Wajjira Lafa Magaalaa Dadar")
-        st.subheader("Sirna Galmee Maamiltootaa")
         with st.form("Login"):
             u = st.text_input("Fayyadamaa (Username)")
             p = st.text_input("Sanyi-darbituu (Password)", type="password")
@@ -192,6 +191,7 @@ else:
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
 
 
 
