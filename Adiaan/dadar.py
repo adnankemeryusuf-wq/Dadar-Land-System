@@ -6,7 +6,7 @@ from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
 
-# ================= 1. CONFIGURATION & SETUP =================
+# ================= 1. CONFIGURATION =================
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
 LOGO_PATH = "Adiaan/logo.png"
@@ -27,8 +27,8 @@ def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
     df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+    # Guyyaa gara format datetime tii jijjiiruuf
     df['dt'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
-    # Ulagaa calalii (Filtering criteria)
     df['Waggaa'] = df['dt'].dt.year
     df['Ji\'a'] = df['dt'].dt.month_name()
     return df
@@ -41,11 +41,11 @@ def create_pdf_cert(name, count, rank):
     pdf.add_page()
     pdf.set_draw_color(46, 125, 50); pdf.set_line_width(5); pdf.rect(10, 10, 277, 190)
     if os.path.exists(LOGO_PATH): pdf.image(LOGO_PATH, 130, 15, 30)
-    pdf.set_y(50); pdf.set_font('Arial', 'B', 30); pdf.cell(0, 20, "SARTIIFIKEETA BEEKAMTII", 0, 1, 'C')
+    pdf.set_y(55); pdf.set_font('Arial', 'B', 30); pdf.cell(0, 20, "SARTIIFIKEETA BEEKAMTII", 0, 1, 'C')
     pdf.set_font('Arial', '', 20); pdf.cell(0, 15, f"Ogeessa: {name}", 0, 1, 'C')
-    pdf.set_y(100); pdf.set_font('Arial', 'I', 16)
-    pdf.multi_cell(0, 10, f"Waggaa kanatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru.", align='C')
-    return pdf.output(dest='S').encode('latin-1')
+    pdf.set_y(105); pdf.set_font('Arial', 'I', 16)
+    pdf.multi_cell(0, 10, f"Waggaa kanatti maamiltoota {count} tajaajiluun\nsadarkaa {rank}ffaa argataniiru.", align='C')
+    return pdf.output(dest='S').encode('latin-1', 'replace')
 
 # ================= 3. UI STYLE =================
 st.set_page_config(page_title="Dadar Land Admin", page_icon="🏢", layout="wide")
@@ -59,8 +59,8 @@ st.markdown("""<style>
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    _, center_col, _ = st.columns([1, 1, 1])
-    with center_col:
+    _, col, _ = st.columns([1, 1, 1])
+    with col:
         st.markdown("<br><br>", unsafe_allow_html=True)
         st.markdown('<div class="login-card">', unsafe_allow_html=True)
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=150)
@@ -72,72 +72,95 @@ if not st.session_state.logged_in:
                 if u == "DAD" and p == "2026":
                     st.session_state.logged_in = True
                     st.rerun()
-                else: st.error("Dogoggora!")
+                else: st.error("Dogoggora Username ykn Password!")
         st.markdown('</div>', unsafe_allow_html=True)
 
 # ================= 5. MAIN APP =================
 else:
     df = load_data()
-    st.sidebar.title("Main Menu")
-    if os.path.exists(LOGO_PATH): st.sidebar.image(LOGO_PATH, width=100)
-    menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa", "🔍 Barbaadi/Edit", "Logout"])
+    
+    # --- SIDEBAR WITH LOGO ---
+    with st.sidebar:
+        if os.path.exists(LOGO_PATH):
+            st.image(LOGO_PATH, width=150)
+        st.markdown("### 🏢 Admin Panel")
+        st.markdown("---")
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa", "🔍 Barbaadi/Edit", "Logout"])
+        st.markdown("---")
+        st.info(f"📅 Har'a: {datetime.now().strftime('%d/%m/%Y')}")
 
-    if menu == "Logout":
-        st.session_state.logged_in = False
-        st.rerun()
-
-    elif menu == "📊 Dashboard":
+    # --- DASHBOARD ---
+    if menu == "📊 Dashboard":
         st.title("📊 Dashboard Waliigalaa")
-        c1, c2, c3 = st.columns(3)
-        c1.metric("💰 Galii Waliigalaa", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
-        c2.metric("👥 Maamiltoota", len(df))
-        c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
+        if not df.empty:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("💰 Galii Waliigalaa", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+            c2.metric("👥 Maamiltoota", len(df))
+            c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
+            
+            st.plotly_chart(px.bar(df, x='Guyyaa', y='Kafaltii_Taj', color='Maqaa_Ogeessa', title="Trendii Kaffaltii Guyyaatti"))
+            
+            if st.button("🚀 Gabaasa Har'aa Telegramitti Ergi"):
+                today = datetime.now().strftime('%d/%m/%Y')
+                t_df = df[df['Guyyaa'] == today]
+                if not t_df.empty:
+                    msg = f"📊 *GABAASA WALIIGALAA ({today})*\n💰 Galii: {t_df['Kafaltii_Taj'].sum():,.2f} ETB\n👥 Maamila: {len(t_df)}"
+                    send_telegram(msg); st.success("Gabaasni ergameera!")
+        else: st.info("Ragaan galmeeffame hin jiru.")
 
-        if st.button("🚀 Gabaasa Guyyaa Telegramitti Ergi"):
-            today = datetime.now().strftime('%d/%m/%Y')
-            t_df = df[df['Guyyaa'] == today]
-            if not t_df.empty:
-                msg = f"📊 *GABAASA WALIIGALAA ({today})*\n💰 Galii: {t_df['Kafaltii_Taj'].sum():,.2f} ETB\n👥 Maamila: {len(t_df)}\n🏢 Dadar Land"
-                send_telegram(msg); st.success("Gabaasni ergameera!")
-
+    # --- GALMEE HAARAA ---
     elif menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa")
         with st.form("reg_form"):
             c1, c2 = st.columns(2)
             name = c1.text_input("Maqaa Abbaa Dhimmaa")
             ara = c2.text_input("Araddaa")
-            og = c1.text_input("Ogeessaa")
-            gosa = c2.selectbox("Gosa Tajaajilaa", ["Gibira", "Kaartaa", "Clearance", "Liizii"])
-            fee = st.number_input("Kaffaltii", min_value=0.0)
-            submit = st.form_submit_button("💾 GALMEESSI")
-            
-            if submit and name and og:
-                new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, "-", gosa, og, fee]
-                df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                save_data(df)
-                send_telegram(f"🆕 *Galmee Haaraa*\n👤 {name}\n💰 {fee} ETB\n👷 {og}")
-                st.success("Milkaa'inaan galmeeffameera!")
+            og = c1.text_input("Ogeessa Raawwate")
+            gosa = c2.selectbox("Gosa Tajaajilaa", ["Gibira", "Kaartaa", "Clearance", "Liizii", "Pilaanii"])
+            fee = st.number_input("Kaffaltii (ETB)", min_value=0.0)
+            if st.form_submit_button("💾 GALMEESSI"):
+                if name and og:
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, "-", gosa, og, fee]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    send_telegram(f"🆕 *Galmee Haaraa*\n👤 Maamila: {name}\n💰 Kaffaltii: {fee} ETB\n👷 Ogeessa: {og}")
+                    st.success("Milkaa'inaan galmeeffameera!")
+                else: st.error("Maaloo ragaa guutuu galchi!")
 
+    # --- GABAASA BAL'AA ---
     elif menu == "📈 Gabaasa Bal'aa":
         st.title("📈 Gabaasa & Calaltuu")
         if not df.empty:
             sel_y = st.selectbox("Waggaa Filadhu", sorted(df['Waggaa'].dropna().unique(), reverse=True))
             filtered = df[df['Waggaa'] == sel_y]
             st.dataframe(filtered[COL_NAMES], use_container_width=True)
-            st.metric("Galii Waggaa Sanaa", f"{filtered['Kafaltii_Taj'].sum():,.2f} ETB")
+            st.metric("Waliigala Galii Waggaa", f"{filtered['Kafaltii_Taj'].sum():,.2f} ETB")
 
+    # --- BADHAASA ---
     elif menu == "🏆 Badhaasa":
         st.title("🏆 Sartiifiikeeta Ogeeyyii")
-        top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
-        cols = st.columns(3)
-        for i, (name, count) in enumerate(top_3.items()):
-            with cols[i]:
-                st.markdown(f"<div class='card'><h3>Sadarkaa {i+1}</h3><h4>{name}</h4><p>Tajaajile: {count}</p></div>", unsafe_allow_html=True)
-                pdf_data = create_pdf_cert(name, count, i+1)
-                st.download_button(f"📥 Download PDF {i+1}", pdf_data, f"{name}_cert.pdf")
+        if not df.empty:
+            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            cols = st.columns(3)
+            for i, (name, count) in enumerate(top_3.items()):
+                with cols[i]:
+                    st.markdown(f"<div class='card'><h3>🥇 Sadarkaa {i+1}</h3><h4>{name}</h4><p>Tajaajile: {count}</p></div>", unsafe_allow_html=True)
+                    cert = create_pdf_cert(name, count, i+1)
+                    st.download_button(f"📥 Download Cert {i+1}", cert, f"Cert_{name}.pdf")
 
+    # --- SEARCH / EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
-        q = st.text_input("Maqaa Barbaadi...")
+        st.title("🔍 Barbaadi fi Sirreessi")
+        q = st.text_input("Maqaa Abbaa Dhimmaa Barbaadi...")
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-            st.dataframe(res[COL_NAMES])
+            if not res.empty:
+                for idx, row in res.iterrows():
+                    with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} - {row['Guyyaa']}"):
+                        if st.button("🗑 Haqi", key=f"del_{idx}"):
+                            df = df.drop(idx); save_data(df); st.rerun()
+            else: st.warning("Maqaan kun hin jiru.")
+
+    elif menu == "Logout":
+        st.session_state.logged_in = False
+        st.rerun()
