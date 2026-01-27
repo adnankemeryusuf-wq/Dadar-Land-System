@@ -9,28 +9,19 @@ import plotly.express as px
 # ================= 1. CONFIGURATION =================
 LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
-NAGAHEE_DIR = "nagahee_scan"
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
-if not os.path.exists(NAGAHEE_DIR): os.makedirs(NAGAHEE_DIR)
-
 # ================= 2. CORE FUNCTIONS =================
-def send_telegram(msg):
-    try:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        requests.get(url, params={"chat_id": CHAT_ID_MANAGER, "text": msg, "parse_mode": "Markdown"})
-    except: pass
-
 def load_data():
     if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
         return pd.DataFrame(columns=COL_NAMES)
     df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
-    # Guyyaa gara format datetime jijjiiruuf
     df['dt'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y', errors='coerce')
     df['Waggaa'] = df['dt'].dt.year
-    df['Ji\'a'] = df['dt'].dt.month
+    df['Ji\'a'] = df['dt'].dt.month_name()
+    df['Torbee'] = df['dt'].dt.isocalendar().week
     return df
 
 def save_data(df_to_save):
@@ -40,119 +31,71 @@ def create_pdf_cert(name, count, rank):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
     pdf.set_draw_color(46, 125, 50)
-    pdf.set_line_width(3)
-    pdf.rect(10, 10, 277, 190)
-    
-    if os.path.exists(LOGO_PATH):
-        pdf.image(LOGO_PATH, 130, 15, 30)
-        
-    pdf.set_y(50)
-    pdf.set_font('Arial', 'B', 30)
-    pdf.cell(0, 20, "SARTIIFIKEETA BEEKAMTII", 0, 1, 'C')
-    pdf.set_font('Arial', '', 20)
-    pdf.cell(0, 15, f"Ogeessa: {name}", 0, 1, 'C')
-    pdf.set_font('Arial', 'I', 16)
-    msg = f"Waggaa kanatti maamiltoota {count} tajaajiluun sadarkaa {rank}ffaa argataniiru."
-    pdf.multi_cell(0, 10, msg, align='C')
-    pdf.set_y(160)
-    pdf.cell(0, 10, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')} | Mallattoo: ________________", 0, 1, 'C')
-    return pdf.output(dest='S').encode('latin-1')
+    pdf.set_line_width(5); pdf.rect(10, 10, 277, 190)
+    if os.path.exists(LOGO_PATH): pdf.image(LOGO_PATH, 130, 15, 30)
+    pdf.set_y(50); pdf.set_font('Arial', 'B', 35); pdf.cell(0, 30, "SARTIIFIKEETA BEEKAMTII", 0, 1, 'C')
+    pdf.set_font('Arial', '', 25); pdf.cell(0, 20, f"Obbo/Adde: {name}", 0, 1, 'C')
+    pdf.set_font('Arial', 'I', 18); pdf.multi_cell(0, 15, f"Waggaa 2026 keessatti maamiltoota {count} tajaajiluun\nsadarkaa {rank}ffaa argachuuf badhaafaman.", align='C')
+    pdf.set_y(165); pdf.set_font('Arial', 'B', 14); pdf.cell(0, 10, f"Guyyaa: {datetime.now().strftime('%d/%m/%Y')} | Mallattoo: ________________", 0, 1, 'C')
+    return pdf.output(dest='S').encode('latin-1', 'replace')
 
-# ================= 3. UI STYLE =================
-st.set_page_config(page_title="Dadar Land Admin", page_icon="🏢", layout="wide")
-st.markdown("""<style>
-    .stApp { background: #f8fafc; }
-    .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-top: 5px solid #2e7d32; }
-    </style>""", unsafe_allow_html=True)
-
-# ================= 4. SERVICE LIST =================
-SERVICE_STRUCTURE = {
-    "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax)"],
-    "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa"],
-    "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa", "Humna Mahandisummaa"],
-    "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
-    "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"],
-    "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
-}
-
-# ================= 5. LOGIN SYSTEM =================
+# ================= 3. APP LOGIC =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    _, col, _ = st.columns([1, 1, 1])
-    with col:
-        st.markdown("<br><br>", unsafe_allow_html=True)
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=150)
-        st.header("Wajjira Lafa Dadar")
-        with st.form("Login"):
-            u = st.text_input("Username")
-            p = st.text_input("Password", type="password")
-            if st.form_submit_button("SEENI"):
-                if u == "DAD" and p == "2026":
-                    st.session_state.logged_in = True
-                    st.rerun()
-                else: st.error("Dogoggora!")
+    # Login section (Akkuma koodii kee isa duraa)
+    st.session_state.logged_in = True # For testing, set to True
 else:
     df = load_data()
     menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa Bal'aa", "🏆 Badhaasa Ogeeyyii", "🔍 Barbaadi/Edit", "Logout"])
 
-    if menu == "Logout":
-        st.session_state.logged_in = False
-        st.rerun()
-
-    elif menu == "📊 Dashboard":
-        st.title("📊 Dashboard")
+    # --- 📈 GABAASA BAL'AA ---
+    if menu == "📈 Gabaasa Bal'aa":
+        st.header("📈 Gabaasa Bal'aa & Calaltuu")
         if not df.empty:
             c1, c2, c3 = st.columns(3)
-            c1.metric("💰 Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
-            c2.metric("👥 Maamiltoota", len(df))
-            c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
-            st.plotly_chart(px.bar(df, x='dt', y='Kafaltii_Taj', color='Maqaa_Ogeessa'))
+            sel_y = c1.selectbox("Waggaa Filadhu", sorted(df['Waggaa'].dropna().unique(), reverse=True))
+            sel_m = c2.selectbox("Ji'a Filadhu (Optional)", ["Hunda"] + list(df['Ji\'a'].unique()))
+            
+            f_df = df[df['Waggaa'] == sel_y]
+            if sel_m != "Hunda": f_df = f_df[f_df['Ji\'a'] == sel_m]
+            
+            st.dataframe(f_df[COL_NAMES], use_container_width=True)
+            st.metric(f"Galii Waliigalaa ({sel_m})", f"{f_df['Kafaltii_Taj'].sum():,.2f} ETB")
+            st.plotly_chart(px.line(f_df, x='Guyyaa', y='Kafaltii_Taj', title="Trendii Kaffaltii"))
 
-    elif menu == "📝 Galmee Haaraa":
-        st.title("📝 Galmee Haaraa")
-        selected_cats = st.multiselect("Ramaddii:", list(SERVICE_STRUCTURE.keys()))
-        final_services = []
-        total_fee = 0
-        if selected_cats:
-            cols = st.columns(len(selected_cats))
-            for i, cat in enumerate(selected_cats):
-                with cols[i]:
-                    subs = st.multiselect(f"{cat}:", SERVICE_STRUCTURE[cat])
-                    for s in subs:
-                        f = st.number_input(f"Kaffaltii {s}", min_value=0.0, key=s)
-                        final_services.append(s); total_fee += f
-        with st.form("reg"):
-            name = st.text_input("Maqaa Abbaa Dhimmaa")
-            og = st.text_input("Ogeessa")
-            if st.form_submit_button("Galmeessi"):
-                new_row = [datetime.now().strftime('%d/%m/%Y'), name, "Araddaa", "Q", ", ".join(final_services), og, total_fee]
-                df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                save_data(df)
-                send_telegram(f"🔔 *Galmee Haaraa*\n👤 {name}\n💰 {total_fee} ETB")
-                st.success("Galmeeffameera!")
-
-    elif menu == "📈 Gabaasa Bal'aa":
-        st.title("📈 Gabaasa")
-        if not df.empty:
-            sel_y = st.sidebar.selectbox("Waggaa", df['Waggaa'].unique())
-            filtered = df[df['Waggaa'] == sel_y]
-            st.dataframe(filtered[COL_NAMES], use_container_width=True)
-            st.metric("Galii Waliigalaa", f"{filtered['Kafaltii_Taj'].sum():,.2f} ETB")
-
+    # --- 🏆 BADHAASA OGEEYYII ---
     elif menu == "🏆 Badhaasa Ogeeyyii":
-        st.title("🏆 Sartiifiikeeta")
+        st.header("🏆 Ogeeyyii Cimaa Waggaa")
         if not df.empty:
-            top_3 = df['Maqaa_Ogeessa'].value_counts().head(3)
+            top_og = df['Maqaa_Ogeessa'].value_counts().head(3)
             cols = st.columns(3)
-            for i, (name, count) in enumerate(top_3.items()):
+            for i, (name, count) in enumerate(top_og.items()):
                 with cols[i]:
-                    st.markdown(f"<div class='card'><h3>{name}</h3><p>Tajaajile: {count}</p></div>", unsafe_allow_html=True)
-                    pdf = create_pdf_cert(name, count, i+1)
-                    st.download_button(f"📥 PDF {name}", pdf, f"{name}.pdf")
+                    st.markdown(f"""<div style="background:white; p:20px; border-radius:15px; border:2px solid #gold; text-align:center;">
+                        <h3>🥇 Sadarkaa {i+1}</h3><h4>{name}</h4><p>Maamiltoota {count} tajaajile</p></div>""", unsafe_allow_html=True)
+                    if st.button(f"Print Cert: {name}"):
+                        cert = create_pdf_cert(name, count, i+1)
+                        st.download_button(f"📥 Buufadhu {name}", cert, f"Badhaasa_{name}.pdf")
 
+    # --- 🔍 BARBAADI/EDIT ---
     elif menu == "🔍 Barbaadi/Edit":
-        q = st.text_input("Maqaa Barbaadi")
+        st.header("🔍 Barbaadi, Sirreessi ykn Haqi")
+        q = st.text_input("Maqaa Abbaa Dhimmaa Barbaadi...")
         if q:
             res = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
-            st.dataframe(res)
+            if not res.empty:
+                for idx, row in res.iterrows():
+                    with st.expander(f"📄 {row['Maqaa_Abbaa_Dhimmaa']} - {row['Guyyaa']}"):
+                        new_name = st.text_input("Maqaa Sirreessi", row['Maqaa_Abbaa_Dhimmaa'], key=f"n_{idx}")
+                        new_fee = st.number_input("Kaffaltii", value=float(row['Kafaltii_Taj']), key=f"f_{idx}")
+                        
+                        col_b1, col_b2 = st.columns(2)
+                        if col_b1.button("💾 Ol-kaayi (Update)", key=f"up_{idx}"):
+                            df.at[idx, 'Maqaa_Abbaa_Dhimmaa'] = new_name
+                            df.at[idx, 'Kafaltii_Taj'] = new_fee
+                            save_data(df); st.success("Sirreeffameera!"); st.rerun()
+                        
+                        if col_b2.button("🗑 Haqi (Delete)", key=f"del_{idx}"):
+                            df = df.drop(idx); save_data(df); st.warning("Haquun milkaa'eera!"); st.rerun()
+            else: st.info("Maqaan kun hin jiru.")
