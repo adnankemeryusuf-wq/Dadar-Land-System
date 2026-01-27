@@ -4,7 +4,7 @@ import os
 import requests
 from datetime import datetime
 from fpdf import FPDF
-import plotly.express as 
+
 
 # --- CONFIGURATION TELEGRAM ---
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
@@ -192,6 +192,7 @@ else:
                         df = df.drop(idx); save_data(df); st.rerun()
 
     elif menu == "Ba'i": st.session_state.logged_in = False; st.rerun()
+
 
 
 
