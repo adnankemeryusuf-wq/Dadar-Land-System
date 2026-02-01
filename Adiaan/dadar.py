@@ -56,23 +56,6 @@ def get_ethiopian_date_str():
 
 # ================= 3. PDF GENERATORS =================
 
-def create_receipt_pdf(data):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, "WAAJJIRA LAFAA MAGAALAA DADAR", ln=True, align='C')
-    pdf.set_font("Arial", 'B', 14); pdf.cell(0, 10, "NAGAHEE KAFFALTII", ln=True, align='C')
-    pdf.ln(10); pdf.set_font("Arial", '', 12)
-    pdf.cell(0, 8, f"Guyyaa: {data[0]}", ln=True)
-    pdf.cell(0, 8, f"Maqaa: {data[1]}", ln=True)
-    pdf.cell(0, 8, f"Araddaa: {data[2]} | Qaxana: {data[3]}", ln=True)
-    pdf.cell(0, 8, f"Tajaajila: {data[4]}", ln=True)
-    pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, f"Kaffaltii Waliigalaa: {data[6]:,.2f} ETB", ln=True)
-    pdf.ln(10); pdf.set_font("Arial", 'I', 10)
-    pdf.cell(0, 8, f"Ogeessa: {data[5]}", ln=True)
-    return pdf.output(dest='S').encode('latin-1')
-
 def create_clearance_pdf(data, logo_l, logo_r):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
@@ -102,10 +85,19 @@ def create_clearance_pdf(data, logo_l, logo_r):
     
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(8)
     
+    # --- BARREEFFAMA "LAKK. KAARTAA" GUDDISUU ---
     pdf.set_font('Times', '', 12); pdf.set_x(20)
-    # --- AS JALATTI "Lakk. Kaartaa" JEDHEE SIRREEFFAMEERA ---
-    pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n")
+    pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} ")
     
+    # "Lakk. Kaartaa" fi Lakkoofsa isaa GUDDISUU (Bold)
+    pdf.set_font('Times', 'B', 13) 
+    pdf.write(9, f"Lakk. Kaartaa {data['kaartaa']} ")
+    
+    # Gara barreeffama kaaniitti deebi'uu (Regular)
+    pdf.set_font('Times', '', 12)
+    pdf.write(9, "qabaniif kan kennameedha.\n\n")
+    
+    # --- KUTAA HAFAAN ---
     pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n")
     pdf.write(9, f"2. Kaffaltii {data['gosa_qabiyyee']} hunda xumuraniiru.\n")
     pdf.write(9, "3. Qabiyyeen kun DHORKAA kamirrayyuu bilisa ta'uu mirkaneessina.\n\n")
@@ -114,16 +106,6 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_y(235); pdf.set_x(20); pdf.set_font('Times', 'B', 12)
     pdf.write(8, f"Maqaa Itti Gaafatamaa: {data['head_name']}\nMallattoo: _________________")
     return pdf.output(dest='S').encode('latin-1')
-def create_pdf_cert(name, count, rank):
-    pdf = FPDF(orientation='L', unit='mm', format='A4')
-    pdf.add_page()
-    pdf.set_draw_color(16, 185, 129); pdf.set_line_width(5); pdf.rect(10, 10, 277, 190)
-    pdf.set_y(60); pdf.set_font("Arial", 'B', 30)
-    pdf.cell(0, 20, "SARTIIFIIKEETA BADHAASAA", ln=True, align='C')
-    pdf.set_font("Arial", 'B', 35); pdf.cell(0, 30, name.upper(), ln=True, align='C')
-    pdf.set_font("Arial", '', 18); pdf.cell(0, 10, f"Dhimma {count} milkiin raawwachuun sadarkaa {rank}ffaa argataniif.", ln=True, align='C')
-    return pdf.output(dest='S').encode('latin-1')
-
 # ================= 4. MAIN APP LOGIC =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
@@ -245,6 +227,7 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
