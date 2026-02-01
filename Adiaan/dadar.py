@@ -10,45 +10,66 @@ LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
-# Design Ati Filatte Qofa (Pure Black & Center Glow)
+# Design Ati Filatte Qofa (Pure Blue & Center Glow)
 st.markdown("""
     <style>
-    /* 1. Background: Wiirtuu isaa qofa ifa godhi, gubbaa fi jalli Gurraacha (#000000) */
+    /* 1. Background: Wiirtuu Cuquliika ifu, qarqara Cuquliika Dukkanaa'aa */
     .stApp {
-        background: radial-gradient(circle at center, #0d5a42 0%, #000000 70%);
+        background: radial-gradient(circle at center, #1a3a5f 0%, #081220 70%, #040914 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: Halluu Gurraacha Ati Filatte (#000000) */
+    /* 2. Sidebar: Cuquliika Dukkanaa'aa (Midnight Blue) */
     [data-testid="stSidebar"] {
-        background-color: #000000 !important;
-        border-right: 2px solid #00ffa2 !important;
+        background-color: #040914 !important;
+        border-right: 2px solid #00d4ff !important; /* Neon Blue Line */
+        box-shadow: 5px 0 20px rgba(0, 212, 255, 0.2);
     }
 
-    /* 3. Barreeffama: Gurraacha irratti akka ifuuf Adii qulqulluu */
+    /* 3. Barreeffama: Halluu Adii fi Silver walitti makaa */
     h1, h2, h3, p, label {
-        color: #ffffff !important;
+        color: #e0e0e0 !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
-    /* 4. Dashboard Cards: Transparent Black */
+    /* 4. Dashboard Cards: Cuquliika Calaqqisu (Blue Glass) */
     div[data-testid="stMetricWidget"] {
-        background: rgba(0, 0, 0, 0.5) !important;
-        border: 1px solid #00ffa2 !important;
-        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 
-    /* 5. Metrics: Halluu Magariisa ifu sana qofa */
+    /* 5. Metrics: Halluu Sky Blue (Calaqqee Electric) */
     [data-testid="stMetricValue"] {
-        color: #00ffa2 !important;
-        text-shadow: 0 0 10px #00ffa2;
+        color: #00d4ff !important;
+        text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+        font-weight: 800 !important;
     }
 
-    /* 6. Buttons: Salphaa fi kan ifu */
+    /* 6. Buttons: Gradient Blue Professional Style */
     .stButton>button {
-        background-color: #00ffa2 !important;
-        color: #000000 !important;
-        font-weight: bold;
-        border-radius: 10px;
+        background: linear-gradient(135deg, #00d4ff 0%, #0056b3 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 10px 30px !important;
+        font-weight: bold !important;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3) !important;
+        transition: 0.4s;
+    }
+    
+    .stButton>button:hover {
+        box-shadow: 0 0 25px #00d4ff !important;
+        transform: translateY(-2px);
+    }
+
+    /* 7. Input Fields: Focus Style */
+    .stTextInput input {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+        border: 1px solid #00d4ff !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -203,6 +224,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
