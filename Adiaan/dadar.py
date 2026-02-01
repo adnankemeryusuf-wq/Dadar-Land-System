@@ -11,74 +11,65 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Premium Professional UI
+# Custom CSS for Professional & Vibrant Glassmorphism
 st.markdown("""
     <style>
-    /* 1. Sidebar: Background Dukkanaa'aa fi Halluu Magariisa Calaqqisu */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #04140c 0%, #0d1a14 100%) !important;
-        border-right: 3px solid #00a86b;
+    /* 1. Background Appii: Soft Mesh Gradient bareedaa */
+    .stApp {
+        background-color: #e5e5f7;
+        background-image: radial-gradient(#00a86b22 2px, transparent 2px), 
+                          radial-gradient(#00a86b22 2px, #f8f9fa 2px);
+        background-size: 80px 80px;
+        background-position: 0 0, 40px 40px;
     }
     
-    /* 2. Menu (Radio Buttons) Halluu Bareechu */
+    /* 2. Sidebar: Halluu Dukkanaa'aa 'Premium' */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #051c12 0%, #0a261a 100%) !important;
+        border-right: 2px solid #00ffa2;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+    }
+    
+    /* 3. Menu Sidebar: Akka Saanduqa Calaqqisuu (Glass Cards) */
     div[data-testid="stSidebarUserContent"] .stRadio > div {
-        background: rgba(255, 255, 255, 0.03);
-        padding: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
         border-radius: 20px;
+        padding: 15px;
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Text Menu Styling */
-    .stRadio label {
-        color: #cfd8dc !important; /* Halluu grey laafaa */
-        font-size: 16px !important;
-        font-weight: 500 !important;
-        padding: 10px;
-        transition: 0.3s ease;
-    }
-
-    /* Yoo Iddoo Tokko Filattu (Active State) */
-    div[data-testid="stSidebarUserContent"] .stRadio label[data-checked="true"] {
-        color: #00ffa2 !important; /* Halluu Magariisa ifu */
-        background: rgba(0, 168, 107, 0.2);
-        border-radius: 10px;
-        font-weight: 800 !important;
-    }
-
-    /* 3. Main Dashboard Background */
-    .stApp {
-        background: radial-gradient(circle at top right, #f8f9fa, #e0e6ed);
-    }
-
-    /* 4. Glassmorphism Design bakka hundaatti */
+    /* 4. Glassmorphism Cards: Dashboard irratti */
     div[data-testid="stMetricWidget"], .metric-card {
-        background: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.85) !important;
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
         border-radius: 25px !important;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
-        transition: all 0.4s ease;
-    }
-    
-    div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-5px);
-        border-bottom: 5px solid #00a86b;
+        border: 1px solid rgba(209, 213, 219, 0.3) !important;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08) !important;
     }
 
-    /* 5. Buttons Styling - Modern Gradient */
+    /* 5. Buttons: Halluu 'Neon Emerald' wal-maku */
     .stButton>button {
-        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%) !important;
-        color: white !important;
+        background: linear-gradient(135deg, #00ffa2 0%, #00a86b 100%) !important;
+        color: #051c12 !important; /* Barreeffama dukkanaa'aa ijaaf tolu */
         border-radius: 15px !important;
         border: none !important;
-        font-weight: 700 !important;
-        box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3) !important;
+        font-weight: 800 !important;
+        box-shadow: 0 8px 20px rgba(0, 255, 162, 0.3) !important;
+        transition: 0.4s all ease;
     }
     
     .stButton>button:hover {
-        background: linear-gradient(135deg, #00ffa2 0%, #00a86b 100%) !important;
-        box-shadow: 0 6px 20px rgba(0, 255, 162, 0.4) !important;
-        transform: scale(1.02);
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 12px 25px rgba(0, 255, 162, 0.5) !important;
+        filter: brightness(1.1);
+    }
+
+    /* Input Fields bareechu */
+    .stTextInput input {
+        border-radius: 12px !important;
+        border: 1px solid #00a86b33 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -233,6 +224,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
