@@ -11,101 +11,106 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Dark Executive UI with Glowing Text
+# Custom CSS for Neon-Dark Glowing Professional UI
 st.markdown("""
     <style>
-    /* 1. Background Waliigalaa: Dark Modern Canvas */
+    /* 1. Background: Deep Space with Neon Aura */
     .stApp {
-        background: linear-gradient(135deg, #050a09 0%, #0a1412 50%, #020504 100%);
+        background: radial-gradient(circle at 50% 50%, #0a1f18 0%, #050a09 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: High-Contrast Dark Glass */
+    /* 2. Sidebar: Floating Neon Glass */
     [data-testid="stSidebar"] {
-        background: rgba(0, 0, 0, 0.8) !important;
+        background: rgba(0, 0, 0, 0.9) !important;
         backdrop-filter: blur(20px);
-        border-right: 2px solid #00ffa2 !important;
+        border-right: 3px solid #00ffa2 !important;
+        box-shadow: 5px 0 30px rgba(0, 255, 162, 0.2);
     }
 
-    /* 3. Barreeffama Sidebar: Neon Silver */
+    /* 3. Sidebar Radio: Glowing Buttons */
     div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(255, 255, 255, 0.03) !important;
-        color: #b0bec5 !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(0, 255, 162, 0.1) !important;
-        padding: 12px 20px !important;
-        margin-bottom: 10px !important;
-        transition: 0.4s all;
+        background: rgba(255, 255, 255, 0.02) !important;
+        color: #00ffa2 !important;
+        border-radius: 15px !important;
+        border: 1px solid rgba(0, 255, 162, 0.3) !important;
+        padding: 15px 25px !important;
+        margin-bottom: 12px !important;
+        text-shadow: 0 0 10px rgba(0, 255, 162, 0.5);
+        transition: 0.5s all cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
         background: #00ffa2 !important;
         color: #000000 !important;
-        box-shadow: 0 0 20px rgba(0, 255, 162, 0.4);
-        font-weight: bold;
+        transform: scale(1.08) translateX(10px);
+        box-shadow: 0 0 40px rgba(0, 255, 162, 0.8) !important;
     }
 
-    /* 4. Dashboard Cards: Dark Glossy Elevation */
+    /* 4. Dashboard Cards: Neon Box Glow */
     div[data-testid="stMetricWidget"], .metric-card {
-        background: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(25px);
-        border-radius: 20px !important;
-        padding: 25px !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-top: 5px solid #00ffa2 !important;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
-        transition: 0.4s ease;
+        background: rgba(255, 255, 255, 0.03) !important;
+        backdrop-filter: blur(15px);
+        border-radius: 25px !important;
+        padding: 30px !important;
+        border: 1px solid rgba(0, 255, 162, 0.2) !important;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+        transition: 0.5s ease;
     }
     
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-10px);
-        background: rgba(255, 255, 255, 0.08) !important;
-        box-shadow: 0 20px 50px rgba(0, 255, 162, 0.2) !important;
+        transform: translateY(-15px);
+        border: 1px solid #00ffa2 !important;
+        box-shadow: 0 0 50px rgba(0, 255, 162, 0.3) !important;
     }
     
-    /* 5. Barreeffama Calaqqisu (Glowing Metric Value) */
+    /* 5. Metrics Value: Ultra Neon Glow */
     [data-testid="stMetricValue"] {
         color: #00ffa2 !important;
-        text-shadow: 0 0 15px rgba(0, 255, 162, 0.8);
         font-weight: 900 !important;
-        font-size: 3.5rem !important;
+        font-size: 3.8rem !important;
+        text-shadow: 0 0 20px rgba(0, 255, 162, 1), 0 0 40px rgba(0, 255, 162, 0.6);
     }
 
-    /* 6. Buttons: Ultra-Glow Emerald */
+    /* 6. Professional Buttons: Laser Cut Style */
     .stButton>button {
         background: transparent !important;
         color: #00ffa2 !important;
         border: 2px solid #00ffa2 !important;
-        border-radius: 50px !important;
-        padding: 10px 30px !important;
-        font-weight: 700 !important;
+        border-radius: 12px !important;
+        padding: 15px 40px !important;
+        font-weight: 800 !important;
+        letter-spacing: 2px;
         text-transform: uppercase;
+        box-shadow: inset 0 0 10px rgba(0, 255, 162, 0.2);
         transition: 0.4s all;
     }
     
     .stButton>button:hover {
         background: #00ffa2 !important;
         color: #000000 !important;
-        box-shadow: 0 0 30px rgba(0, 255, 162, 0.6) !important;
+        box-shadow: 0 0 50px rgba(0, 255, 162, 1) !important;
+        transform: translateY(-5px);
     }
 
-    /* 7. Barreeffama Waliigalaa (Global Text Color) */
-    h1, h2, h3, p, label {
-        color: #e0f2f1 !important;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    /* 7. Titles: Bright Silver Glow */
+    h1, h2, h3 {
+        color: #ffffff !important;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.5) !important;
+        font-weight: 800 !important;
     }
 
-    /* 8. Inputs: Dark Stealth Style */
+    /* 8. Inputs: Cyber Focus */
     .stTextInput input {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        color: white !important;
-        border: 1px solid #1a3a34 !important;
-        border-radius: 10px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #00ffa2 !important;
+        border: 1px solid rgba(0, 255, 162, 0.2) !important;
+        border-radius: 12px !important;
     }
     
     .stTextInput input:focus {
         border-color: #00ffa2 !important;
-        box-shadow: 0 0 10px rgba(0, 255, 162, 0.3) !important;
+        box-shadow: 0 0 25px rgba(0, 255, 162, 0.4) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -260,6 +265,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
