@@ -11,93 +11,104 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Modern, Attractive & Professional UI
+# Custom CSS for High-End, Attractive & Professional UI
 st.markdown("""
     <style>
-    /* 1. Background: Mesh Gradient softer look */
+    /* 1. Background: Mesh Gradient softer look with subtle color */
     .stApp {
         background-color: #f8fbf9;
-        background-image: radial-gradient(#00a86b08 2px, transparent 2px), 
-                          radial-gradient(#00a86b08 2px, #f8fbf9 2px);
-        background-size: 40px 40px;
+        background-image: radial-gradient(at 0% 0%, rgba(0, 168, 107, 0.05) 0px, transparent 50%), 
+                          radial-gradient(at 100% 100%, rgba(212, 175, 55, 0.05) 0px, transparent 50%);
     }
     
-    /* 2. Sidebar: Premium Glass with Emerald Border */
+    /* 2. Sidebar: Ultra-Glass with Glowing Border */
     [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(10px);
-        border-right: 3px solid #00a86b;
-        box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+        background: rgba(255, 255, 255, 0.98) !important;
+        backdrop-filter: blur(20px);
+        border-right: 2px solid rgba(0, 168, 107, 0.3);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.02);
     }
     
-    /* 3. Sidebar Radio Buttons: Pill Style */
+    /* 3. Sidebar Radio Buttons: Premium Capsule Style */
     div[data-testid="stSidebarUserContent"] .stRadio > div {
-        background: #f1f3f4;
-        border-radius: 20px;
-        padding: 10px;
-        border: 1px solid #e0e0e0;
+        background: transparent;
+        border: none;
+        padding: 5px;
     }
     
-    /* Active Menu Text Color */
-    .stRadio label {
-        color: #1a2a23 !important;
-        font-size: 16px !important;
-        transition: 0.3s;
+    div[data-testid="stSidebarUserContent"] .stRadio label {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 12px 20px !important;
+        margin-bottom: 8px;
+        border: 1px solid #eee;
+        transition: 0.3s all ease;
+    }
+    
+    /* Hover effect for Sidebar labels */
+    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
+        background: rgba(0, 168, 107, 0.1);
+        border-color: #00a86b;
+        transform: translateX(5px);
     }
 
-    /* 4. Dashboard Cards: Floating Glass Effect */
+    /* 4. Dashboard Cards: Luxury "Glass" Elevation */
     div[data-testid="stMetricWidget"], .metric-card {
         background: white !important;
-        border-radius: 24px !important;
-        padding: 25px !important;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05) !important;
-        border-bottom: 6px solid #00a86b !important; /* Emerald bottom line */
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border-radius: 28px !important;
+        padding: 30px !important;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03) !important;
+        border: 1px solid #f0f0f0 !important;
+        border-top: 5px solid #00a86b !important; /* Luxury top border */
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     }
     
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0, 168, 107, 0.15) !important;
-        border-bottom: 6px solid #d4af37 !important; /* Changes to Gold on hover */
+        transform: translateY(-12px);
+        box-shadow: 0 30px 60px rgba(0, 168, 107, 0.12) !important;
+        border-top: 5px solid #d4af37 !important; /* Gold flip on hover */
     }
     
     .metric-val { 
-        background: linear-gradient(45deg, #00a86b, #004d32);
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(135deg, #00a86b, #004d32);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        font-size: 42px !important;
         font-weight: 900 !important;
     }
 
-    /* 5. Buttons: High-Gloss Emerald Gradient */
+    /* 5. Buttons: Radiant Emerald with Shine Effect */
     .stButton>button {
-        background: linear-gradient(135deg, #00a86b 0%, #004d32 100%) !important;
+        background: linear-gradient(135deg, #00a86b 0%, #006b44 100%) !important;
         color: white !important;
-        border-radius: 50px !important; /* Rounded pill button */
+        border-radius: 15px !important;
         border: none !important;
-        padding: 12px 35px !important;
+        padding: 15px 40px !important;
         font-weight: 700 !important;
-        text-transform: uppercase;
-        letter-spacing: 1.2px;
-        box-shadow: 0 8px 20px rgba(0, 168, 107, 0.3) !important;
-        transition: 0.4s ease;
+        letter-spacing: 1px;
+        box-shadow: 0 10px 25px rgba(0, 168, 107, 0.25) !important;
+        transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .stButton>button:hover {
-        background: linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%) !important; /* Gold hover */
-        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4) !important;
-        transform: scale(1.05);
+        background: linear-gradient(135deg, #00c37c 0%, #00a86b 100%) !important;
+        box-shadow: 0 15px 30px rgba(0, 168, 107, 0.4) !important;
+        transform: translateY(-3px) scale(1.02);
     }
 
-    /* 6. Form Inputs: Soft Focus */
+    /* 6. Form/Input Refinement: Ultra Soft */
     .stTextInput input {
-        border-radius: 15px !important;
-        border: 2px solid #eee !important;
-        padding: 12px !important;
-        transition: 0.3s;
+        border-radius: 12px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #e0e6ed !important;
+        padding: 14px !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
     }
+    
     .stTextInput input:focus {
         border-color: #00a86b !important;
-        box-shadow: 0 0 10px rgba(0, 168, 107, 0.1) !important;
+        box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.15) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -252,6 +263,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
