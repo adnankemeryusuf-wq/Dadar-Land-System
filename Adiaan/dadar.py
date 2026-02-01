@@ -82,14 +82,12 @@ def create_clearance_pdf(data, logo_l, logo_r):
     if logo_l:
         ext_l = logo_l.name.split('.')[-1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_l}") as tmp:
-            tmp.write(logo_l.getbuffer())
-            pdf.image(tmp.name, 15, 18, 23)
+            tmp.write(logo_l.getbuffer()); pdf.image(tmp.name, 15, 18, 23)
         os.unlink(tmp.name)
     if logo_r:
         ext_r = logo_r.name.split('.')[-1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_r}") as tmp:
-            tmp.write(logo_r.getbuffer())
-            pdf.image(tmp.name, 172, 18, 23)
+            tmp.write(logo_r.getbuffer()); pdf.image(tmp.name, 172, 18, 23)
         os.unlink(tmp.name)
 
     pdf.set_y(22); pdf.set_font('Times', 'B', 15)
@@ -121,10 +119,8 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_font('Times', 'I', 12)
     pdf.write(9, f"Kanaafuu, dhimma {data['dhimma']} barbaadaniif ragaan kun akka tajaajiluuf ni mirkaneessina.")
     
-    # MALLATTOO FI MAQAA (BITAA FI MIRGA)
-    pdf.set_y(245)
-    pdf.set_font('Times', 'B', 12)
-    pdf.set_x(20); pdf.cell(90, 10, f"Maqaa: {data['head_name']}", ln=0, align='L')
+    pdf.set_y(245); pdf.set_font('Times', 'B', 12)
+    pdf.set_x(20); pdf.cell(90, 10, f"Itti Gaafatamaa: {data['head_name']}", ln=0, align='L')
     pdf.set_x(120); pdf.cell(70, 10, "Mallattoo: _________________", ln=1, align='R')
     
     return pdf.output(dest='S').encode('latin-1')
@@ -219,14 +215,24 @@ else:
                 ara = f"G: {c1.text_input('Araddaa G')} / B: {c2.text_input('Araddaa B')}"
             else:
                 name, ara = c1.text_input("Maqaa Maamilaa"), c2.text_input("Araddaa")
-            qaxana, ogeessa = c1.text_input("Lakk. Qaxana"), c2.text_input("Maqaa Ogeessaa")
+            
+            # SIRREEFFAMA HAARAA: LAKKOFSA QOFA AKKA FUDHATU
+            qaxana = c1.text_input("Lakk. Qaxana (Lakkofsa Qofa)")
+            ogeessa = c2.text_input("Maqaa Ogeessaa")
+            
             if st.form_submit_button("💾 GALMEESSI"):
-                if name and details and ogeessa:
-                    total = sum(d_fees.values())
-                    new_row = [datetime.now().strftime('%d/%m/%Y %H:%M'), name, ara, qaxana, ", ".join(details), ogeessa, total]
-                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("✅ Galmeeffameera!")
-                    st.download_button("📥 Nagahee PDF", create_receipt_pdf(new_row), f"Nagahee_{name}.pdf")
+                if name and details and ogeessa and qaxana:
+                    # Qubee yoo keessa jiraate dhorkuuf
+                    if not qaxana.isdigit():
+                        st.error("⚠️ Dogoggora: Lakk. Qaxana keessatti lakkofsa qofa galchi! Qubeen hin hayyamamu.")
+                    else:
+                        total = sum(d_fees.values())
+                        new_row = [datetime.now().strftime('%d/%m/%Y %H:%M'), name, ara, qaxana, ", ".join(details), ogeessa, total]
+                        df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                        save_data(df); st.success("✅ Galmeeffameera!")
+                        st.download_button("📥 Nagahee PDF", create_receipt_pdf(new_row), f"Nagahee_{name}.pdf")
+                else:
+                    st.warning("Maaloo bayyee isaa guuti!")
 
     elif menu == "📜 Clearance (Ragaa)":
         st.header("📜 Waraqaa Qulqullinaa")
