@@ -2,10 +2,14 @@ import streamlit as st
 import pandas as pd
 import os
 import io
+import requests
 from datetime import datetime, timedelta
 from fpdf import FPDF
 
 # ================= 1. CONFIGURATION & STYLE =================
+# Telegram Bot Info (Asirratti kan kee sirriitti galchi)
+BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
+CHAT_ID_MANAGER = "7329587700"
 LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
@@ -28,23 +32,12 @@ st.markdown("""
         display: block;
         cursor: pointer;
     }
-    .card {
-        background-color: #ffffff;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        text-align: center;
-        border-left: 5px solid #10b981;
-    }
-    .metric-value {
-        font-size: 2rem;
-        font-weight: 900;
-        color: #10b981;
-    }
+    .card { background-color: #ffffff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); text-align: center; border-left: 5px solid #10b981; }
+    .metric-value { font-size: 2rem; font-weight: 900; color: #10b981; }
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATA MANAGEMENT =================
+# ================= 2. DATA MANAGEMENT & TELEGRAM =================
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 def load_data():
@@ -59,6 +52,16 @@ def load_data():
 
 def save_data(df):
     df[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding='utf-8')
+
+def send_telegram_report(file_bytes, filename):
+    url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument"
+    files = {'document': (filename, file_bytes)}
+    data = {'chat_id': CHAT_ID_MANAGER, 'caption': f"📊 Gabaasa Galii Dadar\n📅 Guyyaa: {datetime.now().strftime('%d/%m/%Y')}"}
+    try:
+        response = requests.post(url, data=data, files=files)
+        return response.json()
+    except Exception as e:
+        return str(e)
 
 def create_receipt_pdf(data_row):
     pdf = FPDF()
@@ -77,7 +80,6 @@ if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 1.2, 1])
     with col:
-        st.markdown("<br><br>", unsafe_allow_html=True)
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=150)
         with st.form("login_form"):
             st.markdown("<h2 style='text-align: center;'>Admin Login</h2>", unsafe_allow_html=True)
@@ -126,11 +128,6 @@ else:
             with c3: 
                 top_og = display_df['Maqaa_Ogeessa'].mode()[0] if not display_df.empty else "-"
                 st.markdown(f"<div class='card'><p>🏆 Ogeessa Filatamaa</p><p class='metric-value' style='font-size:1.4rem;'>{top_og}</p></div>", unsafe_allow_html=True)
-            
-            st.markdown("---")
-            st.subheader("📈 Trendii Galii Ji'aan")
-            trend = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
-            st.area_chart(trend)
         else: st.info("Datiin galmaa'e hin jiru.")
 
     # --- REGISTRATION ---
@@ -189,17 +186,33 @@ else:
         h_c1, h_c2 = st.columns([0.1, 0.9])
         with h_c1:
             if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=65)
-        with h_c2: st.markdown("<h2 style='margin-top:10px;'>Barbaadi & Gabaasa Excel</h2>", unsafe_allow_html=True)
+        with h_c2: st.markdown("<h2 style='margin-top:10px;'>Gabaasa & Telegram Send</h2>", unsafe_allow_html=True)
         
-        search_query = st.text_input("🔍 Maqaa, Araddaa ykn Gosa Tajaajilaa galchi...")
+        search_query = st.text_input("🔍 Barbaadi (Maqaa, Araddaa...):")
         if not df.empty:
             mask = df[COL_NAMES].apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)
-            filtered_df = df[mask]
-            st.dataframe(filtered_df[COL_NAMES], use_container_width=True)
+            f_df = df[mask].copy()
+            f_df.insert(0, 'No.', range(1, 1 + len(f_df))) # Lakkofsa (No.) dabalame
+            
+            st.dataframe(f_df, use_container_width=True)
+
+            # Excel bifa bareedaan qopheessuu
             buf = io.BytesIO()
             with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
-                filtered_df[COL_NAMES].to_excel(wr, index=False)
-            st.download_button("📥 Excel Buufadhu", buf.getvalue(), "Gabaasa.xlsx")
+                f_df.to_excel(wr, index=False, sheet_name='Gabaasa')
+                workbook, worksheet = wr.book, wr.sheets['Gabaasa']
+                header_fmt = workbook.add_format({'bold': True, 'bg_color': '#10b981', 'border': 1, 'font_color': 'white'})
+                for col_num, value in enumerate(f_df.columns.values):
+                    worksheet.write(0, col_num, value, header_fmt)
+            
+            excel_out = buf.getvalue()
+            c1, c2 = st.columns(2)
+            c1.download_button("📥 Excel Buufadhu", excel_out, "Gabaasa_Dadar.xlsx")
+            if c2.button("✈️ Gabaasa Telegram-itti Ergi"):
+                with st.spinner("Ergamaa jira..."):
+                    res = send_telegram_report(excel_out, "Gabaasa_Dadar_Final.xlsx")
+                    if isinstance(res, dict) and res.get("ok"): st.success("✅ Gabaasni ergameera!")
+                    else: st.error("❌ Erguun hin danda'amne!")
         else: st.info("Datiin hin jiru.")
 
     elif menu == "🚪 Logout":
