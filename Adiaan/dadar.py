@@ -152,8 +152,7 @@ else:
                     receipt = create_receipt_pdf(new_row)
                     st.download_button("📥 Nagahee Buufadhu", receipt, f"Nagahee_{name_f}.pdf", "application/pdf")
                 else: st.warning("Maaloo odeeffannoo guuti!")
-
-    elif menu == "📈 Gabaasa Galii":
+elif menu == "📈 Gabaasa Galii":
         # Search Header with Logo
         head_col1, head_col2 = st.columns([0.1, 0.9])
         with head_col1:
@@ -165,8 +164,12 @@ else:
         search_query = st.text_input("🔍 Maqaa, Araddaa ykn Gosa Tajaajilaa galchi...", placeholder="Fakkeenya: Kaartaa...")
         
         if not df.empty:
-            # Filtering Logic
-            filtered_df = df[df.astype(str).apply(lambda x: search_query.lower() in x.str.lower().any(), axis=1)]
+            # Filtering Logic - Koodii fooyya'aa dogoggora malee hojjetu
+            if search_query:
+                # Sarara kana qofa jijjiirri (Search query akka sirriitti hojjetuuf)
+                filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
+            else:
+                filtered_df = df
             
             st.dataframe(filtered_df.style.highlight_max(axis=0, color='#d1e7dd'), use_container_width=True)
             
@@ -183,3 +186,4 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
