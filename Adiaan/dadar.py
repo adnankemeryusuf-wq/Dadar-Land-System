@@ -192,11 +192,10 @@ else:
         st.header("📝 Galmee Haaraa Galchi")
         GATII_DICT = {
             "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"],
-            "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"],
-            "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", "Humna Mahandisummaa"],
-            "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"],
-            "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"],
-            "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu (Regularization)", "Adabbii Faallaa Pilaanii"],
+            "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa (Gift/Sale)"],
+            "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)"],
+            "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
+            "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"]
         }
         sel_main = st.multiselect("Ramaddii Filadhu", list(GATII_DICT.keys()))
         details, d_fees, is_tot = [], {}, False
@@ -216,23 +215,19 @@ else:
             else:
                 name, ara = c1.text_input("Maqaa Maamilaa"), c2.text_input("Araddaa")
             
-            # SIRREEFFAMA HAARAA: LAKKOFSA QOFA AKKA FUDHATU
             qaxana = c1.text_input("Lakk. Qaxana (Lakkofsa Qofa)")
             ogeessa = c2.text_input("Maqaa Ogeessaa")
             
             if st.form_submit_button("💾 GALMEESSI"):
                 if name and details and ogeessa and qaxana:
-                    # Qubee yoo keessa jiraate dhorkuuf
                     if not qaxana.isdigit():
-                        st.error("⚠️ Dogoggora: Lakk. Qaxana keessatti lakkofsa qofa galchi! Qubeen hin hayyamamu.")
+                        st.error("⚠️ Dogoggora: Lakk. Qaxana keessatti lakkofsa qofa galchi!")
                     else:
                         total = sum(d_fees.values())
                         new_row = [datetime.now().strftime('%d/%m/%Y %H:%M'), name, ara, qaxana, ", ".join(details), ogeessa, total]
                         df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                         save_data(df); st.success("✅ Galmeeffameera!")
                         st.download_button("📥 Nagahee PDF", create_receipt_pdf(new_row), f"Nagahee_{name}.pdf")
-                else:
-                    st.warning("Maaloo bayyee isaa guuti!")
 
     elif menu == "📜 Clearance (Ragaa)":
         st.header("📜 Waraqaa Qulqullinaa")
@@ -245,18 +240,23 @@ else:
             m = {
                 'maqaa': c1.text_input("Maqaa Abbaa Qabiyyee"), 
                 'araddaa': c2.text_input("Araddaa"), 
-                'qaxana': c1.text_input("Qaxana"), 
-                'kaartaa': c2.text_input("Lakk. Kaartaa"), 
+                'qaxana': c1.text_input("Lakk. Qaxana (Lakkofsa Qofa)"), 
+                'kaartaa': c2.text_input("Lakk. Kaartaa (Lakkofsa Qofa)"), 
                 'gosa_qabiyyee': c1.selectbox("Gosa Qabiyyee", ["Liizii", "Permit"]), 
-                'bara_gibiraa': c2.text_input("Bara Gibiraa"), 
+                'bara_gibiraa': c2.text_input("Bara Gibiraa (Lakkofsa Qofa)"), 
                 'dhimma': c1.selectbox("Dhimma Barbaadame", ["Gurgurtaa", "Liqii", "Kennaa"]), 
                 'head_name': st.text_input("Maqaa Itti Gaafatamaa")
             }
             if st.form_submit_button("📄 PDF UUMI"):
-                if m['maqaa'] and m['head_name']:
+                # SIRREEFFAMA: Lakkofsa qofa ta'uu isaanii mirkaneessuuf
+                if not (m['qaxana'].isdigit() and m['kaartaa'].isdigit() and m['bara_gibiraa'].isdigit()):
+                    st.error("⚠️ Dogoggora: Qaxana, Kaartaa fi Bara Gibiraa keessatti Lakkofsa qofa galchi!")
+                elif m['maqaa'] and m['head_name']:
                     st.session_state.pdf_to_download = create_clearance_pdf(m, cl_l, cl_r)
                     st.session_state.pdf_name = f"Clearance_{m['maqaa']}.pdf"
                     st.rerun()
+                else:
+                    st.warning("Maaloo bayyee isaa guuti!")
 
         if 'pdf_to_download' in st.session_state:
             st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, st.session_state.pdf_name)
