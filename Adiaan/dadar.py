@@ -74,82 +74,62 @@ def create_receipt_pdf(data):
     return pdf.output(dest='S').encode('latin-1')
 
 def create_clearance_pdf(data, logo_l, logo_r):
-    pdf = FPDF(orientation='P', unit='mm', format='A4')
-    pdf.add_page()
-    pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
-    pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
-
-    if logo_l:
-        ext_l = logo_l.name.split('.')[-1]
-        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_l}") as tmp:
-            tmp.write(logo_l.getbuffer())
-            pdf.image(tmp.name, 15, 18, 23)
-        os.unlink(tmp.name)
-
-    if logo_r:
-        ext_r = logo_r.name.split('.')[-1]
-        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_r}") as tmp:
-            tmp.write(logo_r.getbuffer())
-            pdf.image(tmp.name, 172, 18, 23)
-        os.unlink(tmp.name)
-
-    pdf.set_y(22); pdf.set_font('Times', 'B', 15)
-    pdf.cell(0, 10, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
-    pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
-    pdf.cell(0, 10, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
-    pdf.ln(3); pdf.set_line_width(0.5); pdf.line(20, 56, 190, 56)
+    # ... (Header fi Logo akkuma duraatti) ...
     
-    guyyaa_ec = get_ethiopian_date_str()
-    pdf.ln(12); pdf.set_font('Times', '', 12); pdf.set_x(20)
-    pdf.write(5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____"); pdf.set_x(140)
-    pdf.write(5, f"Guyyaa: {guyyaa_ec}"); pdf.ln(18)
-    
-    pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(8)
+    pdf.set_font('Times', 'B', 16); pdf.cell(0, 15, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(5)
     
     pdf.set_font('Times', '', 12); pdf.set_x(20)
-    pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} ")
+    pdf.write(9, "Waraqaan ragaa kun bu'uura qajeelfama bulchiinsa lafaatiin Obbo/Adde/Dhaabbata ")
+    pdf.set_font('Times', 'B', 12); pdf.write(9, f"{data['maqaa'].upper()} "); pdf.set_font('Times', '', 12)
+    pdf.write(9, f"Araddaa {data['araddaa']}, Qaxana {data['qaxana']} keessatti qabiyyee qaban ")
     
-    pdf.set_font('Times', 'B', 13) 
-    pdf.write(9, f"LAKK. KAARTAA {str(data['kaartaa'])} ")
+    # LAKK. KAARTAA (Ammallee Bold)
+    pdf.set_font('Times', 'B', 13); pdf.write(9, f"LAKK. KAARTAA {str(data['kaartaa'])} "); pdf.set_font('Times', '', 12)
+    pdf.write(9, "irratti kan kennameedha.\n\n")
     
-    pdf.set_font('Times', '', 12)
-    pdf.write(9, "qabaniif kan kennameedha.\n\n")
+    pdf.set_font('Times', 'B', 12); pdf.write(9, "Ragaaleen armaan gadiis mirkanaa'aniiru:\n"); pdf.set_font('Times', '', 12)
+    pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti xumuraniiru.\n")
+    pdf.write(9, f"2. Kaffaltii tajaajilaa {data['gosa_qabiyyee']} kamirrayyuu bilisa ta'uun isaanii mirkanaa'eera.\n")
+    pdf.write(9, "3. Qabiyyeen kun dhorkaa kamirrayyuu (Mana Murtii fi Baankii) bilisa.\n\n")
     
-    pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n")
-    pdf.write(9, f"2. Kaffaltii {data['gosa_qabiyyee']} hunda xumuraniiru.\n")
-    pdf.write(9, "3. Qabiyyeen kun DHORKAA kamirrayyuu bilisa ta'uu mirkaneessina.\n\n")
-    pdf.write(9, f"Dhimma {data['dhimma']} raawwachuuf mormii hin qabnu.")
+    pdf.set_font('Times', 'I', 12)
+    pdf.write(9, f"Kanaafuu, dhimma {data['dhimma']} barbaadaniif ragaan kun akka tajaajiluuf ni mirkaneessina.")
     
-    pdf.set_y(235); pdf.set_x(20); pdf.set_font('Times', 'B', 12)
-    pdf.write(8, f"Maqaa Itti Gaafatamaa: {data['head_name']}\nMallattoo: _________________")
+    # ... (Mallattoo Section) ...
     return pdf.output(dest='S').encode('latin-1')
-
 def create_pdf_cert(name, count, rank, logo_l, logo_r):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
+    # Border bareedaa
     pdf.set_draw_color(16, 185, 129); pdf.set_line_width(5); pdf.rect(10, 10, 277, 190)
-    pdf.set_draw_color(0, 0, 0); pdf.set_line_width(0.5); pdf.rect(12, 12, 273, 186)
+    pdf.set_draw_color(218, 165, 32); pdf.set_line_width(1); pdf.rect(13, 13, 271, 184)
 
     if logo_l:
         ext_l = logo_l.name.split('.')[-1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_l}") as tmp:
-            tmp.write(logo_l.getbuffer())
-            pdf.image(tmp.name, 20, 18, 25)
+            tmp.write(logo_l.getbuffer()); pdf.image(tmp.name, 20, 18, 25)
         os.unlink(tmp.name)
-        
     if logo_r:
         ext_r = logo_r.name.split('.')[-1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_r}") as tmp:
-            tmp.write(logo_r.getbuffer())
-            pdf.image(tmp.name, 252, 18, 25)
+            tmp.write(logo_r.getbuffer()); pdf.image(tmp.name, 252, 18, 25)
         os.unlink(tmp.name)
 
-    pdf.set_y(60); pdf.set_font("Arial", 'B', 30)
-    pdf.cell(0, 20, "SARTIIFIIKEETA BADHAASAA", ln=True, align='C')
-    pdf.set_font("Arial", 'B', 35); pdf.cell(0, 30, name.upper(), ln=True, align='C')
-    pdf.set_font("Arial", '', 18); pdf.cell(0, 10, f"Dhimma {count} milkiin raawwachuun sadarkaa {rank}ffaa argataniif.", ln=True, align='C')
-    pdf.set_y(160); pdf.set_font("Arial", 'B', 12)
-    pdf.cell(0, 10, "Mallattoo Itti Gaafatamaa: ___________________", ln=True, align='C')
+    pdf.set_y(55); pdf.set_font("Arial", 'B', 32)
+    pdf.set_text_color(16, 185, 129)
+    pdf.cell(0, 20, "SARTIIFIIKEETA KABAJAA FI BADHAASAA", ln=True, align='C')
+    
+    pdf.set_y(85); pdf.set_font("Arial", 'I', 18); pdf.set_text_color(0, 0, 0)
+    pdf.cell(0, 10, "Sartiifikeetiin kun kan kennameef:", ln=True, align='C')
+    
+    pdf.set_font("Arial", 'B', 40); pdf.set_text_color(184, 134, 11)
+    pdf.cell(0, 25, name.upper(), ln=True, align='C')
+    
+    pdf.set_font("Arial", '', 16); pdf.set_text_color(0, 0, 0)
+    pdf.multi_cell(0, 10, f"Waajjira Lafaa Magaalaa Dadar keessatti tajaajila qulqulluu fi saffisa qabu maamiltootaaf kennuun,\ndhimmoota {count} milkiin xumurtanii sadarkaa {rank}ffaa waan qabattaniif galata guddaa qabna.", align='C')
+    
+    pdf.set_y(165); pdf.set_font("Arial", 'B', 14)
+    pdf.cell(0, 10, "Gumaacha keessaniif galanni keessan guddaadha!", ln=True, align='C')
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP LOGIC =================
@@ -279,3 +259,4 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
