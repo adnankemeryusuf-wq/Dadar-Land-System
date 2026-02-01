@@ -11,56 +11,77 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Professional & Beautiful Navigation
+# Custom CSS for Premium Professional UI
 st.markdown("""
     <style>
-    /* 1. Sidebar Background - Halluu Dukkanaa'aa miidhagaa */
+    /* 1. Sidebar: Background Dukkanaa'aa fi Halluu Magariisa Calaqqisu */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0d1a14 0%, #1a2a23 100%) !important;
-        border-right: 2px solid #00a86b;
+        background: linear-gradient(180deg, #04140c 0%, #0d1a14 100%) !important;
+        border-right: 3px solid #00a86b;
     }
-
-    /* 2. Sidebar Menu (Radio Buttons) Bareechu */
+    
+    /* 2. Menu (Radio Buttons) Halluu Bareechu */
     div[data-testid="stSidebarUserContent"] .stRadio > div {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 15px;
-        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.03);
+        padding: 20px;
+        border-radius: 20px;
         border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* 3. Dashboard Selection Cards - Bakka Dashboard, Galmee, fi Gabaasaa */
-    .nav-card {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-        padding: 20px;
-        border-radius: 20px;
-        border-left: 10px solid #00a86b;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-        margin-bottom: 20px;
-        transition: 0.3s;
-        cursor: pointer;
+    /* Text Menu Styling */
+    .stRadio label {
+        color: #cfd8dc !important; /* Halluu grey laafaa */
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        padding: 10px;
+        transition: 0.3s ease;
+    }
+
+    /* Yoo Iddoo Tokko Filattu (Active State) */
+    div[data-testid="stSidebarUserContent"] .stRadio label[data-checked="true"] {
+        color: #00ffa2 !important; /* Halluu Magariisa ifu */
+        background: rgba(0, 168, 107, 0.2);
+        border-radius: 10px;
+        font-weight: 800 !important;
+    }
+
+    /* 3. Main Dashboard Background */
+    .stApp {
+        background: radial-gradient(circle at top right, #f8f9fa, #e0e6ed);
+    }
+
+    /* 4. Glassmorphism Design bakka hundaatti */
+    div[data-testid="stMetricWidget"], .metric-card {
+        background: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 25px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05) !important;
+        transition: all 0.4s ease;
     }
     
-    .nav-card:hover {
-        transform: translateX(10px);
-        background: #ffffff;
-        border-left: 10px solid #d4af37; /* Halluu Warqee (Gold) */
+    div[data-testid="stMetricWidget"]:hover {
+        transform: translateY(-5px);
+        border-bottom: 5px solid #00a86b;
     }
 
-    /* 4. Active Selection Highlight */
-    .stRadio > label {
-        color: #00a86b !important;
-        font-weight: bold !important;
+    /* 5. Buttons Styling - Modern Gradient */
+    .stButton>button {
+        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%) !important;
+        color: white !important;
+        border-radius: 15px !important;
+        border: none !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3) !important;
     }
-
-    /* 5. Icon Size and Color */
-    .st-emotion-cache-17l243n {
-        font-size: 20px;
-        color: #00a86b;
+    
+    .stButton>button:hover {
+        background: linear-gradient(135deg, #00ffa2 0%, #00a86b 100%) !important;
+        box-shadow: 0 6px 20px rgba(0, 255, 162, 0.4) !important;
+        transform: scale(1.02);
     }
     </style>
     """, unsafe_allow_html=True)
-
 # ================= 2. DATA MANAGEMENT =================
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
@@ -212,6 +233,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
