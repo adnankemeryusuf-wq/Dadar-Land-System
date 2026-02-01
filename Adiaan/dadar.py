@@ -10,92 +10,45 @@ LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
-# Custom CSS for High-Clarity Neon-Dark UI
+# Design Ati Filatte Qofa (Pure Black & Center Glow)
 st.markdown("""
     <style>
-    /* 1. Background: Center Glow caalaatti akka ifu godhame */
+    /* 1. Background: Wiirtuu isaa qofa ifa godhi, gubbaa fi jalli Gurraacha (#000000) */
     .stApp {
-        background: radial-gradient(circle at 50% 50%, #0d5a42 0%, #051410 40%, #010302 100%);
+        background: radial-gradient(circle at center, #0d5a42 0%, #000000 70%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: Halluu Dukkanaa'aa fi Calaqqee Neon */
+    /* 2. Sidebar: Halluu Gurraacha Ati Filatte (#000000) */
     [data-testid="stSidebar"] {
-        background: #000000 !important;
+        background-color: #000000 !important;
         border-right: 2px solid #00ffa2 !important;
-        box-shadow: 10px 0 50px rgba(0, 255, 162, 0.15);
     }
 
-    /* 3. Sidebar Menu: Halluu Magariisa ifu */
-    div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(0, 255, 162, 0.03) !important;
-        color: #00ffa2 !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(0, 255, 162, 0.2) !important;
-        padding: 12px 20px !important;
-        margin-bottom: 10px !important;
-        font-weight: 500;
-        transition: 0.3s;
+    /* 3. Barreeffama: Gurraacha irratti akka ifuuf Adii qulqulluu */
+    h1, h2, h3, p, label {
+        color: #ffffff !important;
     }
 
-    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        background: #00ffa2 !important;
-        color: #000000 !important;
-        box-shadow: 0 0 25px #00ffa2;
-        transform: scale(1.02);
+    /* 4. Dashboard Cards: Transparent Black */
+    div[data-testid="stMetricWidget"] {
+        background: rgba(0, 0, 0, 0.5) !important;
+        border: 1px solid #00ffa2 !important;
+        border-radius: 15px;
     }
 
-    /* 4. Metric Cards: Bifa Glass (Transparent) bareedduu */
-    div[data-testid="stMetricWidget"], .metric-card {
-        background: rgba(255, 255, 255, 0.04) !important;
-        backdrop-filter: blur(15px);
-        border-radius: 20px !important;
-        padding: 25px !important;
-        border: 1px solid rgba(0, 255, 162, 0.3) !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
-    }
-    
-    div[data-testid="stMetricWidget"]:hover {
-        border-color: #00ffa2 !important;
-        background: rgba(0, 255, 162, 0.06) !important;
-        transform: translateY(-5px);
-    }
-    
-    /* 5. Metrics Value: Neon Glow */
+    /* 5. Metrics: Halluu Magariisa ifu sana qofa */
     [data-testid="stMetricValue"] {
         color: #00ffa2 !important;
-        font-weight: 900 !important;
-        font-size: 3.5rem !important;
-        text-shadow: 0 0 20px rgba(0, 255, 162, 0.9);
+        text-shadow: 0 0 10px #00ffa2;
     }
 
-    /* 6. Buttons: Gradient Glow */
+    /* 6. Buttons: Salphaa fi kan ifu */
     .stButton>button {
-        background: linear-gradient(135deg, #00ffa2, #008f5a) !important;
+        background-color: #00ffa2 !important;
         color: #000000 !important;
-        border-radius: 10px !important;
-        border: none !important;
-        padding: 12px 30px !important;
-        font-weight: 800 !important;
-        box-shadow: 0 5px 15px rgba(0, 255, 162, 0.4) !important;
-    }
-    
-    .stButton>button:hover {
-        box-shadow: 0 0 35px #00ffa2 !important;
-        transform: scale(1.05);
-    }
-
-    /* 7. Headings & Labels: Pure High-Contrast White */
-    h1, h2, h3, label, p {
-        color: #ffffff !important;
-        text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-    }
-
-    /* 8. Inputs: Cyber Style */
-    .stTextInput input {
-        background: rgba(0, 0, 0, 0.5) !important;
-        color: #00ffa2 !important;
-        border: 1px solid rgba(0, 255, 162, 0.4) !important;
+        font-weight: bold;
+        border-radius: 10px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -250,6 +203,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
