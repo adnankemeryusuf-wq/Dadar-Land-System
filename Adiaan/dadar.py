@@ -79,23 +79,20 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-   # Logo Management (Sirreeffama Haaraa)
     if logo_l:
-        # Suffix isaa ".png" qofa osoo hin taane bifa original isaa akka fudhatu gochuuf
         ext_l = logo_l.name.split('.')[-1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_l}") as tmp:
-            tmp.write(logo_l.getbuffer()) # getvalue() irraa gara getbuffer() tti
-            tmp_path_l = tmp.name
-        pdf.image(tmp_path_l, 15, 18, 23)
-        os.unlink(tmp_path_l)
+            tmp.write(logo_l.getbuffer())
+            pdf.image(tmp.name, 15, 18, 23)
+        os.unlink(tmp.name)
 
     if logo_r:
         ext_r = logo_r.name.split('.')[-1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_r}") as tmp:
             tmp.write(logo_r.getbuffer())
-            tmp_path_r = tmp.name
-        pdf.image(tmp_path_r, 172, 18, 23)
-        os.unlink(tmp_path_r)
+            pdf.image(tmp.name, 172, 18, 23)
+        os.unlink(tmp.name)
+
     pdf.set_y(22); pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 10, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
@@ -112,7 +109,6 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_font('Times', '', 12); pdf.set_x(20)
     pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} ")
     
-    # LAKK. KAARTAA GUDDISEE BOLD GODHA
     pdf.set_font('Times', 'B', 13) 
     pdf.write(9, f"LAKK. KAARTAA {str(data['kaartaa'])} ")
     
@@ -131,12 +127,9 @@ def create_clearance_pdf(data, logo_l, logo_r):
 def create_pdf_cert(name, count, rank, logo_l, logo_r):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    
-    # Border (Qafee) sartiifikeetaa
     pdf.set_draw_color(16, 185, 129); pdf.set_line_width(5); pdf.rect(10, 10, 277, 190)
     pdf.set_draw_color(0, 0, 0); pdf.set_line_width(0.5); pdf.rect(12, 12, 273, 186)
 
-    # Logo Management (Bitaa fi Mirga)
     if logo_l:
         ext_l = logo_l.name.split('.')[-1]
         with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_l}") as tmp:
@@ -151,16 +144,12 @@ def create_pdf_cert(name, count, rank, logo_l, logo_r):
             pdf.image(tmp.name, 252, 18, 25)
         os.unlink(tmp.name)
 
-    # Barreeffama Sartiifikeetaa
     pdf.set_y(60); pdf.set_font("Arial", 'B', 30)
     pdf.cell(0, 20, "SARTIIFIIKEETA BADHAASAA", ln=True, align='C')
     pdf.set_font("Arial", 'B', 35); pdf.cell(0, 30, name.upper(), ln=True, align='C')
     pdf.set_font("Arial", '', 18); pdf.cell(0, 10, f"Dhimma {count} milkiin raawwachuun sadarkaa {rank}ffaa argataniif.", ln=True, align='C')
-    
-    # Mallattoo Itti Gaafatamaa
     pdf.set_y(160); pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, "Mallattoo Itti Gaafatamaa: ___________________", ln=True, align='C')
-    
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP LOGIC =================
@@ -233,8 +222,8 @@ else:
     elif menu == "📜 Clearance (Ragaa)":
         st.header("📜 Waraqaa Qulqullinaa")
         up_col1, up_col2 = st.columns(2)
-        l_l = up_col1.file_uploader("Logo Bitaa (Upload)", type=['png', 'jpg', 'jpeg'])
-        l_r = up_col2.file_uploader("Logo Mirgaa (Upload)", type=['png', 'jpg', 'jpeg'])
+        l_l = up_col1.file_uploader("Logo Bitaa (Upload)", type=['png', 'jpg', 'jpeg'], key="cl_l")
+        l_r = up_col2.file_uploader("Logo Mirgaa (Upload)", type=['png', 'jpg', 'jpeg'], key="cl_r")
 
         with st.form("clearance"):
             c1, c2 = st.columns(2)
@@ -270,10 +259,8 @@ else:
             requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument", data={'chat_id': CHAT_ID_MANAGER}, files={'document': ("Gabaasa.xlsx", buf.getvalue())})
             st.success("Gabaasni hoggansatti ergameera!")
 
-  elif menu == "🏆 Badhaasa":
+    elif menu == "🏆 Badhaasa":
         st.header("🏆 Badhaasa Ogeeyyii")
-        
-        # Logo uploaders badhaasaaf
         up_c1, up_c2 = st.columns(2)
         cert_logo_l = up_c1.file_uploader("Logo Bitaa Sartiifikeetaa", type=['png', 'jpg', 'jpeg'], key="cert_l")
         cert_logo_r = up_c2.file_uploader("Logo Mirgaa Sartiifikeetaa", type=['png', 'jpg', 'jpeg'], key="cert_r")
@@ -283,14 +270,12 @@ else:
             for i, (name, count) in enumerate(stats.head(3).items()):
                 st.divider()
                 st.write(f"Sadarkaa {i+1}: **{name}** ({count} Dhimma)")
-                # Logo-n akka itti dabalamu create_pdf_cert keessatti ergaa jira
                 st.download_button(
                     label=f"📥 Sartiifikeeta {name} Buufadhu", 
                     data=create_pdf_cert(name, count, i+1, cert_logo_l, cert_logo_r), 
                     file_name=f"Cert_{name}.pdf",
                     key=f"btn_{name}"
                 )
+
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
-
-
