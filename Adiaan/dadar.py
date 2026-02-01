@@ -24,7 +24,7 @@ st.markdown("""
         margin-bottom: 10px !important;
         font-weight: 800 !important;          /* Barreeffama gabbataa */
         text-transform: uppercase;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4) !important;
+        box-shadow: 0 4px 15px rgba(12, 173, 120, 0.4) !important;
         display: block;
         cursor: pointer;
     }
@@ -193,6 +193,7 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
