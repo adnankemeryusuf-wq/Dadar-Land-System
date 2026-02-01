@@ -11,37 +11,71 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
+# --- KAN DABALAME: FUNCTIONS RAKKOO FURAN (SAVE & PDF) ---
+def save_data(df):
+    """Ragaa gara faayila txt tti gadi guba"""
+    df.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding='utf-8')
+
+def create_receipt_pdf(row):
+    """Nagahee PDF uumuuf"""
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(200, 10, "WAJJIRA LAFAA BUL/MAGAALAA DADAR", ln=True, align='C')
+    pdf.set_font("Arial", '', 12)
+    pdf.cell(200, 10, f"Guyyaa: {row[0]}", ln=True)
+    pdf.cell(200, 10, f"Maqaa Maamilaa: {row[1]}", ln=True)
+    pdf.cell(200, 10, f"Araddaa: {row[2]}", ln=True)
+    pdf.cell(200, 10, f"Gosa Tajaajilaa: {row[4]}", ln=True)
+    pdf.set_font("Arial", 'B', 14)
+    pdf.cell(200, 10, f"Waliigala Kaffaltii: {row[6]:,.2f} ETB", ln=True)
+    pdf.set_font("Arial", 'I', 10)
+    pdf.cell(200, 10, f"Ogeessa: {row[5]}", ln=True)
+    return pdf.output(dest='S').encode('latin-1')
+# --------------------------------------------------------
+
 # Bakka Filannoo (Sidebar Radio) qofa Magariisa Ifaa gochuuf
 st.markdown("""
     <style>
+    /* 1. Background: Center Glow */
+    .stApp {
+        background: radial-gradient(circle at 50% 50%, #064e3b 0%, #020617 100%);
+        background-attachment: fixed;
+    }
+    
     /* Bakka filannoo (Radio Buttons) gara bitaa */
     div[data-testid="stSidebarUserContent"] .stRadio label {
-        background-color: #10b981 !important; /* Magariisa baay'ee ifu */
-        color: #000000 !important;           /* Barreeffama gurraacha (akka ifatti mul'atu) */
-        border: 2px solid #ffffff !important; /* Sarara adii naannoo isaa */
+        background-color: #10b981 !important; 
+        color: #000000 !important;           
+        border: 2px solid #ffffff !important; 
         border-radius: 12px !important;
         padding: 15px 25px !important;
         margin-bottom: 10px !important;
-        font-weight: 800 !important;          /* Barreeffama gabbataa */
+        font-weight: 800 !important;          
         text-transform: uppercase;
         box-shadow: 0 4px 15px rgba(12, 173, 120, 0.4) !important;
         display: block;
         cursor: pointer;
     }
 
-    /* Yoo mouse irra qabdu caalaatti akka ifu */
-    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        background-color: #34d399 !important; /* Magariisa caalaatti ifu */
-        transform: scale(1.02);
-        box-shadow: 0 0 25px #10b981 !important;
+    /* Metrics & Dashboard Styling */
+    .metric-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 20px;
+        border: 1px solid #10b981;
+        text-align: center;
+        color: white;
     }
-    
-    /* Bakka filannoo (Dot) sana dhoksi (akka button-itti mul'achuuf) */
-    div[data-testid="stSidebarUserContent"] .stRadio div[role="radiogroup"] > label > div:first-child {
-        display: none !important;
-    }
+    .metric-val { font-size: 32px; font-weight: 900; color: #10b981; }
+    .metric-label { font-size: 14px; font-weight: 600; text-transform: uppercase; }
+
+    /* Fix global text color for readability */
+    .stApp, p, h1, h2, h3, label { color: #ffffff !important; }
     </style>
     """, unsafe_allow_html=True)
+
 # ================= 2. DATA MANAGEMENT =================
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
@@ -60,7 +94,6 @@ if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 1.2, 1])
     with col:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        # 1. LOGO ON LOGIN
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=150)
         
@@ -79,7 +112,6 @@ if not st.session_state.logged_in:
 else:
     df = load_data()
     
-    # 2. LOGO ON SIDEBAR
     with st.sidebar:
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=120)
@@ -88,7 +120,6 @@ else:
         menu = st.radio("Filannoo", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📈 Gabaasa Galii", "🚪 Logout"])
 
     if menu == "📊 Dashboard":
-        # 3. LOGO ON DASHBOARD HEADER
         head_l, head_r = st.columns([0.1, 0.9])
         with head_l:
             if os.path.exists(LOGO_PATH):
@@ -109,37 +140,17 @@ else:
         else:
             st.info("Hanga ammaatti data'n galmaa'e hin jiru.")
 
-    # ... (Rest of your sections: Galmee Tajaajilaa & Gabaasa Galii)
-
-    # ... (Koodiin biroo itti fufa)
     elif menu == "📝 Galmee Tajaajilaa":
-        st.markdown("<h2 style='color: #1a2a29;'>📝 Galmee Haaraa Galchi</h2>", unsafe_allow_html=True)
+        st.markdown("## 📝 Galmee Haaraa Galchi")
         GATII_DICT = {
-    "🏷 Gibira & Kaffaltii": [
-        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
-        "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
-    ],
-    "📜 Kaartaa & Qabiyyee": [
-        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
-        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"
-    ],
-    "🏗 Pilaanii & Ijaarsa": [
-        "Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
-        "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"
-    ],
-    "⚖️ Dhimma Seeraa": [
-        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
-        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
-    ],
-    "⚖️ Adabbii & Seeressuu": [
-        "Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
+            "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"],
+            "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"],
+            "🏗 Pilaanii & Ijaarsa": ["Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"],
+            "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"],
+            "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
+            "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"]
+        }
 
-    "📂 Tajaajila Biroo": [
-        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
-    ]
-}
-
-        
         sel_main = st.multiselect("🟢 Ramaddii Tajaajilaa Filadhu", list(GATII_DICT.keys()))
         details, d_fees, is_tot = [], {}, False
         
@@ -168,7 +179,7 @@ else:
             ogeessa = c2.text_input("Maqaa Ogeessaa")
             
             total_sum = sum(d_fees.values())
-            st.markdown(f"### 💰 Waliigala Kaffaltii: <span style='color:#00a86b;'>{total_sum:,.2f} ETB</span>", unsafe_allow_html=True)
+            st.markdown(f"### 💰 Waliigala Kaffaltii: {total_sum:,.2f} ETB")
             
             if st.form_submit_button("💾 GALMEESSI FI NAGAHEE UUMI"):
                 if name_f and details:
@@ -176,15 +187,14 @@ else:
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
                     st.success("✅ Maamilli milkiin galmeeffameera!")
-                    receipt = create_receipt_pdf(new_row)
-                    st.download_button("📥 Nagahee (PDF) Buufadhu", receipt, f"Nagahee_{name_f}.pdf", "application/pdf")
+                    receipt_data = create_receipt_pdf(new_row)
+                    st.download_button("📥 Nagahee (PDF) Buufadhu", receipt_data, f"Nagahee_{name_f}.pdf", "application/pdf")
                 else: st.warning("Maaloo odeeffannoo guuti!")
 
     elif menu == "📈 Gabaasa Galii":
-        st.markdown("<h2 style='color: #1a2a23;'>📈 Gabaasa Waliigalaa</h2>", unsafe_allow_html=True)
-        st.dataframe(df.style.highlight_max(axis=0, color='#d1e7dd'), use_container_width=True)
+        st.markdown("## 📈 Gabaasa Waliigalaa")
+        st.dataframe(df, use_container_width=True)
         
-        # Excel Export
         buf = io.BytesIO()
         with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
             df.to_excel(wr, index=False)
@@ -193,60 +203,3 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
