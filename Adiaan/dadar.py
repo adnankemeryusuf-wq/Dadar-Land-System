@@ -23,7 +23,7 @@ st.markdown("""
         background-position: 0 0, 40px 40px;
     }
     
-    /* 2. Sidebar: Halluu Dukkanaa'aa 'Premium' */
+    /* 2. Sidebar: Halluu ifaa'Premium' */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #051c12 0%, #0a261a 100%) !important;
         border-right: 2px solid #00ffa2;
@@ -224,6 +224,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
