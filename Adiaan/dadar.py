@@ -11,57 +11,71 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Luxury Look
+# Custom CSS for Professional & Luxury Look
 st.markdown("""
     <style>
-    /* Background and Font */
-    .stApp { background-color: #f4f7f6; }
+    /* 1. Background qulqulluu fi ijaaf mijataa */
+    .stApp { 
+        background: linear-gradient(to right, #f8f9fa, #e9ecef); 
+    }
     
-    /* Sidebar styling */
+    /* 2. Sidebar: Halluu Dukkanaa'aa fi Kabajamaa (Deep Forest) */
     [data-testid="stSidebar"] {
-        background-color: #062c1a !important;
-        border-right: 2px solid #d4af37;
+        background: linear-gradient(180deg, #041e12 0%, #062c1a 100%) !important;
+        border-right: 3px solid #b8860b; /* Halluu Warqee (Gold) */
     }
-    [data-testid="stSidebar"] * { color: #ffffff !important; }
+    [data-testid="stSidebar"] * { color: #fdfdfd !important; }
 
-    /* Custom Cards for Dashboard */
+    /* 3. Cards Dashboard: Akka Glassmorphism miidhagu */
     .metric-card {
-        background: white;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        border-top: 5px solid #0b6623;
+        background: #ffffff;
+        padding: 25px;
+        border-radius: 18px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        border-left: 6px solid #b8860b; /* Gold accent */
         text-align: center;
+        transition: transform 0.3s ease;
     }
-    .metric-val { color: #0b6623; font-size: 30px; font-weight: bold; }
-    .metric-label { color: #555; font-size: 14px; font-weight: 500; }
+    .metric-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 30px rgba(11, 102, 35, 0.2);
+    }
+    .metric-val { color: #0b6623; font-size: 32px; font-weight: 800; }
+    .metric-label { color: #444; font-size: 15px; font-weight: bold; text-transform: uppercase; }
 
-    /* Button Styling */
+    /* 4. Buttons: Professional Gradient */
     .stButton>button {
-        background: linear-gradient(135deg, #0b6623 0%, #14522d 100%);
+        background: linear-gradient(135deg, #0b6623 0%, #1a4a2e 100%);
         color: white !important;
-        border-radius: 8px;
+        border-radius: 10px;
         border: none;
-        padding: 10px 24px;
+        padding: 0.6rem 2rem;
+        font-size: 16px;
         font-weight: 600;
-        transition: 0.3s;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        background: #d4af37 !important;
-        color: #062c1a !important;
-        transform: translateY(-2px);
+        background: linear-gradient(135deg, #b8860b 0%, #8e6a06 100%) !important;
+        box-shadow: 0 6px 15px rgba(184, 134, 11, 0.4);
+        transform: scale(1.02);
     }
     
-    /* Form Background */
+    /* 5. Forms: Box Miidhagaa */
     div[data-testid="stForm"] {
         background-color: #ffffff;
-        border-radius: 15px;
-        padding: 30px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border-radius: 20px;
+        padding: 40px;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+    }
+
+    /* 6. Text inputs focus effects */
+    input {
+        border-radius: 8px !important;
     }
     </style>
     """, unsafe_allow_html=True)
-
 # ================= 2. DATA MANAGEMENT =================
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
@@ -195,6 +209,7 @@ else:
 
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
