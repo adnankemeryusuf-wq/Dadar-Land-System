@@ -82,8 +82,8 @@ else:
     # 2. LOGO ON SIDEBAR
     with st.sidebar:
         if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=90)
-        st.markdown("<h3 style='text-align:center;'>WAJJIRA LAFAA</h3>", unsafe_allow_html=True)
+            st.image(LOGO_PATH, width=120)
+        st.markdown("<h3 style='text-align:center;'>Wajjira Lafaa Bulchiinsa Magaalaaz Dadar</h3>", unsafe_allow_html=True)
         st.markdown("---")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📈 Gabaasa Galii", "🚪 Logout"])
 
@@ -193,6 +193,7 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
