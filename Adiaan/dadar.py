@@ -11,74 +11,85 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Waajjira Lafaa Professional UI
+# Custom CSS for Official Institutional Green UI
 st.markdown("""
     <style>
-    /* 1. Background Waliigalaa: Halluu laafaa ija hin naafisne */
+    /* 1. Background Waliigalaa: Halluu Magariisa baay'ee laafaa (Mint Mist) */
     .stApp {
-        background-color: #f4f7f6;
-        background-image: linear-gradient(315deg, #f4f7f6 0%, #e9eeee 74%);
+        background: linear-gradient(135deg, #f0f4f2 0%, #ffffff 100%);
     }
     
-    /* 2. Sidebar: Halluu Dukkanaa'aa (Deep Professional Forest) */
+    /* 2. Sidebar: Halluu Magariisa Dukkanaa'aa fi Calaqqisu (Glass Forest) */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0a261a 0%, #143d2c 100%) !important;
-        border-right: 3px solid #d4af37; /* Sarara Warqee */
+        background: linear-gradient(180deg, #062c1a 0%, #0d4d32 100%) !important;
+        border-right: 4px solid #00ffa2; /* Sarara ifu kan qarqaraa */
     }
 
-    /* 3. Barreeffama Sidebar: Adii qulqulluu */
+    /* 3. Barreeffama Sidebar: Gara Magariisa Ifaatti jijjiirama */
     [data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        color: #e0e0e0 !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        padding: 12px 20px !important;
-        border-radius: 10px !important;
-        margin-bottom: 8px !important;
-        transition: 0.3s all ease;
+        padding: 14px 22px !important;
+        border-radius: 12px !important;
+        margin-bottom: 10px !important;
+        font-weight: 500;
+        transition: 0.4s all cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    /* Active & Hover: Gara halluu Warqeetti (Gold) jijjiirama */
+    /* Active & Hover State: Halluu Magariisa ifu (Neon Emerald) */
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        background: #d4af37 !important;
-        color: #0a261a !important;
-        transform: scale(1.02);
+        background: #00ffa2 !important;
+        color: #062c1a !important;
+        transform: translateX(10px);
+        font-weight: 700;
+        box-shadow: 0 4px 15px rgba(0, 255, 162, 0.3);
     }
 
-    /* 4. Dashboard Cards: Bifa Galmee (Document Card) */
+    /* 4. Dashboard Cards: Professional Green Accent */
     div[data-testid="stMetricWidget"], .metric-card {
         background: #ffffff !important;
-        border-radius: 15px !important;
-        padding: 25px !important;
-        border-left: 10px solid #143d2c !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
-        transition: 0.4s;
+        border-radius: 20px !important;
+        padding: 30px !important;
+        border-top: 6px solid #0d4d32 !important;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.04) !important;
+        transition: 0.4s ease;
     }
 
     div[data-testid="stMetricWidget"]:hover {
-        box-shadow: 0 10px 25px rgba(20, 61, 44, 0.1) !important;
-        border-left: 10px solid #d4af37 !important;
+        transform: translateY(-8px);
+        border-top: 6px solid #00ffa2 !important;
+        box-shadow: 0 15px 35px rgba(13, 77, 50, 0.1) !important;
     }
 
-    /* 5. Buttons: Halluu Pirofeeshinaala */
+    /* 5. Buttons: Gradient Magariisa Ammayyaa */
     .stButton>button {
-        background: #143d2c !important;
-        color: #d4af37 !important;
-        border: 2px solid #d4af37 !important;
-        border-radius: 8px !important;
+        background: linear-gradient(135deg, #0d4d32 0%, #1a8a5a 100%) !important;
+        color: #ffffff !important;
+        border-radius: 12px !important;
+        border: none !important;
         font-weight: 700 !important;
-        text-transform: uppercase;
-        padding: 10px 25px !important;
+        padding: 12px 30px !important;
+        box-shadow: 0 4px 12px rgba(13, 77, 50, 0.2) !important;
+        transition: 0.3s;
     }
 
     .stButton>button:hover {
-        background: #d4af37 !important;
-        color: #143d2c !important;
+        background: linear-gradient(135deg, #00ffa2 0%, #0d4d32 100%) !important;
+        color: #062c1a !important;
+        box-shadow: 0 6px 20px rgba(0, 255, 162, 0.4) !important;
     }
 
-    /* Header Styling */
+    /* Header & Titles */
     h1, h2, h3 {
-        color: #143d2c !important;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #0d4d32 !important;
+        font-weight: 800 !important;
+    }
+    
+    /* Input Fields Border Focus */
+    .stTextInput input:focus {
+        border-color: #00ffa2 !important;
+        box-shadow: 0 0 0 2px rgba(0, 255, 162, 0.2) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -233,6 +244,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
