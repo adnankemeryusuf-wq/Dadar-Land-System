@@ -11,98 +11,91 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS: Emerald Glassmorphism & Center Glow (Full Harmony)
+# Final Update: Emerald Glassmorphism with Animated Glow
 st.markdown("""
     <style>
-    /* 1. Background: Wiirtuu Magariisa ifu (Center Glow) */
+    /* 1. Background: Wiirtuu Magariisa ifu (Deep Glow) */
     .stApp {
         background: radial-gradient(circle at 50% 50%, #10b981 0%, #064e3b 45%, #020617 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: Midnight Forest Glass biifa Magariisaa qabu */
+    /* 2. Sidebar: Midnight Glass biifa Magariisaa qabu */
     [data-testid="stSidebar"] {
-        background-color: rgba(2, 6, 23, 0.95) !important;
+        background-color: rgba(2, 6, 23, 0.98) !important;
         border-right: 2px solid #34d399 !important;
-        box-shadow: 10px 0 30px rgba(52, 211, 153, 0.1);
     }
 
-    /* 3. Sidebar Selection (Bita): Halluu Magariisa Jiddu-galeessaa */
+    /* 3. Sidebar Radio Select: Bakka filannoo caalaatti ifu godhame */
     div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(16, 185, 129, 0.1) !important;
+        background: rgba(16, 185, 129, 0.15) !important;
         color: #34d399 !important;
         border-radius: 12px !important;
-        border: 1px solid rgba(52, 211, 153, 0.3) !important;
-        padding: 12px 20px !important;
-        margin-bottom: 10px !important;
-        transition: 0.4s ease;
+        border: 1px solid rgba(52, 211, 153, 0.4) !important;
+        padding: 14px 22px !important;
+        margin-bottom: 12px !important;
+        font-size: 16px !important;
+        transition: 0.4s all ease-in-out;
     }
+    
+    /* Filannoo yoo irra qabdu - Transform & Shine */
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        background: #10b981 !important;
+        background: linear-gradient(90deg, #10b981, #064e3b) !important;
         color: #ffffff !important;
-        box-shadow: 0 0 15px #10b981;
+        transform: scale(1.05) translateX(8px);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
     }
 
-    /* 4. Dashboard Cards: Glassmorphism Effect (Calaqqee Daawwitii) */
-    div[data-testid="stMetricWidget"], .metric-card {
+    /* 4. Dashboard Cards: Glassmorphism with Pulse Effect */
+    div[data-testid="stMetricWidget"] {
         background: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(15px) !important;
-        -webkit-backdrop-filter: blur(15px);
+        backdrop-filter: blur(20px);
         border-radius: 24px !important;
-        padding: 25px !important;
         border: 1px solid rgba(52, 211, 153, 0.3) !important;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
-        transition: all 0.4s ease;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6) !important;
+        transition: 0.5s ease;
     }
     
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-10px);
-        background: rgba(16, 185, 129, 0.1) !important;
-        border: 1px solid #34d399 !important;
-        box-shadow: 0 15px 45px rgba(16, 185, 129, 0.2) !important;
+        border-color: #10b981 !important;
+        transform: translateY(-8px);
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.3) !important;
     }
 
-    /* 5. Metrics Value: Neon Emerald Glow */
-    [data-testid="stMetricValue"] {
-        color: #34d399 !important;
-        text-shadow: 0 0 15px rgba(52, 211, 153, 0.8);
-        font-weight: 900 !important;
-        font-size: 3.2rem !important;
+    /* 5. Gabatee (Table) Style: Halluu Emerald wal-simu */
+    .stDataFrame, [data-testid="stTable"] {
+        background-color: rgba(0, 0, 0, 0.3) !important;
+        border-radius: 15px !important;
+        border: 1px solid rgba(52, 211, 153, 0.2) !important;
     }
 
-    /* 6. Buttons: Animated Emerald Gradient */
+    /* 6. Buttons: Animated Emerald Pulse */
     .stButton>button {
         background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
         color: white !important;
         border-radius: 50px !important;
+        font-weight: 800 !important;
+        padding: 12px 35px !important;
         border: none !important;
-        padding: 12px 30px !important;
-        font-weight: 700 !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: 0.3s all ease;
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4) !important;
+        transition: 0.4s;
     }
     .stButton>button:hover {
-        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
-        transform: scale(1.05);
+        box-shadow: 0 0 40px rgba(16, 185, 129, 0.8) !important;
+        transform: scale(1.08);
     }
 
-    /* 7. Input Fields: Refined Dark Glass */
+    /* 7. Input Fields: Dark Crystal Style */
     .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.3) !important;
+        background-color: rgba(0, 0, 0, 0.4) !important;
         color: #ffffff !important;
-        border: 1px solid rgba(52, 211, 153, 0.3) !important;
-        border-radius: 12px !important;
-    }
-    .stTextInput input:focus {
-        border-color: #10b981 !important;
-        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important;
+        border: 1px solid rgba(52, 211, 153, 0.4) !important;
+        padding: 12px !important;
     }
     
-    /* 8. Headings: White Clarity */
+    /* 8. Headings & Labels */
     h1, h2, h3 {
-        color: #ffffff !important;
-        font-weight: 800 !important;
+        text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -257,6 +250,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
