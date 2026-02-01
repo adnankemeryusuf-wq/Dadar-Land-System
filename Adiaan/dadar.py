@@ -190,9 +190,10 @@ else:
             df.to_excel(wr, index=False)
         st.download_button("📥 Gabaasa (Excel) Buufadhu", buf.getvalue(), "Gabaasa_Dadar.xlsx")
 
-    elif menu == "🚪 Ba'i":
+    elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
