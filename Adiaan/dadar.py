@@ -19,7 +19,7 @@ st.markdown("""
     
     /* Sidebar Premium Style */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #00a86b0%, #1a2a23 100%) !important;
+        background: linear-gradient(180deg, #00a99b0%, #1a2a23 100%) !important;
         border-right: 1px solid rgba(255,255,255,0.1);
     }
     [data-testid="stSidebar"] * { color: #ffffff !important; }
@@ -235,6 +235,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
