@@ -128,14 +128,39 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.write(8, f"Maqaa Itti Gaafatamaa: {data['head_name']}\nMallattoo: _________________")
     return pdf.output(dest='S').encode('latin-1')
 
-def create_pdf_cert(name, count, rank):
+def create_pdf_cert(name, count, rank, logo_l, logo_r):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
+    
+    # Border (Qafee) sartiifikeetaa
     pdf.set_draw_color(16, 185, 129); pdf.set_line_width(5); pdf.rect(10, 10, 277, 190)
+    pdf.set_draw_color(0, 0, 0); pdf.set_line_width(0.5); pdf.rect(12, 12, 273, 186)
+
+    # Logo Management (Bitaa fi Mirga)
+    if logo_l:
+        ext_l = logo_l.name.split('.')[-1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_l}") as tmp:
+            tmp.write(logo_l.getbuffer())
+            pdf.image(tmp.name, 20, 18, 25)
+        os.unlink(tmp.name)
+        
+    if logo_r:
+        ext_r = logo_r.name.split('.')[-1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_r}") as tmp:
+            tmp.write(logo_r.getbuffer())
+            pdf.image(tmp.name, 252, 18, 25)
+        os.unlink(tmp.name)
+
+    # Barreeffama Sartiifikeetaa
     pdf.set_y(60); pdf.set_font("Arial", 'B', 30)
     pdf.cell(0, 20, "SARTIIFIIKEETA BADHAASAA", ln=True, align='C')
     pdf.set_font("Arial", 'B', 35); pdf.cell(0, 30, name.upper(), ln=True, align='C')
     pdf.set_font("Arial", '', 18); pdf.cell(0, 10, f"Dhimma {count} milkiin raawwachuun sadarkaa {rank}ffaa argataniif.", ln=True, align='C')
+    
+    # Mallattoo Itti Gaafatamaa
+    pdf.set_y(160); pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, "Mallattoo Itti Gaafatamaa: ___________________", ln=True, align='C')
+    
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP LOGIC =================
@@ -245,15 +270,27 @@ else:
             requests.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendDocument", data={'chat_id': CHAT_ID_MANAGER}, files={'document': ("Gabaasa.xlsx", buf.getvalue())})
             st.success("Gabaasni hoggansatti ergameera!")
 
-    elif menu == "🏆 Badhaasa":
+  elif menu == "🏆 Badhaasa":
         st.header("🏆 Badhaasa Ogeeyyii")
+        
+        # Logo uploaders badhaasaaf
+        up_c1, up_c2 = st.columns(2)
+        cert_logo_l = up_c1.file_uploader("Logo Bitaa Sartiifikeetaa", type=['png', 'jpg', 'jpeg'], key="cert_l")
+        cert_logo_r = up_c2.file_uploader("Logo Mirgaa Sartiifikeetaa", type=['png', 'jpg', 'jpeg'], key="cert_r")
+        
         if not df.empty:
             stats = df['Maqaa_Ogeessa'].value_counts()
             for i, (name, count) in enumerate(stats.head(3).items()):
+                st.divider()
                 st.write(f"Sadarkaa {i+1}: **{name}** ({count} Dhimma)")
-                if st.button(f"Sartiifikeeta {name}"):
-                    st.download_button("📥 Buufadhu", create_pdf_cert(name, count, i+1), f"Cert_{name}.pdf")
-
+                # Logo-n akka itti dabalamu create_pdf_cert keessatti ergaa jira
+                st.download_button(
+                    label=f"📥 Sartiifikeeta {name} Buufadhu", 
+                    data=create_pdf_cert(name, count, i+1, cert_logo_l, cert_logo_r), 
+                    file_name=f"Cert_{name}.pdf",
+                    key=f"btn_{name}"
+                )
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
