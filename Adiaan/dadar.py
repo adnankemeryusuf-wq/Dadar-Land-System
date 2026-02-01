@@ -5,55 +5,81 @@ import io
 from datetime import datetime
 from fpdf import FPDF
 
-# ================= 1. PREMIUM STYLE & COLORS =================
+# ================= 1. CONFIGURATION & STYLE =================
 LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Professional Emerald & Glassmorphism Look
+# Custom CSS for Professional Emerald Glassmorphism
 st.markdown("""
     <style>
+    /* Background & Font */
     .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
     
-    /* Sidebar Style */
+    /* Sidebar Premium Style */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0d1a14 0%, #1a2a23 100%) !important;
+        border-right: 1px solid rgba(255,255,255,0.1);
     }
-    
-    /* Logo styling */
+    [data-testid="stSidebar"] * { color: #ffffff !important; }
+
+    /* Centering Logo globally */
+    .logo-container {
+        display: flex;
+        justify-content: center;
+        padding: 10px;
+    }
     .logo-img {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
         border-radius: 50%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         background: white;
         padding: 5px;
     }
 
-    /* Glassmorphism Cards */
+    /* Glassmorphism Metric Cards */
     .metric-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(10px);
+        background: rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         padding: 30px;
-        border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        border-radius: 25px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
         text-align: center;
+        transition: 0.3s ease;
     }
-    
+    .metric-card:hover {
+        transform: translateY(-5px);
+        border: 1px solid #00a86b;
+    }
     .metric-val { 
-        color: #00a86b;
-        font-size: 38px; 
-        font-weight: 900; 
+        color: #00a86b; 
+        font-size: 36px; 
+        font-weight: 800; 
+        margin: 0;
+    }
+    .metric-label { 
+        color: #444; 
+        font-size: 14px; 
+        font-weight: 600; 
+        text-transform: uppercase;
+        margin-bottom: 10px;
     }
 
+    /* Premium Buttons */
     .stButton>button {
         background: linear-gradient(135deg, #00a86b 0%, #007d51 100%);
         color: white !important;
-        border-radius: 15px;
+        border-radius: 12px;
+        border: none;
+        padding: 10px 25px;
         font-weight: 700;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        filter: brightness(1.2);
+        transform: scale(1.02);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -68,63 +94,64 @@ def load_data():
     df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0)
     return df
 
-# ================= 3. MAIN APP =================
+# ================= 3. MAIN APP LOGIC =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
+# --- LOGIN PAGE ---
 if not st.session_state.logged_in:
-    # --- 1. LOGO ON LOGIN PAGE ---
-    _, col, _ = st.columns([1, 1, 1])
+    _, col, _ = st.columns([1, 1.2, 1])
     with col:
         st.markdown("<br><br>", unsafe_allow_html=True)
+        # 1. LOGO ON LOGIN
         if os.path.exists(LOGO_PATH):
             st.image(LOGO_PATH, width=150)
         
-        st.markdown("""
-            <div style='background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 5px solid #00a86b;'>
-                <h2 style='text-align: center; color: #1a2a23;'>Seenaa (Login)</h2>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.button("SEENI", use_container_width=True):
-            if u == "admin" and p == "123":
-                st.session_state.logged_in = True
-                st.rerun()
-            else:
-                st.error("Dogoggora!")
+        with st.form("login_form"):
+            st.markdown("<h2 style='text-align: center;'>Admin Login</h2>", unsafe_allow_html=True)
+            u = st.text_input("Username")
+            p = st.text_input("Password", type="password")
+            if st.form_submit_button("SEENI", use_container_width=True):
+                if u == "admin" and p == "123":
+                    st.session_state.logged_in = True
+                    st.rerun()
+                else:
+                    st.error("Ragaan galchaa sirrii miti!")
 
+# --- AUTHENTICATED APP ---
 else:
     df = load_data()
     
-    # --- 2. LOGO ON SIDEBAR ---
+    # 2. LOGO ON SIDEBAR
     with st.sidebar:
         if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=120)
-        st.markdown("<h3 style='text-align: center; color: white;'>Waajjira Lafaa</h3>", unsafe_allow_html=True)
+            st.image(LOGO_PATH, width=100)
+        st.markdown("<h3 style='text-align:center;'>WAJJIRA LAFAA</h3>", unsafe_allow_html=True)
         st.markdown("---")
         menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📈 Gabaasa Galii", "🚪 Ba'i"])
 
     if menu == "📊 Dashboard":
-        # --- 3. LOGO ON DASHBOARD TOP ---
-        c1, c2 = st.columns([0.15, 0.85])
-        with c1:
+        # 3. LOGO ON DASHBOARD HEADER
+        head_l, head_r = st.columns([0.1, 0.9])
+        with head_l:
             if os.path.exists(LOGO_PATH):
-                st.image(LOGO_PATH, width=80)
-        with c2:
-            st.markdown("<h1 style='color: #1a2a65;'>Dadar Land Admin Analytics</h1>", unsafe_allow_html=True)
+                st.image(LOGO_PATH, width=70)
+        with head_r:
+            st.title("Dadar Land Analytics Overview")
         
         st.markdown("---")
+        
         if not df.empty:
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.markdown(f"<div class='metric-card'><p class='metric-label'>Galii Waliigalaa</p><p class='metric-val'>{df['Kafaltii_Taj'].sum():,.2f} ETB</p></div>", unsafe_allow_html=True)
-            with col2:
-                st.markdown(f"<div class='metric-card'><p class='metric-label'>Tajaajilamtoota</p><p class='metric-val'>{len(df)}</p></div>", unsafe_allow_html=True)
-            with col3:
-                st.markdown(f"<div class='metric-card'><p class='metric-label'>Ogeeyyii</p><p class='metric-val'>{df['Maqaa_Ogeessa'].nunique()}</p></div>", unsafe_allow_html=True)
+            c1, c2, c3 = st.columns(3)
+            with c1:
+                st.markdown(f"<div class='metric-card'><div class='metric-label'>Galii Waliigalaa</div><div class='metric-val'>{df['Kafaltii_Taj'].sum():,.2f}</div><p>ETB</p></div>", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"<div class='metric-card'><div class='metric-label'>Tajaajilamtoota</div><div class='metric-val'>{len(df)}</div><p>Total Customers</p></div>", unsafe_allow_html=True)
+            with c3:
+                st.markdown(f"<div class='metric-card'><div class='metric-label'>Ogeeyyii</div><div class='metric-val'>{df['Maqaa_Ogeessa'].nunique()}</div><p>Active Staff</p></div>", unsafe_allow_html=True)
         else:
-            st.info("Data'n hin jiru.")
+            st.info("Hanga ammaatti data'n galmaa'e hin jiru.")
+
+    # ... (Rest of your sections: Galmee Tajaajilaa & Gabaasa Galii)
 
     # ... (Koodiin biroo itti fufa)
     elif menu == "📝 Galmee Tajaajilaa":
@@ -208,6 +235,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
