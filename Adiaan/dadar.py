@@ -11,65 +11,65 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Professional & Vibrant Glassmorphism
+# Custom CSS for Light Premium & Professional UI
 st.markdown("""
     <style>
-    /* 1. Background Appii: Soft Mesh Gradient bareedaa */
+    /* 1. Background Appii: Soft Mesh Gradient */
     .stApp {
-        background-color: #e5e5f7;
-        background-image: radial-gradient(#00a86b22 2px, transparent 2px), 
-                          radial-gradient(#00a86b22 2px, #f8f9fa 2px);
-        background-size: 80px 80px;
-        background-position: 0 0, 40px 40px;
+        background-color: #f8f9fa;
+        background-image: radial-gradient(#00a86b11 2px, transparent 2px), 
+                          radial-gradient(#00a86b11 2px, #f8f9fa 2px);
+        background-size: 60px 60px;
     }
     
-    /* 2. Sidebar: Halluu ifaa'Premium' */
+    /* 2. Sidebar: Halluu Ifaa (Light Glass) fi Qulqulluu */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #051c12 0%, #0a261a 100%) !important;
-        border-right: 2px solid #00ffa2;
-        box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+        background: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(15px);
+        border-right: 1px solid rgba(0, 168, 107, 0.2);
     }
     
-    /* 3. Menu Sidebar: Akka Saanduqa Calaqqisuu (Glass Cards) */
+    /* 3. Barreeffama Sidebar (Menu Text) */
+    [data-testid="stSidebarUserContent"] * {
+        color: #1a2a23 !important;
+        font-weight: 500;
+    }
+
+    /* 4. Active Menu Highlight - Filannoo Irra Jirtu */
     div[data-testid="stSidebarUserContent"] .stRadio > div {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(0, 168, 107, 0.05);
+        border-radius: 15px;
+        border: 1px solid rgba(0, 168, 107, 0.1);
+        padding: 10px;
     }
 
-    /* 4. Glassmorphism Cards: Dashboard irratti */
+    /* 5. Metric Cards: Bifa "White Glass" miidhagaa */
     div[data-testid="stMetricWidget"], .metric-card {
-        background: rgba(255, 255, 255, 0.85) !important;
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-radius: 25px !important;
-        border: 1px solid rgba(209, 213, 219, 0.3) !important;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08) !important;
+        background: white !important;
+        border-radius: 20px !important;
+        box-shadow: 0 10px 30px rgba(0, 168, 107, 0.05) !important;
+        border: 1px solid #f0f0f0 !important;
+    }
+    
+    .metric-val { 
+        color: #00a86b !important; 
+        font-weight: 800;
     }
 
-    /* 5. Buttons: Halluu 'Neon Emerald' wal-maku */
+    /* 6. Buttons: Emerald Professional Gradient */
     .stButton>button {
-        background: linear-gradient(135deg, #00ffa2 0%, #00a86b 100%) !important;
-        color: #051c12 !important; /* Barreeffama dukkanaa'aa ijaaf tolu */
-        border-radius: 15px !important;
+        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%) !important;
+        color: white !important;
+        border-radius: 12px !important;
         border: none !important;
-        font-weight: 800 !important;
-        box-shadow: 0 8px 20px rgba(0, 255, 162, 0.3) !important;
-        transition: 0.4s all ease;
+        padding: 0.5rem 2rem !important;
+        font-weight: 600 !important;
+        transition: 0.3s ease all;
     }
     
     .stButton>button:hover {
-        transform: translateY(-3px) scale(1.03);
-        box-shadow: 0 12px 25px rgba(0, 255, 162, 0.5) !important;
-        filter: brightness(1.1);
-    }
-
-    /* Input Fields bareechu */
-    .stTextInput input {
-        border-radius: 12px !important;
-        border: 1px solid #00a86b33 !important;
+        box-shadow: 0 8px 20px rgba(0, 168, 107, 0.3) !important;
+        transform: translateY(-2px);
     }
     </style>
     """, unsafe_allow_html=True)
@@ -224,6 +224,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
