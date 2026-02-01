@@ -11,25 +11,33 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for High-Visibility & Professional Glow
+# Custom CSS for High-Visibility with Animated Crystal Background
 st.markdown("""
     <style>
-    /* 1. Background: Crystal Clear Mint */
+    /* 1. Background: Dynamic Animated Mint & Emerald Glow */
     .stApp {
-        background: radial-gradient(circle at top right, #e8f5e9, #ffffff 100%);
+        background: linear-gradient(-45deg, #e8f5e9, #ffffff, #f1f8e9, #e0f2f1);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+    }
+    
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
     }
     
     /* 2. Sidebar: Deep Midnight Forest with Neon Stroke */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #020d08 0%, #062c1a 100%) !important;
-        border-right: 3px solid #00ffa2 !important; /* Sarara ifu kan qarqaraa */
+        border-right: 3px solid #00ffa2 !important;
         box-shadow: 15px 0 40px rgba(0, 255, 162, 0.1);
     }
 
     /* 3. Sidebar Radio Buttons: High-Contrast Glow */
     div[data-testid="stSidebarUserContent"] .stRadio label {
         background: rgba(255, 255, 255, 0.05) !important;
-        color: #ffffff !important; /* Adii qulqulluu akka dubbisamuuf */
+        color: #ffffff !important;
         border-radius: 12px !important;
         border: 1px solid rgba(0, 255, 162, 0.2) !important;
         padding: 15px 25px !important;
@@ -38,21 +46,21 @@ st.markdown("""
         transition: 0.4s all ease;
     }
 
-    /* Active/Hover State: Neon Pop */
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
         background: #00ffa2 !important;
-        color: #020d08 !important; /* Barreeffama dukkanaa'aa halluu ifa irratti */
+        color: #020d08 !important;
         transform: translateX(10px) scale(1.05);
         box-shadow: 0 0 20px rgba(0, 255, 162, 0.6) !important;
     }
 
     /* 4. Dashboard Cards: Floating Diamond Effect */
     div[data-testid="stMetricWidget"], .metric-card {
-        background: white !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(10px);
         border-radius: 25px !important;
         padding: 30px !important;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
-        border-top: 8px solid #062c1a !important; /* Sarara gubbaa furdaa */
+        border-top: 8px solid #062c1a !important;
         transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
@@ -85,7 +93,7 @@ st.markdown("""
     .stButton>button:hover {
         box-shadow: 0 0 30px rgba(0, 255, 162, 0.8) !important;
         transform: scale(1.05);
-        filter: brightness(1.2);
+        filter: brightness(1.1);
     }
 
     /* 7. Input Fields Highlighting */
@@ -250,6 +258,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
