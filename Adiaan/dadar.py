@@ -74,7 +74,34 @@ def create_receipt_pdf(data):
     return pdf.output(dest='S').encode('latin-1')
 
 def create_clearance_pdf(data, logo_l, logo_r):
-    # ... (Header fi Logo akkuma duraatti) ...
+    pdf = FPDF(orientation='P', unit='mm', format='A4')
+    pdf.add_page()
+    pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
+    pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
+
+    if logo_l:
+        ext_l = logo_l.name.split('.')[-1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_l}") as tmp:
+            tmp.write(logo_l.getbuffer())
+            pdf.image(tmp.name, 15, 18, 23)
+        os.unlink(tmp.name)
+    if logo_r:
+        ext_r = logo_r.name.split('.')[-1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_r}") as tmp:
+            tmp.write(logo_r.getbuffer())
+            pdf.image(tmp.name, 172, 18, 23)
+        os.unlink(tmp.name)
+
+    pdf.set_y(22); pdf.set_font('Times', 'B', 15)
+    pdf.cell(0, 10, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
+    pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
+    pdf.cell(0, 10, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
+    pdf.ln(3); pdf.set_line_width(0.5); pdf.line(20, 56, 190, 56)
+    
+    guyyaa_ec = get_ethiopian_date_str()
+    pdf.ln(12); pdf.set_font('Times', '', 12); pdf.set_x(20)
+    pdf.write(5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____"); pdf.set_x(140)
+    pdf.write(5, f"Guyyaa: {guyyaa_ec}"); pdf.ln(18)
     
     pdf.set_font('Times', 'B', 16); pdf.cell(0, 15, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(5)
     
@@ -83,7 +110,6 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_font('Times', 'B', 12); pdf.write(9, f"{data['maqaa'].upper()} "); pdf.set_font('Times', '', 12)
     pdf.write(9, f"Araddaa {data['araddaa']}, Qaxana {data['qaxana']} keessatti qabiyyee qaban ")
     
-    # LAKK. KAARTAA (Ammallee Bold)
     pdf.set_font('Times', 'B', 13); pdf.write(9, f"LAKK. KAARTAA {str(data['kaartaa'])} "); pdf.set_font('Times', '', 12)
     pdf.write(9, "irratti kan kennameedha.\n\n")
     
@@ -95,12 +121,17 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_font('Times', 'I', 12)
     pdf.write(9, f"Kanaafuu, dhimma {data['dhimma']} barbaadaniif ragaan kun akka tajaajiluuf ni mirkaneessina.")
     
-    # ... (Mallattoo Section) ...
+    # MALLATTOO FI MAQAA (BITAA FI MIRGA)
+    pdf.set_y(245)
+    pdf.set_font('Times', 'B', 12)
+    pdf.set_x(20); pdf.cell(90, 10, f"Maqaa: {data['head_name']}", ln=0, align='L')
+    pdf.set_x(120); pdf.cell(70, 10, "Mallattoo: _________________", ln=1, align='R')
+    
     return pdf.output(dest='S').encode('latin-1')
-def create_pdf_cert(name, count, rank, logo_l, logo_r):
+
+def create_pdf_cert(name, count, rank, logo_l, logo_r, head_name):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
-    # Border bareedaa
     pdf.set_draw_color(16, 185, 129); pdf.set_line_width(5); pdf.rect(10, 10, 277, 190)
     pdf.set_draw_color(218, 165, 32); pdf.set_line_width(1); pdf.rect(13, 13, 271, 184)
 
@@ -115,21 +146,19 @@ def create_pdf_cert(name, count, rank, logo_l, logo_r):
             tmp.write(logo_r.getbuffer()); pdf.image(tmp.name, 252, 18, 25)
         os.unlink(tmp.name)
 
-    pdf.set_y(55); pdf.set_font("Arial", 'B', 32)
-    pdf.set_text_color(16, 185, 129)
+    pdf.set_y(55); pdf.set_font("Arial", 'B', 32); pdf.set_text_color(16, 185, 129)
     pdf.cell(0, 20, "SARTIIFIIKEETA KABAJAA FI BADHAASAA", ln=True, align='C')
-    
     pdf.set_y(85); pdf.set_font("Arial", 'I', 18); pdf.set_text_color(0, 0, 0)
     pdf.cell(0, 10, "Sartiifikeetiin kun kan kennameef:", ln=True, align='C')
-    
     pdf.set_font("Arial", 'B', 40); pdf.set_text_color(184, 134, 11)
     pdf.cell(0, 25, name.upper(), ln=True, align='C')
-    
     pdf.set_font("Arial", '', 16); pdf.set_text_color(0, 0, 0)
     pdf.multi_cell(0, 10, f"Waajjira Lafaa Magaalaa Dadar keessatti tajaajila qulqulluu fi saffisa qabu maamiltootaaf kennuun,\ndhimmoota {count} milkiin xumurtanii sadarkaa {rank}ffaa waan qabattaniif galata guddaa qabna.", align='C')
     
-    pdf.set_y(165); pdf.set_font("Arial", 'B', 14)
-    pdf.cell(0, 10, "Gumaacha keessaniif galanni keessan guddaadha!", ln=True, align='C')
+    pdf.set_y(170); pdf.set_font("Arial", 'B', 12)
+    pdf.set_x(30); pdf.cell(100, 10, f"Itti Gaafatamaa: {head_name}", ln=0, align='L')
+    pdf.set_x(180); pdf.cell(80, 10, "Mallattoo: ___________________", ln=1, align='R')
+    
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 4. MAIN APP LOGIC =================
@@ -202,8 +231,8 @@ else:
     elif menu == "📜 Clearance (Ragaa)":
         st.header("📜 Waraqaa Qulqullinaa")
         up_col1, up_col2 = st.columns(2)
-        l_l = up_col1.file_uploader("Logo Bitaa (Upload)", type=['png', 'jpg', 'jpeg'], key="cl_l")
-        l_r = up_col2.file_uploader("Logo Mirgaa (Upload)", type=['png', 'jpg', 'jpeg'], key="cl_r")
+        cl_l = up_col1.file_uploader("Logo Bitaa", type=['png', 'jpg', 'jpeg'], key="cl_l")
+        cl_r = up_col2.file_uploader("Logo Mirgaa", type=['png', 'jpg', 'jpeg'], key="cl_r")
 
         with st.form("clearance"):
             c1, c2 = st.columns(2)
@@ -218,11 +247,10 @@ else:
                 'head_name': st.text_input("Maqaa Itti Gaafatamaa")
             }
             if st.form_submit_button("📄 PDF UUMI"):
-                if m['maqaa'] and m['kaartaa']:
-                    st.session_state.pdf_to_download = create_clearance_pdf(m, l_l, l_r)
+                if m['maqaa'] and m['head_name']:
+                    st.session_state.pdf_to_download = create_clearance_pdf(m, cl_l, cl_r)
                     st.session_state.pdf_name = f"Clearance_{m['maqaa']}.pdf"
                     st.rerun()
-                else: st.error("Maaloo Maqaa fi Lakk. Kaartaa guuti!")
 
         if 'pdf_to_download' in st.session_state:
             st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, st.session_state.pdf_name)
@@ -244,19 +272,20 @@ else:
         up_c1, up_c2 = st.columns(2)
         cert_logo_l = up_c1.file_uploader("Logo Bitaa Sartiifikeetaa", type=['png', 'jpg', 'jpeg'], key="cert_l")
         cert_logo_r = up_c2.file_uploader("Logo Mirgaa Sartiifikeetaa", type=['png', 'jpg', 'jpeg'], key="cert_r")
+        h_name = st.text_input("Maqaa Itti Gaafatamaa (Badhaasaaf)")
         
         if not df.empty:
             stats = df['Maqaa_Ogeessa'].value_counts()
             for i, (name, count) in enumerate(stats.head(3).items()):
                 st.divider()
                 st.write(f"Sadarkaa {i+1}: **{name}** ({count} Dhimma)")
-                st.download_button(
-                    label=f"📥 Sartiifikeeta {name} Buufadhu", 
-                    data=create_pdf_cert(name, count, i+1, cert_logo_l, cert_logo_r), 
-                    file_name=f"Cert_{name}.pdf",
-                    key=f"btn_{name}"
-                )
+                if h_name:
+                    st.download_button(
+                        label=f"📥 Sartiifikeeta {name} Buufadhu", 
+                        data=create_pdf_cert(name, count, i+1, cert_logo_l, cert_logo_r, h_name), 
+                        file_name=f"Cert_{name}.pdf",
+                        key=f"btn_{name}"
+                    )
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
-
