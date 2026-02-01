@@ -10,7 +10,7 @@ LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
-# Design Fooyya'aa: Jiddu-gala Magariisa & Deep Center Glow
+# Design Fooyya'aa: Jiddu-gala Magariisa (Sidebar Highlighted)
 st.markdown("""
     <style>
     /* 1. Background: Wiirtuu Magariisa ifu fi qarqara Dukkanaa'aa */
@@ -26,10 +26,24 @@ st.markdown("""
         box-shadow: 10px 0 30px rgba(52, 211, 153, 0.1);
     }
 
-    /* 3. Barreeffama: Silver-White High Contrast */
-    h1, h2, h3, p, label {
+    /* 3. Sidebar Radio Buttons (Gara Bitaa): Magariisa Jiddu-galeessaa ifu */
+    div[data-testid="stSidebarUserContent"] .stRadio label {
+        background: rgba(16, 185, 129, 0.1) !important; /* Magariisa lallaafaa */
+        color: #34d399 !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(52, 211, 153, 0.3) !important;
+        padding: 12px 20px !important;
+        margin-bottom: 10px !important;
+        font-weight: 600 !important;
+        transition: 0.4s all ease;
+    }
+
+    /* Filannoo yoo irra qabdu (Hover) */
+    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
+        background: #10b981 !important; /* Magariisa Jiddu-galeessaa */
         color: #ffffff !important;
-        text-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
+        transform: translateX(5px);
     }
 
     /* 4. Dashboard Cards: Emerald Glass Effect */
@@ -39,13 +53,6 @@ st.markdown("""
         border: 1px solid rgba(52, 211, 153, 0.3) !important;
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
-        transition: 0.4s;
-    }
-
-    div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-5px);
-        border-color: #34d399 !important;
-        box-shadow: 0 0 25px rgba(52, 211, 153, 0.2);
     }
 
     /* 5. Metrics: Electric Emerald Glow */
@@ -63,11 +70,7 @@ st.markdown("""
         border: none !important;
         border-radius: 50px !important;
         padding: 12px 35px !important;
-        font-weight: 800 !important;
-        text-transform: uppercase;
-        letter-spacing: 1px;
         box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4) !important;
-        transition: 0.4s;
     }
     
     .stButton>button:hover {
@@ -80,12 +83,6 @@ st.markdown("""
         background-color: rgba(0, 0, 0, 0.5) !important;
         color: #34d399 !important;
         border: 1px solid rgba(52, 211, 153, 0.3) !important;
-        border-radius: 10px;
-    }
-    
-    .stTextInput input:focus {
-        border-color: #34d399 !important;
-        box-shadow: 0 0 15px rgba(52, 211, 153, 0.4) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -240,6 +237,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
