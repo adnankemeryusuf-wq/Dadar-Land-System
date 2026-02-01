@@ -101,43 +101,26 @@ def create_receipt_pdf(data):
     for label, val in fields:
         pdf.cell(30, 8, label); pdf.set_font('Arial', ''); pdf.cell(0, 8, str(val), ln=True); pdf.set_font('Arial', 'B')
     return pdf.output(dest='S').encode('latin-1')
-# ================= 3. MAIN APP (BEAUTIFIED LOGIN) =================
+
+# ================= 3. MAIN APP =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    # Login Page Layout
-    _, col, _ = st.columns([1, 1.5, 1])
-    
-    with col:
-        st.markdown("<br><br><br>", unsafe_allow_html=True)
-        # Login Card Container
-        st.markdown("""
-            <div style='background: white; padding: 40px; border-radius: 25px; 
-                        box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 8px solid #00a86b;'>
-                <h1 style='text-align: center; color: #1a2a23; margin-bottom: 5px;'>🏢 DADAR LAND</h1>
-                <p style='text-align: center; color: #666; font-size: 14px;'>Admin Portal - Login to Continue</p>
-                <hr style='border: 0.5px solid #eee;'>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Form fields inside a clean container
-        with st.container():
-            u = st.text_input("👤 Username", placeholder="Maqaa kee galchi...")
-            p = st.text_input("🔑 Password", type="password", placeholder="Password kee galchi...")
-            
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("🚀 SEENI (LOGIN SYSTEM)", use_container_width=True):
-                if u == "admin" and p == "123":
-                    st.session_state.logged_in = True
-                    st.success("Milkiin seenteetta!")
-                    st.rerun()
-                else:
-                    st.error("Dogoggora! Username ykn Password sirrii miti.")
-        
-        st.markdown("<p style='text-align: center; color: #aaa; font-size: 12px; margin-top: 20px;'>© 2026 Dadar Land Administration System</p>", unsafe_allow_html=True)
-
+    _, col, _ = st.columns([1, 1.3, 1])
+    with col:
+        st.markdown("<br><br>", unsafe_allow_html=True)
+        st.markdown("<h1 style='text-align: center; color: #0b6623;'>🏢 DADAR LAND</h1>", unsafe_allow_html=True)
+        u = st.text_input("Username")
+        p = st.text_input("Password", type="password")
+        if st.button("LOGIN SYSTEM", use_container_width=True):
+            if u == "admin" and p == "123": st.session_state.logged_in = True; st.rerun()
+            else: st.error("Dogoggora!")
 else:
-    # ... (Rest of the code for Sidebar and Menu)
+    df = load_data()
+    with st.sidebar:
+        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
+        st.markdown("### 🛠 Navigation")
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📈 Gabaasa Galii", "🚪 Ba'i"])
 
     if menu == "📊 Dashboard":
         st.markdown("<h2 style='color: #0b6623;'>📊 Analytics Overview</h2>", unsafe_allow_html=True)
@@ -226,6 +209,7 @@ else:
 
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
