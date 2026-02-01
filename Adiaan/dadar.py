@@ -11,99 +11,97 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for High-Visibility with Animated Crystal Background
+# Custom CSS for Ultra-Modern Executive UI
 st.markdown("""
     <style>
-    /* 1. Background: Dynamic Animated Mint & Emerald Glow */
+    /* 1. Background: Minimalist Soft Gradient with Animated Aura */
     .stApp {
-        background: linear-gradient(-45deg, #e8f5e9, #ffffff, #f1f8e9, #e0f2f1);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
+        background: radial-gradient(circle at 50% 50%, #f0fdf4 0%, #ffffff 100%);
+        background-attachment: fixed;
     }
     
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    
-    /* 2. Sidebar: Deep Midnight Forest with Neon Stroke */
+    /* 2. Sidebar: High-End Midnight Glass */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #020d08 0%, #062c1a 100%) !important;
         border-right: 3px solid #00ffa2 !important;
-        box-shadow: 15px 0 40px rgba(0, 255, 162, 0.1);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.1);
     }
 
-    /* 3. Sidebar Radio Buttons: High-Contrast Glow */
+    /* 3. Sidebar Radio: Premium Pill Style */
     div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: #ffffff !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(0, 255, 162, 0.2) !important;
-        padding: 15px 25px !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        color: #e0e0e0 !important;
+        border-radius: 20px !important;
+        border: 1px solid rgba(0, 255, 162, 0.1) !important;
+        padding: 12px 25px !important;
         margin-bottom: 12px !important;
-        font-weight: 600 !important;
-        transition: 0.4s all ease;
+        font-weight: 500 !important;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
         background: #00ffa2 !important;
         color: #020d08 !important;
-        transform: translateX(10px) scale(1.05);
-        box-shadow: 0 0 20px rgba(0, 255, 162, 0.6) !important;
+        transform: scale(1.05) translateX(10px);
+        box-shadow: 0 5px 20px rgba(0, 255, 162, 0.4) !important;
     }
 
-    /* 4. Dashboard Cards: Floating Diamond Effect */
+    /* 4. Dashboard Cards: Clean Glassmorphism */
     div[data-testid="stMetricWidget"], .metric-card {
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(10px);
-        border-radius: 25px !important;
+        background: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(15px);
+        border-radius: 30px !important;
         padding: 30px !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
-        border-top: 8px solid #062c1a !important;
-        transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border-bottom: 6px solid #062c1a !important; /* Bottom accent */
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05) !important;
+        transition: 0.5s all ease;
     }
     
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-15px);
-        border-top: 8px solid #00ffa2 !important;
-        box-shadow: 0 20px 45px rgba(0, 255, 162, 0.2) !important;
+        transform: translateY(-12px);
+        border-bottom: 6px solid #00ffa2 !important;
+        box-shadow: 0 25px 50px rgba(0, 255, 162, 0.15) !important;
     }
     
-    /* 5. Halluu Lakkoofsaa (Metric Value) */
+    /* 5. Metrics Value Typography */
     [data-testid="stMetricValue"] {
-        color: #062c1a !important;
-        font-size: 3rem !important;
-        font-weight: 800 !important;
+        background: linear-gradient(90deg, #062c1a, #1a8a5a);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 900 !important;
+        font-size: 3.5rem !important;
     }
 
-    /* 6. Buttons: Ultra-Glow Emerald */
+    /* 6. Professional Buttons: Silk Emerald */
     .stButton>button {
-        background: linear-gradient(135deg, #00ffa2 0%, #00a86b 100%) !important;
-        color: #020d08 !important;
-        border-radius: 15px !important;
-        border: none !important;
-        padding: 15px 40px !important;
-        font-weight: 800 !important;
-        text-transform: uppercase;
-        box-shadow: 0 8px 20px rgba(0, 255, 162, 0.3) !important;
-        transition: 0.4s;
+        background: #062c1a !important;
+        color: #00ffa2 !important;
+        border: 1px solid #00ffa2 !important;
+        border-radius: 12px !important;
+        padding: 14px 40px !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px;
+        transition: 0.4s all;
     }
     
     .stButton>button:hover {
-        box-shadow: 0 0 30px rgba(0, 255, 162, 0.8) !important;
-        transform: scale(1.05);
-        filter: brightness(1.1);
+        background: #00ffa2 !important;
+        color: #062c1a !important;
+        box-shadow: 0 0 25px rgba(0, 255, 162, 0.5) !important;
+        transform: translateY(-3px);
     }
 
-    /* 7. Input Fields Highlighting */
-    .stTextInput input {
-        border: 2px solid #e0e0e0 !important;
-        border-radius: 12px !important;
+    /* 7. Forms & Selectboxes: Minimalist Focus */
+    .stTextInput input, .stSelectbox div {
+        border-radius: 15px !important;
+        background: white !important;
+        border: 1px solid #d1d5db !important;
     }
+    
     .stTextInput input:focus {
         border-color: #00ffa2 !important;
-        box-shadow: 0 0 10px rgba(0, 255, 162, 0.3) !important;
+        box-shadow: 0 0 0 3px rgba(0, 255, 162, 0.1) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -258,6 +256,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
