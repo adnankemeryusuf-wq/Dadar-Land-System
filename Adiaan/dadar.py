@@ -11,69 +11,69 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Final Fix: High-Clarity Emerald Glassmorphism
+# Ultra-Bright Emerald Theme
 st.markdown("""
     <style>
-    /* 1. Background: Center Glow */
+    /* 1. Background: Magariisa Ifaa (Bright Emerald) */
     .stApp {
-        background: radial-gradient(circle at 50% 50%, #064e3b 0%, #020617 100%);
+        background: radial-gradient(circle at 50% 50%, #10b981 0%, #059669 60%, #064e3b 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Global Text Color: Barreeffama Hunda Qulqulleessi */
-    .stApp, .stMarkdown, p, h1, h2, h3, h4, h5, h6, label, span {
+    /* 2. Global Text: Barreeffama hunda ifatti baasi */
+    .stApp, .stMarkdown, p, h1, h2, h3, label, span {
         color: #ffffff !important;
-        text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.9) !important;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5) !important; /* Dubbisuuf akka gargaaru */
+        font-weight: 600 !important;
     }
 
-    /* 3. Sidebar Clarity */
+    /* 3. Sidebar: Magariisa Dukkanaa'aa Glass Style */
     [data-testid="stSidebar"] {
-        background-color: #01040a !important;
-        border-right: 2px solid #10b981 !important;
-    }
-    [data-testid="stSidebarContent"] * {
-        color: #ffffff !important;
+        background-color: rgba(1, 20, 15, 0.9) !important;
+        border-right: 3px solid #ffffff !important;
     }
 
-    /* 4. Sidebar Radio Buttons: Barreeffamni akka mul'atu */
+    /* 4. Sidebar Radio: Bakka filannoo ifaa godhi */
     div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(16, 185, 129, 0.2) !important;
-        color: #ffffff !important; /* Barreeffama adii godhi */
-        border: 1px solid #10b981 !important;
-        padding: 12px !important;
-        font-weight: bold !important;
-        display: block;
+        background: #ffffff !important; /* Barreeffama duubatti adii godhi */
+        color: #064e3b !important; /* Barreeffama magariisa godhi */
+        border-radius: 10px !important;
+        padding: 10px 20px !important;
+        margin-bottom: 8px !important;
+        font-weight: 800 !important;
     }
 
-    /* 5. Metrics & Cards: Barreeffama gurguddaa godhi */
+    /* 5. Metrics: High Contrast */
     div[data-testid="stMetricWidget"] {
-        background: rgba(255, 255, 255, 0.08) !important;
+        background: rgba(255, 255, 255, 0.2) !important;
         backdrop-filter: blur(10px);
-        border: 1px solid rgba(16, 185, 129, 0.5) !important;
+        border: 2px solid #ffffff !important;
         border-radius: 20px;
     }
     [data-testid="stMetricValue"] {
-        color: #10b981 !important;
-        font-size: 3rem !important;
-        font-weight: 900 !important;
-    }
-    [data-testid="stMetricLabel"] {
         color: #ffffff !important;
-        font-weight: 700 !important;
+        text-shadow: 2px 2px 10px rgba(0,0,0,0.3) !important;
     }
 
-    /* 6. Input Fields: Barreeffama keessatti barreeffamu qulqulleessi */
+    /* 6. Input Fields: Bakka barreeffamaa */
     input {
-        color: #ffffff !important;
-        background-color: rgba(0, 0, 0, 0.6) !important;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+        border-radius: 8px !important;
     }
 
-    /* 7. Buttons: High Visibility */
+    /* 7. Buttons: Professional Dark Green */
     .stButton>button {
-        background: #10b981 !important;
-        color: #000000 !important;
-        font-weight: 900 !important;
-        border-radius: 10px;
+        background: #064e3b !important;
+        color: #ffffff !important;
+        border: 2px solid #ffffff !important;
+        border-radius: 12px !important;
+        font-weight: 800 !important;
+        width: 100%;
+    }
+    .stButton>button:hover {
+        background: #ffffff !important;
+        color: #064e3b !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -228,6 +228,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
