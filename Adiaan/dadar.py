@@ -11,81 +11,93 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Jiddu-galeessa Premium & Professional UI
+# Custom CSS for Modern, Attractive & Professional UI
 st.markdown("""
     <style>
-    /* 1. Background Appii: Soft Mesh Gradient */
+    /* 1. Background: Mesh Gradient softer look */
     .stApp {
-        background-color: #f8f9fa;
-        background-image: radial-gradient(#00a86b11 2px, transparent 2px), 
-                          radial-gradient(#00a86b11 2px, #f8f9fa 2px);
-        background-size: 60px 60px;
+        background-color: #f8fbf9;
+        background-image: radial-gradient(#00a86b08 2px, transparent 2px), 
+                          radial-gradient(#00a86b08 2px, #f8fbf9 2px);
+        background-size: 40px 40px;
     }
     
-    /* 2. Sidebar: Light Glass Look */
+    /* 2. Sidebar: Premium Glass with Emerald Border */
     [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(15px);
-        border-right: 1px solid rgba(0, 168, 107, 0.1);
+        background: rgba(255, 255, 255, 0.95) !important;
+        backdrop-filter: blur(10px);
+        border-right: 3px solid #00a86b;
+        box-shadow: 4px 0 15px rgba(0,0,0,0.05);
     }
     
-    /* 3. Sidebar Text & Icons */
-    [data-testid="stSidebarUserContent"] * {
-        color: #2c3e50 !important;
-        font-weight: 500;
-    }
-
-    /* 4. Active Menu Highlight */
+    /* 3. Sidebar Radio Buttons: Pill Style */
     div[data-testid="stSidebarUserContent"] .stRadio > div {
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-        padding: 15px;
-        border: 1px solid #eee;
+        background: #f1f3f4;
+        border-radius: 20px;
+        padding: 10px;
+        border: 1px solid #e0e0e0;
+    }
+    
+    /* Active Menu Text Color */
+    .stRadio label {
+        color: #1a2a23 !important;
+        font-size: 16px !important;
+        transition: 0.3s;
     }
 
-    /* 5. Professional Metric Cards */
+    /* 4. Dashboard Cards: Floating Glass Effect */
     div[data-testid="stMetricWidget"], .metric-card {
         background: white !important;
-        border-radius: 16px !important;
-        padding: 20px !important;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02) !important;
-        border: 1px solid #f1f3f5 !important;
-        transition: 0.3s;
+        border-radius: 24px !important;
+        padding: 25px !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05) !important;
+        border-bottom: 6px solid #00a86b !important; /* Emerald bottom line */
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     div[data-testid="stMetricWidget"]:hover {
-        border-color: #00a86b !important;
-        transform: translateY(-3px);
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 168, 107, 0.15) !important;
+        border-bottom: 6px solid #d4af37 !important; /* Changes to Gold on hover */
     }
     
     .metric-val { 
-        color: #00a86b !important; 
-        font-weight: 800;
-        font-size: 2rem;
+        background: linear-gradient(45deg, #00a86b, #004d32);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 900 !important;
     }
 
-    /* 6. Professional Emerald Buttons */
+    /* 5. Buttons: High-Gloss Emerald Gradient */
     .stButton>button {
-        background: linear-gradient(135deg, #00a86b 0%, #00895a 100%) !important;
+        background: linear-gradient(135deg, #00a86b 0%, #004d32 100%) !important;
         color: white !important;
-        border-radius: 10px !important;
+        border-radius: 50px !important; /* Rounded pill button */
         border: none !important;
-        padding: 0.6rem 2.5rem !important;
+        padding: 12px 35px !important;
         font-weight: 700 !important;
-        letter-spacing: 0.5px;
-        transition: 0.3s ease all;
+        text-transform: uppercase;
+        letter-spacing: 1.2px;
+        box-shadow: 0 8px 20px rgba(0, 168, 107, 0.3) !important;
+        transition: 0.4s ease;
     }
     
     .stButton>button:hover {
-        box-shadow: 0 10px 20px rgba(0, 168, 107, 0.2) !important;
-        filter: brightness(1.1);
+        background: linear-gradient(135deg, #d4af37 0%, #aa8a2e 100%) !important; /* Gold hover */
+        box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4) !important;
+        transform: scale(1.05);
     }
 
-    /* Form and Input Refinement */
+    /* 6. Form Inputs: Soft Focus */
     .stTextInput input {
-        border-radius: 8px !important;
-        border-color: #e9ecef !important;
+        border-radius: 15px !important;
+        border: 2px solid #eee !important;
+        padding: 12px !important;
+        transition: 0.3s;
+    }
+    .stTextInput input:focus {
+        border-color: #00a86b !important;
+        box-shadow: 0 0 10px rgba(0, 168, 107, 0.1) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -240,6 +252,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
