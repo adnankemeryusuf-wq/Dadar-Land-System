@@ -11,98 +11,101 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Ultra-Attractive & Polished UI
+# Custom CSS for Dark Executive UI with Glowing Text
 st.markdown("""
     <style>
-    /* 1. Background: Halluu lallaafaa calaqqisu (Aura Effect) */
+    /* 1. Background Waliigalaa: Dark Modern Canvas */
     .stApp {
-        background: radial-gradient(circle at 20% 20%, #f0fdf4 0%, #ffffff 50%, #f9fafb 100%);
+        background: linear-gradient(135deg, #050a09 0%, #0a1412 50%, #020504 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: Halluu Dukkanaa'aa fi Neon-iin kan bareede */
+    /* 2. Sidebar: High-Contrast Dark Glass */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0f1a1a 0%, #062c1a 100%) !important;
+        background: rgba(0, 0, 0, 0.8) !important;
+        backdrop-filter: blur(20px);
         border-right: 2px solid #00ffa2 !important;
-        box-shadow: 10px 0 30px rgba(0, 255, 162, 0.05);
     }
 
-    /* 3. Sidebar Radio: Bifa Kaappisuulii (Modern Capsules) */
+    /* 3. Barreeffama Sidebar: Neon Silver */
     div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: #cfd8dc !important;
-        border-radius: 15px !important;
+        background: rgba(255, 255, 255, 0.03) !important;
+        color: #b0bec5 !important;
+        border-radius: 12px !important;
         border: 1px solid rgba(0, 255, 162, 0.1) !important;
         padding: 12px 20px !important;
-        margin-bottom: 12px !important;
-        transition: 0.4s all cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        margin-bottom: 10px !important;
+        transition: 0.4s all;
     }
 
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        background: linear-gradient(90deg, #00ffa2, #00d18b) !important;
-        color: #062c1a !important;
-        transform: scale(1.03) translateX(10px);
-        font-weight: 700;
-        box-shadow: 0 5px 15px rgba(0, 255, 162, 0.3);
+        background: #00ffa2 !important;
+        color: #000000 !important;
+        box-shadow: 0 0 20px rgba(0, 255, 162, 0.4);
+        font-weight: bold;
     }
 
-    /* 4. Metric Cards: 3D Glossy Finish */
+    /* 4. Dashboard Cards: Dark Glossy Elevation */
     div[data-testid="stMetricWidget"], .metric-card {
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(20px);
-        border-radius: 25px !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(25px);
+        border-radius: 20px !important;
         padding: 25px !important;
-        border: 1px solid rgba(255, 255, 255, 0.5) !important;
-        border-left: 8px solid #062c1a !important; 
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03) !important;
-        transition: 0.5s ease;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-top: 5px solid #00ffa2 !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5) !important;
+        transition: 0.4s ease;
     }
     
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-10px) rotate(1deg);
-        border-left: 8px solid #00ffa2 !important;
-        box-shadow: 0 20px 40px rgba(0, 255, 162, 0.1) !important;
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 20px 50px rgba(0, 255, 162, 0.2) !important;
     }
     
-    /* 5. Metrics Value Gradient */
+    /* 5. Barreeffama Calaqqisu (Glowing Metric Value) */
     [data-testid="stMetricValue"] {
-        background: linear-gradient(135deg, #062c1a, #00ffa2);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #00ffa2 !important;
+        text-shadow: 0 0 15px rgba(0, 255, 162, 0.8);
         font-weight: 900 !important;
-        font-size: 3.2rem !important;
+        font-size: 3.5rem !important;
     }
 
-    /* 6. Professional Buttons: Modern Glow */
+    /* 6. Buttons: Ultra-Glow Emerald */
     .stButton>button {
-        background: linear-gradient(135deg, #062c1a 0%, #0a3d2e 100%) !important;
+        background: transparent !important;
         color: #00ffa2 !important;
         border: 2px solid #00ffa2 !important;
-        border-radius: 50px !important; /* Fully rounded buttons */
-        padding: 12px 35px !important;
+        border-radius: 50px !important;
+        padding: 10px 30px !important;
         font-weight: 700 !important;
         text-transform: uppercase;
-        letter-spacing: 1.5px;
         transition: 0.4s all;
     }
     
     .stButton>button:hover {
         background: #00ffa2 !important;
-        color: #062c1a !important;
-        box-shadow: 0 0 30px rgba(0, 255, 162, 0.4) !important;
-        transform: scale(1.05);
+        color: #000000 !important;
+        box-shadow: 0 0 30px rgba(0, 255, 162, 0.6) !important;
     }
 
-    /* 7. Forms & Text Inputs */
+    /* 7. Barreeffama Waliigalaa (Global Text Color) */
+    h1, h2, h3, p, label {
+        color: #e0f2f1 !important;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    /* 8. Inputs: Dark Stealth Style */
     .stTextInput input {
-        border-radius: 12px !important;
-        border: 2px solid #e0e6ed !important;
-        padding: 12px !important;
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        color: white !important;
+        border: 1px solid #1a3a34 !important;
+        border-radius: 10px !important;
     }
     
     .stTextInput input:focus {
         border-color: #00ffa2 !important;
-        box-shadow: 0 0 15px rgba(0, 255, 162, 0.1) !important;
+        box-shadow: 0 0 10px rgba(0, 255, 162, 0.3) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -257,6 +260,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
