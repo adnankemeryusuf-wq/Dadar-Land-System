@@ -11,68 +11,68 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Professional & Luxury Look
+# Custom CSS for Beautiful & Professional Look
 st.markdown("""
     <style>
-    /* 1. Background qulqulluu fi ijaaf mijataa */
+    /* 1. Background Gradient - Halluu laafaa fi qulqulluu */
     .stApp { 
-        background: linear-gradient(to right, #f8f9fa, #e9ecef); 
+        background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%); 
     }
     
-    /* 2. Sidebar: Halluu Dukkanaa'aa fi Kabajamaa (Deep Forest) */
+    /* 2. Sidebar styling - Halluu dukkanaa'aa miidhagaa */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #041e12 0%, #062c1a 100%) !important;
-        border-right: 3px solid #b8860b; /* Halluu Warqee (Gold) */
+        background-color: #1a2a23 !important;
+        border-right: 4px solid #00a86b; /* Emerald green accent */
     }
-    [data-testid="stSidebar"] * { color: #fdfdfd !important; }
+    [data-testid="stSidebar"] * { color: #e0e0e0 !important; }
 
-    /* 3. Cards Dashboard: Akka Glassmorphism miidhagu */
+    /* 3. Metric Cards - Dashboard irratti akka saanduqa miidhagaatti */
     .metric-card {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.9);
         padding: 25px;
-        border-radius: 18px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        border-left: 6px solid #b8860b; /* Gold accent */
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border-bottom: 5px solid #00a86b;
         text-align: center;
-        transition: transform 0.3s ease;
+        transition: 0.4s ease-in-out;
     }
     .metric-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(11, 102, 35, 0.2);
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 168, 107, 0.2);
     }
-    .metric-val { color: #0b6623; font-size: 32px; font-weight: 800; }
-    .metric-label { color: #444; font-size: 15px; font-weight: bold; text-transform: uppercase; }
+    .metric-val { color: #1a2a23; font-size: 34px; font-weight: 800; }
+    .metric-label { color: #00a86b; font-size: 14px; font-weight: bold; letter-spacing: 1px; }
 
-    /* 4. Buttons: Professional Gradient */
+    /* 4. Buttons - Halluu Emerald Green Gradient */
     .stButton>button {
-        background: linear-gradient(135deg, #0b6623 0%, #1a4a2e 100%);
+        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%);
         color: white !important;
-        border-radius: 10px;
+        border-radius: 12px;
         border: none;
-        padding: 0.6rem 2rem;
-        font-size: 16px;
-        font-weight: 600;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        transition: all 0.3s ease;
+        padding: 12px 20px;
+        font-weight: bold;
+        box-shadow: 0 5px 15px rgba(0, 168, 107, 0.3);
+        transition: 0.3s;
     }
     .stButton>button:hover {
-        background: linear-gradient(135deg, #b8860b 0%, #8e6a06 100%) !important;
-        box-shadow: 0 6px 15px rgba(184, 134, 11, 0.4);
-        transform: scale(1.02);
+        background: linear-gradient(135deg, #1a2a23 0%, #0d1512 100%) !important;
+        box-shadow: 0 8px 20px rgba(26, 42, 35, 0.4);
+        transform: scale(1.03);
     }
     
-    /* 5. Forms: Box Miidhagaa */
+    /* 5. Form Design - Bakka ragaan itti guutamu */
     div[data-testid="stForm"] {
         background-color: #ffffff;
-        border-radius: 20px;
+        border-radius: 25px;
         padding: 40px;
-        border: 1px solid #e0e0e0;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+        box-shadow: 0 20px 50px rgba(0,0,0,0.06);
+        border: 1px solid #f0f0f0;
     }
 
-    /* 6. Text inputs focus effects */
-    input {
-        border-radius: 8px !important;
+    /* 6. Success Messages */
+    .stAlert {
+        border-radius: 15px;
+        border: none;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -209,6 +209,7 @@ else:
 
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
