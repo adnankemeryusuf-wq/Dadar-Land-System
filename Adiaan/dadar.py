@@ -145,58 +145,74 @@ else:
             df['Guyyaa_DT'] = pd.to_datetime(df['Guyyaa'], format='%d/%m/%Y %H:%M', errors='coerce')
             st.line_chart(df['Guyyaa_DT'].dt.date.value_counts())
 
-    elif menu == "📝 Galmee Tajaajilaa":
+  elif menu == "📝 Galmee Tajaajilaa":
         st.header("📝 Galmee Haaraa Galchi")
-              GATII_DICT = {
-    "🏷 Gibira & Kaffaltii": [
-        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
-        "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
-    ],
-    "📜 Kaartaa & Qabiyyee": [
-        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
-        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
-    ],
-    "🏗 Pilaanii & Ijaarsa": [
-        "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
-        "Humna Mahandisummaa"
-    ],
-    "⚖️ Dhimma Seeraa": [
-        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
-        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
-    ],
-    "📂 Tajaajila Biroo": [
-        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"
-    ],
-    "⚖️ Adabbii & Seeressuu": [
-        "Adabbii Ijaarsa Seeraan Alaa",
-        "Kaffaltii Seeressuu (Regularization)",
-        "Adabbii Faallaa Pilaanii"
-    ],
-}
+        
+        # --- GATII_DICT SIREESSAMME ---
+        GATII_DICT = {
+            "🏷 Gibira & Kaffaltii": [
+                "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
+                "Kaffaltii Liizii Duraa", "TOT (Turnover Tax)", "Kaffaltii Jijjiirraa Maqaa (Gift/Sale)"
+            ],
+            "📜 Kaartaa & Qabiyyee": [
+                "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
+                "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Kaartaa Lafa Qoonnaa"
+            ],
+            "🏗 Pilaanii & Ijaarsa": [
+                "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+                "Humna Mahandisummaa"
+            ],
+            "⚖️ Dhimma Seeraa": [
+                "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
+                "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
+            ],
+            "📂 Tajaajila Biroo": [
+                "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"
+            ],
+            "⚖️ Adabbii & Seeressuu": [
+                "Adabbii Ijaarsa Seeraan Alaa",
+                "Kaffaltii Seeressuu (Regularization)",
+                "Adabbii Faallaa Pilaanii"
+            ],
+        }
 
+        # Filannoo Ramaddii
         sel_main = st.multiselect("Ramaddii Filadhu", list(GATII_DICT.keys()))
-        details, d_fees = [], {}
+        details, d_fees, is_tot = [], {}, False
+        
         if sel_main:
             for g in sel_main:
                 subs = st.multiselect(f"Tajaajila ({g})", GATII_DICT[g])
                 for s in subs:
-                    fee = st.number_input(f"Gatii {s}", min_value=0.0, key=f"f_{s}")
-                    details.append(s); d_fees[s] = fee
-
+                    fee = st.number_input(f"Gatii {s} (ETB)", min_value=0.0, key=f"f_{s}")
+                    details.append(s)
+                    d_fees[s] = fee
+                    # Check if TOT or Sale/Gift is selected to trigger seller/buyer info
+                    if any(x in s for x in ["TOT", "Sale", "Gift"]):
+                        is_tot = True
+        
         with st.form("reg_form"):
             c1, c2 = st.columns(2)
-            name = c1.text_input("Maqaa Maamilaa *")
-            ara = c2.text_input("Araddaa")
-            qaxana = c1.text_input("Qaxana")
-            ogeessa = c2.text_input("Maqaa Ogeessaa *")
+            if is_tot:
+                name = f"G: {c1.text_input('Maqaa Gurguraa')} / B: {c2.text_input('Maqaa Bitataa')}"
+                ara = f"G: {c1.text_input('Araddaa G')} / B: {c2.text_input('Araddaa B')}"
+            else:
+                name = c1.text_input("Maqaa Maamilaa")
+                ara = c2.text_input("Araddaa")
+            
+            qaxana = c1.text_input("Lakk. Qaxana")
+            ogeessa = c2.text_input("Maqaa Ogeessaa")
+            
             if st.form_submit_button("💾 GALMEESSI"):
                 if name and details and ogeessa:
                     total = sum(d_fees.values())
                     new_row = [datetime.now().strftime('%d/%m/%Y %H:%M'), name, ara, qaxana, ", ".join(details), ogeessa, total]
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                    save_data(df); st.success("✅ Milkiin Galmeeffameera!")
+                    save_data(df)
+                    st.success("✅ Galmeeffameera!")
                     st.download_button("📥 Nagahee PDF", create_receipt_pdf(new_row), f"Nagahee_{name}.pdf")
-                else: st.error("Maaloo odeeffannoo guuti!")
+                else:
+                    st.error("Maaloo odeeffannoo guuti!")
 
     elif menu == "📜 Clearance (Ragaa)":
         st.header("📜 Waraqaa Qulqullinaa")
@@ -236,6 +252,7 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
