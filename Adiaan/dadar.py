@@ -10,22 +10,21 @@ LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
-
-# Custom CSS for Neon-Dark Glowing Professional UI
+# Custom CSS for Neon-Dark with Bright Center Aura
 st.markdown("""
     <style>
-    /* 1. Background: Deep Space with Neon Aura */
+    /* 1. Background: Deep Emerald with Bright Center Glow */
     .stApp {
-        background: radial-gradient(circle at 50% 50%, #0a1f18 0%, #050a09 100%);
+        background: radial-gradient(circle at 50% 50%, #114d3a 0%, #061a14 45%, #020504 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: Floating Neon Glass */
+    /* 2. Sidebar: Deep Dark Glass */
     [data-testid="stSidebar"] {
-        background: rgba(0, 0, 0, 0.9) !important;
+        background: rgba(0, 0, 0, 0.85) !important;
         backdrop-filter: blur(20px);
         border-right: 3px solid #00ffa2 !important;
-        box-shadow: 5px 0 30px rgba(0, 255, 162, 0.2);
+        box-shadow: 10px 0 40px rgba(0, 255, 162, 0.1);
     }
 
     /* 3. Sidebar Radio: Glowing Buttons */
@@ -36,32 +35,31 @@ st.markdown("""
         border: 1px solid rgba(0, 255, 162, 0.3) !important;
         padding: 15px 25px !important;
         margin-bottom: 12px !important;
-        text-shadow: 0 0 10px rgba(0, 255, 162, 0.5);
-        transition: 0.5s all cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        transition: 0.4s all ease-in-out;
     }
 
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
         background: #00ffa2 !important;
         color: #000000 !important;
-        transform: scale(1.08) translateX(10px);
-        box-shadow: 0 0 40px rgba(0, 255, 162, 0.8) !important;
+        box-shadow: 0 0 30px rgba(0, 255, 162, 0.6) !important;
+        transform: scale(1.05);
     }
 
-    /* 4. Dashboard Cards: Neon Box Glow */
+    /* 4. Dashboard Cards: Transparent Emerald Glass */
     div[data-testid="stMetricWidget"], .metric-card {
         background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(15px);
+        backdrop-filter: blur(10px);
         border-radius: 25px !important;
         padding: 30px !important;
         border: 1px solid rgba(0, 255, 162, 0.2) !important;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
         transition: 0.5s ease;
     }
     
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-15px);
+        transform: translateY(-10px);
+        background: rgba(0, 255, 162, 0.05) !important;
         border: 1px solid #00ffa2 !important;
-        box-shadow: 0 0 50px rgba(0, 255, 162, 0.3) !important;
     }
     
     /* 5. Metrics Value: Ultra Neon Glow */
@@ -69,48 +67,42 @@ st.markdown("""
         color: #00ffa2 !important;
         font-weight: 900 !important;
         font-size: 3.8rem !important;
-        text-shadow: 0 0 20px rgba(0, 255, 162, 1), 0 0 40px rgba(0, 255, 162, 0.6);
+        text-shadow: 0 0 20px rgba(0, 255, 162, 0.8);
     }
 
-    /* 6. Professional Buttons: Laser Cut Style */
+    /* 6. Buttons: High-Gloss Neon */
     .stButton>button {
-        background: transparent !important;
-        color: #00ffa2 !important;
-        border: 2px solid #00ffa2 !important;
+        background: linear-gradient(135deg, #00ffa2 0%, #008f5a 100%) !important;
+        color: #000000 !important;
+        border: none !important;
         border-radius: 12px !important;
         padding: 15px 40px !important;
         font-weight: 800 !important;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        box-shadow: inset 0 0 10px rgba(0, 255, 162, 0.2);
+        box-shadow: 0 0 20px rgba(0, 255, 162, 0.4) !important;
         transition: 0.4s all;
     }
     
     .stButton>button:hover {
-        background: #00ffa2 !important;
-        color: #000000 !important;
-        box-shadow: 0 0 50px rgba(0, 255, 162, 1) !important;
-        transform: translateY(-5px);
+        box-shadow: 0 0 40px rgba(0, 255, 162, 0.9) !important;
+        transform: translateY(-3px) scale(1.02);
     }
 
-    /* 7. Titles: Bright Silver Glow */
+    /* 7. Headings: Pure White Glow */
     h1, h2, h3 {
         color: #ffffff !important;
-        text-shadow: 0 0 15px rgba(255, 255, 255, 0.5) !important;
-        font-weight: 800 !important;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.4) !important;
     }
 
-    /* 8. Inputs: Cyber Focus */
+    /* 8. Inputs: Dark Cyber Focus */
     .stTextInput input {
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: #00ffa2 !important;
-        border: 1px solid rgba(0, 255, 162, 0.2) !important;
+        background: rgba(0, 0, 0, 0.3) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(0, 255, 162, 0.3) !important;
         border-radius: 12px !important;
     }
-    
     .stTextInput input:focus {
         border-color: #00ffa2 !important;
-        box-shadow: 0 0 25px rgba(0, 255, 162, 0.4) !important;
+        box-shadow: 0 0 15px rgba(0, 255, 162, 0.4) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -265,6 +257,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
