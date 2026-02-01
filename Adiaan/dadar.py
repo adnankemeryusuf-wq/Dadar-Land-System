@@ -187,3 +187,4 @@ elif menu == "📈 Gabaasa Galii":
         st.session_state.logged_in = False
         st.rerun()
 
+
