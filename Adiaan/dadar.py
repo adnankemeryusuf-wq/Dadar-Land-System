@@ -10,66 +10,81 @@ LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
-# Design Ati Filatte Qofa (Pure Blue & Center Glow)
+# Design Fooyya'aa: Jiddu-gala Blue & Deep Center Glow
 st.markdown("""
     <style>
-    /* 1. Background: Wiirtuu Cuquliika ifu, qarqara Cuquliika Dukkanaa'aa */
+    /* 1. Background: Wiirtuu Cuquliika ifu (Lighter Blue) fi qarqara Dukkanaa'aa */
     .stApp {
-        background: radial-gradient(circle at center, #1a3a5f 0%, #081220 70%, #040914 100%);
+        background: radial-gradient(circle at 50% 50%, #0056b3 0%, #04162e 45%, #01040a 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: Cuquliika Dukkanaa'aa (Midnight Blue) */
+    /* 2. Sidebar: Midnight Glass Style */
     [data-testid="stSidebar"] {
-        background-color: #040914 !important;
-        border-right: 2px solid #00d4ff !important; /* Neon Blue Line */
-        box-shadow: 5px 0 20px rgba(0, 212, 255, 0.2);
+        background-color: #01040a !important;
+        border-right: 2px solid #00d4ff !important;
+        box-shadow: 10px 0 30px rgba(0, 212, 255, 0.1);
     }
 
-    /* 3. Barreeffama: Halluu Adii fi Silver walitti makaa */
+    /* 3. Barreeffama: Silver-White High Contrast */
     h1, h2, h3, p, label {
-        color: #e0e0e0 !important;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        color: #ffffff !important;
+        text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
     }
 
-    /* 4. Dashboard Cards: Cuquliika Calaqqisu (Blue Glass) */
+    /* 4. Dashboard Cards: Transparent Blue Frost */
     div[data-testid="stMetricWidget"] {
-        background: rgba(255, 255, 255, 0.05) !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        background: rgba(0, 20, 40, 0.6) !important;
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(0, 212, 255, 0.4) !important;
         border-radius: 20px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+        transition: 0.4s;
     }
 
-    /* 5. Metrics: Halluu Sky Blue (Calaqqee Electric) */
+    div[data-testid="stMetricWidget"]:hover {
+        transform: translateY(-5px);
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+
+    /* 5. Metrics: Electric Blue Glow */
     [data-testid="stMetricValue"] {
         color: #00d4ff !important;
-        text-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
-        font-weight: 800 !important;
+        text-shadow: 0 0 20px rgba(0, 212, 255, 1);
+        font-weight: 900 !important;
+        font-size: 3.5rem !important;
     }
 
-    /* 6. Buttons: Gradient Blue Professional Style */
+    /* 6. Buttons: Neon Blue Professional */
     .stButton>button {
-        background: linear-gradient(135deg, #00d4ff 0%, #0056b3 100%) !important;
+        background: linear-gradient(135deg, #00d4ff 0%, #004080 100%) !important;
         color: #ffffff !important;
         border: none !important;
-        border-radius: 12px !important;
-        padding: 10px 30px !important;
-        font-weight: bold !important;
-        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3) !important;
-        transition: 0.4s;
+        border-radius: 50px !important;
+        padding: 12px 35px !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4) !important;
     }
     
     .stButton>button:hover {
-        box-shadow: 0 0 25px #00d4ff !important;
-        transform: translateY(-2px);
+        box-shadow: 0 0 30px #00d4ff !important;
+        transform: scale(1.05);
     }
 
-    /* 7. Input Fields: Focus Style */
+    /* 7. Input Fields: Cyber Focus */
     .stTextInput input {
-        background-color: rgba(255, 255, 255, 0.05) !important;
-        color: white !important;
-        border: 1px solid #00d4ff !important;
+        background-color: rgba(0, 0, 0, 0.5) !important;
+        color: #00d4ff !important;
+        border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        border-radius: 10px;
+    }
+    
+    .stTextInput input:focus {
+        border-color: #00d4ff !important;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.5) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -224,6 +239,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
