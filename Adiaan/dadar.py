@@ -112,7 +112,7 @@ else:
             if os.path.exists(LOGO_PATH):
                 st.image(LOGO_PATH, width=80)
         with c2:
-            st.markdown("<h1 style='color: #1a2a29;'>Dadar Land Admin Analytics</h1>", unsafe_allow_html=True)
+            st.markdown("<h1 style='color: #1a2a65;'>Dadar Land Admin Analytics</h1>", unsafe_allow_html=True)
         
         st.markdown("---")
         if not df.empty:
@@ -208,6 +208,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
