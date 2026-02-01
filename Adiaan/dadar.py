@@ -56,13 +56,29 @@ def get_ethiopian_date_str():
 
 # ================= 3. PDF GENERATORS =================
 
+def create_receipt_pdf(data):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", 'B', 16)
+    pdf.cell(0, 10, "WAAJJIRA LAFAA MAGAALAA DADAR", ln=True, align='C')
+    pdf.set_font("Arial", 'B', 14); pdf.cell(0, 10, "NAGAHEE KAFFALTII", ln=True, align='C')
+    pdf.ln(10); pdf.set_font("Arial", '', 12)
+    pdf.cell(0, 8, f"Guyyaa: {data[0]}", ln=True)
+    pdf.cell(0, 8, f"Maqaa: {data[1]}", ln=True)
+    pdf.cell(0, 8, f"Araddaa: {data[2]} | Qaxana: {data[3]}", ln=True)
+    pdf.cell(0, 8, f"Tajaajila: {data[4]}", ln=True)
+    pdf.set_font("Arial", 'B', 12)
+    pdf.cell(0, 10, f"Kaffaltii Waliigalaa: {data[6]:,.2f} ETB", ln=True)
+    pdf.ln(10); pdf.set_font("Arial", 'I', 10)
+    pdf.cell(0, 8, f"Ogeessa: {data[5]}", ln=True)
+    return pdf.output(dest='S').encode('latin-1')
+
 def create_clearance_pdf(data, logo_l, logo_r):
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     pdf.add_page()
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # Logo Management
     if logo_l:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
             tmp.write(logo_l.getvalue()); pdf.image(tmp.name, 15, 18, 23)
@@ -72,7 +88,6 @@ def create_clearance_pdf(data, logo_l, logo_r):
             tmp.write(logo_r.getvalue()); pdf.image(tmp.name, 172, 18, 23)
         os.unlink(tmp.name)
 
-    # Header Section
     pdf.set_y(22); pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 10, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
@@ -86,18 +101,16 @@ def create_clearance_pdf(data, logo_l, logo_r):
     
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(8)
     
-    # --- TEXT BODY WITH BOLDED CARD NUMBER ---
     pdf.set_font('Times', '', 12); pdf.set_x(20)
     pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} ")
     
-    # "LAKK. KAARTAA" Bold and Uppercase
+    # LAKK. KAARTAA GUDDISEE BOLD GODHA
     pdf.set_font('Times', 'B', 13) 
-    pdf.write(9, f"LAKK. KAARTAA {str(data['kaartaa'])} ") 
+    pdf.write(9, f"LAKK. KAARTAA {str(data['kaartaa'])} ")
     
     pdf.set_font('Times', '', 12)
     pdf.write(9, "qabaniif kan kennameedha.\n\n")
     
-    # Remaining Body
     pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n")
     pdf.write(9, f"2. Kaffaltii {data['gosa_qabiyyee']} hunda xumuraniiru.\n")
     pdf.write(9, "3. Qabiyyeen kun DHORKAA kamirrayyuu bilisa ta'uu mirkaneessina.\n\n")
@@ -106,6 +119,17 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_y(235); pdf.set_x(20); pdf.set_font('Times', 'B', 12)
     pdf.write(8, f"Maqaa Itti Gaafatamaa: {data['head_name']}\nMallattoo: _________________")
     return pdf.output(dest='S').encode('latin-1')
+
+def create_pdf_cert(name, count, rank):
+    pdf = FPDF(orientation='L', unit='mm', format='A4')
+    pdf.add_page()
+    pdf.set_draw_color(16, 185, 129); pdf.set_line_width(5); pdf.rect(10, 10, 277, 190)
+    pdf.set_y(60); pdf.set_font("Arial", 'B', 30)
+    pdf.cell(0, 20, "SARTIIFIIKEETA BADHAASAA", ln=True, align='C')
+    pdf.set_font("Arial", 'B', 35); pdf.cell(0, 30, name.upper(), ln=True, align='C')
+    pdf.set_font("Arial", '', 18); pdf.cell(0, 10, f"Dhimma {count} milkiin raawwachuun sadarkaa {rank}ffaa argataniif.", ln=True, align='C')
+    return pdf.output(dest='S').encode('latin-1')
+
 # ================= 4. MAIN APP LOGIC =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
@@ -173,9 +197,8 @@ else:
                     save_data(df); st.success("✅ Galmeeffameera!")
                     st.download_button("📥 Nagahee PDF", create_receipt_pdf(new_row), f"Nagahee_{name}.pdf")
 
-elif menu == "📜 Clearance (Ragaa)":
+    elif menu == "📜 Clearance (Ragaa)":
         st.header("📜 Waraqaa Qulqullinaa")
-        
         up_col1, up_col2 = st.columns(2)
         l_l = up_col1.file_uploader("Logo Bitaa (Upload)", type=['png', 'jpg', 'jpeg'])
         l_r = up_col2.file_uploader("Logo Mirgaa (Upload)", type=['png', 'jpg', 'jpeg'])
@@ -186,28 +209,22 @@ elif menu == "📜 Clearance (Ragaa)":
                 'maqaa': c1.text_input("Maqaa Abbaa Qabiyyee"), 
                 'araddaa': c2.text_input("Araddaa"), 
                 'qaxana': c1.text_input("Qaxana"), 
-                'kaartaa': c2.text_input("Lakk. Kaartaa"), # <--- Asitti guutama
+                'kaartaa': c2.text_input("Lakk. Kaartaa"), 
                 'gosa_qabiyyee': c1.selectbox("Gosa Qabiyyee", ["Liizii", "Permit"]), 
                 'bara_gibiraa': c2.text_input("Bara Gibiraa"), 
                 'dhimma': c1.selectbox("Dhimma Barbaadame", ["Gurgurtaa", "Liqii", "Kennaa"]), 
                 'head_name': st.text_input("Maqaa Itti Gaafatamaa")
             }
-            submit = st.form_submit_button("📄 PDF UUMI")
-            
-            if submit:
-                if m['maqaa'] and m['kaartaa']: # Kaartaa guutamuu isaa mirkaneessa
-                    st.session_state.pdf_to_download = create_clearance_pdf(m, l_l, l_r)
-                    st.session_state.pdf_name = f"Clearance_{m['maqaa']}.pdf"
-                    st.rerun()
-                else:
-                    st.error("Maaloo Maqaa fi Lakk. Kaartaa guuti!")
             if st.form_submit_button("📄 PDF UUMI"):
                 if m['maqaa'] and m['kaartaa']:
                     st.session_state.pdf_to_download = create_clearance_pdf(m, l_l, l_r)
                     st.session_state.pdf_name = f"Clearance_{m['maqaa']}.pdf"
                     st.rerun()
-                else:
-                    st.error("Maaloo Maqaa fi Lakk. Kaartaa guuti!")
+                else: st.error("Maaloo Maqaa fi Lakk. Kaartaa guuti!")
+
+        if 'pdf_to_download' in st.session_state:
+            st.download_button("📥 PDF BUUFADHU", st.session_state.pdf_to_download, st.session_state.pdf_name)
+
     elif menu == "📈 Gabaasa Galii":
         st.header("📈 Gabaasa & Ergaa")
         search = st.text_input("🔍 Barbaadi:")
@@ -231,12 +248,3 @@ elif menu == "📜 Clearance (Ragaa)":
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
-
-
-
-
-
-
-
-
-
