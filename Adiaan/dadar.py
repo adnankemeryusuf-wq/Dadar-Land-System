@@ -63,51 +63,63 @@ def send_telegram_report(file_bytes, filename):
     except Exception as e:
         return str(e)
 
-def create_receipt_pdf(data_row):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(200, 10, txt="Wajjira Lafaa Bul/Magaalaa Dadar", ln=True, align='C')
-    pdf.set_font("Arial", size=11)
-    pdf.ln(10)
-    for i in range(len(COL_NAMES)):
-        pdf.cell(200, 10, txt=f"{COL_NAMES[i].replace('_', ' ')}: {data_row[i]}", ln=True)
-    return pdf.output(dest='S').encode('latin-1')
-
-# --- FUNKSISHINII SARTIIFIIKEETAA ---
 def create_pdf_cert(name, count, rank, logo_left, logo_right):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
+    
+    # Halluu sadarkaa
     colors = {1: (212, 175, 55), 2: (192, 192, 192), 3: (205, 127, 50)}
     r, g, b = colors.get(rank, (0, 0, 0))
     pdf.set_draw_color(r, g, b)
     pdf.set_line_width(5)
     pdf.rect(10, 10, 277, 190)
     
-    if logo_left:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
-            tmp.write(logo_left.getvalue())
-            pdf.image(tmp.name, 20, 20, 30)
-    if logo_right:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
-            tmp.write(logo_right.getvalue())
-            pdf.image(tmp.name, 247, 20, 30)
+    # Logo Bitaa
+    if logo_left is not None:
+        try:
+            # Extension isaa addaan baasuuf (jpg ykn png)
+            ext = logo_left.name.split('.')[-1].lower()
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp:
+                tmp.write(logo_left.getvalue())
+                tmp_path = tmp.name
+            pdf.image(tmp_path, 20, 20, 30)
+            os.unlink(tmp_path) # File yeroo gabaabaa hukkumuu
+        except:
+            pass
 
+    # Logo Mirgaa
+    if logo_right is not None:
+        try:
+            ext = logo_right.name.split('.')[-1].lower()
+            with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext}") as tmp:
+                tmp.write(logo_right.getvalue())
+                tmp_path = tmp.name
+            pdf.image(tmp_path, 247, 20, 30)
+            os.unlink(tmp_path)
+        except:
+            pass
+
+    # Barreeffama sartiifiikeetaa
     pdf.set_y(45)
     pdf.set_font("Arial", 'B', 30)
     pdf.set_text_color(r, g, b)
     pdf.cell(0, 20, "SARTIIFIIKEETA BADHAASAA", ln=True, align='C')
+    
     pdf.set_font("Arial", 'I', 18)
     pdf.set_text_color(0, 0, 0)
     pdf.cell(0, 10, "Kun kan kennameef:", ln=True, align='C')
+    
     pdf.set_font("Arial", 'B', 35)
-    pdf.cell(0, 20, name.upper(), ln=True, align='C')
+    pdf.cell(0, 25, name.upper(), ln=True, align='C')
+    
     pdf.set_font("Arial", '', 16)
     pdf.multi_cell(0, 10, f"Ogeessa bara kana keessa tajaajila addaa kennuun dhimmoota {count} \nraawwachuun sadarkaa {rank}ffaa argataniif.", align='C')
+    
     pdf.set_y(165)
     pdf.set_font("Arial", 'B', 12)
     pdf.cell(0, 10, "__________________________", ln=True, align='C')
     pdf.cell(0, 10, "Itti Gaafatamaa Mana Hojii", ln=True, align='C')
+    
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 3. MAIN APP LOGIC =================
@@ -264,3 +276,4 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
