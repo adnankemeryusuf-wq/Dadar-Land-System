@@ -10,79 +10,81 @@ LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
-# Design Fooyya'aa: Jiddu-gala Magariisa (Sidebar Highlighted)
+
+# Custom CSS for Professional Emerald & Glassmorphism Look
 st.markdown("""
     <style>
-    /* 1. Background: Wiirtuu Magariisa ifu fi qarqara Dukkanaa'aa */
-    .stApp {
-        background: radial-gradient(circle at 50% 50%, #10b981 0%, #064e3b 45%, #020617 100%);
-        background-attachment: fixed;
+    /* 1. Global Background - Halluu Soft */
+    .stApp { 
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
     }
     
-    /* 2. Sidebar: Midnight Forest Glass */
+    /* 2. Sidebar Premium Style */
     [data-testid="stSidebar"] {
-        background-color: #020617 !important;
-        border-right: 2px solid #34d399 !important;
-        box-shadow: 10px 0 30px rgba(52, 211, 153, 0.1);
+        background: linear-gradient(180deg, #0d1a14 0%, #1a2a23 100%) !important;
+        border-right: 1px solid rgba(255,255,255,0.1);
+    }
+    [data-testid="stSidebar"] * { color: #ffffff !important; font-weight: 500; }
+
+    /* 3. Glassmorphism Dashboard Cards - Baay'ee Miidhagaa */
+    .metric-card {
+        background: rgba(255, 255, 255, 0.7); /* Translucent white */
+        backdrop-filter: blur(10px); /* Blur effect like glass */
+        -webkit-backdrop-filter: blur(10px);
+        padding: 30px;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .metric-card:hover {
+        transform: translateY(-10px);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 15px 45px rgba(0, 168, 107, 0.15);
+        border: 1px solid #00a86b;
+    }
+    .metric-val { 
+        background: -webkit-linear-gradient(#1a2a23, #00a86b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 38px; 
+        font-weight: 900; 
+    }
+    .metric-label { color: #555; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
+
+    /* 4. Glassmorphism Form & Containers */
+    div[data-testid="stForm"], .login-box {
+        background: rgba(255, 255, 255, 0.8) !important;
+        backdrop-filter: blur(15px);
+        border-radius: 30px !important;
+        padding: 45px !important;
+        border: 1px solid rgba(255,255,255,0.4) !important;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
     }
 
-    /* 3. Sidebar Radio Buttons (Gara Bitaa): Magariisa Jiddu-galeessaa ifu */
-    div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(16, 185, 129, 0.1) !important; /* Magariisa lallaafaa */
-        color: #34d399 !important;
-        border-radius: 12px !important;
-        border: 1px solid rgba(52, 211, 153, 0.3) !important;
-        padding: 12px 20px !important;
-        margin-bottom: 10px !important;
-        font-weight: 600 !important;
-        transition: 0.4s all ease;
-    }
-
-    /* Filannoo yoo irra qabdu (Hover) */
-    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        background: #10b981 !important; /* Magariisa Jiddu-galeessaa */
-        color: #ffffff !important;
-        box-shadow: 0 0 20px rgba(16, 185, 129, 0.6) !important;
-        transform: translateX(5px);
-    }
-
-    /* 4. Dashboard Cards: Emerald Glass Effect */
-    div[data-testid="stMetricWidget"] {
-        background: rgba(6, 78, 59, 0.4) !important;
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(52, 211, 153, 0.3) !important;
-        border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
-    }
-
-    /* 5. Metrics: Electric Emerald Glow */
-    [data-testid="stMetricValue"] {
-        color: #34d399 !important;
-        text-shadow: 0 0 20px rgba(52, 211, 153, 0.8);
-        font-weight: 900 !important;
-        font-size: 3.5rem !important;
-    }
-
-    /* 6. Buttons: Neon Emerald Professional */
+    /* 5. Animated Buttons - Pro Touch */
     .stButton>button {
-        background: linear-gradient(135deg, #10b981 0%, #064e3b 100%) !important;
-        color: #ffffff !important;
-        border: none !important;
-        border-radius: 50px !important;
-        padding: 12px 35px !important;
-        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4) !important;
+        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%);
+        color: white !important;
+        border-radius: 15px;
+        border: none;
+        padding: 15px 25px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.3s all ease;
+    }
+    .stButton>button:hover {
+        box-shadow: 0 10px 20px rgba(0, 168, 107, 0.4);
+        transform: scale(1.02);
+        filter: brightness(1.1);
     }
     
-    .stButton>button:hover {
-        box-shadow: 0 0 30px #10b981 !important;
-        transform: scale(1.05);
-    }
-
-    /* 7. Input Fields: Stealth Green Focus */
-    .stTextInput input {
-        background-color: rgba(0, 0, 0, 0.5) !important;
-        color: #34d399 !important;
-        border: 1px solid rgba(52, 211, 153, 0.3) !important;
+    /* Input fields refinement */
+    .stTextInput>div>div>input {
+        border-radius: 12px !important;
+        background-color: rgba(255,255,255,0.5) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -237,6 +239,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
