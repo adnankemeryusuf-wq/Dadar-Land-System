@@ -186,12 +186,21 @@ elif menu == "📜 Clearance (Ragaa)":
                 'maqaa': c1.text_input("Maqaa Abbaa Qabiyyee"), 
                 'araddaa': c2.text_input("Araddaa"), 
                 'qaxana': c1.text_input("Qaxana"), 
-                'kaartaa': c2.text_input("Lakk. Kaartaa"), # <--- KEY 'kaartaa' ta'uu isaa mirkaneessi
+                'kaartaa': c2.text_input("Lakk. Kaartaa"), # <--- Asitti guutama
                 'gosa_qabiyyee': c1.selectbox("Gosa Qabiyyee", ["Liizii", "Permit"]), 
                 'bara_gibiraa': c2.text_input("Bara Gibiraa"), 
                 'dhimma': c1.selectbox("Dhimma Barbaadame", ["Gurgurtaa", "Liqii", "Kennaa"]), 
                 'head_name': st.text_input("Maqaa Itti Gaafatamaa")
             }
+            submit = st.form_submit_button("📄 PDF UUMI")
+            
+            if submit:
+                if m['maqaa'] and m['kaartaa']: # Kaartaa guutamuu isaa mirkaneessa
+                    st.session_state.pdf_to_download = create_clearance_pdf(m, l_l, l_r)
+                    st.session_state.pdf_name = f"Clearance_{m['maqaa']}.pdf"
+                    st.rerun()
+                else:
+                    st.error("Maaloo Maqaa fi Lakk. Kaartaa guuti!")
             if st.form_submit_button("📄 PDF UUMI"):
                 if m['maqaa'] and m['kaartaa']:
                     st.session_state.pdf_to_download = create_clearance_pdf(m, l_l, l_r)
@@ -222,6 +231,7 @@ elif menu == "📜 Clearance (Ragaa)":
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
