@@ -11,85 +11,93 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Official Institutional Green UI
+# Custom CSS for Executive & Modern Green UI
 st.markdown("""
     <style>
-    /* 1. Background Waliigalaa: Halluu Magariisa baay'ee laafaa (Mint Mist) */
+    /* 1. Background: Smooth Mint & White Gradient */
     .stApp {
-        background: linear-gradient(135deg, #f0f4f2 0%, #ffffff 100%);
+        background: radial-gradient(circle at top right, #f0fdf4, #ffffff 100%);
     }
     
-    /* 2. Sidebar: Halluu Magariisa Dukkanaa'aa fi Calaqqisu (Glass Forest) */
+    /* 2. Sidebar: Deep Forest Glass with Neon Border */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #062c1a 0%, #0d4d32 100%) !important;
-        border-right: 4px solid #00ffa2; /* Sarara ifu kan qarqaraa */
+        background: linear-gradient(180deg, #04160e 0%, #062c1a 100%) !important;
+        border-right: 2px solid #00ffa233;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.1);
     }
 
-    /* 3. Barreeffama Sidebar: Gara Magariisa Ifaatti jijjiirama */
-    [data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(255, 255, 255, 0.08) !important;
-        color: #e0e0e0 !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        padding: 14px 22px !important;
-        border-radius: 12px !important;
-        margin-bottom: 10px !important;
-        font-weight: 500;
-        transition: 0.4s all cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Active & Hover State: Halluu Magariisa ifu (Neon Emerald) */
-    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        background: #00ffa2 !important;
-        color: #062c1a !important;
-        transform: translateX(10px);
-        font-weight: 700;
-        box-shadow: 0 4px 15px rgba(0, 255, 162, 0.3);
-    }
-
-    /* 4. Dashboard Cards: Professional Green Accent */
-    div[data-testid="stMetricWidget"], .metric-card {
-        background: #ffffff !important;
-        border-radius: 20px !important;
-        padding: 30px !important;
-        border-top: 6px solid #0d4d32 !important;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.04) !important;
-        transition: 0.4s ease;
-    }
-
-    div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-8px);
-        border-top: 6px solid #00ffa2 !important;
-        box-shadow: 0 15px 35px rgba(13, 77, 50, 0.1) !important;
-    }
-
-    /* 5. Buttons: Gradient Magariisa Ammayyaa */
-    .stButton>button {
-        background: linear-gradient(135deg, #0d4d32 0%, #1a8a5a 100%) !important;
-        color: #ffffff !important;
-        border-radius: 12px !important;
-        border: none !important;
-        font-weight: 700 !important;
-        padding: 12px 30px !important;
-        box-shadow: 0 4px 12px rgba(13, 77, 50, 0.2) !important;
-        transition: 0.3s;
-    }
-
-    .stButton>button:hover {
-        background: linear-gradient(135deg, #00ffa2 0%, #0d4d32 100%) !important;
-        color: #062c1a !important;
-        box-shadow: 0 6px 20px rgba(0, 255, 162, 0.4) !important;
-    }
-
-    /* Header & Titles */
-    h1, h2, h3 {
-        color: #0d4d32 !important;
-        font-weight: 800 !important;
+    /* 3. Sidebar Menu: Floating Capsule Style */
+    div[data-testid="stSidebarUserContent"] .stRadio > div {
+        gap: 12px;
+        padding: 10px;
     }
     
-    /* Input Fields Border Focus */
+    div[data-testid="stSidebarUserContent"] .stRadio label {
+        background: rgba(255, 255, 255, 0.03) !important;
+        color: #b0b0b0 !important;
+        border-radius: 15px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        padding: 15px 25px !important;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* Hover & Active: Glowing Neon Green */
+    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
+        background: rgba(0, 255, 162, 0.1) !important;
+        color: #00ffa2 !important;
+        border-color: #00ffa2 !important;
+        transform: translateX(12px) scale(1.02);
+        box-shadow: 0 5px 15px rgba(0, 255, 162, 0.2);
+    }
+
+    /* 4. Metric Cards: High-Gloss Elevation */
+    div[data-testid="stMetricWidget"], .metric-card {
+        background: white !important;
+        border-radius: 25px !important;
+        padding: 30px !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03) !important;
+        border: 1px solid #f0f0f0 !important;
+        border-left: 6px solid #062c1a !important; /* Bold Sidebar-match accent */
+        transition: 0.4s ease-in-out;
+    }
+    
+    div[data-testid="stMetricWidget"]:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(6, 44, 26, 0.08) !important;
+        border-left: 6px solid #00ffa2 !important; /* Changes to Neon on hover */
+    }
+    
+    .metric-val { 
+        font-weight: 900 !important;
+        color: #062c1a !important;
+    }
+
+    /* 5. Buttons: Radiant Professional Gradient */
+    .stButton>button {
+        background: linear-gradient(135deg, #062c1a 0%, #0d4d32 100%) !important;
+        color: #00ffa2 !important; /* Neon text on dark green */
+        border-radius: 14px !important;
+        border: 1px solid #00ffa244 !important;
+        padding: 15px 45px !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px;
+        transition: 0.4s;
+    }
+    
+    .stButton>button:hover {
+        background: #00ffa2 !important;
+        color: #04160e !important;
+        box-shadow: 0 0 25px rgba(0, 255, 162, 0.5) !important;
+        transform: scale(1.03);
+    }
+
+    /* 6. Inputs & Selectors: Clean Focus */
+    .stTextInput input {
+        border-radius: 12px !important;
+        border: 2px solid #f0f0f0 !important;
+    }
     .stTextInput input:focus {
         border-color: #00ffa2 !important;
-        box-shadow: 0 0 0 2px rgba(0, 255, 162, 0.2) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -244,6 +252,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
