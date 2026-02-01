@@ -62,7 +62,7 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
-    # Logo fe'ame bitaa fi mirgatti galchuu
+    # Logo Management
     if logo_l:
         with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
             tmp.write(logo_l.getvalue()); pdf.image(tmp.name, 15, 18, 23)
@@ -72,6 +72,7 @@ def create_clearance_pdf(data, logo_l, logo_r):
             tmp.write(logo_r.getvalue()); pdf.image(tmp.name, 172, 18, 23)
         os.unlink(tmp.name)
 
+    # Header Section
     pdf.set_y(22); pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 10, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
@@ -85,18 +86,18 @@ def create_clearance_pdf(data, logo_l, logo_r):
     
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(8)
     
-   # --- BARREEFFAMA "LAKK. KAARTAA" GUDDISUU ---
+    # --- TEXT BODY WITH BOLDED CARD NUMBER ---
     pdf.set_font('Times', '', 12); pdf.set_x(20)
     pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} ")
     
-    # "LAKK. KAARTAA" akka jedhu fi Bold akka ta'u godhameera
+    # "LAKK. KAARTAA" Bold and Uppercase
     pdf.set_font('Times', 'B', 13) 
-    pdf.write(9, f"LAKK. KAARTAA {data['kaartaa']} ")
+    pdf.write(9, f"LAKK. KAARTAA {str(data['kaartaa'])} ") 
     
-    # Gara barreeffama kaaniitti deebi'uu
     pdf.set_font('Times', '', 12)
     pdf.write(9, "qabaniif kan kennameedha.\n\n")
-    # --- KUTAA HAFAAN ---
+    
+    # Remaining Body
     pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n")
     pdf.write(9, f"2. Kaffaltii {data['gosa_qabiyyee']} hunda xumuraniiru.\n")
     pdf.write(9, "3. Qabiyyeen kun DHORKAA kamirrayyuu bilisa ta'uu mirkaneessina.\n\n")
@@ -226,6 +227,7 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
