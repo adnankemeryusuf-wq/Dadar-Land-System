@@ -152,30 +152,27 @@ else:
                     receipt = create_receipt_pdf(new_row)
                     st.download_button("📥 Nagahee Buufadhu", receipt, f"Nagahee_{name_f}.pdf", "application/pdf")
                 else: st.warning("Maaloo odeeffannoo guuti!")
-elif menu == "📈 Gabaasa Galii":
-        # Search Header with Logo
+
+    elif menu == "📈 Gabaasa Galii":
         head_col1, head_col2 = st.columns([0.1, 0.9])
         with head_col1:
             if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=65)
         with head_col2:
             st.markdown("<h2 style='margin-top: 10px;'>Barbaadi (Search) & Gabaasa</h2>", unsafe_allow_html=True)
         
-        # Search Box
         search_query = st.text_input("🔍 Maqaa, Araddaa ykn Gosa Tajaajilaa galchi...", placeholder="Fakkeenya: Kaartaa...")
         
         if not df.empty:
-            # Filtering Logic - Koodii fooyya'aa dogoggora malee hojjetu
             if search_query:
-                # Sarara kana qofa jijjiirri (Search query akka sirriitti hojjetuuf)
-                filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
+                # Koodii amansiisaa dogoggora search bar qulqulleessu
+                mask = df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)
+                filtered_df = df[mask]
             else:
                 filtered_df = df
             
             st.dataframe(filtered_df.style.highlight_max(axis=0, color='#d1e7dd'), use_container_width=True)
-            
             st.write(f"Maamiltoota {len(filtered_df)} argamaniiru.")
             
-            # Export Options
             buf = io.BytesIO()
             with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
                 filtered_df.to_excel(wr, index=False)
@@ -186,5 +183,3 @@ elif menu == "📈 Gabaasa Galii":
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
-
-
