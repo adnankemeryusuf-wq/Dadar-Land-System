@@ -11,7 +11,6 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# CSS Bakka Filannoo (Sidebar Radio) qofa Magariisa Ifaa gochuuf
 st.markdown("""
     <style>
     div[data-testid="stSidebarUserContent"] .stRadio label {
@@ -30,12 +29,10 @@ st.markdown("""
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
         background-color: #34d399 !important;
         transform: scale(1.02);
-        box-shadow: 0 0 25px #10b981 !important;
     }
     div[data-testid="stSidebarUserContent"] .stRadio div[role="radiogroup"] > label > div:first-child {
         display: none !important;
     }
-    /* Metric Card Style */
     .metric-card {
         background-color: #ffffff;
         padding: 20px;
@@ -49,7 +46,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# ================= 2. DATA MANAGEMENT FUNCTIONS =================
+# ================= 2. DATA MANAGEMENT =================
 COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
 def load_data():
@@ -60,35 +57,27 @@ def load_data():
     return df
 
 def save_data(df):
-    """Data gara file txt tti save gochuuf"""
     df.to_csv(DATA_FILE, sep="|", index=False, header=False, encoding='utf-8')
 
 def create_receipt_pdf(data_row):
-    """Nagahee PDF uumuuf"""
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", 'B', 16)
     pdf.cell(200, 10, txt="Wajjira Lafaa Bul/Magaalaa Dadar", ln=True, align='C')
-    pdf.set_font("Arial", size=12)
+    pdf.set_font("Arial", size=11)
     pdf.ln(10)
-    pdf.cell(200, 10, txt="NAGAHEE KAFFALTII", ln=True, align='C')
-    pdf.ln(5)
     for i in range(len(COL_NAMES)):
         pdf.cell(200, 10, txt=f"{COL_NAMES[i].replace('_', ' ')}: {data_row[i]}", ln=True)
-    pdf.ln(10)
-    pdf.cell(200, 10, txt="Mallattoo Ogeessaa: __________________", ln=True)
     return pdf.output(dest='S').encode('latin-1')
 
 # ================= 3. MAIN APP LOGIC =================
 if 'logged_in' not in st.session_state: st.session_state.logged_in = False
 
-# --- LOGIN PAGE ---
 if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 1.2, 1])
     with col:
         st.markdown("<br><br>", unsafe_allow_html=True)
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=150)
+        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=150)
         with st.form("login_form"):
             st.markdown("<h2 style='text-align: center;'>Admin Login</h2>", unsafe_allow_html=True)
             u = st.text_input("Username")
@@ -97,15 +86,11 @@ if not st.session_state.logged_in:
                 if u == "admin" and p == "123":
                     st.session_state.logged_in = True
                     st.rerun()
-                else:
-                    st.error("Ragaan galchaa sirrii miti!")
-
-# --- AUTHENTICATED APP ---
+                else: st.error("Ragaan galchaa sirrii miti!")
 else:
     df = load_data()
     with st.sidebar:
-        if os.path.exists(LOGO_PATH):
-            st.image(LOGO_PATH, width=120)
+        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=120)
         st.markdown("<h3 style='text-align:center;'>Wajjira Lafaa Bul/Magaalaa Dadar</h3>", unsafe_allow_html=True)
         st.markdown("---")
         menu = st.radio("Filannoo", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📈 Gabaasa Galii", "🚪 Logout"])
@@ -114,19 +99,14 @@ else:
         head_l, head_r = st.columns([0.1, 0.9])
         with head_l:
             if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=70)
-        with head_r:
-            st.title("Dadar Land Analytics Overview")
+        with head_r: st.title("Dadar Land Analytics Overview")
         st.markdown("---")
         if not df.empty:
             c1, c2, c3 = st.columns(3)
-            with c1:
-                st.markdown(f"<div class='metric-card'><div class='metric-label'>Galii Waliigalaa</div><div class='metric-val'>{df['Kafaltii_Taj'].sum():,.2f}</div><p>ETB</p></div>", unsafe_allow_html=True)
-            with c2:
-                st.markdown(f"<div class='metric-card'><div class='metric-label'>Tajaajilamtoota</div><div class='metric-val'>{len(df)}</div><p>Total Customers</p></div>", unsafe_allow_html=True)
-            with c3:
-                st.markdown(f"<div class='metric-card'><div class='metric-label'>Ogeeyyii</div><div class='metric-val'>{df['Maqaa_Ogeessa'].nunique()}</div><p>Active Staff</p></div>", unsafe_allow_html=True)
-        else:
-            st.info("Hanga ammaatti data'n galmaa'e hin jiru.")
+            with c1: st.markdown(f"<div class='metric-card'><div class='metric-label'>Galii Waliigalaa</div><div class='metric-val'>{df['Kafaltii_Taj'].sum():,.2f}</div><p>ETB</p></div>", unsafe_allow_html=True)
+            with c2: st.markdown(f"<div class='metric-card'><div class='metric-label'>Tajaajilamtoota</div><div class='metric-val'>{len(df)}</div><p>Total Customers</p></div>", unsafe_allow_html=True)
+            with c3: st.markdown(f"<div class='metric-card'><div class='metric-label'>Ogeeyyii</div><div class='metric-val'>{df['Maqaa_Ogeessa'].nunique()}</div><p>Active Staff</p></div>", unsafe_allow_html=True)
+        else: st.info("Hanga ammaatti data'n galmaa'e hin jiru.")
 
     elif menu == "📝 Galmee Tajaajilaa":
         st.markdown("<h2 style='color: #1a2a29;'>📝 Galmee Haaraa Galchi</h2>", unsafe_allow_html=True)
@@ -138,10 +118,8 @@ else:
             "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
             "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"]
         }
-        
         sel_main = st.multiselect("🟢 Ramaddii Tajaajilaa Filadhu", list(GATII_DICT.keys()))
         details, d_fees, is_tot = [], {}, False
-        
         if sel_main:
             for g in sel_main:
                 st.markdown(f"🔹 {g}")
@@ -162,30 +140,43 @@ else:
                 ara_f = f"G: {c1.text_input('Araddaa G')} / B: {c2.text_input('Araddaa B')}"
             else:
                 name_f, ara_f = c1.text_input("Maqaa Maamilaa"), c2.text_input("Araddaa")
-            
-            qax_f = c1.text_input("Qaxana")
-            ogeessa = c2.text_input("Maqaa Ogeessaa")
+            qax_f, ogeessa = c1.text_input("Qaxana"), c2.text_input("Maqaa Ogeessaa")
             total_sum = sum(d_fees.values())
             st.markdown(f"### 💰 Waliigala Kaffaltii: <span style='color:#00a86b;'>{total_sum:,.2f} ETB</span>", unsafe_allow_html=True)
-            
             if st.form_submit_button("💾 GALMEESSI FI NAGAHEE UUMI"):
                 if name_f and details:
                     new_row = [datetime.now().strftime('%d/%m/%Y %H:%M'), name_f, ara_f, qax_f, ", ".join(details), ogeessa, total_sum]
                     df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                     save_data(df)
-                    st.success("✅ Maamilli milkiin galmeeffameera!")
+                    st.success("✅ Galmeeffameera!")
                     receipt = create_receipt_pdf(new_row)
-                    st.download_button("📥 Nagahee (PDF) Buufadhu", receipt, f"Nagahee_{name_f}.pdf", "application/pdf")
+                    st.download_button("📥 Nagahee Buufadhu", receipt, f"Nagahee_{name_f}.pdf", "application/pdf")
                 else: st.warning("Maaloo odeeffannoo guuti!")
 
     elif menu == "📈 Gabaasa Galii":
-        st.markdown("<h2 style='color: #1a2a23;'>📈 Gabaasa Waliigalaa</h2>", unsafe_allow_html=True)
+        # Search Header with Logo
+        head_col1, head_col2 = st.columns([0.1, 0.9])
+        with head_col1:
+            if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=65)
+        with head_col2:
+            st.markdown("<h2 style='margin-top: 10px;'>Barbaadi (Search) & Gabaasa</h2>", unsafe_allow_html=True)
+        
+        # Search Box
+        search_query = st.text_input("🔍 Maqaa, Araddaa ykn Gosa Tajaajilaa galchi...", placeholder="Fakkeenya: Kaartaa...")
+        
         if not df.empty:
-            st.dataframe(df.style.highlight_max(axis=0, color='#d1e7dd'), use_container_width=True)
+            # Filtering Logic
+            filtered_df = df[df.astype(str).apply(lambda x: search_query.lower() in x.str.lower().any(), axis=1)]
+            
+            st.dataframe(filtered_df.style.highlight_max(axis=0, color='#d1e7dd'), use_container_width=True)
+            
+            st.write(f"Maamiltoota {len(filtered_df)} argamaniiru.")
+            
+            # Export Options
             buf = io.BytesIO()
             with pd.ExcelWriter(buf, engine='xlsxwriter') as wr:
-                df.to_excel(wr, index=False)
-            st.download_button("📥 Gabaasa (Excel) Buufadhu", buf.getvalue(), "Gabaasa_Dadar.xlsx")
+                filtered_df.to_excel(wr, index=False)
+            st.download_button("📥 Gabaasa kana (Excel) Buufadhu", buf.getvalue(), "Gabaasa_Dadar_Filtered.xlsx")
         else:
             st.info("Datiin gabaasaaf dhiyaatu hin jiru.")
 
