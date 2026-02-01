@@ -10,55 +10,55 @@ LOGO_PATH = "Adiaan/logo.png"
 DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
-# Design Fooyya'aa: Jiddu-gala Blue & Deep Center Glow
+# Design Fooyya'aa: Jiddu-gala Magariisa & Deep Center Glow
 st.markdown("""
     <style>
-    /* 1. Background: Wiirtuu Cuquliika ifu (Lighter Blue) fi qarqara Dukkanaa'aa */
+    /* 1. Background: Wiirtuu Magariisa ifu fi qarqara Dukkanaa'aa */
     .stApp {
-        background: radial-gradient(circle at 50% 50%, #0056b3 0%, #04162e 45%, #01040a 100%);
+        background: radial-gradient(circle at 50% 50%, #10b981 0%, #064e3b 45%, #020617 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: Midnight Glass Style */
+    /* 2. Sidebar: Midnight Forest Glass */
     [data-testid="stSidebar"] {
-        background-color: #01040a !important;
-        border-right: 2px solid #00d4ff !important;
-        box-shadow: 10px 0 30px rgba(0, 212, 255, 0.1);
+        background-color: #020617 !important;
+        border-right: 2px solid #34d399 !important;
+        box-shadow: 10px 0 30px rgba(52, 211, 153, 0.1);
     }
 
     /* 3. Barreeffama: Silver-White High Contrast */
     h1, h2, h3, p, label {
         color: #ffffff !important;
-        text-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+        text-shadow: 0 0 10px rgba(52, 211, 153, 0.3);
     }
 
-    /* 4. Dashboard Cards: Transparent Blue Frost */
+    /* 4. Dashboard Cards: Emerald Glass Effect */
     div[data-testid="stMetricWidget"] {
-        background: rgba(0, 20, 40, 0.6) !important;
+        background: rgba(6, 78, 59, 0.4) !important;
         backdrop-filter: blur(12px);
-        border: 1px solid rgba(0, 212, 255, 0.4) !important;
+        border: 1px solid rgba(52, 211, 153, 0.3) !important;
         border-radius: 20px;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7);
         transition: 0.4s;
     }
 
     div[data-testid="stMetricWidget"]:hover {
         transform: translateY(-5px);
-        border-color: #00d4ff !important;
-        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        border-color: #34d399 !important;
+        box-shadow: 0 0 25px rgba(52, 211, 153, 0.2);
     }
 
-    /* 5. Metrics: Electric Blue Glow */
+    /* 5. Metrics: Electric Emerald Glow */
     [data-testid="stMetricValue"] {
-        color: #00d4ff !important;
-        text-shadow: 0 0 20px rgba(0, 212, 255, 1);
+        color: #34d399 !important;
+        text-shadow: 0 0 20px rgba(52, 211, 153, 0.8);
         font-weight: 900 !important;
         font-size: 3.5rem !important;
     }
 
-    /* 6. Buttons: Neon Blue Professional */
+    /* 6. Buttons: Neon Emerald Professional */
     .stButton>button {
-        background: linear-gradient(135deg, #00d4ff 0%, #004080 100%) !important;
+        background: linear-gradient(135deg, #10b981 0%, #064e3b 100%) !important;
         color: #ffffff !important;
         border: none !important;
         border-radius: 50px !important;
@@ -66,25 +66,26 @@ st.markdown("""
         font-weight: 800 !important;
         text-transform: uppercase;
         letter-spacing: 1px;
-        box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4) !important;
+        box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4) !important;
+        transition: 0.4s;
     }
     
     .stButton>button:hover {
-        box-shadow: 0 0 30px #00d4ff !important;
+        box-shadow: 0 0 30px #10b981 !important;
         transform: scale(1.05);
     }
 
-    /* 7. Input Fields: Cyber Focus */
+    /* 7. Input Fields: Stealth Green Focus */
     .stTextInput input {
         background-color: rgba(0, 0, 0, 0.5) !important;
-        color: #00d4ff !important;
-        border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        color: #34d399 !important;
+        border: 1px solid rgba(52, 211, 153, 0.3) !important;
         border-radius: 10px;
     }
     
     .stTextInput input:focus {
-        border-color: #00d4ff !important;
-        box-shadow: 0 0 15px rgba(0, 212, 255, 0.5) !important;
+        border-color: #34d399 !important;
+        box-shadow: 0 0 15px rgba(52, 211, 153, 0.4) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -239,6 +240,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
