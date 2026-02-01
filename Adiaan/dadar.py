@@ -95,18 +95,26 @@ else:
         st.markdown("---")
         menu = st.radio("Filannoo", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📈 Gabaasa Galii", "🚪 Logout"])
 
+    # --- DASHBOARD ---
     if menu == "📊 Dashboard":
-        head_l, head_r = st.columns([0.1, 0.9])
-        with head_l:
-            if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=70)
-        with head_r: st.title("Dadar Land Analytics Overview")
-        st.markdown("---")
+        st.markdown("<h2 style='color: #1b5e20;'>📊 Dashboard Waliigalaa</h2>", unsafe_allow_html=True)
         if not df.empty:
             c1, c2, c3 = st.columns(3)
-            with c1: st.markdown(f"<div class='metric-card'><div class='metric-label'>Galii Waliigalaa</div><div class='metric-val'>{df['Kafaltii_Taj'].sum():,.2f}</div><p>ETB</p></div>", unsafe_allow_html=True)
-            with c2: st.markdown(f"<div class='metric-card'><div class='metric-label'>Tajaajilamtoota</div><div class='metric-val'>{len(df)}</div><p>Total Customers</p></div>", unsafe_allow_html=True)
-            with c3: st.markdown(f"<div class='metric-card'><div class='metric-label'>Ogeeyyii</div><div class='metric-val'>{df['Maqaa_Ogeessa'].nunique()}</div><p>Active Staff</p></div>", unsafe_allow_html=True)
-        else: st.info("Hanga ammaatti data'n galmaa'e hin jiru.")
+            with c1:
+                rev = float(df['Kafaltii_Taj'].sum())
+                st.markdown(f"<div class='card'><p>💰 Galii Waliigalaa</p><p class='metric-value'>{rev:,.2f} ETB</p></div>", unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"<div class='card'><p>👥 Maamiltoota</p><p class='metric-value'>{len(df)}</p></div>", unsafe_allow_html=True)
+            with c3:
+                top_og = df['Maqaa_Ogeessa'].mode()[0] if not df['Maqaa_Ogeessa'].empty else "-"
+                st.markdown(f"<div class='card'><p>🏆 Ogeessa Filatamaa</p><p class='metric-value'>{top_og}</p></div>", unsafe_allow_html=True)
+            
+            st.markdown("---")
+            st.subheader("📈 Trendii Galii Ji'aan")
+            trend_data = df.groupby('Ji\'a')['Kafaltii_Taj'].sum().reindex(MONTH_ORDER).fillna(0)
+            st.area_chart(trend_data)
+        else:
+            st.info("Data'n galmeeffame hin jiru.
 
     elif menu == "📝 Galmee Tajaajilaa":
         st.markdown("<h2 style='color: #1a2a29;'>📝 Galmee Haaraa Galchi</h2>", unsafe_allow_html=True)
@@ -183,3 +191,4 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
