@@ -11,69 +11,34 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Ultra-Bright Emerald Theme
+# Bakka Filannoo (Sidebar Radio) qofa Magariisa Ifaa gochuuf
 st.markdown("""
     <style>
-    /* 1. Background: Magariisa Ifaa (Bright Emerald) */
-    .stApp {
-        background: radial-gradient(circle at 50% 50%, #10b981 0%, #059669 60%, #064e3b 100%);
-        background-attachment: fixed;
+    /* Bakka filannoo (Radio Buttons) gara bitaa */
+    div[data-testid="stSidebarUserContent"] .stRadio label {
+        background-color: #10b981 !important; /* Magariisa baay'ee ifu */
+        color: #000000 !important;           /* Barreeffama gurraacha (akka ifatti mul'atu) */
+        border: 2px solid #ffffff !important; /* Sarara adii naannoo isaa */
+        border-radius: 12px !important;
+        padding: 15px 25px !important;
+        margin-bottom: 10px !important;
+        font-weight: 900 !important;          /* Barreeffama gabbataa */
+        text-transform: uppercase;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4) !important;
+        display: block;
+        cursor: pointer;
+    }
+
+    /* Yoo mouse irra qabdu caalaatti akka ifu */
+    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
+        background-color: #34d399 !important; /* Magariisa caalaatti ifu */
+        transform: scale(1.02);
+        box-shadow: 0 0 25px #10b981 !important;
     }
     
-    /* 2. Global Text: Barreeffama hunda ifatti baasi */
-    .stApp, .stMarkdown, p, h1, h2, h3, label, span {
-        color: #ffffff !important;
-        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5) !important; /* Dubbisuuf akka gargaaru */
-        font-weight: 600 !important;
-    }
-
-    /* 3. Sidebar: Magariisa Dukkanaa'aa Glass Style */
-    [data-testid="stSidebar"] {
-        background-color: rgba(1, 20, 15, 0.9) !important;
-        border-right: 3px solid #ffffff !important;
-    }
-
-    /* 4. Sidebar Radio: Bakka filannoo ifaa godhi */
-    div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: #ffffff !important; /* Barreeffama duubatti adii godhi */
-        color: #064e3b !important; /* Barreeffama magariisa godhi */
-        border-radius: 10px !important;
-        padding: 10px 20px !important;
-        margin-bottom: 8px !important;
-        font-weight: 800 !important;
-    }
-
-    /* 5. Metrics: High Contrast */
-    div[data-testid="stMetricWidget"] {
-        background: rgba(255, 255, 255, 0.2) !important;
-        backdrop-filter: blur(10px);
-        border: 2px solid #ffffff !important;
-        border-radius: 20px;
-    }
-    [data-testid="stMetricValue"] {
-        color: #ffffff !important;
-        text-shadow: 2px 2px 10px rgba(0,0,0,0.3) !important;
-    }
-
-    /* 6. Input Fields: Bakka barreeffamaa */
-    input {
-        background-color: #ffffff !important;
-        color: #000000 !important;
-        border-radius: 8px !important;
-    }
-
-    /* 7. Buttons: Professional Dark Green */
-    .stButton>button {
-        background: #064e3b !important;
-        color: #ffffff !important;
-        border: 2px solid #ffffff !important;
-        border-radius: 12px !important;
-        font-weight: 800 !important;
-        width: 100%;
-    }
-    .stButton>button:hover {
-        background: #ffffff !important;
-        color: #064e3b !important;
+    /* Bakka filannoo (Dot) sana dhoksi (akka button-itti mul'achuuf) */
+    div[data-testid="stSidebarUserContent"] .stRadio div[role="radiogroup"] > label > div:first-child {
+        display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -228,6 +193,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
