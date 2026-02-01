@@ -11,93 +11,91 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Executive & Modern Green UI
+# Custom CSS for High-Visibility & Professional Glow
 st.markdown("""
     <style>
-    /* 1. Background: Smooth Mint & White Gradient */
+    /* 1. Background: Crystal Clear Mint */
     .stApp {
-        background: radial-gradient(circle at top right, #f0fdf4, #ffffff 100%);
+        background: radial-gradient(circle at top right, #e8f5e9, #ffffff 100%);
     }
     
-    /* 2. Sidebar: Deep Forest Glass with Neon Border */
+    /* 2. Sidebar: Deep Midnight Forest with Neon Stroke */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #04160e 0%, #062c1a 100%) !important;
-        border-right: 2px solid #00ffa233;
-        box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+        background: linear-gradient(180deg, #020d08 0%, #062c1a 100%) !important;
+        border-right: 3px solid #00ffa2 !important; /* Sarara ifu kan qarqaraa */
+        box-shadow: 15px 0 40px rgba(0, 255, 162, 0.1);
     }
 
-    /* 3. Sidebar Menu: Floating Capsule Style */
-    div[data-testid="stSidebarUserContent"] .stRadio > div {
-        gap: 12px;
-        padding: 10px;
-    }
-    
+    /* 3. Sidebar Radio Buttons: High-Contrast Glow */
     div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(255, 255, 255, 0.03) !important;
-        color: #b0b0b0 !important;
-        border-radius: 15px !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important; /* Adii qulqulluu akka dubbisamuuf */
+        border-radius: 12px !important;
+        border: 1px solid rgba(0, 255, 162, 0.2) !important;
         padding: 15px 25px !important;
-        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        margin-bottom: 12px !important;
+        font-weight: 600 !important;
+        transition: 0.4s all ease;
     }
 
-    /* Hover & Active: Glowing Neon Green */
+    /* Active/Hover State: Neon Pop */
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        background: rgba(0, 255, 162, 0.1) !important;
-        color: #00ffa2 !important;
-        border-color: #00ffa2 !important;
-        transform: translateX(12px) scale(1.02);
-        box-shadow: 0 5px 15px rgba(0, 255, 162, 0.2);
+        background: #00ffa2 !important;
+        color: #020d08 !important; /* Barreeffama dukkanaa'aa halluu ifa irratti */
+        transform: translateX(10px) scale(1.05);
+        box-shadow: 0 0 20px rgba(0, 255, 162, 0.6) !important;
     }
 
-    /* 4. Metric Cards: High-Gloss Elevation */
+    /* 4. Dashboard Cards: Floating Diamond Effect */
     div[data-testid="stMetricWidget"], .metric-card {
         background: white !important;
         border-radius: 25px !important;
         padding: 30px !important;
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03) !important;
-        border: 1px solid #f0f0f0 !important;
-        border-left: 6px solid #062c1a !important; /* Bold Sidebar-match accent */
-        transition: 0.4s ease-in-out;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+        border-top: 8px solid #062c1a !important; /* Sarara gubbaa furdaa */
+        transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(6, 44, 26, 0.08) !important;
-        border-left: 6px solid #00ffa2 !important; /* Changes to Neon on hover */
+        transform: translateY(-15px);
+        border-top: 8px solid #00ffa2 !important;
+        box-shadow: 0 20px 45px rgba(0, 255, 162, 0.2) !important;
     }
     
-    .metric-val { 
-        font-weight: 900 !important;
+    /* 5. Halluu Lakkoofsaa (Metric Value) */
+    [data-testid="stMetricValue"] {
         color: #062c1a !important;
+        font-size: 3rem !important;
+        font-weight: 800 !important;
     }
 
-    /* 5. Buttons: Radiant Professional Gradient */
+    /* 6. Buttons: Ultra-Glow Emerald */
     .stButton>button {
-        background: linear-gradient(135deg, #062c1a 0%, #0d4d32 100%) !important;
-        color: #00ffa2 !important; /* Neon text on dark green */
-        border-radius: 14px !important;
-        border: 1px solid #00ffa244 !important;
-        padding: 15px 45px !important;
-        font-weight: 700 !important;
-        letter-spacing: 1px;
+        background: linear-gradient(135deg, #00ffa2 0%, #00a86b 100%) !important;
+        color: #020d08 !important;
+        border-radius: 15px !important;
+        border: none !important;
+        padding: 15px 40px !important;
+        font-weight: 800 !important;
+        text-transform: uppercase;
+        box-shadow: 0 8px 20px rgba(0, 255, 162, 0.3) !important;
         transition: 0.4s;
     }
     
     .stButton>button:hover {
-        background: #00ffa2 !important;
-        color: #04160e !important;
-        box-shadow: 0 0 25px rgba(0, 255, 162, 0.5) !important;
-        transform: scale(1.03);
+        box-shadow: 0 0 30px rgba(0, 255, 162, 0.8) !important;
+        transform: scale(1.05);
+        filter: brightness(1.2);
     }
 
-    /* 6. Inputs & Selectors: Clean Focus */
+    /* 7. Input Fields Highlighting */
     .stTextInput input {
+        border: 2px solid #e0e0e0 !important;
         border-radius: 12px !important;
-        border: 2px solid #f0f0f0 !important;
     }
     .stTextInput input:focus {
         border-color: #00ffa2 !important;
+        box-shadow: 0 0 10px rgba(0, 255, 162, 0.3) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -252,6 +250,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
