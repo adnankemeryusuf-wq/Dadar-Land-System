@@ -173,37 +173,32 @@ else:
                     save_data(df); st.success("✅ Galmeeffameera!")
                     st.download_button("📥 Nagahee PDF", create_receipt_pdf(new_row), f"Nagahee_{name}.pdf")
 
-    elif menu == "📜 Clearance (Ragaa)":
+elif menu == "📜 Clearance (Ragaa)":
         st.header("📜 Waraqaa Qulqullinaa")
         
-        # Logo uploaders asittidabalameera
         up_col1, up_col2 = st.columns(2)
         l_l = up_col1.file_uploader("Logo Bitaa (Upload)", type=['png', 'jpg', 'jpeg'])
         l_r = up_col2.file_uploader("Logo Mirgaa (Upload)", type=['png', 'jpg', 'jpeg'])
 
-        if 'pdf_to_download' in st.session_state:
-            st.success(f"✅ PDF Qophaa'eera!")
-            st.download_button("📥 Buufadhu", st.session_state.pdf_to_download, st.session_state.pdf_name)
-            if st.button("🔄 Haaraa Uumi"): del st.session_state.pdf_to_download; st.rerun()
-        else:
-            with st.form("clearance"):
-                c1, c2 = st.columns(2)
-                m = {
-                    'maqaa': c1.text_input("Maqaa"), 
-                    'araddaa': c2.text_input("Araddaa"), 
-                    'qaxana': c1.text_input("Qaxana"), 
-                    'kaartaa': c2.text_input("Kaartaa"), 
-                    'gosa_qabiyyee': c1.selectbox("Gosa", ["Liizii", "Permit"]), 
-                    'bara_gibiraa': c2.text_input("Bara Gibiraa"), 
-                    'dhimma': c1.selectbox("Dhimma", ["Gurgurtaa", "Liqii", "Kennaa"]), 
-                    'head_name': st.text_input("Itti Gaafatamaa")
-                }
-                if st.form_submit_button("📄 PDF UUMI"):
-                    if m['maqaa']:
-                        st.session_state.pdf_to_download = create_clearance_pdf(m, l_l, l_r)
-                        st.session_state.pdf_name = f"Clearance_{m['maqaa']}.pdf"
-                        st.rerun()
-
+        with st.form("clearance"):
+            c1, c2 = st.columns(2)
+            m = {
+                'maqaa': c1.text_input("Maqaa Abbaa Qabiyyee"), 
+                'araddaa': c2.text_input("Araddaa"), 
+                'qaxana': c1.text_input("Qaxana"), 
+                'kaartaa': c2.text_input("Lakk. Kaartaa"), # <--- KEY 'kaartaa' ta'uu isaa mirkaneessi
+                'gosa_qabiyyee': c1.selectbox("Gosa Qabiyyee", ["Liizii", "Permit"]), 
+                'bara_gibiraa': c2.text_input("Bara Gibiraa"), 
+                'dhimma': c1.selectbox("Dhimma Barbaadame", ["Gurgurtaa", "Liqii", "Kennaa"]), 
+                'head_name': st.text_input("Maqaa Itti Gaafatamaa")
+            }
+            if st.form_submit_button("📄 PDF UUMI"):
+                if m['maqaa'] and m['kaartaa']:
+                    st.session_state.pdf_to_download = create_clearance_pdf(m, l_l, l_r)
+                    st.session_state.pdf_name = f"Clearance_{m['maqaa']}.pdf"
+                    st.rerun()
+                else:
+                    st.error("Maaloo Maqaa fi Lakk. Kaartaa guuti!")
     elif menu == "📈 Gabaasa Galii":
         st.header("📈 Gabaasa & Ergaa")
         search = st.text_input("🔍 Barbaadi:")
@@ -227,6 +222,7 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
