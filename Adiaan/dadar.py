@@ -94,21 +94,26 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
     pdf.cell(0, 10, "BULCHIINSA MAGAALAA DADAR", ln=True, align='C')
     pdf.ln(3); pdf.set_line_width(0.5); pdf.line(20, 56, 190, 56)
+    
     guyyaa_ec = get_ethiopian_date_str()
     pdf.ln(12); pdf.set_font('Times', '', 12); pdf.set_x(20)
     pdf.write(5, f"Lakk. Galmee: DAD/WL/{datetime.now().year}/____"); pdf.set_x(140)
     pdf.write(5, f"Guyyaa: {guyyaa_ec}"); pdf.ln(18)
+    
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(8)
+    
     pdf.set_font('Times', '', 12); pdf.set_x(20)
-    pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} Lakk Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n")
+    # --- AS JALATTI "Lakk. Kaartaa" JEDHEE SIRREEFFAMEERA ---
+    pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} Lakk. Kaartaa {data['kaartaa']} qabaniif kan kennameedha.\n\n")
+    
     pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n")
     pdf.write(9, f"2. Kaffaltii {data['gosa_qabiyyee']} hunda xumuraniiru.\n")
     pdf.write(9, "3. Qabiyyeen kun DHORKAA kamirrayyuu bilisa ta'uu mirkaneessina.\n\n")
     pdf.write(9, f"Dhimma {data['dhimma']} raawwachuuf mormii hin qabnu.")
+    
     pdf.set_y(235); pdf.set_x(20); pdf.set_font('Times', 'B', 12)
     pdf.write(8, f"Maqaa Itti Gaafatamaa: {data['head_name']}\nMallattoo: _________________")
     return pdf.output(dest='S').encode('latin-1')
-
 def create_pdf_cert(name, count, rank):
     pdf = FPDF(orientation='L', unit='mm', format='A4')
     pdf.add_page()
@@ -240,6 +245,7 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
