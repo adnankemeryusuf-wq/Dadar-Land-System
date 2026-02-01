@@ -11,75 +11,52 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Professional Emerald Glassmorphism
+# Custom CSS for Professional & Beautiful Navigation
 st.markdown("""
     <style>
-    /* Background & Font */
-    .stApp { background: linear-gradient(135deg, #00a86b0%, #c3cfe2 100%); }
-    
-    /* Sidebar Premium Style */
+    /* 1. Sidebar Background - Halluu Dukkanaa'aa miidhagaa */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #00a99b0%, #1a2a23 100%) !important;
-        border-right: 1px solid rgba(255,255,255,0.1);
-    }
-    [data-testid="stSidebar"] * { color: #ffffff !important; }
-
-    /* Centering Logo globally */
-    .logo-container {
-        display: flex;
-        justify-content: center;
-        padding: 10px;
-    }
-    .logo-img {
-        border-radius: 50%;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        background: white;
-        padding: 5px;
+        background: linear-gradient(180deg, #0d1a14 0%, #1a2a23 100%) !important;
+        border-right: 2px solid #00a86b;
     }
 
-    /* Glassmorphism Metric Cards */
-    .metric-card {
-        background: rgba(255, 255, 255, 0.75);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        padding: 30px;
-        border-radius: 25px;
-        border: 1px solid rgba(255, 255, 255, 0.4);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08);
-        text-align: center;
-        transition: 0.3s ease;
-    }
-    .metric-card:hover {
-        transform: translateY(-5px);
-        border: 1px solid #00a86b;
-    }
-    .metric-val { 
-        color: #00a86b; 
-        font-size: 36px; 
-        font-weight: 800; 
-        margin: 0;
-    }
-    .metric-label { 
-        color: #444; 
-        font-size: 14px; 
-        font-weight: 600; 
-        text-transform: uppercase;
-        margin-bottom: 10px;
+    /* 2. Sidebar Menu (Radio Buttons) Bareechu */
+    div[data-testid="stSidebarUserContent"] .stRadio > div {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 15px;
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    /* Premium Buttons */
-    .stButton>button {
-        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%);
-        color: white !important;
-        border-radius: 12px;
-        border: none;
-        padding: 10px 25px;
-        font-weight: 700;
+    /* 3. Dashboard Selection Cards - Bakka Dashboard, Galmee, fi Gabaasaa */
+    .nav-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(10px);
+        padding: 20px;
+        border-radius: 20px;
+        border-left: 10px solid #00a86b;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
         transition: 0.3s;
+        cursor: pointer;
     }
-    .stButton>button:hover {
-        filter: brightness(1.2);
-        transform: scale(1.02);
+    
+    .nav-card:hover {
+        transform: translateX(10px);
+        background: #ffffff;
+        border-left: 10px solid #d4af37; /* Halluu Warqee (Gold) */
+    }
+
+    /* 4. Active Selection Highlight */
+    .stRadio > label {
+        color: #00a86b !important;
+        font-weight: bold !important;
+    }
+
+    /* 5. Icon Size and Color */
+    .st-emotion-cache-17l243n {
+        font-size: 20px;
+        color: #00a86b;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -235,6 +212,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
