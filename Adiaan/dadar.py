@@ -85,18 +85,17 @@ def create_clearance_pdf(data, logo_l, logo_r):
     
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WARAQAA RAGAA QULQULLINAA (CLEARANCE)", ln=True, align='C'); pdf.ln(8)
     
-    # --- BARREEFFAMA "LAKK. KAARTAA" GUDDISUU ---
+   # --- BARREEFFAMA "LAKK. KAARTAA" GUDDISUU ---
     pdf.set_font('Times', '', 12); pdf.set_x(20)
     pdf.write(9, f"Waraqaan ragaa kun Obbo/Adde/Dhaabbata {data['maqaa'].upper()} Araddaa {data['araddaa']} Qaxana {data['qaxana']} ")
     
-    # "Lakk. Kaartaa" fi Lakkoofsa isaa GUDDISUU (Bold)
+    # "LAKK. KAARTAA" akka jedhu fi Bold akka ta'u godhameera
     pdf.set_font('Times', 'B', 13) 
-    pdf.write(9, f"Lakk. Kaartaa {data['kaartaa']} ")
+    pdf.write(9, f"LAKK. KAARTAA {data['kaartaa']} ")
     
-    # Gara barreeffama kaaniitti deebi'uu (Regular)
+    # Gara barreeffama kaaniitti deebi'uu
     pdf.set_font('Times', '', 12)
     pdf.write(9, "qabaniif kan kennameedha.\n\n")
-    
     # --- KUTAA HAFAAN ---
     pdf.write(9, f"1. Kaffaltii Gibira waggaa hanga bara {data['bara_gibiraa']} guutummaatti kaffalaniiru.\n")
     pdf.write(9, f"2. Kaffaltii {data['gosa_qabiyyee']} hunda xumuraniiru.\n")
@@ -227,6 +226,7 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
