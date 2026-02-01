@@ -15,7 +15,7 @@ st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_ic
 st.markdown("""
     <style>
     /* Background & Font */
-    .stApp { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+    .stApp { background: linear-gradient(135deg, #00a86b0%, #c3cfe2 100%); }
     
     /* Sidebar Premium Style */
     [data-testid="stSidebar"] {
@@ -235,6 +235,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
