@@ -136,10 +136,12 @@ else:
         "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
         "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
     ],
+    "⚖️ Adabbii & Seeressuu": [
+        "Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
+
     "📂 Tajaajila Biroo": [
         "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
     ]
-}
         
         sel_main = st.multiselect("🟢 Ramaddii Tajaajilaa Filadhu", list(GATII_DICT.keys()))
         details, d_fees, is_tot = [], {}, False
@@ -191,5 +193,6 @@ else:
 
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
 
