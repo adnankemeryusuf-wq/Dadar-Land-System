@@ -79,15 +79,23 @@ def create_clearance_pdf(data, logo_l, logo_r):
     pdf.set_line_width(0.8); pdf.rect(10, 10, 190, 277)
     pdf.set_line_width(0.2); pdf.rect(12, 12, 186, 273)
 
+   # Logo Management (Sirreeffama Haaraa)
     if logo_l:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
-            tmp.write(logo_l.getvalue()); pdf.image(tmp.name, 15, 18, 23)
-        os.unlink(tmp.name)
-    if logo_r:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".png") as tmp:
-            tmp.write(logo_r.getvalue()); pdf.image(tmp.name, 172, 18, 23)
-        os.unlink(tmp.name)
+        # Suffix isaa ".png" qofa osoo hin taane bifa original isaa akka fudhatu gochuuf
+        ext_l = logo_l.name.split('.')[-1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_l}") as tmp:
+            tmp.write(logo_l.getbuffer()) # getvalue() irraa gara getbuffer() tti
+            tmp_path_l = tmp.name
+        pdf.image(tmp_path_l, 15, 18, 23)
+        os.unlink(tmp_path_l)
 
+    if logo_r:
+        ext_r = logo_r.name.split('.')[-1]
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{ext_r}") as tmp:
+            tmp.write(logo_r.getbuffer())
+            tmp_path_r = tmp.name
+        pdf.image(tmp_path_r, 172, 18, 23)
+        os.unlink(tmp_path_r)
     pdf.set_y(22); pdf.set_font('Times', 'B', 15)
     pdf.cell(0, 10, "MOOTUMMAA NAANNOO OROMIYAA", ln=True, align='C')
     pdf.set_font('Times', 'B', 14); pdf.cell(0, 10, "WAAJJIRA LAFAA", ln=True, align='C')
@@ -248,3 +256,4 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
