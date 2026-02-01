@@ -11,95 +11,74 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Global Attractive Transformation
+# Custom CSS for Waajjira Lafaa Professional UI
 st.markdown("""
     <style>
-    /* 1. Halluu Waliigalaa (Global Background) - Bifa lallaafaa calaqqisu */
+    /* 1. Background Waliigalaa: Halluu laafaa ija hin naafisne */
     .stApp {
-        background: linear-gradient(120deg, #f0fdf4 0%, #ffffff 40%, #f9fafb 70%, #fffbeb 100%);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
+        background-color: #f4f7f6;
+        background-image: linear-gradient(315deg, #f4f7f6 0%, #e9eeee 74%);
     }
     
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* 2. Sidebar: Halluu "Glassmorphism" ifaa fi qulqulluu */
+    /* 2. Sidebar: Halluu Dukkanaa'aa (Deep Professional Forest) */
     [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.9) !important;
-        backdrop-filter: blur(20px);
-        border-right: 2px solid #00a86b33;
+        background: linear-gradient(180deg, #0a261a 0%, #143d2c 100%) !important;
+        border-right: 3px solid #d4af37; /* Sarara Warqee */
     }
 
-    /* 3. Barreeffama & Filannoo Sidebar */
+    /* 3. Barreeffama Sidebar: Adii qulqulluu */
     [data-testid="stSidebarUserContent"] .stRadio label {
-        background: white !important;
-        border-radius: 12px !important;
-        border: 1px solid #f0f0f0 !important;
-        color: #1a2a23 !important;
-        font-weight: 600 !important;
-        margin-bottom: 10px !important;
-        transition: 0.3s all ease-in-out;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 12px 20px !important;
+        border-radius: 10px !important;
+        margin-bottom: 8px !important;
+        transition: 0.3s all ease;
     }
 
+    /* Active & Hover: Gara halluu Warqeetti (Gold) jijjiirama */
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        transform: translateX(8px);
-        border-color: #00a86b !important;
-        background: #f0fdf4 !important;
-        color: #00a86b !important;
+        background: #d4af37 !important;
+        color: #0a261a !important;
+        transform: scale(1.02);
     }
 
-    /* 4. Saanduqoota Gabaasaa (Metric Cards) - Bifa "Diamond" Elevation */
+    /* 4. Dashboard Cards: Bifa Galmee (Document Card) */
     div[data-testid="stMetricWidget"], .metric-card {
-        background: white !important;
-        border-radius: 25px !important;
-        padding: 30px !important;
-        border: 1px solid rgba(0, 168, 107, 0.1) !important;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
-        transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: #ffffff !important;
+        border-radius: 15px !important;
+        padding: 25px !important;
+        border-left: 10px solid #143d2c !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+        transition: 0.4s;
     }
 
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-12px) scale(1.02);
-        box-shadow: 0 20px 40px rgba(0, 168, 107, 0.1) !important;
-        border-bottom: 5px solid #d4af37 !important; /* Gold line on hover */
+        box-shadow: 0 10px 25px rgba(20, 61, 44, 0.1) !important;
+        border-left: 10px solid #d4af37 !important;
     }
 
-    /* 5. Halluu Lakkoofsaa (Metric Value) */
-    .metric-val {
-        background: linear-gradient(90deg, #00a86b, #004d32);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800 !important;
-    }
-
-    /* 6. Button-nii (Buttons) - Halluu "Glowing Emerald" */
+    /* 5. Buttons: Halluu Pirofeeshinaala */
     .stButton>button {
-        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%) !important;
-        color: white !important;
-        border-radius: 15px !important;
-        padding: 12px 30px !important;
+        background: #143d2c !important;
+        color: #d4af37 !important;
+        border: 2px solid #d4af37 !important;
+        border-radius: 8px !important;
         font-weight: 700 !important;
-        border: none !important;
-        box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3) !important;
-        transition: 0.4s all;
+        text-transform: uppercase;
+        padding: 10px 25px !important;
     }
 
     .stButton>button:hover {
-        background: linear-gradient(135deg, #00ffa2 0%, #00a86b 100%) !important;
-        box-shadow: 0 8px 25px rgba(0, 255, 162, 0.4) !important;
-        transform: scale(1.05);
+        background: #d4af37 !important;
+        color: #143d2c !important;
     }
 
-    /* 7. Bakka Galchaa (Input Fields) */
-    .stTextInput input, .stSelectbox div {
-        border-radius: 12px !important;
-        border: 1px solid #e2e8f0 !important;
-        padding: 10px !important;
+    /* Header Styling */
+    h1, h2, h3 {
+        color: #143d2c !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -254,6 +233,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
