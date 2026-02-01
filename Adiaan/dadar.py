@@ -11,7 +11,7 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Light Premium & Professional UI
+# Custom CSS for Jiddu-galeessa Premium & Professional UI
 st.markdown("""
     <style>
     /* 1. Background Appii: Soft Mesh Gradient */
@@ -22,54 +22,70 @@ st.markdown("""
         background-size: 60px 60px;
     }
     
-    /* 2. Sidebar: Halluu Ifaa (Light Glass) fi Qulqulluu */
+    /* 2. Sidebar: Light Glass Look */
     [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.8) !important;
+        background: rgba(255, 255, 255, 0.9) !important;
         backdrop-filter: blur(15px);
-        border-right: 1px solid rgba(0, 168, 107, 0.2);
+        border-right: 1px solid rgba(0, 168, 107, 0.1);
     }
     
-    /* 3. Barreeffama Sidebar (Menu Text) */
+    /* 3. Sidebar Text & Icons */
     [data-testid="stSidebarUserContent"] * {
-        color: #1a2a23 !important;
+        color: #2c3e50 !important;
         font-weight: 500;
     }
 
-    /* 4. Active Menu Highlight - Filannoo Irra Jirtu */
+    /* 4. Active Menu Highlight */
     div[data-testid="stSidebarUserContent"] .stRadio > div {
-        background: rgba(0, 168, 107, 0.05);
-        border-radius: 15px;
-        border: 1px solid rgba(0, 168, 107, 0.1);
-        padding: 10px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        padding: 15px;
+        border: 1px solid #eee;
     }
 
-    /* 5. Metric Cards: Bifa "White Glass" miidhagaa */
+    /* 5. Professional Metric Cards */
     div[data-testid="stMetricWidget"], .metric-card {
         background: white !important;
-        border-radius: 20px !important;
-        box-shadow: 0 10px 30px rgba(0, 168, 107, 0.05) !important;
-        border: 1px solid #f0f0f0 !important;
+        border-radius: 16px !important;
+        padding: 20px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.02) !important;
+        border: 1px solid #f1f3f5 !important;
+        transition: 0.3s;
+    }
+    
+    div[data-testid="stMetricWidget"]:hover {
+        border-color: #00a86b !important;
+        transform: translateY(-3px);
     }
     
     .metric-val { 
         color: #00a86b !important; 
         font-weight: 800;
+        font-size: 2rem;
     }
 
-    /* 6. Buttons: Emerald Professional Gradient */
+    /* 6. Professional Emerald Buttons */
     .stButton>button {
-        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%) !important;
+        background: linear-gradient(135deg, #00a86b 0%, #00895a 100%) !important;
         color: white !important;
-        border-radius: 12px !important;
+        border-radius: 10px !important;
         border: none !important;
-        padding: 0.5rem 2rem !important;
-        font-weight: 600 !important;
+        padding: 0.6rem 2.5rem !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.5px;
         transition: 0.3s ease all;
     }
     
     .stButton>button:hover {
-        box-shadow: 0 8px 20px rgba(0, 168, 107, 0.3) !important;
-        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 168, 107, 0.2) !important;
+        filter: brightness(1.1);
+    }
+
+    /* Form and Input Refinement */
+    .stTextInput input {
+        border-radius: 8px !important;
+        border-color: #e9ecef !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -224,6 +240,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
