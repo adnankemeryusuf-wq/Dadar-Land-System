@@ -120,12 +120,25 @@ else:
     elif menu == "📝 Galmee Tajaajilaa":
         st.markdown("<h2 style='color: #0b6623;'>📝 Galmee Haaraa</h2>", unsafe_allow_html=True)
         GATII_DICT ={
-    "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax)"],
-    "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Jijjiirraa Maqaa"],
-    "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa", "Humna Mahandisummaa"],
-    "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
-    "📂 Tajaajila Biroo": ["Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo"],
-    "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"],
+    "🏷 Gibira & Kaffaltii": [
+        "Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", 
+        "Kaffaltii Liizii Duraa", "Gibira Milkii (Stamp Duty)", "TOT (Turnover Tax)"
+    ],
+    "📜 Kaartaa & Qabiyyee": [
+        "Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", 
+        "Jijjiirraa Maqaa (Gift/Sale)", "Sirreeffama Daangaa", "Ganda Irraa gara Magaalaatti"
+    ],
+    "🏗 Pilaanii & Ijaarsa": [
+        "Hayyama Ijaarsaa", "Pilaanii Magaalaa", "Itti Fayyadama Lafaa (Land Use)", 
+        "Mirkaneessa Sertifikeeta Ijaarsaa", "Humna Mahandisummaa"
+    ],
+    "⚖️ Dhimma Seeraa": [
+        "Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii", 
+        "Waliigaltee Hiikuu", "Dhimma Dhala (Inheritance)"
+    ],
+    "📂 Tajaajila Biroo": [
+        "Waraqaa Ragaa (Clearance)", "Deebii Iyyannoo", "Tajaajila Koppii (Photocopy)"
+    ]
 }
         
         sel_main = st.multiselect("🟢 Ramaddii Tajaajilaa Filadhu", list(GATII_DICT.keys()))
@@ -178,4 +191,5 @@ else:
 
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False; st.rerun()
+
 
