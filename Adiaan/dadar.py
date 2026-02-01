@@ -22,7 +22,7 @@ st.markdown("""
         border-radius: 12px !important;
         padding: 15px 25px !important;
         margin-bottom: 10px !important;
-        font-weight: 900 !important;          /* Barreeffama gabbataa */
+        font-weight: 800 !important;          /* Barreeffama gabbataa */
         text-transform: uppercase;
         box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4) !important;
         display: block;
@@ -193,6 +193,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
