@@ -76,7 +76,7 @@ st.markdown("""
     /* 6. Professional Buttons: Silk Emerald */
     .stButton>button {
         background: #062c1a !important;
-        color: #00ffa2 !important;
+        color: #1a2a29 !important;
         border: 1px solid #00ffa2 !important;
         border-radius: 12px !important;
         padding: 14px 40px !important;
@@ -88,7 +88,7 @@ st.markdown("""
     .stButton>button:hover {
         background: #00ffa2 !important;
         color: #062c1a !important;
-        box-shadow: 0 0 25px rgba(0, 255, 162, 0.5) !important;
+        box-shado#1a2a29w: 0 0 25px rgba(0, 255, 162, 0.5) !important;
         transform: translateY(-3px);
     }
 
@@ -256,6 +256,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
