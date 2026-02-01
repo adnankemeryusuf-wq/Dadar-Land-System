@@ -11,80 +11,98 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Professional Emerald & Glassmorphism Look
+# Custom CSS: Emerald Glassmorphism & Center Glow (Full Harmony)
 st.markdown("""
     <style>
-    /* 1. Global Background - Halluu Soft */
-    .stApp { 
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+    /* 1. Background: Wiirtuu Magariisa ifu (Center Glow) */
+    .stApp {
+        background: radial-gradient(circle at 50% 50%, #10b981 0%, #064e3b 45%, #020617 100%);
+        background-attachment: fixed;
     }
     
-    /* 2. Sidebar Premium Style */
+    /* 2. Sidebar: Midnight Forest Glass biifa Magariisaa qabu */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #0d1a14 0%, #1a2a23 100%) !important;
-        border-right: 1px solid rgba(255,255,255,0.1);
+        background-color: rgba(2, 6, 23, 0.95) !important;
+        border-right: 2px solid #34d399 !important;
+        box-shadow: 10px 0 30px rgba(52, 211, 153, 0.1);
     }
-    [data-testid="stSidebar"] * { color: #ffffff !important; font-weight: 500; }
 
-    /* 3. Glassmorphism Dashboard Cards - Baay'ee Miidhagaa */
-    .metric-card {
-        background: rgba(255, 255, 255, 0.7); /* Translucent white */
-        backdrop-filter: blur(10px); /* Blur effect like glass */
-        -webkit-backdrop-filter: blur(10px);
-        padding: 30px;
-        border-radius: 24px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* 3. Sidebar Selection (Bita): Halluu Magariisa Jiddu-galeessaa */
+    div[data-testid="stSidebarUserContent"] .stRadio label {
+        background: rgba(16, 185, 129, 0.1) !important;
+        color: #34d399 !important;
+        border-radius: 12px !important;
+        border: 1px solid rgba(52, 211, 153, 0.3) !important;
+        padding: 12px 20px !important;
+        margin-bottom: 10px !important;
+        transition: 0.4s ease;
     }
-    .metric-card:hover {
+    div[data-testid="stSidebarUserContent"] .stRadio label:hover {
+        background: #10b981 !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 15px #10b981;
+    }
+
+    /* 4. Dashboard Cards: Glassmorphism Effect (Calaqqee Daawwitii) */
+    div[data-testid="stMetricWidget"], .metric-card {
+        background: rgba(255, 255, 255, 0.05) !important;
+        backdrop-filter: blur(15px) !important;
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 24px !important;
+        padding: 25px !important;
+        border: 1px solid rgba(52, 211, 153, 0.3) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5) !important;
+        transition: all 0.4s ease;
+    }
+    
+    div[data-testid="stMetricWidget"]:hover {
         transform: translateY(-10px);
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 15px 45px rgba(0, 168, 107, 0.15);
-        border: 1px solid #00a86b;
-    }
-    .metric-val { 
-        background: -webkit-linear-gradient(#1a2a23, #00a86b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 38px; 
-        font-weight: 900; 
-    }
-    .metric-label { color: #555; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; }
-
-    /* 4. Glassmorphism Form & Containers */
-    div[data-testid="stForm"], .login-box {
-        background: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(15px);
-        border-radius: 30px !important;
-        padding: 45px !important;
-        border: 1px solid rgba(255,255,255,0.4) !important;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1) !important;
+        background: rgba(16, 185, 129, 0.1) !important;
+        border: 1px solid #34d399 !important;
+        box-shadow: 0 15px 45px rgba(16, 185, 129, 0.2) !important;
     }
 
-    /* 5. Animated Buttons - Pro Touch */
+    /* 5. Metrics Value: Neon Emerald Glow */
+    [data-testid="stMetricValue"] {
+        color: #34d399 !important;
+        text-shadow: 0 0 15px rgba(52, 211, 153, 0.8);
+        font-weight: 900 !important;
+        font-size: 3.2rem !important;
+    }
+
+    /* 6. Buttons: Animated Emerald Gradient */
     .stButton>button {
-        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%);
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
         color: white !important;
-        border-radius: 15px;
-        border: none;
-        padding: 15px 25px;
-        font-weight: 700;
+        border-radius: 50px !important;
+        border: none !important;
+        padding: 12px 30px !important;
+        font-weight: 700 !important;
         text-transform: uppercase;
         letter-spacing: 1px;
         transition: 0.3s all ease;
     }
     .stButton>button:hover {
-        box-shadow: 0 10px 20px rgba(0, 168, 107, 0.4);
-        transform: scale(1.02);
-        filter: brightness(1.1);
+        box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
+        transform: scale(1.05);
+    }
+
+    /* 7. Input Fields: Refined Dark Glass */
+    .stTextInput input {
+        background-color: rgba(0, 0, 0, 0.3) !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(52, 211, 153, 0.3) !important;
+        border-radius: 12px !important;
+    }
+    .stTextInput input:focus {
+        border-color: #10b981 !important;
+        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important;
     }
     
-    /* Input fields refinement */
-    .stTextInput>div>div>input {
-        border-radius: 12px !important;
-        background-color: rgba(255,255,255,0.5) !important;
+    /* 8. Headings: White Clarity */
+    h1, h2, h3 {
+        color: #ffffff !important;
+        font-weight: 800 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -239,6 +257,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
