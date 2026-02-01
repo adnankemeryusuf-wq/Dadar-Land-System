@@ -11,108 +11,95 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Ultra-Attractive & Professional UI
+# Custom CSS for Global Attractive Transformation
 st.markdown("""
     <style>
-    /* 1. Background: Mesh Gradient softer look with smooth animation */
+    /* 1. Halluu Waliigalaa (Global Background) - Bifa lallaafaa calaqqisu */
     .stApp {
-        background: radial-gradient(circle at 0% 0%, #f0fdf4 0%, #ffffff 50%, #fffdf0 100%);
+        background: linear-gradient(120deg, #f0fdf4 0%, #ffffff 40%, #f9fafb 70%, #fffbeb 100%);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
     }
     
-    /* 2. Sidebar: Floating Glass Effect */
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* 2. Sidebar: Halluu "Glassmorphism" ifaa fi qulqulluu */
     [data-testid="stSidebar"] {
-        background: rgba(255, 255, 255, 0.95) !important;
-        backdrop-filter: blur(25px);
-        border-right: 1px solid rgba(0, 168, 107, 0.15);
-        box-shadow: 5px 0 25px rgba(0,0,0,0.03);
+        background: rgba(255, 255, 255, 0.9) !important;
+        backdrop-filter: blur(20px);
+        border-right: 2px solid #00a86b33;
     }
 
-    /* Sidebar Logo/Title Area Glow */
-    .st-emotion-cache-16umgz6 {
-        background: linear-gradient(90deg, #00a86b22, transparent);
-        border-radius: 0 50px 50px 0;
+    /* 3. Barreeffama & Filannoo Sidebar */
+    [data-testid="stSidebarUserContent"] .stRadio label {
+        background: white !important;
+        border-radius: 12px !important;
+        border: 1px solid #f0f0f0 !important;
+        color: #1a2a23 !important;
+        font-weight: 600 !important;
+        margin-bottom: 10px !important;
+        transition: 0.3s all ease-in-out;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.02);
     }
-    
-    /* 3. Sidebar Radio Buttons: Animated Pills */
-    div[data-testid="stSidebarUserContent"] .stRadio > div {
-        gap: 10px;
-    }
-    
-    div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: white;
-        border-radius: 15px;
-        padding: 12px 25px !important;
-        border: 1px solid #f0f0f0;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-    
+
     div[data-testid="stSidebarUserContent"] .stRadio label:hover {
-        border-color: #00a86b;
+        transform: translateX(8px);
+        border-color: #00a86b !important;
+        background: #f0fdf4 !important;
         color: #00a86b !important;
-        transform: scale(1.05) translateX(10px);
-        box-shadow: 0 10px 20px rgba(0, 168, 107, 0.1);
     }
 
-    /* 4. Dashboard Cards: 3D Elevation & Golden Glow */
+    /* 4. Saanduqoota Gabaasaa (Metric Cards) - Bifa "Diamond" Elevation */
     div[data-testid="stMetricWidget"], .metric-card {
         background: white !important;
-        border-radius: 30px !important;
-        padding: 35px !important;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04) !important;
-        border: 1px solid #f8f9fa !important;
-        border-left: 8px solid #00a86b !important; /* Bold Emerald accent */
-        transition: 0.5s ease;
+        border-radius: 25px !important;
+        padding: 30px !important;
+        border: 1px solid rgba(0, 168, 107, 0.1) !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+        transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
-    
+
     div[data-testid="stMetricWidget"]:hover {
-        transform: translateY(-15px);
-        box-shadow: 0 25px 50px rgba(0, 168, 107, 0.15) !important;
-        border-left: 8px solid #d4af37 !important; /* Switches to Gold on hover */
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(0, 168, 107, 0.1) !important;
+        border-bottom: 5px solid #d4af37 !important; /* Gold line on hover */
     }
-    
-    .metric-val { 
-        background: linear-gradient(135deg, #1a2a23 0%, #00a86b 100%);
+
+    /* 5. Halluu Lakkoofsaa (Metric Value) */
+    .metric-val {
+        background: linear-gradient(90deg, #00a86b, #004d32);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        font-size: 45px !important;
-        font-weight: 900 !important;
-    }
-
-    /* 5. Buttons: The "Shine" Animation */
-    .stButton>button {
-        background: linear-gradient(135deg, #00a86b 0%, #004d32 100%) !important;
-        color: white !important;
-        border-radius: 20px !important;
-        border: none !important;
-        padding: 18px 45px !important;
         font-weight: 800 !important;
-        text-transform: uppercase;
-        letter-spacing: 1.5px;
-        box-shadow: 0 10px 30px rgba(0, 168, 107, 0.3) !important;
-        position: relative;
-        overflow: hidden;
-    }
-    
-    .stButton>button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 40px rgba(0, 168, 107, 0.45) !important;
-        filter: brightness(1.1);
     }
 
-    /* 6. Form/Input Refinement: Modern Focus */
-    .stTextInput input {
-        border-radius: 18px !important;
-        border: 2px solid #f0f0f0 !important;
-        background: #fdfdfd !important;
-        padding: 15px !important;
-        transition: 0.3s;
+    /* 6. Button-nii (Buttons) - Halluu "Glowing Emerald" */
+    .stButton>button {
+        background: linear-gradient(135deg, #00a86b 0%, #007d51 100%) !important;
+        color: white !important;
+        border-radius: 15px !important;
+        padding: 12px 30px !important;
+        font-weight: 700 !important;
+        border: none !important;
+        box-shadow: 0 4px 15px rgba(0, 168, 107, 0.3) !important;
+        transition: 0.4s all;
     }
-    
-    .stTextInput input:focus {
-        border-color: #00a86b !important;
-        background: white !important;
-        box-shadow: 0 0 15px rgba(0, 168, 107, 0.1) !important;
+
+    .stButton>button:hover {
+        background: linear-gradient(135deg, #00ffa2 0%, #00a86b 100%) !important;
+        box-shadow: 0 8px 25px rgba(0, 255, 162, 0.4) !important;
+        transform: scale(1.05);
+    }
+
+    /* 7. Bakka Galchaa (Input Fields) */
+    .stTextInput input, .stSelectbox div {
+        border-radius: 12px !important;
+        border: 1px solid #e2e8f0 !important;
+        padding: 10px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -267,6 +254,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
