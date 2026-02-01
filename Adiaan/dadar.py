@@ -85,7 +85,7 @@ else:
             st.image(LOGO_PATH, width=100)
         st.markdown("<h3 style='text-align:center;'>WAJJIRA LAFAA</h3>", unsafe_allow_html=True)
         st.markdown("---")
-        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📈 Gabaasa Galii", "🚪 Ba'i"])
+        menu = st.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📈 Gabaasa Galii", "🚪 Logout"])
 
     if menu == "📊 Dashboard":
         # 3. LOGO ON DASHBOARD HEADER
@@ -193,6 +193,7 @@ else:
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
