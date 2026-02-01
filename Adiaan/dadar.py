@@ -11,25 +11,25 @@ DATA_FILE = "dadar_final_report.txt"
 
 st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
-# Custom CSS for Ultra-Modern Executive UI
+# Custom CSS for Ultra-Modern Executive UI (Fixed & Optimized)
 st.markdown("""
     <style>
-    /* 1. Background: Minimalist Soft Gradient with Animated Aura */
+    /* 1. Background: Minimalist Soft Gradient */
     .stApp {
         background: radial-gradient(circle at 50% 50%, #f0fdf4 0%, #ffffff 100%);
         background-attachment: fixed;
     }
     
-    /* 2. Sidebar: High-End Midnight Glass */
+    /* 2. Sidebar: High-End Midnight Glass with Smooth Border */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg,#1a2a290%, #062c1a 100%) !important;
-        border-right: 3px solid #1a2a29 !important;
+        background: linear-gradient(180deg, #1a2a29 0%, #062c1a 100%) !important;
+        border-right: 3px solid #00ffa2 !important;
         box-shadow: 10px 0 30px rgba(0,0,0,0.1);
     }
 
     /* 3. Sidebar Radio: Premium Pill Style */
     div[data-testid="stSidebarUserContent"] .stRadio label {
-        background: rgba(255, 255, 255, 0.03) !important;
+        background: rgba(255, 255, 255, 0.05) !important;
         color: #e0e0e0 !important;
         border-radius: 20px !important;
         border: 1px solid rgba(0, 255, 162, 0.1) !important;
@@ -53,7 +53,7 @@ st.markdown("""
         border-radius: 30px !important;
         padding: 30px !important;
         border: 1px solid rgba(255, 255, 255, 0.5) !important;
-        border-bottom: 6px solid #062c1a !important; /* Bottom accent */
+        border-bottom: 6px solid #1a2a29 !important; 
         box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05) !important;
         transition: 0.5s all ease;
     }
@@ -66,17 +66,17 @@ st.markdown("""
     
     /* 5. Metrics Value Typography */
     [data-testid="stMetricValue"] {
-        background: linear-gradient(90deg, #062c1a, #1a8a5a);
+        background: linear-gradient(90deg, #1a2a29, #1a8a5a);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 900 !important;
         font-size: 3.5rem !important;
     }
 
-    /* 6. Professional Buttons: Silk Emerald */
+    /* 6. Professional Buttons: High-Contrast Silk */
     .stButton>button {
-        background: #062c1a !important;
-        color: #1a2a29 !important;
+        background: #1a2a29 !important;
+        color: #00ffa2 !important;
         border: 1px solid #00ffa2 !important;
         border-radius: 12px !important;
         padding: 14px 40px !important;
@@ -87,8 +87,8 @@ st.markdown("""
     
     .stButton>button:hover {
         background: #00ffa2 !important;
-        color: #062c1a !important;
-        box-shado#1a2a29w: 0 0 25px rgba(0, 255, 162, 0.5) !important;
+        color: #1a2a29 !important;
+        box-shadow: 0 0 25px rgba(0, 255, 162, 0.5) !important;
         transform: translateY(-3px);
     }
 
@@ -256,6 +256,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
