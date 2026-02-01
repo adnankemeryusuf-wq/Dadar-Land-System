@@ -22,8 +22,8 @@ st.markdown("""
     
     /* 2. Sidebar: High-End Midnight Glass */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #020d08 0%, #062c1a 100%) !important;
-        border-right: 3px solid #00ffa2 !important;
+        background: linear-gradient(180deg,#1a2a290%, #062c1a 100%) !important;
+        border-right: 3px solid #1a2a29 !important;
         box-shadow: 10px 0 30px rgba(0,0,0,0.1);
     }
 
@@ -256,6 +256,7 @@ else:
     elif menu == "🚪 Ba'i":
         st.session_state.logged_in = False
         st.rerun()
+
 
 
 
