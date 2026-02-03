@@ -228,8 +228,7 @@ else:
                         new_row = [datetime.now().strftime('%d/%m/%Y %H:%M'), name, ara, qaxana, ", ".join(details), ogeessa, total]
                         df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
                         save_data(df); st.success("✅ Galmeeffameera!")
-                        st.download_button("📥 Nagahee PDF", create_receipt_pdf(new_row), f"Nagahee_{name}.pdf")
-
+                        
     elif menu == "📜 Clearance (Ragaa)":
         st.header("📜 Waraqaa Qulqullinaa")
         up_col1, up_col2 = st.columns(2)
@@ -296,6 +295,7 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
 
