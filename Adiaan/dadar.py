@@ -164,7 +164,7 @@ if not st.session_state.logged_in:
     _, col, _ = st.columns([1, 1.5, 1])
     with col:
         if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, width=180)
-        st.markdown("<h1 class='main-title'>Dadar Land Admin</h1>", unsafe_allow_html=True)
+        st.markdown("<h1 class='main-title'>Dadar Land Customer Registration System</h1>", unsafe_allow_html=True)
         with st.form("login"):
             u, p = st.text_input("Username"), st.text_input("Password", type="password")
             if st.form_submit_button("SEENI"):
@@ -295,3 +295,4 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
