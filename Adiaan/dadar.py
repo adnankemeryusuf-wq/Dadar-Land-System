@@ -8,14 +8,14 @@ from datetime import datetime
 from fpdf import FPDF
 from ethiopian_date import EthiopianDateConverter
 
+
 # ================= 1. CONFIGURATION & STYLE =================
+st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 BOT_TOKEN = "8357193631:AAHCuSnXzjZTQaglkmcS0gq-EvqnkIQLDBI"
 CHAT_ID_MANAGER = "7329587700"
-st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 LOGO_PATH = "Adiaan/logo.png" 
 DATA_FILE = "dadar_final_report.txt"
 
-st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
 
 st.markdown("""
     <style>
@@ -296,5 +296,6 @@ else:
 
     elif menu == "🚪 Logout":
         st.session_state.logged_in = False; st.rerun()
+
 
 
