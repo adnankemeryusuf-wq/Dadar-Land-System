@@ -1,116 +1,155 @@
 import streamlit as st
-import pandas as pd
-import sqlite3
+import pd as pd
 import os
-import io
-import requests
-import tempfile
 from datetime import datetime
 from fpdf import FPDF
 import plotly.express as px
 
-# ================= 1. CONFIGURATION & DATABASE =================
-DB_NAME = "dadar_land_system.db"
+================= 1. CONFIGURATION =================
 LOGO_PATH = "Adiaan/logo.png"
+DATA_FILE = "dadar_final_report.txt"
+COL_NAMES = ['Guyyaa', 'Maqaa_Abbaa_Dhimmaa', 'Araddaa', 'Qaxana', 'Gosa_Tajajjilaa', 'Maqaa_Ogeessa', 'Kafaltii_Taj']
 
-def init_db():
-    conn = sqlite3.connect(DB_NAME)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS records
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-                  guyyaa TEXT, maqaa_abbaa_dhimmaa TEXT, araddaa TEXT, 
-                  qaxana TEXT, gosa_tajaajilaa TEXT, maqaa_ogeessa TEXT, 
-                  kafaltii_taj REAL)''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
-# ================= 2. UI & STYLE =================
-st.set_page_config(page_title="Dadar Land Admin Premium", layout="wide", page_icon="🏢")
+================= 2. UI STYLE (CENTERING) =================
+st.set_page_config(page_title="Dadar Land Admin", page_icon="🏢", layout="wide")
 
 st.markdown("""
-    <style>
-    .card { background-color: #ffffff; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 5px solid #10b981; }
-    div[data-testid="stSidebarUserContent"] .stRadio label { background-color: #10b981 !important; color: #000000 !important; border-radius: 10px; font-weight: 700; }
-    </style>
-    """, unsafe_allow_html=True)
+<style>
+/* Bakka login giddu-galeessa gochuuf */
+.main { background-color: #f0f2f6; }
+.stButton>button { width: 100%; border-radius: 5px; height: 3em; background-color: #2e7d32; color: white; }
+div[data-testid="stVerticalBlock"] > div:has(div.login-box) {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+}
+.login-box {
+background-color: #ffffff;
+padding: 40px;
+border-radius: 15px;
+box-shadow: 0px 10px 25px rgba(0,0,0,0.1);
+text-align: center;
+border-top: 8px solid #2e7d32;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# ================= 3. PDF & EXPORT FUNCTIONS =================
-def create_receipt_pdf(data):
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", 'B', 16)
-    pdf.cell(0, 10, "WAAJJIRA LAFAA MAGAALAA DADAR", ln=True, align='C')
-    pdf.set_font("Arial", '', 12)
-    pdf.cell(0, 10, f"Maqaa: {data[2]} | Guyyaa: {data[1]}", ln=True)
-    pdf.cell(0, 10, f"Kaffaltii: {data[7]:,.2f} ETB", ln=True)
-    return pdf.output(dest='S').encode('latin-1')
+================= 3. FUNCTIONS =================
+def load_data():
+if not os.path.exists(DATA_FILE) or os.stat(DATA_FILE).st_size == 0:
+return pd.DataFrame(columns=COL_NAMES)
+df = pd.read_csv(DATA_FILE, sep="|", names=COL_NAMES, header=None, encoding='utf-8')
+df['Kafaltii_Taj'] = pd.to_numeric(df['Kafaltii_Taj'], errors='coerce').fillna(0)
+return df
 
-# ================= 4. AUTHENTICATION =================
-if 'logged_in' not in st.session_state: st.session_state.logged_in = False
+def save_data(df_to_save):
+df_to_save[COL_NAMES].to_csv(DATA_FILE, sep="|", index=False, header=False, encoding="utf-8")
+
+================= 4. LOGIN SCREEN (CENTERED) =================
+if 'logged_in' not in st.session_state:
+st.session_state.logged_in = False
 
 if not st.session_state.logged_in:
-    with st.form("login"):
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.form_submit_button("SEENI"):
-            if u == "admin" and p == "123":
-                st.session_state.logged_in = True
-                st.rerun()
-            else: st.error("Username ykn Password dogoggora!")
+# Space vertically to center
+st.markdown("<br><br><br>", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns([1, 1.5, 1])
+
+with col2:
+st.markdown('<div class="login-box">', unsafe_allow_html=True)
+if os.path.exists(LOGO_PATH):
+st.image(LOGO_PATH, width=100)
+st.header("Dadar Land Administration")
+st.write("Customer Registration System")
+
+with st.form("Login"):
+user = st.text_input("Username")
+password = st.text_input("Password", type="password")
+submit = st.form_submit_button("SEENI / LOGIN")
+
+if submit:
+if user == "admin" and password == "2026":
+st.session_state.logged_in = True
+st.rerun()
 else:
-    # Sidebar
-    with st.sidebar:
-        if os.path.exists(LOGO_PATH): st.image(LOGO_PATH, use_container_width=True)
-        menu = st.radio("Filannoo", ["📊 Dashboard", "📝 Galmee Tajaajilaa", "📜 Gabaasa & Export", "🚪 Logout"])
+st.error("Username ykn Password dogoggora!")
+st.markdown('</div>', unsafe_allow_html=True)
 
-    # --- DASHBOARD ---
-    if menu == "📊 Dashboard":
-        st.title("📊 Dashboard")
-        conn = sqlite3.connect(DB_NAME)
-        df = pd.read_sql_query("SELECT * FROM records", conn)
-        conn.close()
-        
-        if not df.empty:
-            c1, c2, c3 = st.columns(3)
-            c1.metric("Waliigala Galii", f"{df['kafaltii_taj'].sum():,.2f} ETB")
-            c2.metric("Maamiltoota", len(df))
-            
-            fig = px.pie(df, names='gosa_tajaajilaa', values='kafaltii_taj', title="Galii Gosa Tajaajilaan")
-            st.plotly_chart(fig, use_container_width=True)
+================= 5. MAIN SYSTEM =================
+else:
+df = load_data()
 
-    # --- GALMEE ---
-    elif menu == "📝 Galmee Tajaajilaa":
-        with st.form("reg_form"):
-            name = st.text_input("Maqaa Abbaa Dhimmaa")
-            ara = st.text_input("Araddaa")
-            qax = st.text_input("Qaxana")
-            serv = st.selectbox("Tajaajila", ["Kaartaa Haaraa", "Gibira", "Pilaanii"])
-            fee = st.number_input("Kaffaltii (ETB)", min_value=0.0)
-            
-            if st.form_submit_button("💾 GALMEESSI"):
-                conn = sqlite3.connect(DB_NAME)
-                c = conn.cursor()
-                c.execute("INSERT INTO records (guyyaa, maqaa_abbaa_dhimmaa, araddaa, qaxana, gosa_tajaajilaa, kafaltii_taj) VALUES (?,?,?,?,?,?)",
-                          (datetime.now().strftime('%Y-%m-%d'), name, ara, qax, serv, fee))
-                conn.commit()
-                conn.close()
-                st.success("✅ Galmeeffameera!")
+# Sidebar Navigation
+if os.path.exists(LOGO_PATH):
+st.sidebar.image(LOGO_PATH, width=100)
+st.sidebar.title("Main Menu")
+menu = st.sidebar.radio("FILANNOO", ["📊 Dashboard", "📝 Galmee Haaraa", "📈 Gabaasa", "🏆 Badhaasa", "🔍 Barbaadi", "Logout"])
 
-    # --- Gabaasa & Export ---
-    elif menu == "📜 Gabaasa & Export":
-        conn = sqlite3.connect(DB_NAME)
-        df = pd.read_sql_query("SELECT * FROM records", conn)
-        conn.close()
-        st.dataframe(df)
-        
-        # Excel Export
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False)
-        st.download_button("📥 Excel Buufadhu", output.getvalue(), "Gabaasa.xlsx")
+if menu == "Logout":
+st.session_state.logged_in = False
+st.rerun()
 
-    elif menu == "🚪 Logout":
-        st.session_state.logged_in = False
-        st.rerun()
+elif menu == "📊 Dashboard":
+st.title("📊 Dashboard")
+if not df.empty:
+c1, c2, c3 = st.columns(3)
+c1.metric("💰 Waliigala Galii", f"{df['Kafaltii_Taj'].sum():,.2f} ETB")
+c2.metric("👥 Maamiltootaa", len(df))
+c3.metric("👷 Ogeeyyii", df['Maqaa_Ogeessa'].nunique())
+
+fig = px.bar(df.groupby('Gosa_Tajajjilaa')['Kafaltii_Taj'].sum().reset_index(),
+x='Gosa_Tajajjilaa', y='Kafaltii_Taj', title="Galii Gosa Tajaajilaan")
+st.plotly_chart(fig, use_container_width=True)
+
+elif menu == "📝 Galmee Haaraa":
+st.title("📝 Galmee Tajaajilaa Haaraa")
+# --- SERVICE STRUCTURE ---
+SERVICE_STRUCTURE = {
+"🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax) 2%"],
+"📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Sirreeffama Daangaa"],
+"🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa", "Hayyama Ijaarsaa"],
+"⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
+"📂 Tajaajila Biroo": ["Waraqaa Qulqullummaa", "Deebii Iyyannoo"],
+"⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"]
+}
+
+with st.form("reg_form"):
+col1, col2 = st.columns(2)
+name = col1.text_input("Maqaa Abbaa Dhimmaa")
+ara = col1.text_input("Araddaa")
+qax = col2.text_input("Qaxana")
+og = col2.text_input("Maqaa Ogeessaa")
+
+cat_choice = st.selectbox("Ramaddii Tajaajilaa", list(SERVICE_STRUCTURE.keys()))
+serv_choice = st.selectbox("Gosa Tajaajilaa", SERVICE_STRUCTURE[cat_choice])
+
+fee_input = st.number_input("Kaffaltii (ETB)", min_value=0.0)
+final_fee = fee_input * 0.02 if "TOT" in serv_choice else fee_input
+
+if st.form_submit_button("💾 GALMEESSI"):
+if name and og:
+new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, serv_choice, og, final_fee]
+df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+save_data(df)
+st.success(f"✅ Galmeeffameera! Kaffaltii: {final_fee:,.2f} ETB")
+
+elif menu == "📈 Gabaasa":
+st.title("📈 Gabaasa Waliigalaa")
+st.dataframe(df, use_container_width=True)
+st.download_button("📥 CSV Buufadhu", df.to_csv(index=False), "gabaasa.csv")
+
+elif menu == "🔍 Barbaadi":
+st.title("🔍 Barbaadi / Haqii")
+q = st.text_input("Maqaa Barbaadi...")
+if q:
+results = df[df['Maqaa_Abbaa_Dhimmaa'].str.contains(q, case=False, na=False)]
+st.dataframe(results)
+idx = st.selectbox("ID Haquuf:", results.index)
+if st.button("🗑 Haqii"):
+df = df.drop(idx)
+save_data(df)
+st.rerun()
+
+
+
