@@ -74,27 +74,39 @@ else:
                      x='Gosa_Tajajjilaa', y='Kafaltii_Taj', title="Galii Gosa Tajaajilaan")
         st.plotly_chart(fig, use_container_width=True)
 
-    elif menu == "📝 Galmee Haaraa":
+        elif menu == "📝 Galmee Haaraa":
         st.title("📝 Galmee Tajaajilaa Haaraa")
+        
+        # --- SERVICE STRUCTURE ---
         SERVICE_STRUCTURE = {
-            "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "TOT (Turnover Tax) 2%"],
-            "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Kadastaaraa"],
-            "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Hayyama Ijaarsaa"]
+            "🏷 Gibira & Kaffaltii": ["Gibira Baaxii Gooroo", "Gibira Lafa Qonnaa", "Kaffaltii Liizii Waggaa", "TOT (Turnover Tax) 2%"],
+            "📜 Kaartaa & Qabiyyee": ["Kaartaa Haaraa", "Kaartaa Bakka Bu'aa", "Kaartaa Kadastaaraa", "Sirreeffama Daangaa"],
+            "🏗 Pilaanii & Ijaarsa": ["Pilaanii Magaalaa", "Itti Fayyadama Lafaa", "Hayyama Ijaarsaa"],
+            "⚖️ Dhimma Seeraa": ["Ugura Mana Murtii", "Ugura Kaasuu", "Waliigaltee Liqii Baankii"],
+            "📂 Tajaajila Biroo": ["Waraqaa Qulqullummaa", "Deebii Iyyannoo"],
+            "⚖️ Adabbii & Seeressuu": ["Adabbii Ijaarsa Seeraan Alaa", "Kaffaltii Seeressuu"]
         }
+        
         with st.form("reg_form"):
-            name = st.text_input("Maqaa Abbaa Dhimmaa")
-            ara = st.text_input("Araddaa")
-            qax = st.text_input("Qaxana")
-            og = st.text_input("Maqaa Ogeessaa")
-            cat = st.selectbox("Ramaddii", list(SERVICE_STRUCTURE.keys()))
-            serv = st.selectbox("Tajaajila", SERVICE_STRUCTURE[cat])
-            fee = st.number_input("Kaffaltii (ETB)", min_value=0.0)
+            col1, col2 = st.columns(2)
+            name = col1.text_input("Maqaa Abbaa Dhimmaa")
+            ara = col1.text_input("Araddaa")
+            qax = col2.text_input("Qaxana")
+            og = col2.text_input("Maqaa Ogeessaa")
             
+            cat_choice = st.selectbox("Ramaddii Tajaajilaa", list(SERVICE_STRUCTURE.keys()))
+            serv_choice = st.selectbox("Gosa Tajaajilaa", SERVICE_STRUCTURE[cat_choice])
+            
+            fee_input = st.number_input("Kaffaltii (ETB)", min_value=0.0)
+            final_fee = fee_input * 0.02 if "TOT" in serv_choice else fee_input
+
             if st.form_submit_button("💾 GALMEESSI"):
-                new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, serv, og, fee]
-                df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
-                save_data(df)
-                st.success("✅ Galmeeffameera!")
+                if name and og:
+                    new_row = [datetime.now().strftime('%d/%m/%Y'), name, ara, qax, serv_choice, og, final_fee]
+                    df = pd.concat([df, pd.DataFrame([new_row], columns=COL_NAMES)], ignore_index=True)
+                    save_data(df)
+                    st.success(f"✅ Galmeeffameera! Kaffaltii: {final_fee:,.2f} ETB")
+
 
     elif menu == "📈 Gabaasa":
         st.title("📈 Gabaasa Waliigalaa")
